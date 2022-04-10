@@ -1,0 +1,6 @@
+name: FortressGuns
+version: '${project.version}'
+main: me.camm.productions.fortressguns.FortressGuns
+api-version: 1.17
+authors: [ CAMM_H87 ]
+description: Gun Plugin version 3, with new Artillery and guns.
