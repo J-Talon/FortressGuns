@@ -132,7 +132,7 @@ public class ArtilleryPart extends EntityArmorStand
                 if (itemstack.isEmpty()) {
                     EnumItemSlot enumitemslot1 = this.i(vec3d);
                     EnumItemSlot enumitemslot2 = this.d(enumitemslot1) ? enumitemslot : enumitemslot1;
-                    if (this.a((EnumItemSlot)enumitemslot2) && this.a(entityhuman, enumitemslot2, itemstack, enumhand)) {
+                    if (this.a(enumitemslot2) && this.a(entityhuman, enumitemslot2, itemstack, enumhand)) {
                         return EnumInteractionResult.a;
                     }
                 } else {

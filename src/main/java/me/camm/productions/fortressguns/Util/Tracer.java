@@ -10,10 +10,10 @@ import java.util.List;
 
 public class Tracer
 {
-    private Vector direction;
-    private Vector origin;
+    private final Vector direction;
+    private final Vector origin;
     private double strength;
-    private World world;
+    private final World world;
 
     public Tracer(Vector direction, Vector origin, World world) {
         this.direction = direction;

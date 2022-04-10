@@ -14,7 +14,7 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public abstract class FieldArtillery extends Artillery

@@ -93,7 +93,7 @@ public class ArtilleryCore extends ArtilleryPart {
                 if (itemstack.isEmpty()) {
                     EnumItemSlot enumitemslot1 = this.i(vec3d);
                     EnumItemSlot enumitemslot2 = this.d(enumitemslot1) ? enumitemslot : enumitemslot1;
-                    if (this.a((EnumItemSlot)enumitemslot2) && this.seatPlayer(entityhuman, enumitemslot2, itemstack)) {
+                    if (this.a(enumitemslot2) && this.seatPlayer(entityhuman, enumitemslot2, itemstack)) {
                         return EnumInteractionResult.a;
                     }
                 } else {
