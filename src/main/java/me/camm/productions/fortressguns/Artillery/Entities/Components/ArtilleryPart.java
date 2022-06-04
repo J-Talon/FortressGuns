@@ -1,5 +1,8 @@
-package me.camm.productions.fortressguns.Artillery;
-import net.minecraft.network.chat.ChatMessage;
+package me.camm.productions.fortressguns.Artillery.Entities.Components;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
+import me.camm.productions.fortressguns.FortressGuns;
+import net.minecraft.core.Vector3f;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.EnumHand;
@@ -7,7 +10,6 @@ import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.entity.player.EntityHuman;
@@ -18,36 +20,67 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
-
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.EulerAngle;
 
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class ArtilleryPart extends EntityArmorStand
 {
     protected final Artillery body;
     protected final Material FIRE = Material.STICK;
-
-    public ArtilleryPart(EntityTypes<? extends EntityArmorStand> entitytypes, Artillery body, World world) {
-        super(entitytypes, world);
-        this.body = body;
-    }
+    protected boolean facesDown;
 
     public ArtilleryPart(World world, Artillery body, double d0, double d1, double d2) {
         super(world, d0, d1, d2);
         this.body = body;
-    }
-
-    public ArtilleryPart(org.bukkit.World world, Artillery body, Location loc){
-        this(((CraftWorld)world).getHandle(), body, loc.getX(),loc.getY(),loc.getZ());
+        this.facesDown = false;
     }
 
     public ArtilleryPart(World world, Artillery body, Location loc){
         this(world, body, loc.getX(),loc.getY(),loc.getZ());
     }
+
+    public boolean isFacesDown() {
+        return facesDown;
+    }
+
+    public void setFacesDown(boolean facesDown) {
+        this.facesDown = facesDown;
+    }
+
+    public Artillery getBody() {
+        return body;
+    }
+
+    public void teleport( double x, double y, double z) {
+        this.teleportAndSync(x,y,z);
+        this.g(x,y,z);
+    }
+
+    public void setRotation(float x, float y){
+        this.setHeadPose(new Vector3f((float)Math.toDegrees(x),(float)Math.toDegrees(y),0));
+    }
+
+    public void setRotation( EulerAngle angle) {
+        setRotation((float)angle.getX(),(float)angle.getY());
+    }
+
+
+    public void setPose(Vector3f rightArm, Vector3f leftArm, Vector3f body, Vector3f rightLeg, Vector3f leftLeg){
+
+        super.setRightArmPose(rightArm);
+        super.setLeftArmPose(leftArm);
+        super.setBodyPose(body);
+        super.setRightLegPose(rightLeg);
+        super.setLeftLegPose(leftLeg);
+    }
+
+
 
     @Override
     public boolean damageEntity(DamageSource source, float damage)
@@ -57,21 +90,43 @@ public class ArtilleryPart extends EntityArmorStand
         else
         {
             Entity entity = source.getEntity();
-            if (entity instanceof EntityHuman) {
+            if (!(entity instanceof EntityHuman)) {
+                return damageRaw(source, damage);
+            }
+
                 EntityHuman human = ((EntityHuman)entity);
+
+            List<Entity> riders;
+
+            if (body instanceof RapidFire)
+                riders = ((RapidFire)body).getRotatingSeat().getPassengers();
+            else
+                riders = body.getPivot().getPassengers();
+
+
+            if (riders.size() != 0) {
+
+                Entity e = riders.get(0);
+                if (human.equals(e))
+                    return false;
+            }
+
+
                 ItemStack holding = human.getItemInMainHand();
 
                org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
 
                 //if they punch the thing with a stick, fire the cannon instead.
                 Material mat = bukkitStack.getType();
-                if (mat == FIRE)
+                if (mat == FIRE) {
                     body.fire();
+                    return false;
+                }
                 else
                     return damageRaw(source, damage);
-            }
 
-            return damageRaw(source, damage);
+
+
         }
 
     }
@@ -112,6 +167,40 @@ public class ArtilleryPart extends EntityArmorStand
         return SoundEffects.gJ;
     }
 
+    public void seat(EntityHuman human){
+
+        if (!body.getType().isSeatable())
+            return;
+
+        ArtilleryCore core = body.getPivot();
+
+        if (core.getPassengers().size() > 0 || this.getPassengers().size() > 0)
+            return;
+
+
+        human.startRiding(this);
+        ArtilleryPart part = this;
+
+        new BukkitRunnable(){
+
+            public void run()
+            {
+
+                if (body.inValid()) {
+                    human.stopRiding();
+                    cancel();
+                }
+
+                Entity vehicle = human.getVehicle();
+                if (vehicle!= null && vehicle.equals(part)) {
+                    body.pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+                }
+                else
+                    cancel();
+            }
+        }.runTaskTimer(FortressGuns.getInstance(),0,1);
+    }
+
 
 
     /*
@@ -132,7 +221,7 @@ public class ArtilleryPart extends EntityArmorStand
                 if (itemstack.isEmpty()) {
                     EnumItemSlot enumitemslot1 = this.i(vec3d);
                     EnumItemSlot enumitemslot2 = this.d(enumitemslot1) ? enumitemslot : enumitemslot1;
-                    if (this.a(enumitemslot2) && this.a(entityhuman, enumitemslot2, itemstack, enumhand)) {
+                    if (this.a(enumitemslot2) && this.handleInteraction(entityhuman, enumitemslot2, itemstack)) {
                         return EnumInteractionResult.a;
                     }
                 } else {
@@ -144,7 +233,7 @@ public class ArtilleryPart extends EntityArmorStand
                         return EnumInteractionResult.e;
                     }
 
-                    if (this.a(entityhuman, enumitemslot, itemstack, enumhand)) {
+                    if (this.handleInteraction(entityhuman, enumitemslot, itemstack)) {
                         return EnumInteractionResult.a;
                     }
                 }
@@ -181,8 +270,11 @@ public class ArtilleryPart extends EntityArmorStand
     }
 
 
-    private boolean a(EntityHuman entityhuman, EnumItemSlot enumitemslot, ItemStack itemstack, EnumHand enumhand) {
-        ItemStack itemstack1 = this.getEquipment(enumitemslot);
+    private boolean handleInteraction(EntityHuman human, EnumItemSlot enumitemslot, ItemStack stack) {
+       // ItemStack itemstack1 = this.getEquipment(enumitemslot);
+        ArtilleryCore core = body.getPivot();
+        return core.handlePlayerInteract(human,stack);
+
 
         //if the itemstack is not empty and something bit shifting + 8 is not 0,
         /*
@@ -203,18 +295,16 @@ public class ArtilleryPart extends EntityArmorStand
         }
 
          */
-        double health = body.getHealth();
-        health *= 1000;
-        health = Math.round(health);
-        health /= 1000;
-        entityhuman.sendMessage(new ChatMessage("This artillery is on "+health+" Hp"),entityhuman.getUniqueID());
+
+
+
+
+
+
+
 
 
 
         //maybe open up an inventory here for loading and shooting?
-
-
-
-        return false;
     }
 }

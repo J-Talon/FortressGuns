@@ -1,33 +1,33 @@
-package me.camm.productions.fortressguns.Artillery;
+package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.HeavyMachineGun;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.network.chat.ChatMessage;
+import net.minecraft.network.protocol.game.PacketPlayOutNamedSoundEffect;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.sounds.SoundCategory;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.EnumHand;
 import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumItemSlot;
-import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class ArtilleryCore extends ArtilleryPart {
+import java.util.UUID;
 
-    public ArtilleryCore(EntityTypes<? extends EntityArmorStand> entitytypes, Artillery body, World world) {
-        super(entitytypes, body, world);
-    }
+public class ArtilleryCore extends ArtilleryPart {
 
     public ArtilleryCore(World world, Artillery body, double d0, double d1, double d2) {
         super(world, body, d0, d1, d2);
@@ -49,16 +49,35 @@ public class ArtilleryCore extends ArtilleryPart {
         return super.damageEntity(source, damage);
     }
 
+    @Override
+    public boolean startRiding(Entity e) {
+        return false;
+    }
+
 
     /*
     Note: may want to prevent this when the artillery is flak and it is aiming
      */
     public void seat(EntityHuman human){
-        if (body.getType() == ArtilleryType.MISSILE)
+
+        if (!body.getType().isSeatable())
             return;
+
+        if (this.getPassengers().size() > 0)
+            return;
+
+
+        if (body instanceof HeavyMachineGun) {
+            ArtilleryPart seat = ((HeavyMachineGun) body).getRotatingSeat();
+            seat.seat(human);
+            return;
+        }
+
+
 
         human.startRiding(this);
         ArtilleryCore core = this;
+
 
         new BukkitRunnable(){
 
@@ -70,7 +89,8 @@ public class ArtilleryCore extends ArtilleryPart {
                     cancel();
                 }
 
-                if (human.getVehicle() != null && human.getVehicle().equals(core)) {
+                Entity vehicle = human.getVehicle();
+                if (vehicle!= null && vehicle.equals(core)) {
                     body.pivot(Math.toRadians(Math.min(human.getXRot(),0)), Math.toRadians(human.getHeadRotation()));
                 }
                 else
@@ -79,21 +99,38 @@ public class ArtilleryCore extends ArtilleryPart {
         }.runTaskTimer(FortressGuns.getInstance(),0,1);
     }
 
+
+    //NMS methods that handle a player interacting with the armorstand.
+
     @Override
-    public EnumInteractionResult a(EntityHuman entityhuman, Vec3D vec3d, EnumHand enumhand)
+    public EnumInteractionResult a(EntityHuman entityhuman, Vec3D vec3d, EnumHand hand)
     {
-        ItemStack itemstack = entityhuman.b(enumhand);
-        if (!this.isMarker() && !itemstack.a(Items.rQ)) {
-            if (entityhuman.isSpectator()) {
+        //nms getting itemstack in the hand
+        //enumHand is either the main or offhand
+        //b() is getting the itemstack in the hand
+        ItemStack selected = entityhuman.b(hand);
+
+        //if the stand is not a marker, and the itemstack is not equal to a nametag
+        if (!this.isMarker() && !selected.a(Items.rQ))
+        {
+            if (entityhuman.isSpectator())
+            {
+                //a probably means cancelled or something
                 return EnumInteractionResult.a;
-            } else if (entityhuman.t.y) {
+            }
+            //something to do with the world
+            else if (entityhuman.t.y)
+            {
                 return EnumInteractionResult.b;
-            } else {
-                EnumItemSlot enumitemslot = EntityInsentient.getEquipmentSlotForItem(itemstack);
-                if (itemstack.isEmpty()) {
-                    EnumItemSlot enumitemslot1 = this.i(vec3d);
+            }
+            else
+            {
+                //it tries to put or remove the itemstack from the stand...?
+                EnumItemSlot enumitemslot = EntityInsentient.getEquipmentSlotForItem(selected);
+                if (selected.isEmpty()) {
+                    EnumItemSlot enumitemslot1 = this.findInteractionArea(vec3d);
                     EnumItemSlot enumitemslot2 = this.d(enumitemslot1) ? enumitemslot : enumitemslot1;
-                    if (this.a(enumitemslot2) && this.seatPlayer(entityhuman, enumitemslot2, itemstack)) {
+                    if (this.a(enumitemslot2) && this.handlePlayerInteract(entityhuman, selected)) {
                         return EnumInteractionResult.a;
                     }
                 } else {
@@ -105,7 +142,8 @@ public class ArtilleryCore extends ArtilleryPart {
                         return EnumInteractionResult.e;
                     }
 
-                    if (this.seatPlayer(entityhuman, enumitemslot, itemstack)) {
+                    //so this is where it tries to put the thing onto the hand. In this case, we override and cancel it.
+                    if (this.handlePlayerInteract(entityhuman, selected)) {
                         return EnumInteractionResult.a;
                     }
                 }
@@ -121,7 +159,8 @@ public class ArtilleryCore extends ArtilleryPart {
         return (this.cf & 1 << enumitemslot.getSlotFlag()) != 0 || enumitemslot.a() == EnumItemSlot.Function.a && !this.hasArms();
     }
 
-    private EnumItemSlot i(Vec3D vec3d) {
+    //this is for finding which part of the stand the player clicked?
+    private EnumItemSlot findInteractionArea(Vec3D vec3d) {
         EnumItemSlot enumitemslot = EnumItemSlot.a;
         boolean flag = this.isSmall();
         double d0 = flag ? vec3d.c * 2.0D : vec3d.c;
@@ -143,38 +182,54 @@ public class ArtilleryCore extends ArtilleryPart {
 
 
     //this.a(entityhuman, enumitemslot2, itemstack, enumhand)
-    private boolean seatPlayer(EntityHuman human, EnumItemSlot slot, ItemStack item) {
+    /*
+    When the player tries to put iron onto the stand, we cancel it and add health to the artillery, if possible.
+     */
+    public boolean handlePlayerInteract(EntityHuman human, ItemStack item) {
 
-        if (item != null) {
-            org.bukkit.inventory.ItemStack stack = CraftItemStack.asBukkitCopy(item);
-            Material mat = stack.getType();
-            if (mat==Material.IRON_INGOT) {
 
-                if (body.getHealth() >= body.getMaxHealth()) {
-                    human.sendMessage(new ChatMessage("Artillery is already at max Hp."),human.getUniqueID());
-                    return false;
-                }
+        if (!item.isEmpty())
+            return false;
 
-                if (item.getCount()==1)
-                    item = null;
-                else
-                    item.setCount(item.getCount()-1);
-
-                human.setSlot(slot, item);
-
-                body.setHealth(Math.min(body.getHealth()+5,body.getMaxHealth()));
-                human.sendMessage(new ChatMessage("Repaired artillery. (Now is at "+body.getHealth()+" Hp)"),human.getUniqueID());
-                human.playSound(SoundEffects.T,1,1);
-            }
+        // we first attempt to seat the player
+        if (human.getVehicle()!=null) {
             return false;
         }
 
-        if (human.getVehicle()==null) {
-            if (getPassengers().size()==0) {
-                seat(human);
-                human.sendMessage(new ChatMessage("Operating "+ ChatColor.RESET+body.getType().getName()+" Artillery."),human.getUniqueID());
-            }
+        if (getPassengers().size()!=0) {
+            return false;
         }
+
+        //if we cannot seat them, we try to open the inventory
+        if (human.isCrouching()) {
+            human.sendMessage(new ChatMessage("[DEBUG] - Open inventory. (Not implemented yet)"),UUID.randomUUID());
+            //open an inventory here with the operations
+            return false;
+        }
+
+
+         if (human instanceof EntityPlayer){
+
+
+                  //  (SoundEffect var0, SoundCategory var1, double var2, double var4, double var6, float var8, float var9)
+                    //sending a sound effect to the player.
+
+                    /*
+                    ai = arrow.hit.player
+                    a = master
+                     */
+
+
+
+             seat(human);
+             ((EntityPlayer)human).b.sendPacket(new PacketPlayOutNamedSoundEffect(SoundEffects.ai, SoundCategory.a,human.locX(),human.locY(), human.locZ(), 1f,1f));
+             human.sendMessage(new ChatMessage("Operating "+ ChatColor.RESET+body.getType().getName()+" Artillery."),UUID.randomUUID());
+         }
+
+
+
+
+
 
         return false;
     }

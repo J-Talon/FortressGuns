@@ -31,11 +31,13 @@ import javax.annotation.Nullable;
 public class Shell extends EntityArrow {
 
     private Entity terminus;
-    private static final int DISTANCE_CLOSE, DISTANCE_FAR;
+    private static final int DISTANCE_CLOSE, DISTANCE_FAR, DAMAGE;
 
     static {
-        DISTANCE_CLOSE =16;
+        DISTANCE_CLOSE = 16;
         DISTANCE_FAR = 400;
+        DAMAGE = 35;
+
     }
 
 
@@ -49,7 +51,7 @@ public class Shell extends EntityArrow {
     }
 
     private void init(){
-        this.setDamage(30);
+        this.setDamage(DAMAGE);
         this.setCritical(true);
         this.terminus = null;
     }
@@ -66,8 +68,10 @@ public class Shell extends EntityArrow {
 
 
 
+    //these methods are for when the shell hits an entity or block
     @Override
     protected void a(MovingObjectPositionEntity pos) {
+        super.a(pos);
      explode(pos);
     }
 
@@ -88,7 +92,7 @@ public class Shell extends EntityArrow {
 
         Location hit = new Location(world, hitLoc.getX(),hitLoc.getY(),hitLoc.getZ());
 
-        modifier = getModifier(mod,u,v,w,hit);
+        modifier = getModifier(mod, hit);
         this.die();
 
         if (pos instanceof MovingObjectPositionEntity) {
@@ -114,7 +118,7 @@ public class Shell extends EntityArrow {
 
     }
 
-    public void flyFlak(){
+    public void flyAsFlak(){
         if (this.mod != ModifierType.FLAK)
             return;
 
@@ -146,6 +150,7 @@ public class Shell extends EntityArrow {
                     if (distance2DSquared < DISTANCE_CLOSE || distance2DSquared > DISTANCE_FAR) {
                         shell.explodePrematurely();
                         cancel();
+                        return;
                     }
                 }
 
@@ -153,6 +158,7 @@ public class Shell extends EntityArrow {
                 {
                     shell.explodePrematurely();
                     cancel();
+                    return;
                 }
 
                 flightTime ++;
@@ -166,7 +172,7 @@ public class Shell extends EntityArrow {
         org.bukkit.World world = this.getWorld().getWorld();
         Location hit = new Location(world, u,v,w);
 
-        modifier = getModifier(mod,u,v,w,hit);
+        modifier = getModifier(mod, hit);
         this.die();
 
         if (modifier == null)
@@ -180,7 +186,7 @@ public class Shell extends EntityArrow {
 
 
 
-    private @Nullable IModifier getModifier(@Nullable ModifierType type, double x, double y, double z, Location hit){
+    private @Nullable IModifier getModifier(@Nullable ModifierType type, Location hit){
         if (type == null)
             return null;
 

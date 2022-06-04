@@ -1,33 +1,34 @@
-package me.camm.productions.fortressguns.Artillery;
+package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
 import me.camm.productions.fortressguns.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.ExplosionEffect;
-import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 public abstract class Artillery {
+
+
 
     protected Plugin plugin;
     protected ArtilleryPart[] barrel;
     protected ArtilleryPart[][] base;
     protected ArtilleryCore pivot;
     protected EulerAngle aim;//
+    protected final ChunkLoader handler;
 
 
     protected volatile double health;//--
@@ -38,6 +39,7 @@ public abstract class Artillery {
     protected World world;//
 
     protected boolean dead;//
+    protected boolean loaded;
 
     protected final static double LARGE_BLOCK_LENGTH = 0.6;
     protected final static double SMALL_BLOCK_LENGTH = 0.4;
@@ -64,12 +66,14 @@ public abstract class Artillery {
 
 
 
-    public Artillery(Location loc, World world) {
+    public Artillery(Location loc, World world, ChunkLoader loader) {
 
         this.plugin = FortressGuns.getInstance();
         this.loc = loc;
         this.world = world;
         this.lastFireTime = System.currentTimeMillis();
+        this.handler = loader;
+
 
         this.loaders = new HashSet<>();
         currentLargeLength = LARGE_BLOCK_LENGTH;
@@ -80,19 +84,37 @@ public abstract class Artillery {
         this.canFire = true;
     }
 
+    public abstract List<ArtilleryPart> getParts();
+
+
+    public EulerAngle getAim(){
+        return aim;
+    }
+
+    public Location getLoc(){
+        return loc;
+    }
+
     public synchronized void pivot(double vertAngle, double horAngle)
     {
-        if (inValid())
+        if (dead)
+            return;
+
+        if (inValid()) {
             remove(false, true);
+            dead = true;
+            return;
+        }
 
 
-        EulerAngle barrelAngle = null;
+        //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
         {
             ArtilleryPart stand = barrel[slot];
 
             double totalDistance;
 
+            //getting the distance from the pivot
             if (stand.isSmall())
                 totalDistance = (currentLargeLength*0.75 + 0.5*currentSmallLength) + (slot * currentSmallLength);
             else
@@ -101,39 +123,35 @@ public abstract class Artillery {
 
             //height of the aim
             double height = -totalDistance*Math.sin(vertAngle);
+
+            //hor dist of the aim component
             double horizontalDistance = totalDistance*Math.cos(vertAngle);
 
 
-            //x and z distances relative to the pivot
+            //x and z distances relative to the pivot from total hor distance
             double z = horizontalDistance*Math.cos(horAngle);
             double x = -horizontalDistance*Math.sin(horAngle);
 
 
-            if (barrelAngle == null) {
-                barrelAngle = new EulerAngle(vertAngle,horAngle,0);
-            }
 
-            StandHelper.setRotation(stand, barrelAngle);
-            //   stand.setHeadPose(barrelAngle);
+
+            aim = new EulerAngle(vertAngle,horAngle,0);
+            //setting the rotation of all of the barrel armorstands.
+            stand.setRotation(aim);
+            pivot.setRotation(aim);
+
 
             Location centre = pivot.getLocation(world).clone();
 
+            //teleporting the armorstands to be in line with the pivot
             if (stand.isSmall()) {
                 Location teleport = centre.add(x, height + 0.75, z);
-                StandHelper.teleport(stand,teleport.getX(),teleport.getY(),teleport.getZ());
-
+                stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
             }
             else {
                 Location teleport = centre.clone().add(x, height, z);
-                StandHelper.teleport(stand,teleport.getX(),teleport.getY(),teleport.getZ());
-
-                // stand.teleport(centre.clone().add(x, height, z));
+                stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
             }
-        }
-
-        if (barrelAngle!=null) {
-            StandHelper.setRotation(pivot, barrelAngle);
-            aim = barrelAngle;
         }
     }
 
@@ -144,10 +162,22 @@ public abstract class Artillery {
         return new double[]{x,z};
     }
 
+    public boolean chunkLoaded(){
+        return loaded;
+    }
+
+    public void setChunkLoaded(boolean loaded){
+        this.loaded = loaded;
+    }
+
 
     public abstract void fire(double power, int recoilTime,double barrelRecoverRate);
     public abstract void fire();
-    public abstract void spawn();
+    public void spawn() {
+        dead = false;
+        loaded = true;
+        world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
+    }
     public abstract ArtilleryType getType();
     public abstract boolean canFire();
     public abstract double getMaxHealth();
@@ -156,11 +186,9 @@ public abstract class Artillery {
         return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
     }
 
-    public final synchronized void remove(boolean dropItem, boolean exploded)
-    {
-        ArrayList<EntityArmorStand> components = new ArrayList<>(Arrays.asList(barrel));
-        Arrays.stream(base).forEach(armorstandList -> components.addAll(Arrays.asList(armorstandList)));
-        components.add(pivot);
+    public final synchronized void unload(boolean dropItem, boolean exploded) throws IllegalStateException {
+        List<ArtilleryPart> components = getParts();
+        components.forEach(Entity::die);
 
         Location loc = pivot.getLocation(world).clone();
 
@@ -172,21 +200,17 @@ public abstract class Artillery {
             ArtilleryItemCreator.packageArtillery(this);
         }
 
-
-
-        new BukkitRunnable()
-        {
-            @Override
-            public void run() {
-                components.forEach(Entity::die);
-                cancel();
-            }
-        }.runTask(plugin);
-
     }
 
-    public ArmorStand getPivot() {
-        return (ArmorStand)pivot.getBukkitEntity();
+    public final synchronized void remove(boolean dropItem, boolean exploded) throws IllegalStateException
+    {
+        handler.remove(loaders, this);
+        unload(dropItem, exploded);
+    }
+
+
+    public ArtilleryCore getPivot(){
+        return pivot;
     }
 
     public static boolean isFlashable(Block block) {
@@ -211,7 +235,7 @@ public abstract class Artillery {
     public boolean damage(DamageSource source, float damage){
 
         if (source.isExplosion()) {
-            damage *= DamageMultiplier.EXPLOSION.multiplier;
+            damage = Float.MAX_VALUE;
         }
         else if (source.isFire()) {
             damage *= DamageMultiplier.FIRE.multiplier;
@@ -263,7 +287,7 @@ public abstract class Artillery {
                 double z = totalDistance * Math.cos(rads);
                 double x = -totalDistance * Math.sin(rads);
 
-                Chunk chunk = world.getChunkAt(loc.getBlockX()+(int)x, loc.getBlockZ()+(int)z);
+                Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
                 loaders.add(chunk);
             }
     }

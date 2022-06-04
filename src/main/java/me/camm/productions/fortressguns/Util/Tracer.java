@@ -33,6 +33,7 @@ public class Tracer
 
     public HashSet<Block> breakBlocks(){
 
+
         double dist = 0;
         HashSet<Block> broken = new HashSet<>();
         while (strength > 0 && dist < 3) {

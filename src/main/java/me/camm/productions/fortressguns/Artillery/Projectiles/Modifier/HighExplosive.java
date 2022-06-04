@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 
+import static java.lang.Math.PI;
+
 public class HighExplosive implements IModifier {
 
     private final Location loc;
@@ -33,10 +35,20 @@ public class HighExplosive implements IModifier {
             return;
 
         ArrayList<Tracer> tracers = new ArrayList<>();
-        for (double vertical=90;vertical>=-90;vertical-=20)
+
+        //quarter = 90*
+        final double QUARTER = PI/2;
+
+        //20* inc
+        final double INCREMENT = 20*PI/180;
+
+        //360*
+        final double TWO_RADS = PI*2;
+
+        for (double vertical=QUARTER;vertical>=-(QUARTER);vertical-=INCREMENT)
         {
             double yComponent = Math.tan(vertical); //y value
-            for (double horizontal=0;horizontal<=360;horizontal+=20)
+            for (double horizontal=0;horizontal<=TWO_RADS;horizontal+=INCREMENT)
             {
                 double xComponent = Math.sin(horizontal);  //x Value of the vector
                 double zComponent = Math.cos(horizontal);  //z Value of the vector
@@ -61,6 +73,7 @@ public class HighExplosive implements IModifier {
                    HashSet<Block> broken = tracer.breakBlocks();
                    total.addAll(broken);
                 }
+                playExplosionEffects(world,loc);
 
                 for (Block block: total) {
 

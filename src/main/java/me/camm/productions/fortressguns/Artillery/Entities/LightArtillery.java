@@ -1,10 +1,18 @@
-package me.camm.productions.fortressguns.Artillery;
+package me.camm.productions.fortressguns.Artillery.Entities;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class LightArtillery extends FieldArtillery
 {
@@ -12,17 +20,19 @@ public class LightArtillery extends FieldArtillery
     private static final int TIME;
     private static final double RECOVER_RATE;
     private static final double HEALTH;
+    private static final long FIRE_COOLDOWN;
 
     static {
         POWER = 4;
         TIME = 1;
         RECOVER_RATE = 0.15;
-        HEALTH = 20;
+        HEALTH = 40;
+        FIRE_COOLDOWN = 1000;
     }
 
 
-    public LightArtillery(Location loc, World world) {
-        super(loc, world);
+    public LightArtillery(Location loc, World world, ChunkLoader loader) {
+        super(loc, world,loader);
         barrel = new ArtilleryPart[5];
         base = new ArtilleryPart[3][3];
     }
@@ -38,6 +48,9 @@ public class LightArtillery extends FieldArtillery
     }
 
 
+    public synchronized boolean canFire(){
+        return canFire && System.currentTimeMillis()-lastFireTime >= FIRE_COOLDOWN;
+    }
 
     @Override
     public ArtilleryType getType() {
@@ -53,6 +66,7 @@ public class LightArtillery extends FieldArtillery
     public void spawn()
     {
 
+        super.spawn();
         pivot = StandHelper.getCore(loc, BODY, aim, world, this);
         for (int slot=0;slot< barrel.length;slot++)
         {
@@ -125,8 +139,19 @@ public class LightArtillery extends FieldArtillery
                 rads += 2 * Math.PI / 3;
         }
         initLoadedChunks();
-        setHealth(HEALTH);
-        pivot(0,0);
+        if (health <= 0)
+            setHealth(HEALTH);
+      //  pivot(0,0);
+
+    }
+
+    @Override
+    public List<ArtilleryPart> getParts(){
+        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (ArtilleryPart[] segment: base)
+            parts.addAll(Arrays.asList(segment));
+        parts.add(pivot);
+        return parts;
 
     }
 

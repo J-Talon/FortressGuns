@@ -1,8 +1,11 @@
-package me.camm.productions.fortressguns.Artillery;
+package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Modifier.ModifierType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Shell;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import net.minecraft.network.chat.ChatMessage;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -15,23 +18,45 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.UUID;
+
 
 public abstract class FlakArtillery extends Artillery
 {
     protected volatile Entity target;
 
+    //variables for aiming based on average v
+    protected int time;
+    protected Vec3D motAverage;
+    protected final static int VECTOR_PERIOD = 20;
 
-    public FlakArtillery(Location loc, World world) {
-        super(loc, world);
+    /*
+This method is called in a loop. You can think of it as being called many times per second
+ */
+    public abstract void aimMoving();
+
+
+   /*
+   Constructor.
+    */
+    public FlakArtillery(Location loc, World world, ChunkLoader loader) {
+        super(loc, world,loader);
         this.target = null;
+        this.time = 0;
     }
 
+
+    ///setting a target to track
     public synchronized void setTarget(Entity target){
         this.target = target;
     }
 
+
     public void seat(EntityHuman human){
-        pivot.seat(human);
+        if (target == null)
+           pivot.seat(human);
+        else
+            human.sendMessage(new ChatMessage("Cannot operate while artillery has a target!"), UUID.randomUUID());
     }
 
     protected synchronized void incrementSmallDistance(double increment){
@@ -62,9 +87,13 @@ public abstract class FlakArtillery extends Artillery
 
         //make a flash
         final Material mat = block.getType();
+        final boolean flashed;
         if (isFlashable(block)) {
             block.setType(Material.LIGHT);
+            flashed = true;
         }
+        else
+            flashed = false;
 
         world.spawnParticle(Particle.SMOKE_LARGE,muzzle.getX(),muzzle.getY(), muzzle.getZ(),30,0,0,0,0.2);
         world.spawnParticle(Particle.FLASH,muzzle.getX(),muzzle.getY(), muzzle.getZ(),1,0,0,0,0.2);
@@ -105,7 +134,8 @@ public abstract class FlakArtillery extends Artillery
                         shell.setMot(vector);
                         shell.setTerminus(target);
                         ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
-                        shell.flyFlak();
+                        shell.flyAsFlak();
+                        if (flashed)
                         block.setType(mat);
 
                 }
@@ -133,18 +163,13 @@ public abstract class FlakArtillery extends Artillery
     }
 
 
-    public void aimAtTarget(){
+    public void aimSkeleton() {
 
-        System.out.println("attempt aim");
-
-
-
-        Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
+        Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
         if (target == null || target.isRemoved() || !target.isAlive()) {
             target = null;
             return;
         }
-
 
 
         double deltaX = target.locX() - muzzle.getX();
@@ -160,17 +185,17 @@ public abstract class FlakArtillery extends Artillery
         double deltaZ = target.locZ() - muzzle.getZ();
         double distance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        Vec3D vector = new Vec3D(deltaX,deltaY + distance * 0.20000000298023224D,deltaZ);
+        Vec3D vector = new Vec3D(deltaX, deltaY + distance * 0.20000000298023224D, deltaZ);
         //I don't know what the 0.2~ is about
 
         double vectorMagnitude = vector.h();
-        double yRotation = (float)(MathHelper.d(vector.b, vector.d));
-        double xRotation = (float)(MathHelper.d(vector.c, vectorMagnitude));
+        double yRotation = (float) (MathHelper.d(vector.b, vector.d));
+        double xRotation = (float) (MathHelper.d(vector.c, vectorMagnitude));
         //this is making the arrow look backwards, so get rid of the 57.29
         //57.29 ~= 1 rad in deg
 
-        System.out.println("pivoting");
         //we're pivoting since we're on axe planes (think of pitch, yaw on an airplane)
-        pivot(-xRotation,-yRotation);
+        pivot(-xRotation, -yRotation);
     }
+
 }
