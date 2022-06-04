@@ -1,11 +1,24 @@
-package me.camm.productions.fortressguns.Artillery;
+package me.camm.productions.fortressguns.Artillery.Entities;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FlakArtillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
+import net.minecraft.network.chat.ChatMessage;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.entity.Entity;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class HeavyFlak extends FlakArtillery {
 
@@ -14,7 +27,7 @@ public class HeavyFlak extends FlakArtillery {
     private static final int TIME;
     private static final double RECOVER_RATE;
     private static final double HEALTH;
-    private static final double RANGE;
+    private static final long FIRE_COOLDOWN;
 
     //length of body before starting the barrel
     private static final int BODY_LENGTH = 3;
@@ -31,15 +44,22 @@ public class HeavyFlak extends FlakArtillery {
         POWER = 6;
         TIME = 1;
         RECOVER_RATE = 0.05;
-        HEALTH = 40;
-        RANGE = 600;
+        HEALTH = 70;
+
+        FIRE_COOLDOWN = 3000;
+
     }
 
-    public HeavyFlak(Location loc, World world) {
-        super(loc, world);
+    public HeavyFlak(Location loc, World world, ChunkLoader loader) {
+        super(loc, world,loader);
         barrel = new ArtilleryPart[10];
         base = new ArtilleryPart[4][4];
         target = null;
+    }
+
+    @Override
+    public boolean canFire(){
+        return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
     }
 
     @Override
@@ -48,12 +68,28 @@ public class HeavyFlak extends FlakArtillery {
     }
 
     public void setTarget(Entity target){
-        this.target = target;
+        List<Entity> passengers = this.pivot.getPassengers();
+
+        if (passengers.size()> 0) {
+            this.target = null;
+
+            for (Entity e: passengers) {
+                if (e instanceof EntityPlayer) {
+                    e.playSound(SoundEffects.mm,2,1);
+                    e.sendMessage(new ChatMessage(ChatColor.GOLD + "Someone wants to have the artillery auto-aim," +
+                            " but it cannot do so if you're riding it!"), UUID.randomUUID());
+                }
+
+            }
+        }
+        else
+           this.target = target;
     }
 
     @Override
     public void spawn() {
 
+        super.spawn();
         pivot = StandHelper.getCore(loc, BODY,aim,world,this);
         pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
 
@@ -122,10 +158,21 @@ public class HeavyFlak extends FlakArtillery {
             bar ++;
             rads += 2 * Math.PI / 4;
         }
-        setHealth(HEALTH);
+        if (health <= 0)
+            setHealth(HEALTH);
         initLoadedChunks();
 
-        pivot(0,0);
+      //  pivot(0,0);
+
+    }
+
+    @Override
+    public List<ArtilleryPart> getParts(){
+        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (ArtilleryPart[] segment: base)
+            parts.addAll(Arrays.asList(segment));
+        parts.add(pivot);
+        return parts;
 
     }
 
@@ -135,25 +182,46 @@ public class HeavyFlak extends FlakArtillery {
     }
 
     @Override
-    public boolean canFire() {
-        return canFire;
-    }
-
-    @Override
     public double getMaxHealth() {
         return HEALTH;
     }
 
-    public boolean targetInRange(){
-        if (target == null || target.isRemoved() || !target.isAlive())
-            return false;
 
-        double x,y,z;
-        x = target.u - pivot.u;
-        y = target.v - pivot.v;
-        z = target.w - pivot.w;
+    /*
+  This method is called in a loop. You can think of it as being called many times per second
+   */
+    @Override
+    public void aimMoving(){
 
-        return Math.sqrt(x*x + y*y + z*z) < RANGE;
+        boolean done = false;
+        if (!done)
+        throw new UnsupportedOperationException("unfinished");
+
+            Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+            if (target == null || target.isRemoved() || !target.isAlive()) {
+                target = null;
+                return;
+            }
+
+            double tarX, tarY, tarZ;
+            tarZ = target.locZ();
+            tarY = target.locY();
+            tarX = target.locX();
+
+            if (time > VECTOR_PERIOD) {
+                time = 0;
+            } else time++;
+
+
+
+
+
+
+
+
+
+
+
 
     }
 }

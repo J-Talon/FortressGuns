@@ -8,22 +8,40 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 
 
 public class Incendiary implements IModifier {
 
     private final Location loc;
+    private static final Queue<BurningSphere> pool;
+
+    private static final int POOL_SIZE = 100;
+    private static final Random rand;
+
+
+    static {
+        pool = new LinkedList<>();
+        rand = new Random();
+
+    }
+
 
     public Incendiary(Location loc) {
         this.loc = loc;
+        while (pool.size() < POOL_SIZE && loc.getWorld() != null) {
+            pool.add(new BurningSphere(((CraftWorld)loc.getWorld()).getHandle(),0,0,0));
+        }
+
     }
 
     @Override
     public void activate() {
 
     World world = loc.getWorld();
-    Random rand = new Random();
+
 
     if (world == null)
         return;
@@ -31,7 +49,7 @@ public class Incendiary implements IModifier {
     new BukkitRunnable() {
         public void run(){
 
-            for (double vertical=90;vertical>=-90;vertical-= rand.nextDouble()*60)
+            for (double vertical=90;vertical>=-90;vertical -= rand.nextDouble()*60)
             {
                 double yComponent = Math.tan(vertical); //y value
                 for (double horizontal=0;horizontal<=360;horizontal+=rand.nextDouble()*60)
@@ -39,7 +57,18 @@ public class Incendiary implements IModifier {
                     double xComponent = Math.sin(horizontal);  //x Value of the vector
                     double zComponent = Math.cos(horizontal);  //z Value of the vector
 
-                    BurningSphere sphere = new BurningSphere(((CraftWorld)world).getHandle(),loc.getX(),loc.getY(),loc.getZ());
+                    BurningSphere sphere = pool.poll();
+                    if (sphere == null)
+                        break;
+
+                    double x, y, z;
+                    x = loc.getX();
+                    y = loc.getY();
+                    z = loc.getZ();
+
+                    sphere.setLocation(x,y,z,0,0);
+                    sphere.setPosition(x,y,z);
+
                     ((CraftWorld) world).addEntity(sphere, CreatureSpawnEvent.SpawnReason.CUSTOM);
                     yComponent *= rand.nextDouble();
                     xComponent *= rand.nextDouble();

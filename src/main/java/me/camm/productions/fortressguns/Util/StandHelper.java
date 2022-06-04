@@ -1,8 +1,8 @@
 package me.camm.productions.fortressguns.Util;
 
-import me.camm.productions.fortressguns.Artillery.Artillery;
-import me.camm.productions.fortressguns.Artillery.ArtilleryCore;
-import me.camm.productions.fortressguns.Artillery.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.EnumItemSlot;
@@ -42,7 +42,11 @@ public class StandHelper
         ArtilleryPart part = new ArtilleryPart(nms, artillery, loc);
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
         setRotation(part, rotation);
+
+        if (head != null)
         setHead(head, part);
+
+
         part.setNoGravity(true);
         part.setInvisible(true);
         nms.addEntity(part);

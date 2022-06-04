@@ -1,10 +1,18 @@
-package me.camm.productions.fortressguns.Artillery;
+package me.camm.productions.fortressguns.Artillery.Entities;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class HeavyArtillery extends FieldArtillery
@@ -14,6 +22,7 @@ public class HeavyArtillery extends FieldArtillery
     private static final int TIME;
     private static final double RECOVER_RATE;
     private static final double HEALTH;
+    private static final long FIRE_COOLDOWN;
 
     protected static ItemStack BODY = new ItemStack(Material.GREEN_TERRACOTTA);
     protected static ItemStack BASE_CLOSE = new ItemStack(Material.COAL_BLOCK);
@@ -24,12 +33,13 @@ public class HeavyArtillery extends FieldArtillery
         POWER = 6;
         TIME = 1;
         RECOVER_RATE = 0.05;
-        HEALTH = 50;
+        HEALTH = 80;
+        FIRE_COOLDOWN = 3000;
     }
 
 
-    public HeavyArtillery(Location loc, World world) {
-        super(loc, world);
+    public HeavyArtillery(Location loc, World world, ChunkLoader loader) {
+        super(loc, world,loader);
         barrel = new ArtilleryPart[8];
         base = new ArtilleryPart[4][3];
     }
@@ -40,6 +50,20 @@ public class HeavyArtillery extends FieldArtillery
       super.fire(power, recoilTime, barrelRecoverRate);
     }
 
+    @Override
+    public synchronized boolean canFire(){
+        return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
+    }
+
+    @Override
+    public List<ArtilleryPart> getParts(){
+        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (ArtilleryPart[] segment: base)
+            parts.addAll(Arrays.asList(segment));
+        parts.add(pivot);
+        return parts;
+
+    }
 
 
     @Override
@@ -67,8 +91,10 @@ public class HeavyArtillery extends FieldArtillery
     @Override
     public void spawn(){
 
+        super.spawn();
         pivot = StandHelper.getCore(loc, BODY,aim,world,this);
         pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
+
 
         //for the barrel
         for (int slot=0;slot< barrel.length;slot++)
@@ -135,10 +161,13 @@ public class HeavyArtillery extends FieldArtillery
             bar ++;
              rads += 2 * Math.PI / 4;
         }
-        setHealth(HEALTH);
+        if (health <= 0)
+            setHealth(HEALTH);
+
         initLoadedChunks();
 
-        pivot(0,0);
+
+     //   pivot(0,0);
 
     }
 }
