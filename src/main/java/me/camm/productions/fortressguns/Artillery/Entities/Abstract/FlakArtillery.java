@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Modifier.ModifierType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Shell;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -14,9 +13,12 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -24,25 +26,23 @@ import java.util.UUID;
 public abstract class FlakArtillery extends Artillery
 {
     protected volatile Entity target;
+    protected boolean aiming;
 
     //variables for aiming based on average v
-    protected int time;
-    protected Vec3D motAverage;
-    protected final static int VECTOR_PERIOD = 20;
 
     /*
 This method is called in a loop. You can think of it as being called many times per second
  */
-    public abstract void aimMoving();
+    public abstract boolean aimMoving(Location[] trackLocations, int time);
 
 
    /*
    Constructor.
     */
-    public FlakArtillery(Location loc, World world, ChunkLoader loader) {
-        super(loc, world,loader);
+    public FlakArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+        super(loc, world,loader, aim);
         this.target = null;
-        this.time = 0;
+        aiming = false;
     }
 
 
@@ -64,7 +64,7 @@ This method is called in a loop. You can think of it as being called many times 
     }
 
     @Override
-    public void fire(double power, int recoil, double barrelRecoverRate) {
+    public void fire(double power, int recoil, double barrelRecoverRate, @Nullable Player shooter) {
 
         if (inValid()) {
             remove(false, true);
@@ -73,8 +73,10 @@ This method is called in a loop. You can think of it as being called many times 
 
         final Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
 
-        if (target == null || target.isRemoved() || !target.isAlive())
+        if (target == null || target.isRemoved() || !target.isAlive()) {
             target = null;
+            aiming = false;
+        }
 
         //if it can fire, then fire, else return
         if (canFire())
@@ -82,22 +84,9 @@ This method is called in a loop. You can think of it as being called many times 
         else
             return;
 
-        //getting the location of the last armorstand in the barrel array, which is the muzzle
-        Block block = muzzle.getBlock();
 
-        //make a flash
-        final Material mat = block.getType();
-        final boolean flashed;
-        if (isFlashable(block)) {
-            block.setType(Material.LIGHT);
-            flashed = true;
-        }
-        else
-            flashed = false;
-
-        world.spawnParticle(Particle.SMOKE_LARGE,muzzle.getX(),muzzle.getY(), muzzle.getZ(),30,0,0,0,0.2);
-        world.spawnParticle(Particle.FLASH,muzzle.getX(),muzzle.getY(), muzzle.getZ(),1,0,0,0,0.2);
-        world.playSound(muzzle, Sound.ENTITY_GENERIC_EXPLODE,SoundCategory.BLOCKS,2,0.2f);
+        createFlash(muzzle);
+        createShotParticles(muzzle);
 
 
         //getting the values for the projectile velocity.
@@ -130,13 +119,12 @@ This method is called in a loop. You can think of it as being called many times 
                 if (!shot) {
                     shot = true;
 
-                        Shell shell = new Shell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), ModifierType.FLAK);
+                        Shell shell = new Shell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), ModifierType.FLAK, shooter);
                         shell.setMot(vector);
                         shell.setTerminus(target);
                         ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
                         shell.flyAsFlak();
-                        if (flashed)
-                        block.setType(mat);
+
 
                 }
 
@@ -163,11 +151,13 @@ This method is called in a loop. You can think of it as being called many times 
     }
 
 
-    public void aimSkeleton() {
+
+    public void autoAim() {
 
         Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
         if (target == null || target.isRemoved() || !target.isAlive()) {
             target = null;
+            aiming = false;
             return;
         }
 

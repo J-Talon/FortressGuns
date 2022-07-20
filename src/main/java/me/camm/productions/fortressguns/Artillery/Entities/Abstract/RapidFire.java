@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import me.camm.productions.fortressguns.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
@@ -15,13 +16,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-/**
+/*
  * @author CAMM
  */
 public abstract class RapidFire extends Artillery {
@@ -31,6 +34,8 @@ public abstract class RapidFire extends Artillery {
     protected static ItemStack CASING;
 
     protected ArtilleryPart rotatingSeat;
+
+    protected FireTrigger triggerHandle;
 
     static {
         CASING = new ItemStack(Material.IRON_NUGGET);
@@ -45,8 +50,8 @@ public abstract class RapidFire extends Artillery {
 
 
 
-    public RapidFire(Location loc, World world, ChunkLoader loader) {
-        super(loc, world, loader);
+    public RapidFire(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+        super(loc, world, loader, aim);
         projectileVelocity = new Vector(0,0,0);
         loc.add(0,1,0);
     }
@@ -59,12 +64,13 @@ public abstract class RapidFire extends Artillery {
     public abstract double getRange();
 
     @Override
-    public void fire(double power, int recoilTime, double barrelRecoverRate) {
-        fire();
+    public void fire(double power, int recoilTime, double barrelRecoverRate, @Nullable Player shooter) {
+        fire(null);
     }
 
+
     @Override
-    public synchronized void fire() {
+    public synchronized void fire(@Nullable Player shooter) {
 
         class PredicateEqual implements Predicate<Entity> {
 
@@ -111,16 +117,9 @@ public abstract class RapidFire extends Artillery {
             return;
 
         Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
-        Block block = muzzle.getBlock();
-        Material mat = block.getType();
 
-        final boolean flashed;
-        if (isFlashable(block)) {
-            block.setType(Material.LIGHT);
-            flashed = true;
-        }
-        else
-             flashed = false;
+
+        createFlash(muzzle);
 
         double y = Math.tan(-aim.getX());
         double z = Math.cos(aim.getY());
@@ -183,9 +182,6 @@ public abstract class RapidFire extends Artillery {
             double travelled = 0;
 
             public void run() {
-
-                if (flashed)
-                block.setType(mat);
                 canFire = true;
                 Location pivLoc = pivot.getLocation(world);
                 Item item = world.dropItem(pivLoc,CASING);

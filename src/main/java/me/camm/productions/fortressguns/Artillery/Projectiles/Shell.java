@@ -1,16 +1,26 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
+
 import me.camm.productions.fortressguns.Artillery.Projectiles.Modifier.*;
 
+import me.camm.productions.fortressguns.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
+
+import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
+import net.minecraft.server.level.EntityPlayer;
+
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityTypes;
 
+import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
 
+import net.minecraft.world.item.enchantment.EnchantmentManager;
 import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
@@ -20,8 +30,12 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.entity.LivingEntity;
+
+import org.bukkit.entity.Player;
+
 import org.bukkit.scheduler.BukkitRunnable;
 
 
@@ -31,29 +45,37 @@ import javax.annotation.Nullable;
 public class Shell extends EntityArrow {
 
     private Entity terminus;
-    private static final int DISTANCE_CLOSE, DISTANCE_FAR, DAMAGE;
+    private int flyTime;
+    private static final int DISTANCE_CLOSE, DISTANCE_FAR, DAMAGE, DEFAULT_TIME_FLIGHT;
 
     static {
         DISTANCE_CLOSE = 16;
         DISTANCE_FAR = 400;
         DAMAGE = 35;
+        DEFAULT_TIME_FLIGHT = 100;
 
     }
 
 
     private static final ItemStack stack = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.IRON_NUGGET));
     private final ModifierType mod;
+    private final Player shooter;
 
-    public Shell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable ModifierType mod) {
+    public Shell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable ModifierType mod, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world);
         this.mod = mod;
+        this.shooter = shooter;
         init();
     }
+
+
 
     private void init(){
         this.setDamage(DAMAGE);
         this.setCritical(true);
         this.terminus = null;
+
+        flyTime = DEFAULT_TIME_FLIGHT;
     }
 
     @Override
@@ -61,6 +83,8 @@ public class Shell extends EntityArrow {
         return stack;
     }
 
+
+    //returns a value that is boolean. Is this the isCritical() method?
     @Override
     public boolean c_() {
         return super.c_();
@@ -71,8 +95,64 @@ public class Shell extends EntityArrow {
     //these methods are for when the shell hits an entity or block
     @Override
     protected void a(MovingObjectPositionEntity pos) {
-        super.a(pos);
-     explode(pos);
+        Entity hit = pos.getEntity();
+
+        //av is to do with damage in entity arrow
+
+
+        Entity shooter = this.getShooter();
+
+
+
+
+        if (!(shooter instanceof EntityHuman)) {
+            explode(pos);
+            return;
+        }
+
+        DamageSource damageSource = GunSource.gunShot((EntityHuman)shooter);
+
+
+        boolean isEnderman = hit.getEntityType() == EntityTypes.w;
+
+        if (damageSource == null) {
+            explode(pos);
+            return;
+        }
+
+
+        if (hit.damageEntity(damageSource, DAMAGE)) {
+            if (isEnderman) {
+                return;
+            }
+
+            if (hit instanceof EntityLiving) {
+                EntityLiving entityliving = (EntityLiving) hit;
+
+                //probably knockback or something.
+                if (this.aw > 0) {
+                    Vec3D vec3d = this.getMot().d(1.0, 0.0, 1.0).d().a((double) this.aw * 0.6);
+                    if (vec3d.g() > 0.0) {
+                        entityliving.i(vec3d.b, 0.1, vec3d.d);
+                    }
+                }
+
+
+                EnchantmentManager.a(entityliving, shooter);
+                EnchantmentManager.b((EntityLiving) shooter, entityliving);
+
+
+                if (entityliving != shooter && entityliving instanceof EntityHuman && shooter instanceof EntityPlayer && !this.isSilent()) {
+                    ((EntityPlayer) shooter).b.sendPacket(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.g, 0.0F));
+                }
+
+                //t.y in class world is if the world is clentside
+
+            }
+
+        }
+        explode(pos);
+
     }
 
     @Override
@@ -82,6 +162,7 @@ public class Shell extends EntityArrow {
 
 
     public void explode(MovingObjectPosition pos){
+
 
         IModifier modifier;
         org.bukkit.World world = this.getWorld().getWorld();
@@ -95,18 +176,16 @@ public class Shell extends EntityArrow {
         modifier = getModifier(mod, hit);
         this.die();
 
-        if (pos instanceof MovingObjectPositionEntity) {
-            DamageSource source = DamageSource.arrow(this, this);
-            Entity hitEntity = ((MovingObjectPositionEntity) pos).getEntity();
 
-            if (hitEntity instanceof LivingEntity)
-              hitEntity.damageEntity(source, (float)getDamage());
-        }
 
         if (modifier == null)
         {
             Explosion explosion = getWorld().createExplosion(this ,hitLoc.getX(),hitLoc.getY(),hitLoc.getZ(),4, false, Explosion.Effect.c);
-            explosion.a(true);
+            if (t.getGameRules().getBoolean(GameRules.c)) {
+                explosion.a(true);
+            }
+
+            explosion.a();
         }
         else
            modifier.activate();
@@ -154,7 +233,7 @@ public class Shell extends EntityArrow {
                     }
                 }
 
-                if (flightTime > 100)
+                if (flightTime > flyTime)
                 {
                     shell.explodePrematurely();
                     cancel();
@@ -205,7 +284,7 @@ public class Shell extends EntityArrow {
                     break;
 
                 case FLAK:
-                    modifier = new FlakModifier(hit);
+                    modifier = new FlakModifier(hit, shooter == null? null: ((CraftPlayer)shooter).getHandle());
                     break;
             }
         }

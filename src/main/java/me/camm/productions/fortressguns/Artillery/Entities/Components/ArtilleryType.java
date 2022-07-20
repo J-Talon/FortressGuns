@@ -1,16 +1,15 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
-import me.camm.productions.fortressguns.Artillery.Entities.*;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.*;
 import org.bukkit.ChatColor;
 
 public enum ArtilleryType {
     FIELD_LIGHT(ChatColor.GRAY+"Field Light"+ChatColor.RED, LightArtillery.class, true),
-    ARTILLERY_GENERIC(ChatColor.GRAY+"Generic"+ChatColor.GOLD, Artillery.class,true),
     FIELD_HEAVY(ChatColor.GRAY+"Field Heavy"+ChatColor.WHITE, HeavyArtillery.class,true),
     FLAK_HEAVY(ChatColor.GRAY+"Heavy Flak"+ChatColor.GREEN, HeavyFlak.class,true),
     SURFACE_TO_AIR(ChatColor.GRAY+"SAM"+ChatColor.DARK_PURPLE,null,false),
-    BARRAGE(ChatColor.GRAY+"SILO"+ChatColor.BLUE,null, true),
+    BARRAGE(ChatColor.GRAY+"Barrage"+ChatColor.BLUE,null, true),
     HEAVY_MACHINE(ChatColor.GRAY+"Heavy Machine Gun", HeavyMachineGun.class, true),
     FLAK_LIGHT(ChatColor.GRAY+"Light Flak"+ChatColor.YELLOW, LightFlak.class,true);
 

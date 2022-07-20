@@ -7,19 +7,30 @@ import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
 import me.camm.productions.fortressguns.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
 import me.camm.productions.fortressguns.Util.ExplosionEffect;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 
-public abstract class Artillery {
+/*
+@author CAMM
+Abstract class for the artillery pieces
+Superclass for all complex entities which are artillery pieces
+ */
+public abstract class Artillery implements InventoryHolder, Construct {
 
 
 
@@ -48,6 +59,8 @@ public abstract class Artillery {
     protected volatile double currentSmallLength;//
     protected volatile boolean canFire;
 
+    protected ArtilleryInventory inventory;
+
     protected long lastFireTime;//
 
     private enum DamageMultiplier{
@@ -65,8 +78,7 @@ public abstract class Artillery {
     }
 
 
-
-    public Artillery(Location loc, World world, ChunkLoader loader) {
+    public Artillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
 
         this.plugin = FortressGuns.getInstance();
         this.loc = loc;
@@ -80,11 +92,14 @@ public abstract class Artillery {
         currentSmallLength = SMALL_BLOCK_LENGTH;
         health = 0;
         dead = false;
-        aim = new EulerAngle(0,0,0);
+        this.aim = aim;
         this.canFire = true;
     }
 
     public abstract List<ArtilleryPart> getParts();
+    public ArtilleryInventory getArtyInventory(){
+        return inventory;
+    }
 
 
     public EulerAngle getAim(){
@@ -171,13 +186,26 @@ public abstract class Artillery {
     }
 
 
-    public abstract void fire(double power, int recoilTime,double barrelRecoverRate);
-    public abstract void fire();
+    public abstract void fire(double power, int recoilTime,double barrelRecoverRate, @Nullable Player player);
+    public abstract void fire(@Nullable Player shooter);
+
+
+
+
+    //to spawn an artillery piece, an external method calls spawn(). In the actual artillery classes however, the artillery
+    // is actually spawned when the init method is called, however the spawn method calls the init method, so it's fine.
     public void spawn() {
         dead = false;
         loaded = true;
         world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
+        init();
     }
+
+    //this method actually spawns the artillery
+    protected abstract void init();
+
+
+
     public abstract ArtilleryType getType();
     public abstract boolean canFire();
     public abstract double getMaxHealth();
@@ -213,16 +241,36 @@ public abstract class Artillery {
         return pivot;
     }
 
-    public static boolean isFlashable(Block block) {
-        Material type = block.getType();
-        switch (type) {
-            case AIR:
-            case CAVE_AIR:
-            case VOID_AIR:
-                return true;
-        }
-        return false;
+
+
+    public final void createFlash(Location origin) {
+
+
+       List<Player> players = world.getPlayers();
+       BlockData lightData = Material.LIGHT.createBlockData();
+       BlockData airData = Material.AIR.createBlockData();
+       final Location flash = origin.clone();
+
+
+           players.forEach(player -> player.sendBlockChange(flash, lightData));
+
+
+           new BukkitRunnable() {
+               public void run() {
+                   players.forEach(player -> player.sendBlockChange(flash, airData));
+               }
+           }.runTaskLater(FortressGuns.getInstance(), 5);
+
+
     }
+
+    public void createShotParticles(Location muzzle){
+        world.spawnParticle(Particle.SMOKE_LARGE,muzzle.getX(),muzzle.getY(), muzzle.getZ(),30,0,0,0,0.2);
+        world.spawnParticle(Particle.FLASH,muzzle.getX(),muzzle.getY(), muzzle.getZ(),1,0,0,0,0.2);
+        world.playSound(muzzle, Sound.ENTITY_GENERIC_EXPLODE,SoundCategory.BLOCKS,2,0.2f);
+
+    }
+
 
     public World getWorld(){
         return world;
@@ -278,10 +326,10 @@ public abstract class Artillery {
             if (array.length > totalDistanceBase)
                 totalDistanceBase = array.length;
 
-            double totalDistance = Math.max(totalDistanceBarrel,(LARGE_BLOCK_LENGTH*totalDistanceBase));
+        double totalDistance = Math.max(totalDistanceBarrel,(LARGE_BLOCK_LENGTH*totalDistanceBase));
+        double circle = Math.PI * 2;
+        Location loc = pivot.getLocation(world).clone();
 
-            double circle = Math.PI * 2;
-             Location loc = pivot.getLocation(world).clone();
             for (double rads=0;rads < circle;rads+= Math.PI/4) {
 
                 double z = totalDistance * Math.cos(rads);

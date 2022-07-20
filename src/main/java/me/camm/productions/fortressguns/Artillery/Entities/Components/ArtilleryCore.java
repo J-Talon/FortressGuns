@@ -1,7 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.HeavyMachineGun;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
+import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyMachineGun;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.network.chat.ChatMessage;
 import net.minecraft.network.protocol.game.PacketPlayOutNamedSoundEffect;
@@ -27,6 +28,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.UUID;
 
+/*
+Models the core of an artillery piece.
+ */
 public class ArtilleryCore extends ArtilleryPart {
 
     public ArtilleryCore(World world, Artillery body, double d0, double d1, double d2) {
@@ -67,7 +71,7 @@ public class ArtilleryCore extends ArtilleryPart {
             return;
 
 
-        if (body instanceof HeavyMachineGun) {
+        if (body instanceof RapidFire) {
             ArtilleryPart seat = ((HeavyMachineGun) body).getRotatingSeat();
             seat.seat(human);
             return;
@@ -118,23 +122,17 @@ public class ArtilleryCore extends ArtilleryPart {
                 //a probably means cancelled or something
                 return EnumInteractionResult.a;
             }
-            //something to do with the world
-            else if (entityhuman.t.y)
-            {
-                return EnumInteractionResult.b;
-            }
-            else
-            {
+
                 //it tries to put or remove the itemstack from the stand...?
                 EnumItemSlot enumitemslot = EntityInsentient.getEquipmentSlotForItem(selected);
                 if (selected.isEmpty()) {
-                    EnumItemSlot enumitemslot1 = this.findInteractionArea(vec3d);
-                    EnumItemSlot enumitemslot2 = this.d(enumitemslot1) ? enumitemslot : enumitemslot1;
+                    EnumItemSlot enumitemslot1 = findInteractionArea(vec3d);
+                    EnumItemSlot enumitemslot2 = this.checkSlots(enumitemslot1) ? enumitemslot : enumitemslot1;
                     if (this.a(enumitemslot2) && this.handlePlayerInteract(entityhuman, selected)) {
                         return EnumInteractionResult.a;
                     }
                 } else {
-                    if (this.d(enumitemslot)) {
+                    if (this.checkSlots(enumitemslot)) {
                         return EnumInteractionResult.e;
                     }
 
@@ -148,37 +146,19 @@ public class ArtilleryCore extends ArtilleryPart {
                     }
                 }
 
-                return EnumInteractionResult.d;
-            }
-        } else {
-            return EnumInteractionResult.d;
         }
+        return EnumInteractionResult.d;
     }
 
-    private boolean d(EnumItemSlot enumitemslot) {
+
+    //no idea what this does. Probably checking the slots
+    private boolean checkSlots(EnumItemSlot enumitemslot) {
+
+        //bit shifting to the right?
         return (this.cf & 1 << enumitemslot.getSlotFlag()) != 0 || enumitemslot.a() == EnumItemSlot.Function.a && !this.hasArms();
+        //a and b are probably the main and offhand
     }
 
-    //this is for finding which part of the stand the player clicked?
-    private EnumItemSlot findInteractionArea(Vec3D vec3d) {
-        EnumItemSlot enumitemslot = EnumItemSlot.a;
-        boolean flag = this.isSmall();
-        double d0 = flag ? vec3d.c * 2.0D : vec3d.c;
-        EnumItemSlot enumitemslot1 = EnumItemSlot.c;
-        if (d0 >= 0.1D && d0 < 0.1D + (flag ? 0.8D : 0.45D) && this.a(enumitemslot1)) {
-            enumitemslot = EnumItemSlot.c;
-        } else if (d0 >= 0.9D + (flag ? 0.3D : 0.0D) && d0 < 0.9D + (flag ? 1.0D : 0.7D) && this.a(EnumItemSlot.e)) {
-            enumitemslot = EnumItemSlot.e;
-        } else if (d0 >= 0.4D && d0 < 0.4D + (flag ? 1.0D : 0.8D) && this.a(EnumItemSlot.d)) {
-            enumitemslot = EnumItemSlot.d;
-        } else if (d0 >= 1.6D && this.a(EnumItemSlot.f)) {
-            enumitemslot = EnumItemSlot.f;
-        } else if (!this.a(EnumItemSlot.a) && this.a(EnumItemSlot.b)) {
-            enumitemslot = EnumItemSlot.b;
-        }
-
-        return enumitemslot;
-    }
 
 
     //this.a(entityhuman, enumitemslot2, itemstack, enumhand)

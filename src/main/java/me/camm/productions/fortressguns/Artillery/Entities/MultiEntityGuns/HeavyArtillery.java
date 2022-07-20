@@ -1,27 +1,29 @@
-package me.camm.productions.fortressguns.Artillery.Entities;
+package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FlakArtillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
+import me.camm.productions.fortressguns.Inventory.InventorySetting;
 import me.camm.productions.fortressguns.Util.StandHelper;
-import net.minecraft.network.chat.ChatMessage;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.sounds.SoundEffects;
-import net.minecraft.world.entity.Entity;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
-public class HeavyFlak extends FlakArtillery {
 
+public class HeavyArtillery extends FieldArtillery
+{
 
     private static final double POWER;
     private static final int TIME;
@@ -29,69 +31,86 @@ public class HeavyFlak extends FlakArtillery {
     private static final double HEALTH;
     private static final long FIRE_COOLDOWN;
 
-    //length of body before starting the barrel
-    private static final int BODY_LENGTH = 3;
 
-
-    protected static ItemStack BODY = new ItemStack(Material.RED_TERRACOTTA);
+    protected static ItemStack BODY = new ItemStack(Material.GREEN_TERRACOTTA);
     protected static ItemStack BASE_CLOSE = new ItemStack(Material.COAL_BLOCK);
     protected static ItemStack BASE_FAR = new ItemStack(Material.STONE_BRICK_SLAB);
     protected static ItemStack BARREL_MAT = new ItemStack(Material.DISPENSER);
-
-   // private Entity target;
 
     static {
         POWER = 6;
         TIME = 1;
         RECOVER_RATE = 0.05;
-        HEALTH = 70;
-
+        HEALTH = 80;
         FIRE_COOLDOWN = 3000;
-
     }
 
-    public HeavyFlak(Location loc, World world, ChunkLoader loader) {
-        super(loc, world,loader);
-        barrel = new ArtilleryPart[10];
-        base = new ArtilleryPart[4][4];
-        target = null;
+
+    public HeavyArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+        super(loc, world,loader, aim);
+        barrel = new ArtilleryPart[8];
+        base = new ArtilleryPart[4][3];
+    }
+
+
+    @Override
+    public void fire(double power, int recoilTime, double barrelRecoverRate, @Nullable Player shooter) {
+      super.fire(power, recoilTime, barrelRecoverRate, shooter);
     }
 
     @Override
-    public boolean canFire(){
+    public void fire(@Nullable Player shooter) {
+        fire(POWER, TIME, RECOVER_RATE, shooter);
+    }
+
+    @Override
+    public synchronized boolean canFire(){
         return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
     }
 
     @Override
-    public void fire() {
-        super.fire(POWER,TIME,RECOVER_RATE);
-    }
+    public List<ArtilleryPart> getParts(){
+        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (ArtilleryPart[] segment: base)
+            parts.addAll(Arrays.asList(segment));
+        parts.add(pivot);
+        return parts;
 
-    public void setTarget(Entity target){
-        List<Entity> passengers = this.pivot.getPassengers();
-
-        if (passengers.size()> 0) {
-            this.target = null;
-
-            for (Entity e: passengers) {
-                if (e instanceof EntityPlayer) {
-                    e.playSound(SoundEffects.mm,2,1);
-                    e.sendMessage(new ChatMessage(ChatColor.GOLD + "Someone wants to have the artillery auto-aim," +
-                            " but it cannot do so if you're riding it!"), UUID.randomUUID());
-                }
-
-            }
-        }
-        else
-           this.target = target;
     }
 
     @Override
-    public void spawn() {
+    public @NotNull Inventory getInventory(){
+        return inventory.getInventory();
+    }
 
-        super.spawn();
+
+
+
+
+    @Override
+    public ArtilleryType getType() {
+        return ArtilleryType.FIELD_HEAVY;
+    }
+
+
+    @Override
+    protected synchronized void incrementSmallDistance(double increment) {
+        super.incrementSmallDistance(increment);
+    }
+
+    @Override
+    public double getMaxHealth() {
+        return HEALTH;
+    }
+
+    @Override
+    protected void init(){
+
+
+
         pivot = StandHelper.getCore(loc, BODY,aim,world,this);
         pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
+
 
         //for the barrel
         for (int slot=0;slot< barrel.length;slot++)
@@ -99,7 +118,7 @@ public class HeavyFlak extends FlakArtillery {
             boolean small = false;
             double totalDistance;
 
-            if (slot>=BODY_LENGTH) {
+            if (slot>=1) {
                 totalDistance = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
                 small = true;
             }
@@ -146,81 +165,22 @@ public class HeavyFlak extends FlakArtillery {
 
                 //if the length is close to base, then give it wheels, else give it supports
                 if (length >=1)
-                    part = StandHelper.spawnPart(spawn, BASE_FAR, aim, world, this);
+                    part = StandHelper.spawnPart(spawn, BASE_FAR, null, world, this);
                 else if (bar!=base.length-1)
-                    part = StandHelper.spawnPart(spawn, BASE_CLOSE,aim,world, this);
+                    part = StandHelper.spawnPart(spawn, BASE_CLOSE,null,world, this);
                 else
-                    part = StandHelper.spawnPart(spawn, BODY,aim,world, this);
+                    part = StandHelper.spawnPart(spawn, BODY,null,world, this);
 
                 length ++;
                 standRow[slot] = part;
             }
             bar ++;
-            rads += 2 * Math.PI / 4;
+             rads += 2 * Math.PI / 4;
         }
         if (health <= 0)
             setHealth(HEALTH);
+
         initLoadedChunks();
-
-      //  pivot(0,0);
-
-    }
-
-    @Override
-    public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
-        for (ArtilleryPart[] segment: base)
-            parts.addAll(Arrays.asList(segment));
-        parts.add(pivot);
-        return parts;
-
-    }
-
-    @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.FLAK_HEAVY;
-    }
-
-    @Override
-    public double getMaxHealth() {
-        return HEALTH;
-    }
-
-
-    /*
-  This method is called in a loop. You can think of it as being called many times per second
-   */
-    @Override
-    public void aimMoving(){
-
-        boolean done = false;
-        if (!done)
-        throw new UnsupportedOperationException("unfinished");
-
-            Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
-            if (target == null || target.isRemoved() || !target.isAlive()) {
-                target = null;
-                return;
-            }
-
-            double tarX, tarY, tarZ;
-            tarZ = target.locZ();
-            tarY = target.locY();
-            tarX = target.locX();
-
-            if (time > VECTOR_PERIOD) {
-                time = 0;
-            } else time++;
-
-
-
-
-
-
-
-
-
-
 
 
     }

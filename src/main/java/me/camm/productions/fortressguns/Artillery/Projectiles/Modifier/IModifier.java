@@ -8,9 +8,6 @@ import org.bukkit.SoundCategory;
 public interface IModifier {
     void activate();
 
-    default void playMuzzleEffects(org.bukkit.World bukkitWorld, Location explosion) {
-
-    }
 
     default void playFlakEffects(org.bukkit.World bukkitWorld, Location explosion){
         bukkitWorld.spawnParticle(Particle.FLASH,explosion,3,0,0,0,0);

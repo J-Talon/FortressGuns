@@ -33,6 +33,10 @@ public class GunSource extends EntityDamageSource {
 
       //new Object[]{victim.getScoreboardDisplayName(), this.z.getScoreboardDisplayName(), killingItem.G()})
       //new ChatMessage(var2, victim.getScoreboardDisplayName(), this.z.getScoreboardDisplayName())
+      System.out.println(victim.getName() +" "+
+      victim.getScoreboardDisplayName() +" "+
+      victim.getCustomName() +" "+
+      victim.getDisplayName());
 
 
       //this.z is the source of the damage.

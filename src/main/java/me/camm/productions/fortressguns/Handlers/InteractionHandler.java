@@ -9,6 +9,7 @@ import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,14 +18,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.EulerAngle;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
+/*
  * @author CAMM
  */
 public class InteractionHandler implements Listener
@@ -66,16 +69,35 @@ public class InteractionHandler implements Listener
 
     }
 
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        org.bukkit.entity.Entity riding = player.getVehicle();
+
+        if (riding == null)
+            return;
+
+
+        //whenever the player quits, the server creates a new entity whenever they join back. We do not want this to happen,
+        //so we dismount them first.
+       Entity nms = ((CraftEntity)riding).getHandle();
+       EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
+       if (nms instanceof ArtilleryPart) {
+           nmsPlayer.stopRiding();
+       }
+    }
+
 
 
     public void handleArtilleryPlaceInteract(PlayerInteractEvent event) {
 
         Player player = event.getPlayer();
         Action action = event.getAction();
+        EntityPlayer nms = ((CraftPlayer)player).getHandle();
 
         if (!event.hasItem()) {
 
-            EntityPlayer nms = ((CraftPlayer)player).getHandle();
+
             Entity ride = nms.getVehicle();
             if (ride instanceof ArtilleryCore) {
 
@@ -83,7 +105,7 @@ public class InteractionHandler implements Listener
                 Artillery body = core.getBody();
 
                 if (body.canFire())
-                   body.fire();
+                   body.fire(player);
                 event.setCancelled(true);
 
             }
@@ -96,7 +118,7 @@ public class InteractionHandler implements Listener
                 }
 
                 if (body.canFire()) {
-                    body.fire();
+                    body.fire(player);
                     event.setCancelled(true);
                 }
 
@@ -131,14 +153,33 @@ public class InteractionHandler implements Listener
             player.sendMessage(ChatColor.RED+"You must be on the ground to assemble artillery.");
             return;
         }
-
+        EulerAngle aim = new EulerAngle(Math.toRadians(nms.getXRot()),Math.toRadians(nms.getHeadRotation()),0);
 
             Class<? extends Artillery> artClass = artilleryNames.get(name);
             try {
+
+
+               Class<?> value = artClass.getSuperclass();
+               boolean isDirectional = false;
+              while (value != null) {
+
+                  if (value.equals(RapidFire.class)) {
+                      isDirectional = true;
+                      break;
+                  }
+
+                  value = value.getSuperclass();
+              }
+
+              if (!isDirectional) {
+                  aim.setY(Math.min(aim.getY(), 0));
+              }
+
+
               Artillery artillery = artClass
-                      .getConstructor(Location.class, World.class, ChunkLoader.class)
+                      .getConstructor(Location.class, World.class, ChunkLoader.class, EulerAngle.class)
                       .newInstance(player.getLocation().clone()
-                      .add(0,-0.5,0),player.getWorld(),handler);
+                      .add(0,-0.5,0),player.getWorld(),handler,aim);
 
 
                artillery.spawn();
@@ -154,6 +195,8 @@ public class InteractionHandler implements Listener
             catch (Exception e) {
                 e.printStackTrace();
             }
+
+
             event.setCancelled(true);
 
     }

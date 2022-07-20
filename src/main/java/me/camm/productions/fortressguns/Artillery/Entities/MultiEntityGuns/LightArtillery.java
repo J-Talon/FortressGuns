@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Entities;
+package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
@@ -8,7 +8,12 @@ import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,8 +36,8 @@ public class LightArtillery extends FieldArtillery
     }
 
 
-    public LightArtillery(Location loc, World world, ChunkLoader loader) {
-        super(loc, world,loader);
+    public LightArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+        super(loc, world,loader,aim);
         barrel = new ArtilleryPart[5];
         base = new ArtilleryPart[3][3];
     }
@@ -43,8 +48,8 @@ public class LightArtillery extends FieldArtillery
     protected static ItemStack BARREL_MAT = new ItemStack(Material.DISPENSER);
 
     @Override
-    public void fire() {
-       super.fire(POWER,TIME,RECOVER_RATE);
+    public void fire(@Nullable Player shooter) {
+       super.fire(POWER,TIME,RECOVER_RATE, shooter);
     }
 
 
@@ -63,11 +68,12 @@ public class LightArtillery extends FieldArtillery
     }
 
     @Override
-    public void spawn()
+    protected void init()
     {
 
-        super.spawn();
         pivot = StandHelper.getCore(loc, BODY, aim, world, this);
+        pivot.setRotation(aim);
+
         for (int slot=0;slot< barrel.length;slot++)
         {
             boolean small = false;
@@ -98,6 +104,7 @@ public class LightArtillery extends FieldArtillery
             else
                 stand = StandHelper.spawnPart(centre.add(x, height, z),BODY,aim,world,this);
 
+            stand.setRotation(aim);
             barrel[slot] = stand;
         }
 
@@ -122,11 +129,11 @@ public class LightArtillery extends FieldArtillery
                 //if the length is close to base, then give it wheels, else give it
                 //supports
                 if (length >=1)
-                    part = StandHelper.spawnPart(loc,BASE_FAR,aim,world,this);
+                    part = StandHelper.spawnPart(loc,BASE_FAR,null,world,this);
                 else if (bar!=base.length-1)
-                    part = StandHelper.spawnPart(loc,BASE_CLOSE,aim,world, this);
+                    part = StandHelper.spawnPart(loc,BASE_CLOSE,null,world, this);
                 else
-                    part = StandHelper.spawnPart(loc,BODY,aim,world, this);
+                    part = StandHelper.spawnPart(loc,BODY,null,world, this);
 
                 length ++;
                 standRow[slot] = part;
@@ -143,6 +150,12 @@ public class LightArtillery extends FieldArtillery
             setHealth(HEALTH);
       //  pivot(0,0);
 
+    }
+
+    @NotNull
+    @Override
+    public Inventory getInventory() {
+        return inventory.getInventory();
     }
 
     @Override

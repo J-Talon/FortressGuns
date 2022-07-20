@@ -3,9 +3,13 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Modifier;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.FortressGuns;
 
+import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.level.Explosion;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 /*
 flak modifier for flak shots
@@ -16,9 +20,11 @@ public class FlakModifier implements IModifier
 
     //location of explosion
     private final Location explosion;
+    private final EntityHuman shooter;
 
-    public FlakModifier(Location explosion) {
+    public FlakModifier(Location explosion, @Nullable EntityHuman shooter) {
         this.explosion = explosion;
+        this.shooter = shooter;
     }
 
     //activating the shot
@@ -30,22 +36,9 @@ public class FlakModifier implements IModifier
             return;
 
         playFlakEffects(bukkitWorld, explosion);
-
-        Block block = explosion.getBlock();
-        final Material mat = block.getType();
-        if (Artillery.isFlashable(block))
-            block.setType(Material.LIGHT);
+        Explosion flakExplosion = new Explosion(((CraftWorld)bukkitWorld).getHandle(), shooter,explosion.getX(), explosion.getY(), explosion.getZ(), 3);
+        flakExplosion.a();
 
 
-      //  bukkitWorld.createExplosion(explosion,4,true,false);
-
-        //create explosion fragments.
-        new BukkitRunnable(){
-
-            public void run(){
-                    block.setType(mat);
-                    bukkitWorld.spawnParticle(Particle.SQUID_INK, explosion, 30, 0.1, 0.1, 0.1, 0.2f);
-            }
-        }.runTaskLater(FortressGuns.getInstance(),1);
     }
 }

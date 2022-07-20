@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Util;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.EnumItemSlot;
@@ -24,6 +25,8 @@ public class StandHelper
         teleport(stand, loc.getX(), loc.getY(),loc.getZ());
     }
 
+
+
     public static void teleport(EntityArmorStand stand, double x, double y, double z) {
         stand.teleportAndSync(x,y,z);
         stand.g(x,y,z);
@@ -38,18 +41,42 @@ public class StandHelper
     }
 
     public static ArtilleryPart spawnPart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery){
+      return setInvisible(spawnVisiblePart(loc, head, rotation, world, artillery));
+    }
+
+    public static FireTrigger spawnTrigger(Location loc, World world, Artillery body) {
+        WorldServer nms = ((CraftWorld)world).getHandle();
+        FireTrigger trigger = new FireTrigger(nms, body, loc);
+        trigger.teleportAndSync(loc.getX(), loc.getY(), loc.getZ());
+        nms.addEntity(trigger);
+
+
+        trigger.setNoGravity(true);
+        trigger.setInvisible(true);
+        return trigger;
+
+    }
+
+
+    public static ArtilleryPart spawnVisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryPart part = new ArtilleryPart(nms, artillery, loc);
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
-        setRotation(part, rotation);
+
+        if (rotation != null)
+         setRotation(part, rotation);
 
         if (head != null)
-        setHead(head, part);
-
+            setHead(head, part);
 
         part.setNoGravity(true);
-        part.setInvisible(true);
+        part.setBasePlate(false);
         nms.addEntity(part);
+        return part;
+    }
+
+    private static ArtilleryPart setInvisible(ArtilleryPart part) {
+        part.setInvisible(true);
         return part;
     }
 

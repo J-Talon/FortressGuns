@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Entities;
+package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
@@ -10,9 +10,13 @@ import net.minecraft.core.Vector3f;
 
 import org.bukkit.*;
 
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 import java.util.ArrayList;
@@ -22,22 +26,24 @@ import java.util.List;
 
 import static java.lang.Math.PI;
 
-/**
+/*
+Class that models a heavy machine gun which players can shoot and operate
  * @author CAMM
+ *
  */
 public class HeavyMachineGun extends RapidFire {
 
     protected static final double HEALTH, RANGE;
     protected static final long FIRE_COOLDOWN;
-    protected static final ItemStack BARREL, MUZZLE, SEAT;
+    protected static final ItemStack BARREL_ITEM, MUZZLE_ITEM, SEAT_ITEM;
     protected static final Vector3f rightArm, leftArm, body, rightLeg, leftLeg;
 
     static {
         HEALTH = 20;
         RANGE = 150;
-        BARREL = new ItemStack(Material.GREEN_TERRACOTTA);
-        MUZZLE = new ItemStack(Material.NETHER_BRICK_FENCE);
-        SEAT = new ItemStack(Material.OAK_TRAPDOOR);
+        BARREL_ITEM = new ItemStack(Material.GREEN_TERRACOTTA);
+        MUZZLE_ITEM = new ItemStack(Material.NETHER_BRICK_FENCE);
+        SEAT_ITEM = new ItemStack(Material.OAK_TRAPDOOR);
 
 
         rightArm = new Vector3f(50,0,0);
@@ -47,8 +53,8 @@ public class HeavyMachineGun extends RapidFire {
         FIRE_COOLDOWN = 100;
     }
 
-    public HeavyMachineGun(Location loc, World world, ChunkLoader loader) {
-        super(loc, world, loader);
+    public HeavyMachineGun(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+        super(loc, world, loader, aim);
         barrel = new ArtilleryPart[4];
         base = new ArtilleryPart[1][1];
     }
@@ -57,17 +63,20 @@ public class HeavyMachineGun extends RapidFire {
         return rotatingSeat;
     }
 
-
+    @NotNull
+    @Override
+    public Inventory getInventory() {
+        return inventory.getInventory();
+    }
 
     @Override
-    public void spawn(){
-        super.spawn();
+    protected void init(){
+
 
         ArtilleryPart support;
-        pivot = StandHelper.getCore(loc,BARREL,aim,world, this);
-        support = StandHelper.spawnPart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
-        support.setInvisible(false);
-        support.setBasePlate(false);
+
+        pivot = StandHelper.getCore(loc, BARREL_ITEM,aim,world, this);
+        support = StandHelper.spawnVisiblePart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
 
         base[0][0] = support;
 
@@ -77,14 +86,12 @@ public class HeavyMachineGun extends RapidFire {
         double rotSeatX = Math.sin(aim.getY());
 
         rotatingSeat.add(rotSeatX,0.5,rotSeatZ);
-        this.rotatingSeat = StandHelper.spawnPart(rotatingSeat,SEAT,aim,world,this);
+        this.rotatingSeat = StandHelper.spawnPart(rotatingSeat, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
+
+        this.triggerHandle = StandHelper.spawnTrigger(rotatingSeat.clone().add(0,1,0),world, this);
 
         support.setArms(true);
         support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
-
-
-
-
 
 
         boolean down = false;
@@ -105,7 +112,7 @@ public class HeavyMachineGun extends RapidFire {
             ArtilleryPart stand;
 
             //if it is small, add 0.75 so that it is high enough
-            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE, aim, world, this);
+            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, null, world, this);
             stand.setSmall(true);
 
             if (down)
@@ -117,7 +124,6 @@ public class HeavyMachineGun extends RapidFire {
         initLoadedChunks();
         if (health <= 0)
             setHealth(HEALTH);
-       // pivot(0,0);
     }
 
 
@@ -142,6 +148,7 @@ public class HeavyMachineGun extends RapidFire {
         rotatingSeat.add(rotSeatX,0,rotSeatZ);
         this.rotatingSeat.teleport(rotatingSeat.getX(),rotatingSeat.getY(), rotatingSeat.getZ());
         this.rotatingSeat.setRotation(0,(float)horAngle);
+        this.triggerHandle.teleport(rotatingSeat.add(0,1,0));
 
 
         //for all of the armorstands making up the barrel,
@@ -172,11 +179,11 @@ public class HeavyMachineGun extends RapidFire {
             aim = new EulerAngle(vertAngle,horAngle,0);
             //setting the rotation of all of the barrel armorstands.
 
+            //rotating the face of the armorstand by 90 degrees.
             if (stand.isFacesDown())
                 stand.setHeadPose(new Vector3f((float)aim.getX(),(float)(aim.getY()+PI/2),(float)aim.getZ()));
 
-                stand.setRotation(aim);
-
+            stand.setRotation(aim);
             pivot.setRotation(aim);
 
 
@@ -191,13 +198,13 @@ public class HeavyMachineGun extends RapidFire {
     }
 
     @Override
-    public void fire(double power, int recoilTime, double barrelRecoverRate) {
-       super.fire();
+    public void fire(double power, int recoilTime, double barrelRecoverRate, @Nullable Player shooter) {
+       super.fire(power, recoilTime, barrelRecoverRate, shooter);
     }
 
     @Override
-    public synchronized void fire() {
-        super.fire();
+    public synchronized void fire(@Nullable Player shooter) {
+        super.fire(shooter);
     }
 
 
@@ -206,6 +213,7 @@ public class HeavyMachineGun extends RapidFire {
     public List<ArtilleryPart> getParts() {
         List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
         parts.add(pivot);
+        parts.add(triggerHandle);
         parts.addAll(Arrays.asList(base[0]));
         parts.add(rotatingSeat);
 
