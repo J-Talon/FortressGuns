@@ -5,46 +5,26 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
-import me.camm.productions.fortressguns.Inventory.InventorySetting;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
 public class HeavyArtillery extends FieldArtillery
 {
 
-    private static final double POWER;
-    private static final int TIME;
-    private static final double RECOVER_RATE;
+
     private static final double HEALTH;
     private static final long FIRE_COOLDOWN;
 
-
-    protected static ItemStack BODY = new ItemStack(Material.GREEN_TERRACOTTA);
-    protected static ItemStack BASE_CLOSE = new ItemStack(Material.COAL_BLOCK);
-    protected static ItemStack BASE_FAR = new ItemStack(Material.STONE_BRICK_SLAB);
-    protected static ItemStack BARREL_MAT = new ItemStack(Material.DISPENSER);
-
     static {
-        POWER = 6;
-        TIME = 1;
-        RECOVER_RATE = 0.05;
         HEALTH = 80;
         FIRE_COOLDOWN = 3000;
     }
-
 
     public HeavyArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world,loader, aim);
@@ -52,17 +32,7 @@ public class HeavyArtillery extends FieldArtillery
         base = new ArtilleryPart[4][3];
     }
 
-
-    @Override
-    public void fire(double power, int recoilTime, double barrelRecoverRate, @Nullable Player shooter) {
-      super.fire(power, recoilTime, barrelRecoverRate, shooter);
-    }
-
-    @Override
-    public void fire(@Nullable Player shooter) {
-        fire(POWER, TIME, RECOVER_RATE, shooter);
-    }
-
+    ///
     @Override
     public synchronized boolean canFire(){
         return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
@@ -70,21 +40,15 @@ public class HeavyArtillery extends FieldArtillery
 
     @Override
     public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
-        for (ArtilleryPart[] segment: base)
-            parts.addAll(Arrays.asList(segment));
+        List<ArtilleryPart> parts = super.getParts();
         parts.add(pivot);
+        parts.add(rotatingSeat);
         return parts;
-
     }
 
-    @Override
     public @NotNull Inventory getInventory(){
-        return inventory.getInventory();
+        return loadingInventory.getInventory();
     }
-
-
-
 
 
     @Override
@@ -104,13 +68,10 @@ public class HeavyArtillery extends FieldArtillery
     }
 
     @Override
-    protected void init(){
-
-
-
+    protected void spawnParts(){
         pivot = StandHelper.getCore(loc, BODY,aim,world,this);
         pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
-
+        rotatingSeat = StandHelper.spawnPart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
 
         //for the barrel
         for (int slot=0;slot< barrel.length;slot++)
@@ -125,7 +86,6 @@ public class HeavyArtillery extends FieldArtillery
             else
                 totalDistance = (slot+1)* LARGE_BLOCK_LENGTH;
 
-
             double height = -totalDistance*Math.sin(aim.getX());
             double horizontalDistance = totalDistance*Math.cos(aim.getX());
 
@@ -139,7 +99,7 @@ public class HeavyArtillery extends FieldArtillery
 
             //if it is small, add 0.75 so that it is high enough
             if (small) {
-                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL_MAT, aim, world, this);
+                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
                 stand.setSmall(true);
             }
             else
@@ -147,7 +107,6 @@ public class HeavyArtillery extends FieldArtillery
 
             barrel[slot] = stand;
         }
-
 
         double rads = 0;
         int bar = 0;
@@ -165,9 +124,9 @@ public class HeavyArtillery extends FieldArtillery
 
                 //if the length is close to base, then give it wheels, else give it supports
                 if (length >=1)
-                    part = StandHelper.spawnPart(spawn, BASE_FAR, null, world, this);
+                    part = StandHelper.spawnPart(spawn, SUPPORT, null, world, this);
                 else if (bar!=base.length-1)
-                    part = StandHelper.spawnPart(spawn, BASE_CLOSE,null,world, this);
+                    part = StandHelper.spawnPart(spawn, WHEEL,null,world, this);
                 else
                     part = StandHelper.spawnPart(spawn, BODY,null,world, this);
 

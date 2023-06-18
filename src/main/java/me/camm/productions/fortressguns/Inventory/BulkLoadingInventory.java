@@ -4,10 +4,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
-public class RadarInventory extends ArtilleryInventory {
+public class BulkLoadingInventory extends ArtilleryInventory {
 
-    public RadarInventory(Artillery owner, InventorySetting setting) {
-        super(owner, setting);
+
+    public BulkLoadingInventory(Artillery owner) {
+        super(owner, InventorySetting.LOADING);
     }
 
     @Override
@@ -21,7 +22,7 @@ public class RadarInventory extends ArtilleryInventory {
     }
 
     @Override
-    public void init(){
+    public void init() {
 
     }
 }

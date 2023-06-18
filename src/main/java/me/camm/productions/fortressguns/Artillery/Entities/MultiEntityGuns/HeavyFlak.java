@@ -6,34 +6,21 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
-import net.minecraft.network.chat.ChatMessage;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.sounds.SoundEffects;
-import net.minecraft.world.entity.Entity;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 public class HeavyFlak extends FlakArtillery {
 
 
-    private static final double POWER;
-    private static final int TIME;
-    private static final double RECOVER_RATE;
     private static final double HEALTH;
     private static final long FIRE_COOLDOWN;
 
@@ -42,18 +29,8 @@ public class HeavyFlak extends FlakArtillery {
 
 
 
-
-
-    protected static ItemStack BODY = new ItemStack(Material.RED_TERRACOTTA);
-    protected static ItemStack BASE_CLOSE = new ItemStack(Material.COAL_BLOCK);
-    protected static ItemStack BASE_FAR = new ItemStack(Material.STONE_BRICK_SLAB);
-    protected static ItemStack BARREL_MAT = new ItemStack(Material.DISPENSER);
-
-
     static {
-        POWER = 6;
-        TIME = 1;
-        RECOVER_RATE = 0.05;
+
         HEALTH = 70;
 
         FIRE_COOLDOWN = 3000;
@@ -67,75 +44,157 @@ public class HeavyFlak extends FlakArtillery {
     }
 
     @Override
-    public boolean canFire(){
-        return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
+    public double nextHorizontalAngle(double currentAngle, double targetAngle) {
+
+        currentAngle = Math.toDegrees(currentAngle);
+        targetAngle = Math.toDegrees(targetAngle);
+
+        if (Math.abs(currentAngle - targetAngle) <= 1)
+            return Math.toRadians(targetAngle);
+
+        //converting the current angle from -180 -> 180 format to 0->360 format
+        if (currentAngle < 0)
+            currentAngle += 360;
+
+        if (targetAngle < 0)
+            targetAngle += 360;
+
+        double diffAngle = ((targetAngle - currentAngle + 540) % 360) - 180;
+        int dir;
+
+        if (diffAngle > 0)
+            dir =  1;
+        else if (diffAngle < 0)
+            dir = -1;
+        else
+            dir = 0;
+
+        double offset = Math.min(3,Math.abs(diffAngle));
+
+        dir *= offset;
+        currentAngle += dir;
+
+        return Math.toRadians(currentAngle);
+
+    }
+
+    public synchronized void pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
+    {
+        if (dead)
+            return;
+
+        if (isInvalid()) {
+            remove(false, true);
+            dead = true;
+            return;
+        }
+
+
+        //0.017 = 1 degree in rad form
+        vertAngle = Math.abs(vertAngle - aim.getX()) <= 0.034? vertAngle : nextVerticalAngle(aim.getX(), vertAngle);
+
+        //don't add PI to give an extra 180 * to the rotation (see Construct.getASFace(EntityHuman) )
+        //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
+        horAngle = Math.abs(horAngle - aim.getY()) <= 0.051 ? horAngle : nextHorizontalAngle(aim.getY(), horAngle);
+
+        positionSeat(rotatingSeat,this);
+
+
+
+        //for all of the armorstands making up the barrel,
+        for (int slot=0;slot< barrel.length;slot++)
+        {
+            ArtilleryPart stand = barrel[slot];
+
+            double totalDistance;
+
+            //getting the distance from the pivot
+            if (stand.isSmall())
+                totalDistance = (largeBlockDist *0.75 + 0.5* smallBlockDist) + (slot * smallBlockDist);
+            else
+                totalDistance = (slot+1)* largeBlockDist;
+
+
+            //height of the aim
+            double height = -totalDistance*Math.sin(vertAngle);
+
+            //hor dist of the aim component
+            double horizontalDistance = totalDistance*Math.cos(vertAngle);
+
+
+            //x and z distances relative to the pivot from total hor distance
+            double z = horizontalDistance*Math.cos(horAngle);
+            double x = -horizontalDistance*Math.sin(horAngle);
+            //the - is to account for the 180* between players and armorstands
+
+
+
+
+            aim = new EulerAngle(vertAngle,horAngle,0);
+            //setting the rotation of all of the barrel armorstands.
+            stand.setRotation(aim);
+            pivot.setRotation(aim);
+
+
+            Location centre = pivot.getLocation(world).clone();
+
+            //teleporting the armorstands to be in line with the pivot
+            if (stand.isSmall()) {
+                Location teleport = centre.add(x, height + 0.75, z);
+                stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
+            }
+            else {
+                Location teleport = centre.clone().add(x, height, z);
+                stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
+            }
+        }
     }
 
     @Override
-    public void fire(@Nullable Player shooter) {
-        super.fire(POWER,TIME,RECOVER_RATE, shooter);
+    public boolean canFire(){
+        return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
     }
 
     @NotNull
     @Override
     public Inventory getInventory() {
-        return inventory.getInventory();
-    }
-
-    public void setTarget(Entity target){
-        List<Entity> passengers = this.pivot.getPassengers();
-
-        if (passengers.size()> 0) {
-            this.target = null;
-
-            for (Entity e: passengers) {
-                if (e instanceof EntityPlayer) {
-                    e.playSound(SoundEffects.mm,2,1);
-                    e.sendMessage(new ChatMessage(ChatColor.GOLD + "Someone wants to have the artillery auto-aim," +
-                            " but it cannot do so if you're riding it!"), UUID.randomUUID());
-                }
-
-            }
-        }
-        else {
-            this.target = target;
-
-        }
+        return loadingInventory.getInventory();
     }
 
 
-    public void toggleTargetingSimple(boolean autoShoot) {
+    public void startAiming() {
 
-        aiming = !aiming;
+        if (isAiming())
+            return;
 
-        if (aiming) {
+        setAiming(true);
+
             new BukkitRunnable() {
                 public void run() {
 
-                    if (!aiming) {
+                    if (!isAiming()) {
                         cancel();
                         return;
                     }
-
-
                     autoAim();
-
-
-                    if (autoShoot && canFire()) {
-                        fire(null);
-                    }
-
                 }
             }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
-        }
+    }
 
+    public void setAiming(boolean aiming) {
+        this.aiming = aiming;
+    }
+
+    public boolean isAiming() {
+        return aiming;
     }
 
     @Override
-    protected void init() {
+    protected void spawnParts() {
 
         pivot = StandHelper.getCore(loc, BODY,aim,world,this);
         pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
+        rotatingSeat = StandHelper.spawnPart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
 
         //for the barrel
         for (int slot=0;slot< barrel.length;slot++)
@@ -164,7 +223,7 @@ public class HeavyFlak extends FlakArtillery {
 
             //if it is small, add 0.75 so that it is high enough
             if (small) {
-                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL_MAT, aim, world, this);
+                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
                 stand.setSmall(true);
             }
             else
@@ -190,9 +249,9 @@ public class HeavyFlak extends FlakArtillery {
 
                 //if the length is close to base, then give it wheels, else give it supports
                 if (length >=1)
-                    part = StandHelper.spawnPart(spawn, BASE_FAR, null, world, this);
+                    part = StandHelper.spawnPart(spawn, SUPPORT, null, world, this);
                 else if (bar!=base.length-1)
-                    part = StandHelper.spawnPart(spawn, BASE_CLOSE,null,world, this);
+                    part = StandHelper.spawnPart(spawn, WHEEL,null,world, this);
                 else
                     part = StandHelper.spawnPart(spawn, BODY,null,world, this);
 
@@ -216,6 +275,7 @@ public class HeavyFlak extends FlakArtillery {
         for (ArtilleryPart[] segment: base)
             parts.addAll(Arrays.asList(segment));
         parts.add(pivot);
+        parts.add(rotatingSeat);
         return parts;
 
     }
@@ -238,7 +298,7 @@ public class HeavyFlak extends FlakArtillery {
   period: the period between each tracking time, in seconds
    */
 
-    @Override
+
     public boolean aimMoving(Location[] locations, int period){
 
         double threshold = 5;
@@ -249,8 +309,6 @@ public class HeavyFlak extends FlakArtillery {
             }
 
         Location targetLocation = new Location(world, target.locX(), target.locY(), target.locZ());
-
-
 
             Vector vAverage = new Vector(0,0,0);
 
@@ -282,7 +340,7 @@ public class HeavyFlak extends FlakArtillery {
            }
 
         //time in seconds
-           double timeToTarget = (POWER * 20)/distToTarget;
+           double timeToTarget = (vectorPower * 20)/distToTarget;
 
           Vector targVelocity = target.getBukkitEntity().getVelocity();
           targVelocity.clone().multiply(timeToTarget);

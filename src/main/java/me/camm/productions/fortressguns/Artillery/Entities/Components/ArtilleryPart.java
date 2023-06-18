@@ -1,8 +1,10 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
+import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyFlak;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.core.Vector3f;
+import net.minecraft.network.chat.ChatMessage;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -17,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -29,30 +32,22 @@ import org.bukkit.util.EulerAngle;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 public class ArtilleryPart extends Component
 {
     protected Artillery body;
     protected final Material FIRE = Material.STICK;
-    protected boolean facesDown;
 
     public ArtilleryPart(World world, Artillery body, double d0, double d1, double d2) {
         super(world, d0, d1, d2, body);
         this.body = body;
-        this.facesDown = false;
     }
 
     public ArtilleryPart(World world, Artillery body, Location loc){
         this(world, body, loc.getX(),loc.getY(),loc.getZ());
     }
 
-    public boolean isFacesDown() {
-        return facesDown;
-    }
-
-    public void setFacesDown(boolean facesDown) {
-        this.facesDown = facesDown;
-    }
 
     public Artillery getBody() {
         return body;
@@ -90,7 +85,7 @@ public class ArtilleryPart extends Component
     @Override
     public boolean damageEntity(DamageSource source, float damage)
     {
-        if (body.inValid())
+        if (body.isInvalid())
             return super.damageEntity(source,damage);
         else
         {
@@ -174,15 +169,21 @@ public class ArtilleryPart extends Component
 
     public void seat(EntityHuman human){
 
-        if (!body.getType().isSeatable())
-            return;
-
         ArtilleryCore core = body.getPivot();
 
         if (core.getPassengers().size() > 0 || this.getPassengers().size() > 0)
             return;
 
+        if (body instanceof HeavyFlak) {
+            HeavyFlak f = (HeavyFlak) body;
+            if (f.isAiming()) {
+                human.sendMessage(new ChatMessage(ChatColor.GRAY+"You cannot ride this artillery while it's aiming!"),
+                        UUID.randomUUID());
+                return;
+            }
+        }
 
+        body.setHasRider(true);
         human.startRiding(this);
         ArtilleryPart part = this;
 
@@ -191,8 +192,9 @@ public class ArtilleryPart extends Component
             public void run()
             {
 
-                if (body.inValid()) {
+                if (body.isInvalid()) {
                     human.stopRiding();
+                    body.setHasRider(false);
                     cancel();
                 }
 
@@ -200,8 +202,10 @@ public class ArtilleryPart extends Component
                 if (vehicle!= null && vehicle.equals(part)) {
                     body.pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
                 }
-                else
+                else {
+                    body.setHasRider(false);
                     cancel();
+                }
             }
         }.runTaskTimer(FortressGuns.getInstance(),0,1);
     }

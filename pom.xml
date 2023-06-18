@@ -6,12 +6,12 @@
 
     <groupId>me.camm.productions</groupId>
     <artifactId>FortressGuns</artifactId>
-    <version>3.0</version>
+    <version>BETA-1.2</version>
     <packaging>jar</packaging>
 
     <name>FortressGuns</name>
 
-    <description>Gun Plugin version 3, with new Artillery and guns.</description>
+    <description>Gun Plugin version 1.2, with new Artillery and guns.</description>
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,8 +24,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -48,7 +48,29 @@
                                         <exclude>META-INF/*.MF</exclude>
                                     </excludes>
                                 </filter>
+
+                                <filter>
+                                    <artifact>org.tomlj:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+
+                                <filter>
+                                    <artifact>org.antlr:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
+
+                                <filter>
+                                    <artifact>org.checkerframework:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.MF</exclude>
+                                    </excludes>
+                                </filter>
                             </filters>
+
 
                         </configuration>
                     </execution>
@@ -85,7 +107,13 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>16.0.2</version>
+            <version>24.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.tomlj</groupId>
+            <artifactId>tomlj</artifactId>
+            <version>1.1.0</version>
         </dependency>
 
     </dependencies>

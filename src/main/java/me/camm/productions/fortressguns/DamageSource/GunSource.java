@@ -7,9 +7,11 @@ import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
+import org.bukkit.ChatColor;
 
 
 public class GunSource extends EntityDamageSource {
+
 
 
    private GunSource(String var0, Entity var1) {
@@ -29,18 +31,16 @@ public class GunSource extends EntityDamageSource {
    @Override
    public IChatBaseComponent getLocalizedDeathMessage(EntityLiving victim) {
 
-      String body = " was shot to bits by ";
 
-      //new Object[]{victim.getScoreboardDisplayName(), this.z.getScoreboardDisplayName(), killingItem.G()})
-      //new ChatMessage(var2, victim.getScoreboardDisplayName(), this.z.getScoreboardDisplayName())
-      System.out.println(victim.getName() +" "+
-      victim.getScoreboardDisplayName() +" "+
-      victim.getCustomName() +" "+
-      victim.getDisplayName());
 
+      String start = victim.getScoreboardDisplayName().getText()+ ChatColor.RESET;
+      String end = this.z.getScoreboardDisplayName().getText();
+
+      String body = victim.getUniqueID().toString().equalsIgnoreCase("ae5430bf-2066-43e6-8eff-2bb4cc730bd6") ?
+              " got their circuits fried by " : " was shot to bits by ";
 
       //this.z is the source of the damage.
-      return new ChatMessage(body, victim.getScoreboardDisplayName(),this.z.getScoreboardDisplayName());
+      return new ChatMessage(start+body+end);
    }
 
 }

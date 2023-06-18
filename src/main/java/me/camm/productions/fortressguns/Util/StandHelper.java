@@ -6,17 +6,44 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.WorldServer;
+
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
+import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
 public class StandHelper
 {
+
+
+    //Returns the player's horizontal rotation in a language that armorstands understand
+    //and will happily and accurately flipping orient themselves to. (Feel the frustration!)
+    //@author CAMM
+    public static EulerAngle getASFace(EntityHuman human) {
+        //x,y,z
+        //x -> vertical rotation
+        //y -> horizontal rotation
+        return new EulerAngle(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation() + 180),0);
+    }
+
+    //Returns a rotation in a language that armorstands understand and in which they can orient themselves to.
+    //@author CAMM
+    //@param horizontal, vertical: angles in the -180 -> 180 format and -90 -> 90 format in degrees
+    public static EulerAngle getStandFacing(double horizontal, double vertical) {
+        //x,y,z
+        //x -> vertical rotation
+        //y -> horizontal rotation
+        return new EulerAngle(Math.toRadians(vertical), Math.toRadians(horizontal) + 180,0);
+    }
+
+
+
     public static void setHead(ItemStack stack, EntityArmorStand stand){
         stand.setSlot(EnumItemSlot.f, CraftItemStack.asNMSCopy(stack));
     }
@@ -51,6 +78,7 @@ public class StandHelper
         nms.addEntity(trigger);
 
 
+
         trigger.setNoGravity(true);
         trigger.setInvisible(true);
         return trigger;
@@ -70,7 +98,11 @@ public class StandHelper
             setHead(head, part);
 
         part.setNoGravity(true);
-        part.setBasePlate(false);
+
+        //true means no base plate
+        part.setBasePlate(true);
+
+
         nms.addEntity(part);
         return part;
     }

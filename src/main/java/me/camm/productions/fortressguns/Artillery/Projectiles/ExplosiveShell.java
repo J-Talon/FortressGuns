@@ -1,20 +1,24 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles.Modifier;
+package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Tracer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.item.EntityFallingBlock;
+import net.minecraft.world.entity.projectile.EntityArrow;
+import net.minecraft.world.level.World;
+import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
-import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,18 +27,18 @@ import java.util.Random;
 
 import static java.lang.Math.PI;
 
-public class HighExplosive implements IModifier {
-
-    private final Location loc;
-    public HighExplosive(Location target){
-        loc = target;
+public class ExplosiveShell extends Shell {
+    public ExplosiveShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
+        super(entitytypes, d0, d1, d2, world, shooter);
     }
 
     @Override
-    public void activate() {
+    protected void explode(MovingObjectPosition pos) {
 
+        Vec3D vec = pos.getPos();
+        CraftWorld world = getWorld().getWorld();
+        Location loc = new Location(world, vec.getX(), vec.getY(), vec.getZ());
 
-        World world = loc.getWorld();
         Random rand = new Random();
 
         if (world == null)
@@ -76,16 +80,16 @@ public class HighExplosive implements IModifier {
 
                 HashSet<Block> total = new HashSet<>();
                 for (Tracer tracer: tracers){
-                   HashSet<Block> broken = tracer.breakBlocks();
-                   total.addAll(broken);
-                   if (broken.size() > 10)
-                       break;
+                    HashSet<Block> broken = tracer.breakBlocks();
+                    total.addAll(broken);
+                    if (broken.size() > 10)
+                        break;
                 }
                 playExplosionEffects(world,loc);
 
 
                 int thrown = 0;
-                net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
+                net.minecraft.world.level.World nmsWorld = world.getHandle();
                 List<Entity> blocks = new ArrayList<>();
                 for (Block block: total) {
 
@@ -108,18 +112,17 @@ public class HighExplosive implements IModifier {
 
                 blocks.forEach((nmsWorld::addEntity));
 
-
-
-
-
-
                 cancel();
 
             }
         }.runTask(FortressGuns.getInstance());
-
-
-
-
     }
+
+    private void playExplosionEffects(org.bukkit.World bukkitWorld, Location explosion){
+        bukkitWorld.spawnParticle(Particle.FLASH,explosion,3,0,0,0,0);
+        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,explosion,30,0,0,0,0.3);
+        bukkitWorld.createExplosion(explosion, 4f);
+    }
+
+
 }

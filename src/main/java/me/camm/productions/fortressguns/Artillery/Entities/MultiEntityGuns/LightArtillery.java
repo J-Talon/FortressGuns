@@ -6,14 +6,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,16 +17,11 @@ import java.util.List;
 
 public class LightArtillery extends FieldArtillery
 {
-    private static final double POWER;
-    private static final int TIME;
-    private static final double RECOVER_RATE;
+
     private static final double HEALTH;
     private static final long FIRE_COOLDOWN;
 
     static {
-        POWER = 4;
-        TIME = 1;
-        RECOVER_RATE = 0.15;
         HEALTH = 40;
         FIRE_COOLDOWN = 1000;
     }
@@ -41,17 +32,6 @@ public class LightArtillery extends FieldArtillery
         barrel = new ArtilleryPart[5];
         base = new ArtilleryPart[3][3];
     }
-
-    protected static ItemStack BODY = new ItemStack(Material.GREEN_TERRACOTTA);
-    protected static ItemStack BASE_CLOSE = new ItemStack(Material.YELLOW_TERRACOTTA);
-    protected static ItemStack BASE_FAR = new ItemStack(Material.STONE_BRICK_SLAB);
-    protected static ItemStack BARREL_MAT = new ItemStack(Material.DISPENSER);
-
-    @Override
-    public void fire(@Nullable Player shooter) {
-       super.fire(POWER,TIME,RECOVER_RATE, shooter);
-    }
-
 
     public synchronized boolean canFire(){
         return canFire && System.currentTimeMillis()-lastFireTime >= FIRE_COOLDOWN;
@@ -68,11 +48,12 @@ public class LightArtillery extends FieldArtillery
     }
 
     @Override
-    protected void init()
+    protected void spawnParts()
     {
 
         pivot = StandHelper.getCore(loc, BODY, aim, world, this);
         pivot.setRotation(aim);
+        rotatingSeat = StandHelper.spawnPart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
 
         for (int slot=0;slot< barrel.length;slot++)
         {
@@ -86,7 +67,6 @@ public class LightArtillery extends FieldArtillery
             else
                 totalDistance = (slot+1)* LARGE_BLOCK_LENGTH;
 
-
             double height = -totalDistance*Math.sin(aim.getX());
             double horizontalDistance = totalDistance*Math.cos(aim.getX());
 
@@ -98,7 +78,7 @@ public class LightArtillery extends FieldArtillery
 
             //if it is small, add 0.75 so that it is high enough
             if (small) {
-                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL_MAT, aim, world, this);
+                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
                 stand.setSmall(true);
             }
             else
@@ -129,9 +109,9 @@ public class LightArtillery extends FieldArtillery
                 //if the length is close to base, then give it wheels, else give it
                 //supports
                 if (length >=1)
-                    part = StandHelper.spawnPart(loc,BASE_FAR,null,world,this);
+                    part = StandHelper.spawnPart(loc, SUPPORT,null,world,this);
                 else if (bar!=base.length-1)
-                    part = StandHelper.spawnPart(loc,BASE_CLOSE,null,world, this);
+                    part = StandHelper.spawnPart(loc, WHEEL,null,world, this);
                 else
                     part = StandHelper.spawnPart(loc,BODY,null,world, this);
 
@@ -155,7 +135,7 @@ public class LightArtillery extends FieldArtillery
     @NotNull
     @Override
     public Inventory getInventory() {
-        return inventory.getInventory();
+        return loadingInventory.getInventory();
     }
 
     @Override
@@ -164,6 +144,7 @@ public class LightArtillery extends FieldArtillery
         for (ArtilleryPart[] segment: base)
             parts.addAll(Arrays.asList(segment));
         parts.add(pivot);
+        parts.add(rotatingSeat);
         return parts;
 
     }

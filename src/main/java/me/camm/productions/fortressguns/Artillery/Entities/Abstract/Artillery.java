@@ -8,18 +8,21 @@ import me.camm.productions.fortressguns.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
+import me.camm.productions.fortressguns.Inventory.BulkLoadingInventory;
+import me.camm.productions.fortressguns.Inventory.StandardLoadingInventory;
 import me.camm.productions.fortressguns.Util.ExplosionEffect;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -30,10 +33,20 @@ import java.util.*;
 Abstract class for the artillery pieces
 Superclass for all complex entities which are artillery pieces
  */
-public abstract class Artillery implements InventoryHolder, Construct {
+public abstract class Artillery extends Construct implements InventoryHolder {
 
 
 
+    protected final static double LARGE_BLOCK_LENGTH = 0.6;
+    protected final static double SMALL_BLOCK_LENGTH = 0.4;
+
+    protected volatile boolean hasRider;
+
+    protected UUID operator;
+
+    protected volatile int bullets;
+
+    protected ArtilleryPart rotatingSeat = null;
     protected Plugin plugin;
     protected ArtilleryPart[] barrel;
     protected ArtilleryPart[][] base;
@@ -52,17 +65,22 @@ public abstract class Artillery implements InventoryHolder, Construct {
     protected boolean dead;//
     protected boolean loaded;
 
-    protected final static double LARGE_BLOCK_LENGTH = 0.6;
-    protected final static double SMALL_BLOCK_LENGTH = 0.4;
-
-    protected volatile double currentLargeLength;//
-    protected volatile double currentSmallLength;//
+    protected volatile double largeBlockDist;//
+    protected volatile double smallBlockDist;//
     protected volatile boolean canFire;
 
-    protected ArtilleryInventory inventory;
+    //default values for testing
+    //===================
+    protected double vectorPower = 6;
+    protected int recoilTime = 1;
+    protected double barrelRecoverRate = 0.05;
+    //==============
+
+    protected ArtilleryInventory loadingInventory;
 
     protected long lastFireTime;//
 
+    //Enum for damage multipliers
     private enum DamageMultiplier{
         EXPLOSION(3),
         FIRE(1.5),
@@ -85,22 +103,44 @@ public abstract class Artillery implements InventoryHolder, Construct {
         this.world = world;
         this.lastFireTime = System.currentTimeMillis();
         this.handler = loader;
-
+        this.hasRider = false;
 
         this.loaders = new HashSet<>();
-        currentLargeLength = LARGE_BLOCK_LENGTH;
-        currentSmallLength = SMALL_BLOCK_LENGTH;
+        largeBlockDist = LARGE_BLOCK_LENGTH;
+        smallBlockDist = SMALL_BLOCK_LENGTH;
         health = 0;
         dead = false;
         this.aim = aim;
         this.canFire = true;
+        this.bullets = 0;
+
+        if (this instanceof BulkLoaded) {
+            loadingInventory = new BulkLoadingInventory(this);
+        }
+        else loadingInventory = new StandardLoadingInventory(this);
+
     }
 
-    public abstract List<ArtilleryPart> getParts();
-    public ArtilleryInventory getArtyInventory(){
-        return inventory;
+    public List<ArtilleryPart> getParts() {
+        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (ArtilleryPart[] segment: base)
+            parts.addAll(Arrays.asList(segment));
+
+        return parts;
+    }
+    public @NotNull Inventory getInventory(){
+        return loadingInventory.getInventory();
     }
 
+
+    public ArtilleryInventory getLoadingInventory(){
+        return loadingInventory;
+    }
+
+
+    public synchronized void setBullets(int bullets) {
+    this.bullets = bullets;
+    }
 
     public EulerAngle getAim(){
         return aim;
@@ -110,15 +150,46 @@ public abstract class Artillery implements InventoryHolder, Construct {
         return loc;
     }
 
-    public synchronized void pivot(double vertAngle, double horAngle)
+    public ArtilleryPart[][] getBase() {
+        return base;
+    }
+
+    public synchronized void setHasRider(boolean hasRider){
+        this.hasRider = hasRider;
+    }
+
+    public synchronized boolean getHasRider(){
+        return hasRider;
+    }
+
+
+    /*
+    @param vertAngle, horAngle
+    vertAngle: The vertical angle of the aim (in rads)
+    horAngle: The horizontal angle of the aim (in rads)
+
+     */
+    public synchronized void pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
     {
         if (dead)
             return;
 
-        if (inValid()) {
+        if (isInvalid()) {
             remove(false, true);
             dead = true;
             return;
+        }
+
+
+        //0.017 = 1 degree in rad form
+        vertAngle = Math.abs(vertAngle - aim.getX()) <= 0.017? vertAngle : nextVerticalAngle(aim.getX(), vertAngle);
+
+        //don't add PI to give an extra 180 * to the rotation (see Construct.getASFace(EntityHuman) )
+        //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
+        horAngle = Math.abs(horAngle - aim.getY()) <= 0.017 ? horAngle : nextHorizontalAngle(aim.getY(), horAngle);
+
+        if (rotatingSeat != null && this instanceof SideSeated) {
+            ((SideSeated)this).positionSeat(rotatingSeat,this);
         }
 
 
@@ -131,9 +202,9 @@ public abstract class Artillery implements InventoryHolder, Construct {
 
             //getting the distance from the pivot
             if (stand.isSmall())
-                totalDistance = (currentLargeLength*0.75 + 0.5*currentSmallLength) + (slot * currentSmallLength);
+                totalDistance = (largeBlockDist *0.75 + 0.5* smallBlockDist) + (slot * smallBlockDist);
             else
-                totalDistance = (slot+1)*currentLargeLength;
+                totalDistance = (slot+1)* largeBlockDist;
 
 
             //height of the aim
@@ -146,6 +217,7 @@ public abstract class Artillery implements InventoryHolder, Construct {
             //x and z distances relative to the pivot from total hor distance
             double z = horizontalDistance*Math.cos(horAngle);
             double x = -horizontalDistance*Math.sin(horAngle);
+            //the - is to account for the 180* between players and armorstands
 
 
 
@@ -185,24 +257,23 @@ public abstract class Artillery implements InventoryHolder, Construct {
         this.loaded = loaded;
     }
 
-
-    public abstract void fire(double power, int recoilTime,double barrelRecoverRate, @Nullable Player player);
     public abstract void fire(@Nullable Player shooter);
 
 
 
 
     //to spawn an artillery piece, an external method calls spawn(). In the actual artillery classes however, the artillery
-    // is actually spawned when the init method is called, however the spawn method calls the init method, so it's fine.
-    public void spawn() {
+    // is actually spawned when the spawnParts method is called.
+    public final void spawn() {
         dead = false;
         loaded = true;
-        world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
-        init();
+        spawnParts();
     }
 
-    //this method actually spawns the artillery
-    protected abstract void init();
+    /*
+    This method spawns the artillery components into the world
+     */
+    protected abstract void spawnParts();
 
 
 
@@ -210,7 +281,7 @@ public abstract class Artillery implements InventoryHolder, Construct {
     public abstract boolean canFire();
     public abstract double getMaxHealth();
 
-    public final boolean inValid(){
+    public final boolean isInvalid(){
         return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
     }
 
@@ -251,6 +322,8 @@ public abstract class Artillery implements InventoryHolder, Construct {
        BlockData airData = Material.AIR.createBlockData();
        final Location flash = origin.clone();
 
+        world.spawnParticle(Particle.FLASH,origin.getX(),origin.getY(), origin.getZ(),1,0,0,0,0.2);
+
 
            players.forEach(player -> player.sendBlockChange(flash, lightData));
 
@@ -258,6 +331,7 @@ public abstract class Artillery implements InventoryHolder, Construct {
            new BukkitRunnable() {
                public void run() {
                    players.forEach(player -> player.sendBlockChange(flash, airData));
+
                }
            }.runTaskLater(FortressGuns.getInstance(), 5);
 
@@ -283,7 +357,7 @@ public abstract class Artillery implements InventoryHolder, Construct {
     public boolean damage(DamageSource source, float damage){
 
         if (source.isExplosion()) {
-            damage = Float.MAX_VALUE;
+            damage *= DamageMultiplier.EXPLOSION.multiplier;
         }
         else if (source.isFire()) {
             damage *= DamageMultiplier.FIRE.multiplier;
@@ -315,6 +389,10 @@ public abstract class Artillery implements InventoryHolder, Construct {
 
     public final synchronized void setHealth(double health){
         this.health = health;
+    }
+
+    public ArtilleryPart getRotatingSeat() {
+        return rotatingSeat;
     }
 
 

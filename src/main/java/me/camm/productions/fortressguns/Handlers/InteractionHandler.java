@@ -2,9 +2,9 @@ package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
@@ -14,7 +14,6 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -22,10 +21,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.RayTraceResult;
+import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
+
 
 /*
  * @author CAMM
@@ -33,10 +37,16 @@ import java.util.Set;
 public class InteractionHandler implements Listener
 {
     private final Map<String, Class<? extends Artillery>> artilleryNames;
+    private final static Map<UUID, org.bukkit.entity.Entity> targets = new HashMap<>();
+
     private final ChunkLoader handler;
+
+
 
     public InteractionHandler(){
         handler = new ChunkLoader();
+
+
         artilleryNames = new HashMap<>();
         Plugin plugin = FortressGuns.getInstance();
         plugin.getServer().getPluginManager().registerEvents(handler, plugin);
@@ -46,9 +56,55 @@ public class InteractionHandler implements Listener
         }
     }
 
+
+    public static void updateTarget(UUID id, org.bukkit.entity.Entity target) {
+        targets.put(id, target);
+    }
+
+    public static org.bukkit.entity.Entity getTarget(UUID id) {
+        return targets.getOrDefault(id, null);
+    }
+
+    public void findTarget(PlayerInteractEvent event) {
+        ItemStack stack = event.getItem();
+        if (stack == null || stack.getItemMeta() == null) {
+            return;
+        }
+
+        if (stack.getType() != Material.SPYGLASS)
+            return;
+
+        if (event.getAction() != Action.LEFT_CLICK_AIR)
+            return;
+
+        Player player = event.getPlayer();
+        World world = player.getWorld();
+
+        Predicate<org.bukkit.entity.Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
+            @Override
+            public boolean test(org.bukkit.entity.Entity entity) {
+                return !(entity.equals(player));
+            }
+        };
+
+        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
+        if (res == null)
+            return;
+
+        org.bukkit.entity.Entity hit = res.getHitEntity();
+        if (hit == null)
+            return;
+
+        updateTarget(player.getUniqueId(), hit);
+
+        player.playSound(player.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
+        player.sendMessage(ChatColor.RED+"Target Acquired: "+hit.getType());
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
-        handleArtilleryPlaceInteract(event);
+        findTarget(event);
+        handleArtilleryInteract(event);
     }
 
     @EventHandler
@@ -65,8 +121,6 @@ public class InteractionHandler implements Listener
         String name = item.getItemMeta().getDisplayName();
         if (artilleryNames.containsKey(name))
             event.setCancelled(true);
-
-
     }
 
     @EventHandler
@@ -82,40 +136,37 @@ public class InteractionHandler implements Listener
         //so we dismount them first.
        Entity nms = ((CraftEntity)riding).getHandle();
        EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-       if (nms instanceof ArtilleryPart) {
+       if (nms instanceof Component) {
            nmsPlayer.stopRiding();
+
+           if (nms instanceof ArtilleryPart) {
+               ((ArtilleryPart)nms).getBody().setHasRider(false);
+           }
+
        }
     }
 
 
 
-    public void handleArtilleryPlaceInteract(PlayerInteractEvent event) {
+    public void handleArtilleryInteract(PlayerInteractEvent event) {
 
         Player player = event.getPlayer();
         Action action = event.getAction();
         EntityPlayer nms = ((CraftPlayer)player).getHandle();
 
         if (!event.hasItem()) {
-
-
             Entity ride = nms.getVehicle();
-            if (ride instanceof ArtilleryCore) {
-
-                ArtilleryCore core = (ArtilleryCore) ride;
-                Artillery body = core.getBody();
-
-                if (body.canFire())
-                   body.fire(player);
-                event.setCancelled(true);
-
-            }
-            else if (ride instanceof ArtilleryPart) {
+            if (ride instanceof ArtilleryPart) {
                 ArtilleryPart part = (ArtilleryPart)ride;
                 Artillery body = part.getBody();
 
-                if (!(body instanceof RapidFire)) {
+                if (!part.equals(body.getRotatingSeat())) {
                     return;
                 }
+
+                Action a = event.getAction();
+                if (a != Action.LEFT_CLICK_AIR)
+                    return;
 
                 if (body.canFire()) {
                     body.fire(player);
@@ -148,6 +199,7 @@ public class InteractionHandler implements Listener
 
 
 
+
         if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
 
             player.sendMessage(ChatColor.RED+"You must be on the ground to assemble artillery.");
@@ -172,16 +224,19 @@ public class InteractionHandler implements Listener
               }
 
               if (!isDirectional) {
-                  aim.setY(Math.min(aim.getY(), 0));
+                 aim = aim.setX(Math.min(aim.getX(), 0));
               }
 
+                World world = player.getWorld();
+                Location loc = player.getLocation().clone().add(0,-0.6,0);
+                // -0.6 so it's on the ground
 
               Artillery artillery = artClass
                       .getConstructor(Location.class, World.class, ChunkLoader.class, EulerAngle.class)
-                      .newInstance(player.getLocation().clone()
-                      .add(0,-0.5,0),player.getWorld(),handler,aim);
+                      .newInstance(loc,world,handler,aim);
 
 
+              world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
                artillery.spawn();
 
 
@@ -199,5 +254,18 @@ public class InteractionHandler implements Listener
 
             event.setCancelled(true);
 
+    }
+
+
+    @EventHandler
+    public void onEntityDismount(EntityDismountEvent event) {
+
+        org.bukkit.entity.Entity mount = event.getDismounted();
+
+        Entity nms  = ((CraftEntity)mount).getHandle();
+        if (nms instanceof ArtilleryPart) {
+            Artillery arty = ((ArtilleryPart)nms).getBody();
+            arty.setHasRider(false);
+        }
     }
 }

@@ -2,17 +2,13 @@ package me.camm.productions.fortressguns.Handlers;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import org.bukkit.Chunk;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.Hash;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.util.EulerAngle;
+
 
 
 import java.util.*;
@@ -22,13 +18,11 @@ import java.util.*;
  */
 public class ChunkLoader implements Listener
 {
-
     private final static Table<Integer, Integer, Map<String, Set<Construct>>> pieces;
 
     static {
       pieces = HashBasedTable.create();
     }
-
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event){
@@ -48,27 +42,18 @@ public class ChunkLoader implements Listener
             return;
 
         Set<Construct> set = map.get(name);
-            Iterator<Construct> iter = set.iterator();
 
 
-            while (iter.hasNext()) {
+        for (Construct next : set) {
 
-                Construct next = iter.next();
-                Set<Chunk> loaders = next.getLoaders();
-                boolean loaded = loaders.stream().allMatch(Chunk::isLoaded);
+            Set<Chunk> loaders = next.getLoaders();
+            boolean loaded = loaders.stream().allMatch(Chunk::isLoaded);
 
-                if (loaded) {
-                    next.spawn();
-                    next.setChunkLoaded(true);
-                }
-
-                if (next instanceof Artillery)
-                {
-                    Artillery arty = (Artillery) next;
-                    EulerAngle aim = arty.getAim();
-                    arty.pivot(aim.getY(),aim.getX());
-                }
+            if (loaded) {
+                next.spawn();
+                next.setChunkLoaded(true);
             }
+        }
     }
 
     public void add(Chunk chunk, Construct construct){
@@ -104,12 +89,11 @@ public class ChunkLoader implements Listener
 
     }
 
+    //remove an artillery from the set
     public void remove(Set<Chunk> chunks, Construct construct){
 
 
-        Iterator<Chunk> iter = chunks.iterator();
-        while (iter.hasNext()) {
-            Chunk chunk = iter.next();
+        for (Chunk chunk : chunks) {
             int x = chunk.getX();
             int z = chunk.getZ();
 
@@ -139,20 +123,20 @@ public class ChunkLoader implements Listener
         int z = chunk.getZ();
         String name = chunk.getWorld().getName();
 
-        if (!pieces.contains(x,z))
+        if (!pieces.contains(x,z)) {
             return;
+        }
 
         Map<String, Set<Construct>> map = pieces.get(x,z);
 
-        if (map.containsKey(name))
+        if (!map.containsKey(name)) {
             return;
+        }
 
         Set<Construct> set = map.get(name);
 
 
-        Iterator<Construct> iter = set.iterator();
-        while (iter.hasNext()) {
-            Construct next = iter.next();
+        for (Construct next : set) {
             next.unload(false, false);
             next.setChunkLoaded(false);
         }

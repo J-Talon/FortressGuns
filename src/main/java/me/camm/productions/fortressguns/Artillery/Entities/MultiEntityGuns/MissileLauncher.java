@@ -1,35 +1,23 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.SideSeated;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.util.EulerAngle;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SurfaceToAir extends Artillery {
+public class MissileLauncher extends Artillery implements SideSeated {
 
-
-    public SurfaceToAir(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+    public MissileLauncher(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
-        throw new UnsupportedOperationException("unfinished");
-    }
-
-    @Override
-    public List<ArtilleryPart> getParts() {
-        return null;
-    }
-
-    @Override
-    public void fire(double power, int recoilTime, double barrelRecoverRate, @Nullable Player player) {
-
     }
 
     @Override
@@ -38,13 +26,13 @@ public class SurfaceToAir extends Artillery {
     }
 
     @Override
-    protected void init() {
+    protected void spawnParts() {
 
     }
 
     @Override
     public ArtilleryType getType() {
-        return ArtilleryType.SURFACE_TO_AIR;
+        return null;
     }
 
     @Override
@@ -57,8 +45,7 @@ public class SurfaceToAir extends Artillery {
         return 0;
     }
 
-    @Override
-    public Inventory getInventory() {
-        return null;
+    public List<ArtilleryPart> getParts(){
+        return new ArrayList<>();
     }
 }

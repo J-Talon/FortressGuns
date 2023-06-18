@@ -3,8 +3,8 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightFlakShell;
-import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
@@ -16,33 +16,30 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
 import java.util.List;
+import java.util.Random;
 
 /*
  * @author CAMM
  */
 public class LightFlak extends HeavyMachineGun {
 
-    private final static ItemStack BARREL;
+    private final static ItemStack BARREL = ArtilleryMaterial.DESERT_BODY.asItem();
     //(double power, int recoilTime, double barrelRecoverRate)
+    private final static long COOLDOWN;
 
-    private final static double POWER, BARREL_RECOVER, RECOIL;
+    private static final Random random = new Random();
 
 
 
 
     static {
-        BARREL = new ItemStack(Material.RED_TERRACOTTA);
-        POWER = 4;
-        BARREL_RECOVER = 0.1;
-
-        RECOIL = 0.3;
-
-
+        COOLDOWN = 500;
     }
 
     public LightFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
@@ -50,18 +47,22 @@ public class LightFlak extends HeavyMachineGun {
     }
 
 
-
-
     @Override
-    protected void init(){
+    protected void spawnParts(){
 
         dead = false;
         loaded = true;
+        lastFireTime = 0;
 
 
         ArtilleryPart support;
         pivot = StandHelper.getCore(loc,BARREL,aim,world, this);
         support = StandHelper.spawnVisiblePart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
+
+
+        support.setArms(true);
+        support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
+
 
         base[0][0] = support;
 
@@ -71,20 +72,19 @@ public class LightFlak extends HeavyMachineGun {
         double rotSeatX = Math.sin(aim.getY());
 
         rotatingSeat.add(rotSeatX,0.5,rotSeatZ);
+
+
+        //spawn rotating seat with the rotation of the aim
         this.rotatingSeat = StandHelper.spawnPart(rotatingSeat, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
+
+
+        //entity that the player can r-click to shoot while seated
         this.triggerHandle = StandHelper.spawnTrigger(rotatingSeat.clone().add(0,1,0), world, this);
 
 
-        support.setArms(true);
-        support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
-        support.setBasePlate(false);
 
 
-        boolean down = false;
         for (int slot = 0;slot < barrel.length;slot++) {
-
-            if (slot >= 2)
-                down = true;
 
             double totalDistance = (0.5 * LARGE_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
 
@@ -98,11 +98,9 @@ public class LightFlak extends HeavyMachineGun {
             ArtilleryPart stand;
 
             //if it is small, add 0.75 so that it is high enough
-            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, null, world, this);
+            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, aim, world, this);
             stand.setSmall(true);
 
-            if (down)
-                stand.setFacesDown(true);
 
             barrel[slot] = stand;
         }
@@ -112,20 +110,11 @@ public class LightFlak extends HeavyMachineGun {
             setHealth(HEALTH);
     }
 
-    @Override
-    public void fire(double power, int recoilTime, double barrelRecoverRate, @Nullable Player shooter) {
-        this.fire(null);
-    }
-
-    public synchronized void incrementSmallDistance(double increment){
-        this.currentSmallLength += increment;
-
-    }
 
     @NotNull
     @Override
     public Inventory getInventory() {
-        return inventory.getInventory();
+        return loadingInventory.getInventory();
     }
 
     @Override
@@ -133,8 +122,38 @@ public class LightFlak extends HeavyMachineGun {
         return ArtilleryType.FLAK_LIGHT;
     }
 
-    @Override
-    public void fire(@Nullable Player shooter){
+
+    public void fireBarrage(){
+
+        if (!canFire())
+            return;
+
+        int delayTicks = 1;
+        final int shots = 5;
+        canFire = false;
+            new BukkitRunnable() {
+
+                int fired = 0;
+                @Override
+                public void run() {
+
+                    canFire = false;
+                    fireOneShot();
+
+                    fired ++;
+                    if (fired >= shots) {
+                        canFire = true;
+                        lastFireTime = System.currentTimeMillis();
+                        cancel();
+                    }
+
+                }
+            }.runTaskTimer(plugin, 0,delayTicks);
+
+    }
+
+
+    private void fireOneShot(){
 
         List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
 
@@ -150,18 +169,9 @@ public class LightFlak extends HeavyMachineGun {
         if (operator == null)
             return;
 
-
-        if (canFire()) {
-            lastFireTime = System.currentTimeMillis();
-            canFire = false;
-        }
-        else
-            return;
-
         Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
-
         createFlash(muzzle);
-        createShotParticles(muzzle);
+        world.playSound(muzzle,Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR,2,1);
 
         double y = Math.tan(-aim.getX());
         double z = Math.cos(aim.getY());
@@ -170,7 +180,8 @@ public class LightFlak extends HeavyMachineGun {
         projectileVelocity.setX(x);
         projectileVelocity.setY(y);
         projectileVelocity.setZ(z);
-        projectileVelocity.normalize().multiply(POWER);
+        projectileVelocity.normalize().multiply(vectorPower);
+        projectileVelocity.add(new Vector(random.nextDouble()*0.1 - 0.05,random.nextDouble()*0.1 - 0.05,random.nextDouble()*0.1 - 0.05));
 
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
@@ -179,34 +190,23 @@ public class LightFlak extends HeavyMachineGun {
 
 
         LightFlakShell shell = new LightFlakShell(nmsWorld,muzzle.getX(),muzzle.getY(),muzzle.getZ(),nmsOperator);
-
-        new BukkitRunnable() {
-
-            boolean spent = false;
-            public void run() {
-
-                if (!spent) {
-                    currentSmallLength = RECOIL;
-                    spent = true;
-                    shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
-                    nmsWorld.addEntity(shell);
-
-                }
-
-                //pivot
-                if (currentSmallLength < SMALL_BLOCK_LENGTH) {
-                   incrementSmallDistance(BARREL_RECOVER);
-                }
-                else {
-                    currentSmallLength = SMALL_BLOCK_LENGTH;
-                    cancel();
-                    canFire = true;
-                }
-
-            }
-        }.runTaskTimer(FortressGuns.getInstance(),1,1);
-
+        shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
+        nmsWorld.addEntity(shell);
 
 
     }
+
+
+
+
+    @Override
+    public boolean canFire() {
+        return canFire && System.currentTimeMillis() - lastFireTime >= COOLDOWN;
+    }
+
+    @Override
+    public void fire(@Nullable Player shooter) {
+        fireBarrage();
+    }
+
 }

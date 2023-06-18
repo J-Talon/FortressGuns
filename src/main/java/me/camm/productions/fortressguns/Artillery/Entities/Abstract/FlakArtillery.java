@@ -1,31 +1,36 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.Modifier.ModifierType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Shell;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Projectiles.FlakShell;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
-import net.minecraft.network.chat.ChatMessage;
+import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
 
-
-public abstract class FlakArtillery extends Artillery
+public abstract class FlakArtillery extends Artillery implements SideSeated
 {
-    protected volatile Entity target;
+
+    protected static final ItemStack BODY = ArtilleryMaterial.DESERT_BODY.asItem();
+    protected static ItemStack WHEEL = ArtilleryMaterial.WHEEL.asItem();
+    protected static ItemStack SUPPORT = ArtilleryMaterial.BASE_SUPPORT.asItem();
+    protected static ItemStack BARREL = ArtilleryMaterial.BARREL.asItem();
+
+    protected static ItemStack SEAT = ArtilleryMaterial.SEAT.asItem();
+
+    protected Entity target;
     protected boolean aiming;
 
     //variables for aiming based on average v
@@ -33,8 +38,6 @@ public abstract class FlakArtillery extends Artillery
     /*
 This method is called in a loop. You can think of it as being called many times per second
  */
-    public abstract boolean aimMoving(Location[] trackLocations, int time);
-
 
    /*
    Constructor.
@@ -46,27 +49,13 @@ This method is called in a loop. You can think of it as being called many times 
     }
 
 
-    ///setting a target to track
-    public synchronized void setTarget(Entity target){
-        this.target = target;
-    }
-
-
-    public void seat(EntityHuman human){
-        if (target == null)
-           pivot.seat(human);
-        else
-            human.sendMessage(new ChatMessage("Cannot operate while artillery has a target!"), UUID.randomUUID());
-    }
-
     protected synchronized void incrementSmallDistance(double increment){
-        this.currentSmallLength += increment;
+        this.smallBlockDist += increment;
     }
 
-    @Override
-    public void fire(double power, int recoil, double barrelRecoverRate, @Nullable Player shooter) {
+    public void fire(@Nullable Player shooter) {
 
-        if (inValid()) {
+        if (isInvalid()) {
             remove(false, true);
             return;
         }
@@ -84,10 +73,8 @@ This method is called in a loop. You can think of it as being called many times 
         else
             return;
 
-
         createFlash(muzzle);
         createShotParticles(muzzle);
-
 
         //getting the values for the projectile velocity.
         //tan and sine are (-) since MC's grid is inverted
@@ -97,15 +84,12 @@ This method is called in a loop. You can think of it as being called many times 
 
         Vector velocity = new Vector(x,y,z).normalize();
 
-        x = velocity.getX()*power;
-        y = velocity.getY()*power;
-        z = velocity.getZ()*power;
+        x = velocity.getX()*vectorPower;
+        y = velocity.getY()*vectorPower;
+        z = velocity.getZ()*vectorPower;
 
         final Vec3D vector = new Vec3D(x,y,z);
-
-
-        currentSmallLength = 0;
-        pivot(aim.getX(), aim.getY());
+        smallBlockDist = 0;
         canFire = false;
 
         new BukkitRunnable()
@@ -115,39 +99,32 @@ This method is called in a loop. You can think of it as being called many times 
             @Override
             public void run() {
 
-
                 if (!shot) {
                     shot = true;
 
-                        Shell shell = new Shell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), ModifierType.FLAK, shooter);
+                        FlakShell shell = new FlakShell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), shooter);
                         shell.setMot(vector);
                         shell.setTerminus(target);
                         ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
-                        shell.flyAsFlak();
-
-
                 }
 
-
-                if (currentSmallLength < SMALL_BLOCK_LENGTH) {
+                if (!hasRider) {
                     pivot(aim.getX(), aim.getY());
+                }
+
+                if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     incrementSmallDistance(barrelRecoverRate);
                     Location loc = barrel[barrel.length-1].getEyeLocation();
                     world.spawnParticle(Particle.SMOKE_NORMAL,loc,5,0,0.1,0,0.3);
                 }
                 else
                 {
-                    currentSmallLength = SMALL_BLOCK_LENGTH;
-                    pivot(aim.getX(), aim.getY());
+                    smallBlockDist = SMALL_BLOCK_LENGTH;
                     canFire = true;
                     cancel();
                 }
-
             }
-        }.runTaskTimer(FortressGuns.getInstance(), 3, recoil);
-
-
-
+        }.runTaskTimer(FortressGuns.getInstance(), 3, recoilTime);
     }
 
 
@@ -160,7 +137,6 @@ This method is called in a loop. You can think of it as being called many times 
             aiming = false;
             return;
         }
-
 
         double deltaX = target.locX() - muzzle.getX();
 
@@ -175,8 +151,8 @@ This method is called in a loop. You can think of it as being called many times 
         double deltaZ = target.locZ() - muzzle.getZ();
         double distance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        Vec3D vector = new Vec3D(deltaX, deltaY + distance * 0.20000000298023224D, deltaZ);
-        //I don't know what the 0.2~ is about
+        Vec3D vector = new Vec3D(deltaX, deltaY + distance * 0.1, deltaZ);
+        //The 0.2~ ... seems to be an offset (aiming up to account for dropoff)
 
         double vectorMagnitude = vector.h();
         double yRotation = (float) (MathHelper.d(vector.b, vector.d));
@@ -185,7 +161,22 @@ This method is called in a loop. You can think of it as being called many times 
         //57.29 ~= 1 rad in deg
 
         //we're pivoting since we're on axe planes (think of pitch, yaw on an airplane)
+
         pivot(-xRotation, -yRotation);
+    }
+
+    public Entity getTarget(){
+        return this.target;
+    }
+
+
+    public boolean setTarget(Entity target){
+        if (target instanceof ArtilleryPart && this.getParts().contains(target)) {
+            return false;
+        }
+
+        this.target = target;
+        return true;
     }
 
 }

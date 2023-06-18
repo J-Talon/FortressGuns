@@ -1,0 +1,89 @@
+
+#Field light artillery
+#==============================
+[fieldLight]
+#healthpoints of the artillery
+health = 20
+#fire power of the artillery (float)
+power = 2
+#How much time (in ticks) should the artillery wait before recovering the recoverDistance
+recoverTime = 1
+#The recover distance the artillery should recover every n ticks of recoverTime
+recoverDistance = 0.05
+
+#The cooldown time to wait until the artillery can fire again, if reloading is disabled
+cooldown = 3000
+
+
+#==============================
+#Field Heavy artillery
+[fieldHeavy]
+health = 80
+power = 3
+recoverTime = 2
+recoverDistance = 0.05
+cooldown = 5000
+
+#==============================
+#Heavy flak
+
+[heavyFlak]
+health = 100
+power = 4
+recoverTime = 2
+recoverDistance = 0.05
+cooldown = 5000
+
+#==============================
+#Light flak
+[lightFlak]
+health = 15
+power = 2
+cooldown = 1000
+
+#==============================
+#Heavy machine gun
+
+[heavyMachineGun]
+health = 15
+cooldown = 2
+range = 150
+damage = 10
+
+#==============================
+#Missile launcher
+[missileLauncher]
+health = 100
+power = 2
+cooldown = 10000
+
+#==============================
+#Railgun
+[railGun]
+health = 50
+cooldown = 20000
+range = 150
+damage = 75
+
+#==============================
+#General options
+
+[general]
+#Explosion power of the shells
+standardShellPower = 2
+highExplosivePower = 2
+missilePower = 2
+
+#Damage to inflict on direct hit
+heavyFlakDamage = 10
+bulletDamage = 10
+smallFlakDamage = 10
+
+#Whether artillery destroys blocks
+destructiveArtillery = true
+
+
+
+
+
+

@@ -22,7 +22,7 @@ public class ArtilleryItemCreator
 
         ItemMeta meta = stack.getItemMeta();
         if (meta == null)
-        throw new IllegalStateException("Stack meta is null!");
+         throw new IllegalStateException("Stack meta is null!");
 
         meta.setDisplayName(artillery.getType().getName());
         stack.setItemMeta(meta);

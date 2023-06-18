@@ -5,16 +5,20 @@ import net.minecraft.core.particles.ParticleParam;
 import net.minecraft.core.particles.Particles;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.EntitySnowball;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.MovingObjectPosition;
+import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+
 
 /**
  * @author CAMM
@@ -42,17 +46,31 @@ public class LightFlakShell extends EntitySnowball
     @Override
     protected void a(MovingObjectPositionEntity position) {
 
-        System.out.println("hit entity");
+
         DamageSource source = GunSource.gunShot(gunOperator);
         Entity hit = position.getEntity();
         hit.damageEntity(source, 24);
+
+        //hurt ticks I believe this is
+        if (hit instanceof EntityLiving)
+            hit.W = 0;
 
 
     }
 
     @Override
     protected void a(MovingObjectPosition var0) {
-        super.a(var0);
+
+        MovingObjectPosition.EnumMovingObjectType movingobjectposition_enummovingobjecttype = var0.getType();
+        if (movingobjectposition_enummovingobjecttype == MovingObjectPosition.EnumMovingObjectType.c) {
+            this.a((MovingObjectPositionEntity)var0);
+        } else if (movingobjectposition_enummovingobjecttype == MovingObjectPosition.EnumMovingObjectType.b) {
+            this.a((MovingObjectPositionBlock)var0);
+        }
+
+        if (movingobjectposition_enummovingobjecttype != MovingObjectPosition.EnumMovingObjectType.a) {
+            this.a(GameEvent.I, this.getShooter());
+        }
 
 
         DamageSource source = GunSource.gunShot(gunOperator);

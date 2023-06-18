@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Entities.ComplexProjectiles;
+package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
@@ -9,7 +9,8 @@ import java.util.Set;
 /*
 Models a missile which is made of multiple entities
  */
-public class ComplexMissile implements Construct {
+public class ComplexMissile extends Construct {
+
 
 
     @Override
@@ -33,7 +34,11 @@ public class ComplexMissile implements Construct {
     }
 
     @Override
-    public boolean inValid() {
+    public boolean isInvalid() {
         return false;
+    }
+
+    public void setLocation(double x, double y, double z){
+
     }
 }

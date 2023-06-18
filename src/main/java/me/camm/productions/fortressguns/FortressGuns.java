@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
+import me.camm.productions.fortressguns.Handlers.ExplosionHandler;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class FortressGuns extends JavaPlugin implements Listener {
@@ -24,13 +26,12 @@ public final class FortressGuns extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
+
       plugin = this;
-      getServer().getPluginManager().registerEvents(new InteractionHandler(),this);
-      getServer().getPluginManager().registerEvents(this, this);
-
-
-
+      PluginManager manager = getServer().getPluginManager();
+      manager.registerEvents(new InteractionHandler(),this);
+      manager.registerEvents(new ExplosionHandler(),this);
+      manager.registerEvents(this, this);
 
     }
 
