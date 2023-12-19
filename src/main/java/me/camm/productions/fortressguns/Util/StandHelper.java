@@ -44,6 +44,12 @@ public class StandHelper
 
 
 
+
+
+
+
+
+
     public static void setHead(ItemStack stack, EntityArmorStand stand){
         stand.setSlot(EnumItemSlot.f, CraftItemStack.asNMSCopy(stack));
     }
@@ -123,6 +129,56 @@ public class StandHelper
         nms.addEntity(part);
         return part;
     }
+
+
+
+    /*
+    Given a source and a destination, calculates the euler angle needed for an armorstand to look at that
+    destination from the source.
+     */
+    public static EulerAngle getLookatRotation(Location source, Location lookat) {
+        double x = lookat.getX() - source.getX();
+        double z = lookat.getZ() - source.getZ();
+        double hypotenuseHorizontal = Math.sqrt(x * x + z * z);
+
+        double horAngle;
+        if (hypotenuseHorizontal == 0) {
+            horAngle = 0;
+        }
+        else {
+         horAngle = Math.acos(z / hypotenuseHorizontal);
+            if (x < 0) {
+                horAngle *= -1;
+            }
+        }
+
+        double y = lookat.getY() - source.getY();
+        double vertAngle;
+        double hypotenuseTotal = Math.sqrt( x * x + y * y + z * z);
+        if (hypotenuseTotal == 0) {
+            vertAngle = 0;
+        }
+        else {
+            vertAngle = Math.asin(y / hypotenuseTotal);
+        }
+
+        return new EulerAngle(vertAngle, horAngle, 0);
+    }
+
+
+    /*
+    Rotates the armorstand head such that the headpiece rotates as if the pivot point is the center of the head.
+    may move the armorstand location slightly.
+     */
+    public static void rotateInPlace() {
+
+    }
+
+
+
+
+
+
 
 
 

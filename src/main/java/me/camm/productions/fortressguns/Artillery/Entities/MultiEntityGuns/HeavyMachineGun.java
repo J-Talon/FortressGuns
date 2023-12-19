@@ -5,11 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 
-import me.camm.productions.fortressguns.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.core.Vector3f;
 
 import net.minecraft.server.level.EntityPlayer;
@@ -65,8 +64,7 @@ public class HeavyMachineGun extends RapidFire {
 
     public HeavyMachineGun(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
-        barrel = new ArtilleryPart[4];
-        base = new ArtilleryPart[1][1];
+
     }
 
     public ArtilleryPart getRotatingSeat(){
@@ -79,126 +77,8 @@ public class HeavyMachineGun extends RapidFire {
         return loadingInventory.getInventory();
     }
 
-    @Override
-    protected void spawnParts(){
 
-
-        ArtilleryPart support;
-
-        pivot = StandHelper.getCore(loc, BARREL_ITEM,aim,world, this);
-        support = StandHelper.spawnVisiblePart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
-        support.setArms(true);
-        support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
-
-        base[0][0] = support;
-        Location rotatingSeat = support.getLocation(world);
-
-        double rotSeatZ = -Math.cos(aim.getY());
-        double rotSeatX = Math.sin(aim.getY());
-
-        rotatingSeat.add(rotSeatX,0.5,rotSeatZ);
-        this.rotatingSeat = StandHelper.spawnPart(rotatingSeat, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
-        this.triggerHandle = StandHelper.spawnTrigger(rotatingSeat.clone().add(0,1,0),world, this);
-
-
-        for (int slot = 0;slot < barrel.length;slot++) {
-        double totalDistance = (0.5 * LARGE_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
-
-            double height = -totalDistance*Math.sin(aim.getX());
-            double horizontalDistance = totalDistance*Math.cos(aim.getX());
-
-            double z = horizontalDistance*Math.cos(aim.getY());
-            double x = -horizontalDistance*Math.sin(aim.getY());
-
-            Location centre = pivot.getLocation(world).clone();
-            ArtilleryPart stand;
-
-            //if it is small, add 0.75 so that it is high enough
-            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, aim, world, this);
-            stand.setSmall(true);
-
-            barrel[slot] = stand;
-        }
-
-        initLoadedChunks();
-        if (health <= 0)
-            setHealth(HEALTH);
-    }
-
-
-    @Override
-    public synchronized void pivot(double vertAngle, double horAngle)
-    {
-        if (dead)
-            return;
-
-        if (isInvalid()) {
-            remove(false, true);
-            dead = true;
-            return;
-        }
-
-
-        Location rotatingSeat = base[0][0].getLocation(world);
-
-        double rotSeatZ = -Math.cos(horAngle);
-        double rotSeatX = Math.sin(horAngle);
-
-        rotatingSeat.add(rotSeatX,0,rotSeatZ);
-        this.rotatingSeat.teleport(rotatingSeat.getX(),rotatingSeat.getY(), rotatingSeat.getZ());
-        this.rotatingSeat.setRotation(0,(float)horAngle);
-        this.triggerHandle.teleport(rotatingSeat.add(0,1,0));
-
-
-        //for all of the armorstands making up the barrel,
-        for (int slot=0;slot< barrel.length;slot++)
-        {
-            ArtilleryPart stand = barrel[slot];
-
-            double totalDistance;
-
-            //getting the distance from the pivot
-
-            totalDistance = (0.5*LARGE_BLOCK_LENGTH) + (slot * smallBlockDist);
-
-            //height of the aim
-            double height = -totalDistance*Math.sin(vertAngle);
-
-            //hor dist of the aim component
-            double horizontalDistance = totalDistance*Math.cos(vertAngle);
-
-
-            //x and z distances relative to the pivot from total hor distance
-            double z = horizontalDistance*Math.cos(horAngle);
-            double x = -horizontalDistance*Math.sin(horAngle);
-
-
-
-
-            aim = new EulerAngle(vertAngle,horAngle,0);
-            //setting the rotation of all of the barrel armorstands.
-
-            //rotating the face of the armorstand by 90 degrees.
-         //   if (stand.isFacesDown())
-        //        stand.setHeadPose(new Vector3f((float)aim.getX(),(float)(aim.getY()+PI/2),(float)aim.getZ()));
-
-            stand.setRotation(aim);
-            pivot.setRotation(aim);
-
-
-
-            Location centre = pivot.getLocation(world).clone();
-
-            //teleporting the armorstands to be in line with the pivot
-            Location teleport = centre.add(x, height + 0.75, z);
-            stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
-
-        }
-    }
-
-
-
-    public void fireConversion(){
+    private void fireBurst(){
         int iterations = 0;
         long delayTicks = 2;
         final int shots = 3;
@@ -213,7 +93,7 @@ public class HeavyMachineGun extends RapidFire {
             final int reference = iterations;
             new BukkitRunnable() {
                 public void run() {
-                    fireOperate();
+                    fireSingleShot();
 
                     if (reference == shots)
                         canFire = true;
@@ -227,7 +107,7 @@ public class HeavyMachineGun extends RapidFire {
     }
 
 
-    private void fireOperate() {
+    private void fireSingleShot() {
 
         class PredicateEqual implements Predicate<Entity> {
 
@@ -288,9 +168,14 @@ public class HeavyMachineGun extends RapidFire {
 
 
         //Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode, boolean ignorePassableBlocks, double raySize, Predicate<Entity> filter
-        RayTraceResult result = world.rayTrace(muzzle,projectileVelocity,getRange(), FluidCollisionMode.ALWAYS,true, 0.1,new PredicateEqual(operator,this));
-
-
+        RayTraceResult result = world.rayTrace(
+                muzzle,
+                projectileVelocity,
+                RANGE,
+                FluidCollisionMode.ALWAYS,
+                true,
+                0.1,
+                new PredicateEqual(operator,this));
 
 
         Location position = null;
@@ -302,8 +187,6 @@ public class HeavyMachineGun extends RapidFire {
             Block hitBlock = result.getHitBlock();
             Entity hit = result.getHitEntity();
             position = result.getHitPosition().toLocation(world);
-
-
 
 
             if (hitBlock != null && !hitBlock.getType().isAir()) {
@@ -330,7 +213,7 @@ public class HeavyMachineGun extends RapidFire {
 
         new BukkitRunnable() {
 
-            final double distance = hitPosCopy != null ? hitPosCopy.distance(muzzle) : getRange();
+            final double distance = hitPosCopy != null ? hitPosCopy.distance(muzzle) : RANGE;
             double travelled = 0;
 
             public void run() {
@@ -361,21 +244,11 @@ public class HeavyMachineGun extends RapidFire {
 
     @Override
     public synchronized void fire(@Nullable Player shooter) {
-      fireConversion();
+      fireBurst();
     }
 
 
 
-    @Override
-    public List<ArtilleryPart> getParts() {
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
-        parts.add(pivot);
-        parts.add(triggerHandle);
-        parts.addAll(Arrays.asList(base[0]));
-        parts.add(rotatingSeat);
-
-        return parts;
-    }
 
     @Override
     public ArtilleryType getType() {
@@ -384,8 +257,6 @@ public class HeavyMachineGun extends RapidFire {
 
     @Override
     public boolean canFire() {
-
-
         return canFire;
     }
 
@@ -394,8 +265,4 @@ public class HeavyMachineGun extends RapidFire {
         return HEALTH;
     }
 
-    @Override
-    public double getRange() {
-        return RANGE;
-    }
 }

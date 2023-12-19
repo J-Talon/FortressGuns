@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 
-import me.camm.productions.fortressguns.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;

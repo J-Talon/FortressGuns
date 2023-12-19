@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
-import me.camm.productions.fortressguns.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.particles.ParticleParam;
 import net.minecraft.core.particles.Particles;
 import net.minecraft.world.damagesource.DamageSource;

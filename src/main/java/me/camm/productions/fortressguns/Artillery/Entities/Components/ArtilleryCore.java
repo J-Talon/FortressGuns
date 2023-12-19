@@ -65,12 +65,12 @@ public class ArtilleryCore extends ArtilleryPart {
 
 
         if (this.getPassengers().size() > 0) {
-            human.sendMessage(new ChatMessage("Someone else is using this!"), UUID.randomUUID());
+            human.sendMessage(new ChatMessage(ChatColor.RED+"Someone else is using this!"), UUID.randomUUID());
             return;
         }
 
         if (this.body instanceof FlakArtillery && ((FlakArtillery)body).getTarget() != null) {
-            human.sendMessage(new ChatMessage("Cannot operate while artillery has a target!"), UUID.randomUUID());
+            human.sendMessage(new ChatMessage(ChatColor.RED+"Cannot operate while artillery has a target!"), UUID.randomUUID());
             return;
         }
 

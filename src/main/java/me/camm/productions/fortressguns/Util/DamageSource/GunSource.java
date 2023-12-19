@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.DamageSource;
+package me.camm.productions.fortressguns.Util.DamageSource;
 
 
 import net.minecraft.network.chat.ChatMessage;

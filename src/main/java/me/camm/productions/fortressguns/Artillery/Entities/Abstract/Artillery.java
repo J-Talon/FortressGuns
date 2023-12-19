@@ -1,10 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.BulkLoaded;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
-import me.camm.productions.fortressguns.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
@@ -39,13 +40,10 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     protected final static double LARGE_BLOCK_LENGTH = 0.6;
     protected final static double SMALL_BLOCK_LENGTH = 0.4;
-
     protected volatile boolean hasRider;
-
-    protected UUID operator;
-
     protected volatile int bullets;
-
+    protected double vertRotSpeed = 1;
+    protected double horRotSpeed = 1;
     protected ArtilleryPart rotatingSeat = null;
     protected Plugin plugin;
     protected ArtilleryPart[] barrel;
@@ -56,8 +54,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
 
     protected volatile double health;//--
-
-    private final Set<Chunk> loaders;//
+    private final Set<Chunk> occupiedChunks;//
 
     protected Location loc; //
     protected World world;//
@@ -67,13 +64,14 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     protected volatile double largeBlockDist;//
     protected volatile double smallBlockDist;//
+
     protected volatile boolean canFire;
 
     //default values for testing
     //===================
     protected double vectorPower = 6;
     protected int recoilTime = 1;
-    protected double barrelRecoverRate = 0.05;
+    protected double barrelRecoverRate = 0.03;
     //==============
 
     protected ArtilleryInventory loadingInventory;
@@ -84,7 +82,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     private enum DamageMultiplier{
         EXPLOSION(3),
         FIRE(1.5),
-        GUN(0.9),
+        GUN(1.2),
         MAGIC(0.01),
         DEFAULT(0.3);
 
@@ -105,7 +103,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         this.handler = loader;
         this.hasRider = false;
 
-        this.loaders = new HashSet<>();
+        this.occupiedChunks = new HashSet<>();
         largeBlockDist = LARGE_BLOCK_LENGTH;
         smallBlockDist = SMALL_BLOCK_LENGTH;
         health = 0;
@@ -162,6 +160,9 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         return hasRider;
     }
 
+    protected abstract void positionSeat();
+
+
 
     /*
     @param vertAngle, horAngle
@@ -180,28 +181,24 @@ public abstract class Artillery extends Construct implements InventoryHolder {
             return;
         }
 
+        vertAngle = nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
-        //0.017 = 1 degree in rad form
-        vertAngle = Math.abs(vertAngle - aim.getX()) <= 0.017? vertAngle : nextVerticalAngle(aim.getX(), vertAngle);
 
         //don't add PI to give an extra 180 * to the rotation (see Construct.getASFace(EntityHuman) )
         //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
-        horAngle = Math.abs(horAngle - aim.getY()) <= 0.017 ? horAngle : nextHorizontalAngle(aim.getY(), horAngle);
+        horAngle = nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
 
-        if (rotatingSeat != null && this instanceof SideSeated) {
-            ((SideSeated)this).positionSeat(rotatingSeat,this);
-        }
-
+        positionSeat();
 
         //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
         {
-            ArtilleryPart stand = barrel[slot];
+            ArtilleryPart barrelComponent = barrel[slot];
 
             double totalDistance;
 
             //getting the distance from the pivot
-            if (stand.isSmall())
+            if (barrelComponent.isSmall())
                 totalDistance = (largeBlockDist *0.75 + 0.5* smallBlockDist) + (slot * smallBlockDist);
             else
                 totalDistance = (slot+1)* largeBlockDist;
@@ -214,30 +211,28 @@ public abstract class Artillery extends Construct implements InventoryHolder {
             double horizontalDistance = totalDistance*Math.cos(vertAngle);
 
 
+
             //x and z distances relative to the pivot from total hor distance
             double z = horizontalDistance*Math.cos(horAngle);
             double x = -horizontalDistance*Math.sin(horAngle);
             //the - is to account for the 180* between players and armorstands
 
-
-
-
             aim = new EulerAngle(vertAngle,horAngle,0);
             //setting the rotation of all of the barrel armorstands.
-            stand.setRotation(aim);
+            barrelComponent.setRotation(aim);
             pivot.setRotation(aim);
 
 
             Location centre = pivot.getLocation(world).clone();
 
             //teleporting the armorstands to be in line with the pivot
-            if (stand.isSmall()) {
+            if (barrelComponent.isSmall()) {
                 Location teleport = centre.add(x, height + 0.75, z);
-                stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
+                barrelComponent.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
             }
             else {
                 Location teleport = centre.clone().add(x, height, z);
-                stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
+                barrelComponent.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
             }
         }
     }
@@ -270,13 +265,6 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         spawnParts();
     }
 
-    /*
-    This method spawns the artillery components into the world
-     */
-    protected abstract void spawnParts();
-
-
-
     public abstract ArtilleryType getType();
     public abstract boolean canFire();
     public abstract double getMaxHealth();
@@ -303,7 +291,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     public final synchronized void remove(boolean dropItem, boolean exploded) throws IllegalStateException
     {
-        handler.remove(loaders, this);
+        handler.remove(occupiedChunks, this);
         unload(dropItem, exploded);
     }
 
@@ -350,8 +338,8 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         return world;
     }
 
-    public final Set<Chunk> getLoaders(){
-        return loaders;
+    public final Set<Chunk> getOccupiedChunks(){
+        return occupiedChunks;
     }
 
     public boolean damage(DamageSource source, float damage){
@@ -396,7 +384,15 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     }
 
 
-    protected final void initLoadedChunks(){
+    /*
+This method spawns the artillery components into the world
+ */
+    protected abstract void spawnParts();
+    protected abstract void spawnBaseParts();
+    protected abstract void spawnTurretParts();
+
+
+    protected final void calculateLoadedChunks(){
         double totalDistanceBarrel = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (barrel.length * SMALL_BLOCK_LENGTH);
         double totalDistanceBase = 0;
 
@@ -408,14 +404,14 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         double circle = Math.PI * 2;
         Location loc = pivot.getLocation(world).clone();
 
-            for (double rads=0;rads < circle;rads+= Math.PI/4) {
+        for (double rads=0;rads < circle;rads+= Math.PI/4) {
 
-                double z = totalDistance * Math.cos(rads);
-                double x = -totalDistance * Math.sin(rads);
+            double z = totalDistance * Math.cos(rads);
+            double x = -totalDistance * Math.sin(rads);
 
-                Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
-                loaders.add(chunk);
-            }
+            Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
+            occupiedChunks.add(chunk);
+        }
     }
 
 

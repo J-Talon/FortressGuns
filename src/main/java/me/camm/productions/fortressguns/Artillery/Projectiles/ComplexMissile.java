@@ -12,11 +12,13 @@ Models a missile which is made of multiple entities
 public class ComplexMissile extends Construct {
 
 
-
     @Override
     public void spawn() {
 
     }
+
+
+
 
     @Override
     public void setChunkLoaded(boolean loaded) {
@@ -24,7 +26,7 @@ public class ComplexMissile extends Construct {
     }
 
     @Override
-    public Set<Chunk> getLoaders() {
+    public Set<Chunk> getOccupiedChunks() {
         return null;
     }
 

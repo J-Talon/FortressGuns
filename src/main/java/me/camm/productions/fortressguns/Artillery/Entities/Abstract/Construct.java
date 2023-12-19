@@ -6,11 +6,15 @@ import org.bukkit.Chunk;
 import java.util.Set;
 
 public abstract class Construct {
+
+    private static final double RAD = 0.017;
+    private static final double FULL_CIRCLE_DEG = 360;
+
     public abstract void spawn();
 
     public abstract void setChunkLoaded(boolean loaded);
 
-    public abstract Set<Chunk> getLoaders();
+    public abstract Set<Chunk> getOccupiedChunks();
 
    public abstract void unload(boolean drop, boolean explode);
    public abstract boolean isInvalid();
@@ -24,7 +28,10 @@ public abstract class Construct {
 
 @author CAMM
 */
-    public double nextHorizontalAngle(double currentAngle, double targetAngle) {
+    public double nextHorizontalAngle(double currentAngle, double targetAngle, double offsetDiff) {
+
+        double horAngleDiff = Math.abs(currentAngle - targetAngle);
+
 
         currentAngle = Math.toDegrees(currentAngle);
         targetAngle = Math.toDegrees(targetAngle);
@@ -34,24 +41,39 @@ public abstract class Construct {
 
         //converting the current angle from -180 -> 180 format to 0->360 format
         if (currentAngle < 0)
-            currentAngle += 360;
+            currentAngle += FULL_CIRCLE_DEG;
 
         if (targetAngle < 0)
-            targetAngle += 360;
+            targetAngle += FULL_CIRCLE_DEG;
 
+
+        currentAngle = currentAngle % FULL_CIRCLE_DEG;
+        targetAngle = targetAngle % FULL_CIRCLE_DEG;
+
+        if (horAngleDiff <= offsetDiff * RAD) {
+            return Math.toRadians(targetAngle);
+        }
+
+
+        //returns a value which determines what direction the thing should rotate.
+        //https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         double diffAngle = ((targetAngle - currentAngle + 540) % 360) - 180;
-        int dir;
+
+
+
+        int direction;
 
         if (diffAngle > 0)
-            dir =  1;
+            direction =  1;
         else if (diffAngle < 0)
-            dir = -1;
-        else dir = 0;
+            direction = -1;
+        else
+            direction = 0;
 
-        double offset = Math.min(1,Math.abs(diffAngle));
-        dir *= offset;
-        currentAngle += dir;
+        double offset = Math.min(offsetDiff,Math.abs(diffAngle));
 
+        direction *= offset;
+        currentAngle += direction;
 
         return Math.toRadians(currentAngle);
 
@@ -67,8 +89,16 @@ public abstract class Construct {
 
 @author CAMM
      */
-    protected double nextVerticalAngle(double currentAngle, double targetAngle) {
+    protected double nextVerticalAngle(double currentAngle, double targetAngle, double diffOffset) {
+
         double diff = targetAngle - currentAngle;
-        return diff == 0 ? targetAngle : currentAngle + Math.toRadians((Math.abs(diff)/diff));
+        double diffMag = Math.abs(diff);
+
+        if (diffMag <= diffOffset * RAD) {
+            return targetAngle;
+        }
+
+        //return the current angle + the offset * direction
+        return currentAngle + Math.toRadians((Math.abs(diff)/diff) * diffOffset);
     }
 }

@@ -240,7 +240,7 @@ public class InteractionHandler implements Listener
                artillery.spawn();
 
 
-              Set<Chunk> chunks = artillery.getLoaders();
+              Set<Chunk> chunks = artillery.getOccupiedChunks();
               for (Chunk c: chunks) {
                   handler.add(c, artillery);
               }

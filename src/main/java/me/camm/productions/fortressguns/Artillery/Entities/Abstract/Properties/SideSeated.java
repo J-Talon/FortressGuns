@@ -1,5 +1,6 @@
-package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
+package me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import org.bukkit.Location;
 import org.bukkit.util.EulerAngle;

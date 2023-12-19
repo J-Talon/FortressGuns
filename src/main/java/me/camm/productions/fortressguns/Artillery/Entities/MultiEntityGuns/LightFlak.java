@@ -1,11 +1,9 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightFlakShell;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
-import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -13,7 +11,6 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -27,89 +24,19 @@ import java.util.Random;
 /*
  * @author CAMM
  */
-public class LightFlak extends HeavyMachineGun {
-
-    private final static ItemStack BARREL = ArtilleryMaterial.DESERT_BODY.asItem();
-    //(double power, int recoilTime, double barrelRecoverRate)
+public class LightFlak extends RapidFire {
     private final static long COOLDOWN;
-
+    private final static int MAX_HEALTH;
     private static final Random random = new Random();
-
-
-
 
     static {
         COOLDOWN = 500;
+        MAX_HEALTH = 20;
     }
 
     public LightFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
     }
-
-
-    @Override
-    protected void spawnParts(){
-
-        dead = false;
-        loaded = true;
-        lastFireTime = 0;
-
-
-        ArtilleryPart support;
-        pivot = StandHelper.getCore(loc,BARREL,aim,world, this);
-        support = StandHelper.spawnVisiblePart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
-
-
-        support.setArms(true);
-        support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
-
-
-        base[0][0] = support;
-
-        Location rotatingSeat = support.getLocation(world);
-
-        double rotSeatZ = -Math.cos(aim.getY());
-        double rotSeatX = Math.sin(aim.getY());
-
-        rotatingSeat.add(rotSeatX,0.5,rotSeatZ);
-
-
-        //spawn rotating seat with the rotation of the aim
-        this.rotatingSeat = StandHelper.spawnPart(rotatingSeat, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
-
-
-        //entity that the player can r-click to shoot while seated
-        this.triggerHandle = StandHelper.spawnTrigger(rotatingSeat.clone().add(0,1,0), world, this);
-
-
-
-
-        for (int slot = 0;slot < barrel.length;slot++) {
-
-            double totalDistance = (0.5 * LARGE_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
-
-            double height = -totalDistance*Math.sin(aim.getX());
-            double horizontalDistance = totalDistance*Math.cos(aim.getX());
-
-            double z = horizontalDistance*Math.cos(aim.getY());
-            double x = -horizontalDistance*Math.sin(aim.getY());
-
-            Location centre = pivot.getLocation(world).clone();
-            ArtilleryPart stand;
-
-            //if it is small, add 0.75 so that it is high enough
-            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, aim, world, this);
-            stand.setSmall(true);
-
-
-            barrel[slot] = stand;
-        }
-
-        initLoadedChunks();
-        if (health <= 0)
-            setHealth(HEALTH);
-    }
-
 
     @NotNull
     @Override
@@ -202,6 +129,11 @@ public class LightFlak extends HeavyMachineGun {
     @Override
     public boolean canFire() {
         return canFire && System.currentTimeMillis() - lastFireTime >= COOLDOWN;
+    }
+
+    @Override
+    public double getMaxHealth() {
+        return MAX_HEALTH;
     }
 
     @Override

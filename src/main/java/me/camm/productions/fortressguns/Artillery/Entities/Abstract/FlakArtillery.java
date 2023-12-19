@@ -1,10 +1,12 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.FlakShell;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
+import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -20,15 +22,8 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class FlakArtillery extends Artillery implements SideSeated
+public abstract class FlakArtillery extends HeavyArtillery
 {
-
-    protected static final ItemStack BODY = ArtilleryMaterial.DESERT_BODY.asItem();
-    protected static ItemStack WHEEL = ArtilleryMaterial.WHEEL.asItem();
-    protected static ItemStack SUPPORT = ArtilleryMaterial.BASE_SUPPORT.asItem();
-    protected static ItemStack BARREL = ArtilleryMaterial.BARREL.asItem();
-
-    protected static ItemStack SEAT = ArtilleryMaterial.SEAT.asItem();
 
     protected Entity target;
     protected boolean aiming;
@@ -129,41 +124,33 @@ This method is called in a loop. You can think of it as being called many times 
 
 
 
-    public void autoAim() {
+    private double[] debug = {0,0};
 
+    public void autoAim() {
         Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+
         if (target == null || target.isRemoved() || !target.isAlive()) {
             target = null;
             aiming = false;
             return;
         }
 
-        double deltaX = target.locX() - muzzle.getX();
+       Location target = this.target.getBukkitEntity().getLocation();
+       EulerAngle aim = StandHelper.getLookatRotation(muzzle, target);
 
-        ///this is getting the height of where the arrow should be shot at
-        //av.c = target y
-        //getHeight = how tall the target is
-           /*
-           So by mult by 0.3~, then we are targeting centre mass.
-            */
+       EulerAngle currentAim = this.getAim();
+       double dotProd = currentAim.getX() * debug[0] + currentAim.getY() * debug[1];
+       if (dotProd < 0.5) {
+           System.out.println(dotProd);
+        //   System.out.println("target Loc: "+target+"|| \nmuzzle loc: "+muzzle+"\n\n");
+       }
 
-        double deltaY = target.e(0.3333333333333333D) - muzzle.getY();  // return this.av.c + (double)this.getHeight() * d0;
-        double deltaZ = target.locZ() - muzzle.getZ();
-        double distance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+       pivot(-aim.getX(), -aim.getY());  //we got the rotation from the target to the muzzle. *-1 reverses it.
 
-        Vec3D vector = new Vec3D(deltaX, deltaY + distance * 0.1, deltaZ);
-        //The 0.2~ ... seems to be an offset (aiming up to account for dropoff)
-
-        double vectorMagnitude = vector.h();
-        double yRotation = (float) (MathHelper.d(vector.b, vector.d));
-        double xRotation = (float) (MathHelper.d(vector.c, vectorMagnitude));
-        //this is making the arrow look backwards, so get rid of the 57.29
-        //57.29 ~= 1 rad in deg
-
-        //we're pivoting since we're on axe planes (think of pitch, yaw on an airplane)
-
-        pivot(-xRotation, -yRotation);
+       debug[0] = -aim.getX();
+       debug[1] = -aim.getY();
     }
+
 
     public Entity getTarget(){
         return this.target;
@@ -178,5 +165,75 @@ This method is called in a loop. You can think of it as being called many times 
         this.target = target;
         return true;
     }
+
+    /*
+
+  Locations: the locations which an entity has been tracked for
+  period: the period between each tracking time, in seconds
+   */ public boolean aimMoving(Location[] locations, int period){
+
+        double threshold = 5;
+        Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+        if (target == null || target.isRemoved() || !target.isAlive()) {
+            target = null;
+            return false;
+        }
+
+        Location targetLocation = new Location(world, target.locX(), target.locY(), target.locZ());
+
+        Vector vAverage = new Vector(0,0,0);
+
+        if (locations.length <= 1)
+            return false;
+
+        for (int slot = 0;slot< locations.length-1;slot++) {
+            Location current = locations[slot];
+            Location next = locations[slot+1];
+
+            next.clone().subtract(current);
+            vAverage.add(next.toVector());
+
+        }
+
+        vAverage.multiply(1/period);
+
+        if (vAverage.clone().subtract(target.getBukkitEntity().getVelocity()).lengthSquared() > threshold*threshold) {
+            autoAim();
+            return true;
+        }
+
+
+        double distToTarget = muzzle.distance(targetLocation);
+
+        if (distToTarget == 0) {
+            autoAim();
+            return true;
+        }
+
+        //time in seconds
+        double timeToTarget = (vectorPower * 20)/distToTarget;
+
+        Vector targVelocity = target.getBukkitEntity().getVelocity();
+        targVelocity.clone().multiply(timeToTarget);
+
+        Location predicted = targVelocity.toLocation(world).add(targetLocation);
+        double deltaX = predicted.getX() - muzzle.getX();
+        double deltaZ = predicted.getZ() - muzzle.getZ();
+        double deltaY = predicted.getY() - muzzle.getY();
+
+
+        double horAngle = deltaZ == 0 ? 0 : Math.atan(deltaX/deltaZ);
+        double horDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        double vertAngle = horDistance == 0 ? 90: Math.atan(deltaY/horDistance);
+
+
+        horAngle = Math.toRadians(horAngle);
+        vertAngle = Math.toRadians(vertAngle);
+
+        pivot(vertAngle, horAngle);
+
+        return true;
+    }
+
 
 }

@@ -46,7 +46,7 @@ public class ChunkLoader implements Listener
 
         for (Construct next : set) {
 
-            Set<Chunk> loaders = next.getLoaders();
+            Set<Chunk> loaders = next.getOccupiedChunks();
             boolean loaded = loaders.stream().allMatch(Chunk::isLoaded);
 
             if (loaded) {

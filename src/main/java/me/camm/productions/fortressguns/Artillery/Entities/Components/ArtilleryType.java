@@ -9,7 +9,7 @@ public enum ArtilleryType {
     FIELD_HEAVY(ChatColor.GRAY+"Field Heavy"+ChatColor.WHITE, HeavyArtillery.class,"fieldHeavy"),
     FLAK_HEAVY(ChatColor.GRAY+"Heavy Flak"+ChatColor.GREEN, HeavyFlak.class,"heavyFlak"),
     RAIL_GUN(ChatColor.GRAY+"Rail Gun"+ChatColor.DARK_PURPLE,null,"railGun"),
-    MISSILE_LAUNCHER(ChatColor.GRAY+"Missile Launcher"+ChatColor.BLUE,null, "missileLauncher"),
+    MISSILE_LAUNCHER(ChatColor.GRAY+"Missile Launcher"+ChatColor.BLUE, MissileLauncher.class, "missileLauncher"),
     HEAVY_MACHINE(ChatColor.GRAY+"Heavy Machine Gun", HeavyMachineGun.class, "heavyMachineGun"),
     FLAK_LIGHT(ChatColor.GRAY+"Light Flak"+ChatColor.YELLOW, LightFlak.class,"lightFlak");
 

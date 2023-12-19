@@ -177,7 +177,7 @@ public class ArtilleryPart extends Component
         if (body instanceof HeavyFlak) {
             HeavyFlak f = (HeavyFlak) body;
             if (f.isAiming()) {
-                human.sendMessage(new ChatMessage(ChatColor.GRAY+"You cannot ride this artillery while it's aiming!"),
+                human.sendMessage(new ChatMessage(ChatColor.RED+"You cannot ride this artillery while it's aiming!"),
                         UUID.randomUUID());
                 return;
             }

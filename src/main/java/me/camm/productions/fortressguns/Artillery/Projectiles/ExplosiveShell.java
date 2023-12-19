@@ -27,13 +27,15 @@ import java.util.Random;
 
 import static java.lang.Math.PI;
 
-public class ExplosiveShell extends Shell {
+public class ExplosiveShell extends StandardShell {
     public ExplosiveShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world, shooter);
     }
 
     @Override
     protected void explode(MovingObjectPosition pos) {
+
+        super.explode(pos);
 
         Vec3D vec = pos.getPos();
         CraftWorld world = getWorld().getWorld();
