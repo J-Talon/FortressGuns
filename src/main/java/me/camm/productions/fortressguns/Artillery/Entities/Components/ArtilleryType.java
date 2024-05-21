@@ -11,6 +11,8 @@ public enum ArtilleryType {
     RAIL_GUN(ChatColor.GRAY+"Rail Gun"+ChatColor.DARK_PURPLE,null,"railGun"),
     MISSILE_LAUNCHER(ChatColor.GRAY+"Missile Launcher"+ChatColor.BLUE, MissileLauncher.class, "missileLauncher"),
     HEAVY_MACHINE(ChatColor.GRAY+"Heavy Machine Gun", HeavyMachineGun.class, "heavyMachineGun"),
+
+    CRAM(ChatColor.GRAY+"CRAM", CRAM.class, "cram"),
     FLAK_LIGHT(ChatColor.GRAY+"Light Flak"+ChatColor.YELLOW, LightFlak.class,"lightFlak");
 
     private final String name;

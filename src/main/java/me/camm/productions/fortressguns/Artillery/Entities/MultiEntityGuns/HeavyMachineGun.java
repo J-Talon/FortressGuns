@@ -32,8 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -109,39 +107,13 @@ public class HeavyMachineGun extends RapidFire {
 
     private void fireSingleShot() {
 
-        class PredicateEqual implements Predicate<Entity> {
-
-            private final Player operator;
-            private final Artillery artillery;
-            public PredicateEqual(Player operator, Artillery artillery){
-                this.operator = operator;
-                this.artillery = artillery;
-            }
-
-            @Override
-            public boolean test(Entity e) {
-                net.minecraft.world.entity.Entity nms = ((CraftEntity)e).getHandle();
-                if (nms instanceof ArtilleryPart) {
-                    ArtilleryPart part = ((ArtilleryPart)nms);
-
-                    return !part.getBody().equals(artillery);
-                }
-
-                return !e.equals(operator);
-            }
-        }
 
         List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
+        if (passengers.isEmpty())
+            return;
 
-        Player operator = null;
-        for (Entity e: passengers) {
-            if (e instanceof Player)
-            {
-                operator = (Player) e;
-                break;
-            }
-        }
-
+        Entity possibleOperator = passengers.get(0);
+        Player operator = possibleOperator instanceof Player ? (Player) possibleOperator : null;
         if (operator == null)
             return;
 
@@ -152,15 +124,8 @@ public class HeavyMachineGun extends RapidFire {
         createFlash(muzzle);
         world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,1f,2f);
 
-        double y = Math.tan(-aim.getX());
-        double z = Math.cos(aim.getY());
-        double x = -Math.sin(aim.getY());
 
-        projectileVelocity.setX(x);
-        projectileVelocity.setY(y);
-        projectileVelocity.setZ(z);
-        projectileVelocity.normalize();
-
+        projectileVelocity = eulerToVec(aim).normalize();
         Vector direction = projectileVelocity.clone();
         Vector origin = muzzle.toVector();
 
@@ -265,4 +230,29 @@ public class HeavyMachineGun extends RapidFire {
         return HEALTH;
     }
 
+}
+
+
+
+
+class PredicateEqual implements Predicate<Entity> {
+
+    private final Player operator;
+    private final Artillery artillery;
+    public PredicateEqual(Player operator, Artillery artillery){
+        this.operator = operator;
+        this.artillery = artillery;
+    }
+
+    @Override
+    public boolean test(Entity e) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)e).getHandle();
+        if (nms instanceof ArtilleryPart) {
+            ArtilleryPart part = ((ArtilleryPart)nms);
+
+            return !part.getBody().equals(artillery);
+        }
+
+        return !e.equals(operator);
+    }
 }

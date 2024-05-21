@@ -17,7 +17,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
@@ -37,9 +39,8 @@ Superclass for all complex entities which are artillery pieces
 public abstract class Artillery extends Construct implements InventoryHolder {
 
 
+    protected int baseLength;
 
-    protected final static double LARGE_BLOCK_LENGTH = 0.6;
-    protected final static double SMALL_BLOCK_LENGTH = 0.4;
     protected volatile boolean hasRider;
     protected volatile int bullets;
     protected double vertRotSpeed = 1;
@@ -152,6 +153,12 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         return base;
     }
 
+    public int getBaseLength() {
+        if (baseLength <= 0 )
+            baseLength = base[0].length;
+        return baseLength;
+    }
+
     public synchronized void setHasRider(boolean hasRider){
         this.hasRider = hasRider;
     }
@@ -190,6 +197,10 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
         positionSeat();
 
+
+        aim = new EulerAngle(vertAngle,horAngle,0);
+        pivot.setRotation(aim);
+
         //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
         {
@@ -217,11 +228,8 @@ public abstract class Artillery extends Construct implements InventoryHolder {
             double x = -horizontalDistance*Math.sin(horAngle);
             //the - is to account for the 180* between players and armorstands
 
-            aim = new EulerAngle(vertAngle,horAngle,0);
             //setting the rotation of all of the barrel armorstands.
             barrelComponent.setRotation(aim);
-            pivot.setRotation(aim);
-
 
             Location centre = pivot.getLocation(world).clone();
 
@@ -259,15 +267,29 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     //to spawn an artillery piece, an external method calls spawn(). In the actual artillery classes however, the artillery
     // is actually spawned when the spawnParts method is called.
-    public final void spawn() {
+    public final boolean spawn() {
         dead = false;
         loaded = true;
-        spawnParts();
+
+        boolean spawned = spawnParts();
+        if (spawned)
+            loadPieces();
+
+        return spawned;
     }
 
     public abstract ArtilleryType getType();
     public abstract boolean canFire();
     public abstract double getMaxHealth();
+
+    protected void loadPieces() {
+        List<ArtilleryPart> parts = getParts();
+
+        net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
+        for (ArtilleryPart part: parts) {
+            nmsWorld.addEntity(part, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        }
+    }
 
     public final boolean isInvalid(){
         return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
@@ -275,7 +297,12 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     public final synchronized void unload(boolean dropItem, boolean exploded) throws IllegalStateException {
         List<ArtilleryPart> components = getParts();
-        components.forEach(Entity::die);
+        try {
+            components.forEach(Entity::die);
+        }
+        catch (NullPointerException e) {
+            System.out.println("Npe on type:"+this.getType());
+        }
 
         Location loc = pivot.getLocation(world).clone();
 
@@ -387,9 +414,9 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     /*
 This method spawns the artillery components into the world
  */
-    protected abstract void spawnParts();
-    protected abstract void spawnBaseParts();
-    protected abstract void spawnTurretParts();
+    protected abstract boolean spawnParts();
+    protected abstract boolean spawnBaseParts();
+    protected abstract boolean spawnTurretParts();
 
 
     protected final void calculateLoadedChunks(){

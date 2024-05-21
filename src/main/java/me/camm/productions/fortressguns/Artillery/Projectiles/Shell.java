@@ -31,8 +31,9 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
 
 
-public abstract class Shell extends EntityArrow {
+public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
     private static final int DAMAGE;
+    protected EntityPlayer shooter;
     org.bukkit.World bukkitWorld;
 
     static {
@@ -43,7 +44,7 @@ public abstract class Shell extends EntityArrow {
     public Shell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world);
         if (shooter != null)
-            ((CraftPlayer)shooter).getHandle();
+           this.shooter =  ((CraftPlayer)shooter).getHandle();
 
         bukkitWorld = getWorld().getWorld();
         init();
@@ -55,6 +56,10 @@ public abstract class Shell extends EntityArrow {
         this.setDamage(DAMAGE);
         this.setCritical(true);
     }
+
+
+    protected abstract float getStrength();
+
 
     @Override
     protected ItemStack getItemStack() {
@@ -118,18 +123,34 @@ public abstract class Shell extends EntityArrow {
     }
 
 
-    protected void explode(MovingObjectPosition pos){
-        final Vec3D vec3d = pos.getPos().a(this.locX(), this.locY(), this.locZ());
-        final Vec3D vec3d2 = vec3d.d().a(0.05000000074505806);
-        final Vec3D hitLoc = new Vec3D(this.locX() - vec3d2.b, this.locY() - vec3d2.c, this.locZ() - vec3d2.d);
+    //base explosion
+    @Override
+    public void explode(MovingObjectPosition pos){
+        Vec3D hit = getHitLoc(pos);
+        explode(hit);
+    }
+
+    protected void explode(@Nullable Vec3D hit) {
+
 
         this.die();
 
-        final Explosion explosion = this.getWorld().createExplosion(this, hitLoc.getX(), hitLoc.getY(), hitLoc.getZ(), 4.0f, false, Explosion.Effect.c);
-        if (this.t.getGameRules().getBoolean(GameRules.c)) {
-            explosion.a(true);
-        }
+        Entity source = shooter == null ? this: shooter;
+        final Explosion explosion;
+        if (hit == null)
+            explosion =  this.getWorld().createExplosion(source, locX(), locY(), locZ(), getStrength(), false, Explosion.Effect.c);
+        else
+            explosion = this.getWorld().createExplosion(source, hit.getX(), hit.getY(), hit.getZ(), getStrength(), false, Explosion.Effect.c);
+
+        explosion.a(true);
         explosion.a();
+    }
+
+
+    protected Vec3D getHitLoc(MovingObjectPosition pos) {
+        final Vec3D vec3d = pos.getPos().a(this.locX(), this.locY(), this.locZ());
+        final Vec3D vec3d2 = vec3d.d().a(0.05000000074505806);  //DON'T ASK
+        return new Vec3D(this.locX() - vec3d2.b, this.locY() - vec3d2.c, this.locZ() - vec3d2.d);
     }
 
     protected void playSound(SoundPlayer sp, double hypotenuse) {
@@ -147,9 +168,5 @@ public abstract class Shell extends EntityArrow {
     }
 
 
-    @FunctionalInterface
-    interface SoundPlayer {
-        void playSound(Location loc);
-    }
 
 }

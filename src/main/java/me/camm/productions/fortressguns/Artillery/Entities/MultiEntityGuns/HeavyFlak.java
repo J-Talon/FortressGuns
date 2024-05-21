@@ -63,7 +63,7 @@ public class HeavyFlak extends FlakArtillery {
                         cancel();
                         return;
                     }
-                    autoAim();
+                    aimStatic();
                 }
             }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
     }

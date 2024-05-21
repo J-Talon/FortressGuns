@@ -50,32 +50,40 @@ public class LightArtillery extends FieldArtillery
     }
 
     @Override
-    protected void spawnBaseParts() {
+    protected boolean spawnBaseParts() {
         double rads = -Math.PI/3;
         int bar = 0;
         double radsIfTrue = Math.PI;
         double radsIfFalse = 2 * Math.PI / 3;
 
-        super.spawnBaseWithDegrees(bar, rads, radsIfTrue, radsIfFalse, true);
+        return super.spawnBaseWithDegrees(bar, rads, radsIfTrue, radsIfFalse, true);
     }
 
 
     @Override
-    protected void spawnParts()
+    protected boolean spawnParts()
     {
 
-        pivot = StandHelper.getCore(loc, BODY, aim, world, this);
-        //pivot.setRotation(aim);
-        rotatingSeat = StandHelper.spawnPart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
+        pivot = StandHelper.createCore(loc, BODY, aim, world, this);
 
-        super.spawnTurretParts();
-        spawnBaseParts();
+        //pivot.setRotation(aim);
+        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
+
+        if (pivot == null || rotatingSeat == null) {
+            return false;
+        }
+
+        if (!super.spawnTurretParts() || !spawnBaseParts()) {
+            return false;
+        }
 
         //for the base of the artillery
         calculateLoadedChunks();
         if (health <= 0)
             setHealth(HEALTH);
 
+
+        return true;
 
     }
 

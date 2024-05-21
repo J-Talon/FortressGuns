@@ -237,7 +237,13 @@ public class InteractionHandler implements Listener
 
 
               world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
-               artillery.spawn();
+               boolean spawned = artillery.spawn();
+
+               if (!spawned) {
+                   player.sendMessage(ChatColor.RED + "There is not enough space here to build an artillery piece!");
+                   return;
+               }
+
 
 
               Set<Chunk> chunks = artillery.getOccupiedChunks();

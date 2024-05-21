@@ -17,6 +17,10 @@ public class Component extends EntityArmorStand {
         return EnumPistonReaction.d;
     }
 
+    public Construct getBody() {
+        return body;
+    }
+
     
 
 

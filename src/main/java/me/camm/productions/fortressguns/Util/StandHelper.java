@@ -17,9 +17,30 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 
 public class StandHelper
 {
+
+    ///this is crude collision detection; it only works most of the time
+    //cause the armorstand hitbox is a box, not a point
+    //we may want to refine this.
+    public static boolean isPosObstructed(Location loc) {
+        return !loc.getBlock().isPassable();
+    }
+
+    //1.5 is since the pos is at the loc of the feet. since a block is 1, 1.5 should return the block
+    //above regardless
+    public static boolean isPosObstructedRaw(Location rawLoc) {
+        //System.out.println(rawLoc);
+        return isPosObstructed(
+                new Location(rawLoc.getWorld(),
+                        rawLoc.getX(),
+                        rawLoc.getY() + 1.975, //from mc wiki - armorstand height
+                        rawLoc.getZ()));
+    }
+
+
 
 
     //Returns the player's horizontal rotation in a language that armorstands understand
@@ -73,17 +94,25 @@ public class StandHelper
         setRotation(stand, (float)angle.getX(),(float)angle.getY());
     }
 
-    public static ArtilleryPart spawnPart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery){
-      return setInvisible(spawnVisiblePart(loc, head, rotation, world, artillery));
+    //does not spawn into the world - you need to do that.
+    public static ArtilleryPart createInvisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery){
+     ArtilleryPart part = createVisiblePart(loc, head, rotation, world, artillery);
+     if (part == null)
+         return null;
+
+      return setInvisible(part);
     }
 
-    public static FireTrigger spawnTrigger(Location loc, World world, Artillery body) {
+    ////does not spawn into the world - you need to do that.
+    public static FireTrigger createTrigger(Location loc, World world, Artillery body) {
+
+        if (isPosObstructedRaw(loc))
+            return null;
+
         WorldServer nms = ((CraftWorld)world).getHandle();
         FireTrigger trigger = new FireTrigger(nms, body, loc);
         trigger.teleportAndSync(loc.getX(), loc.getY(), loc.getZ());
-        nms.addEntity(trigger);
-
-
+       // nms.addEntity(trigger);
 
         trigger.setNoGravity(true);
         trigger.setInvisible(true);
@@ -92,10 +121,15 @@ public class StandHelper
     }
 
 
-    public static ArtilleryPart spawnVisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
+    ////does not spawn into the world - you need to do that.
+    public static ArtilleryPart createVisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryPart part = new ArtilleryPart(nms, artillery, loc);
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
+
+        ///if the position is in a block you should return null
+        if (isPosObstructedRaw(loc))
+            return null;
 
         if (rotation != null)
          setRotation(part, rotation);
@@ -109,7 +143,7 @@ public class StandHelper
         part.setBasePlate(true);
 
 
-        nms.addEntity(part);
+       // nms.addEntity(part);
         return part;
     }
 
@@ -118,7 +152,16 @@ public class StandHelper
         return part;
     }
 
-    public static ArtilleryCore getCore(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
+
+    ////does not spawn into the world - you need to do that.
+    public static ArtilleryCore createCore(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
+
+        //by implementation the core should not be obstructed when spawning.
+        //this should only occur if we're loading from file (cause you need to click the air to spawn artys)
+
+        if (isPosObstructedRaw(loc))
+            return null;
+
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryCore part = new ArtilleryCore(nms, artillery, loc.getX(),loc.getY(),loc.getZ());
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
@@ -126,7 +169,7 @@ public class StandHelper
         setHead(head, part);
         part.setNoGravity(true);
         part.setInvisible(true);
-        nms.addEntity(part);
+      //  nms.addEntity(part);
         return part;
     }
 
@@ -137,22 +180,32 @@ public class StandHelper
     destination from the source.
      */
     public static EulerAngle getLookatRotation(Location source, Location lookat) {
-        double x = lookat.getX() - source.getX();
-        double z = lookat.getZ() - source.getZ();
+        return getLookatRotation(lookat.clone().subtract(source).toVector());
+    }
+
+
+    //@author CAMM
+    public static EulerAngle getLookatRotation(Vector direction) {
+
+        //x,y,z should be the diff between the dest and source.
+        double x = direction.getX();
+        double z = direction.getZ();
         double hypotenuseHorizontal = Math.sqrt(x * x + z * z);
 
         double horAngle;
+
+        //basically straight up
         if (hypotenuseHorizontal == 0) {
             horAngle = 0;
         }
         else {
-         horAngle = Math.acos(z / hypotenuseHorizontal);
+            horAngle = Math.acos(z / hypotenuseHorizontal);
             if (x < 0) {
                 horAngle *= -1;
             }
         }
 
-        double y = lookat.getY() - source.getY();
+        double y = direction.getY();
         double vertAngle;
         double hypotenuseTotal = Math.sqrt( x * x + y * y + z * z);
         if (hypotenuseTotal == 0) {
@@ -166,9 +219,13 @@ public class StandHelper
     }
 
 
+
+
     /*
     Rotates the armorstand head such that the headpiece rotates as if the pivot point is the center of the head.
     may move the armorstand location slightly.
+
+    Note: should we return the armorstand's original data so that we can return to the original orientation?
      */
     public static void rotateInPlace() {
 

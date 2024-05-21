@@ -8,6 +8,10 @@ import org.bukkit.util.EulerAngle;
 public interface SideSeated {
 
     default void positionSeat(ArtilleryPart part, Artillery artillery) {
+    positionSeat(part, artillery, 0);
+    }
+
+    default void positionSeat(ArtilleryPart part, Artillery artillery, double yOffset) {
         EulerAngle aim = artillery.getAim();
         Location next = getSeatSpawnLocation(artillery);
         EulerAngle seatFacing = new EulerAngle(0,aim.getY(),0);
@@ -16,20 +20,20 @@ public interface SideSeated {
     }
 
     default Location getSeatSpawnLocation(Artillery artillery){
-        ArtilleryPart[][] base = artillery.getBase();
+        return getSeatSpawnLocation(artillery, 0);
+    }
 
-
+    default Location getSeatSpawnLocation(Artillery artillery, double yOffset) {
         double seatAngle = Math.PI*1.5 + artillery.getAim().getY(); //get 90* offset
-        double seatDistance = base[0].length*0.25;
+        double seatDistance = artillery.getBaseLength()*0.25;  //0.25 is for distance
 
         Location center = artillery.getPivot().getLocation(artillery.getWorld());
 
         double seatZ = seatDistance*Math.cos(seatAngle);
         double seatX = -seatDistance*Math.sin(seatAngle);
 
-        return center.clone().add(seatX, 0, seatZ);
-
-
-
+        return center.clone().add(seatX, yOffset, seatZ);
     }
+
+
 }

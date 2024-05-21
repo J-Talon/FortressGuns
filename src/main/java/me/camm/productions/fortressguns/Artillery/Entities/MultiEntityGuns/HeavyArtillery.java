@@ -5,8 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
+import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftArmorStand;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
@@ -67,28 +69,38 @@ public class HeavyArtillery extends FieldArtillery
     }
 
     @Override
-    protected void spawnParts(){
-        pivot = StandHelper.getCore(loc, BODY,aim,world,this);
-        pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
-        rotatingSeat = StandHelper.spawnPart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
+    protected boolean spawnParts(){
 
-        super.spawnTurretParts();
-        this.spawnBaseParts();
+
+        pivot = StandHelper.createCore(loc, BODY,aim,world,this);
+        if (pivot == null)
+            return false;
+
+        pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
+        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
+
+        if (rotatingSeat == null)
+            return false;
+
+        if (!super.spawnTurretParts() || !this.spawnBaseParts())
+            return false;
 
         calculateLoadedChunks();
+
         if (health <= 0)
             setHealth(HEALTH);
 
+        return true;
     }
 
 
 
 
     @Override
-    protected void spawnBaseParts() {
+    protected boolean spawnBaseParts() {
         double rads = 0;
         int bar = 0;
-        super.spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
+        return super.spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
     }
 
 

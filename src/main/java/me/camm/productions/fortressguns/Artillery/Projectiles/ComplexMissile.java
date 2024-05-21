@@ -2,23 +2,28 @@ package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import net.minecraft.world.phys.MovingObjectPosition;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 
 import java.util.Set;
 
 /*
 Models a missile which is made of multiple entities
  */
-public class ComplexMissile extends Construct {
+public class ComplexMissile extends Construct implements ArtilleryProjectile {
 
 
     @Override
-    public void spawn() {
-
+    public boolean spawn() {
+        return false;
     }
 
 
+    @Override
+    public void explode(MovingObjectPosition pos) {
 
+    }
 
     @Override
     public void setChunkLoaded(boolean loaded) {

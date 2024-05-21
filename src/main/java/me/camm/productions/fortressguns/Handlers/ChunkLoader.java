@@ -109,6 +109,7 @@ public class ChunkLoader implements Listener
 
             Set<Construct> set = map.get(name);
             set.remove(construct);
+            construct.setChunkLoaded(false);
         }
 
     }

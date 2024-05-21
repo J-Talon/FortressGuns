@@ -1,12 +1,12 @@
 package me.camm.productions.fortressguns.Util;
 
+import net.minecraft.util.Tuple;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 public class Tracer
 {
@@ -15,11 +15,22 @@ public class Tracer
     private double strength;
     private final World world;
 
+    private final int limit;
+
     public Tracer(Vector direction, Vector origin, World world) {
         this.direction = direction;
         this.origin = origin;
         strength = Math.random()*10 + 3;
         this.world = world;
+        this.limit = Integer.MAX_VALUE;
+    }
+
+    public Tracer(Vector direction, Vector origin, World world, int limit) {
+        this.direction = direction;
+        this.origin = origin;
+        strength = Math.random()*10 + 3;
+        this.world = world;
+        this.limit = limit;
     }
 
     public Vector getPosition(double blocks)
@@ -31,16 +42,27 @@ public class Tracer
         return direction;
     }
 
-    public HashSet<Block> breakBlocks(){
+    public Set<Tuple<Block, Double>> getBrokenBlocks(){
 
 
         double dist = 0;
-        HashSet<Block> broken = new HashSet<>();
-        while (strength > 0 && dist < 3) {
+        HashSet<Tuple<Block, Double>> broken = new HashSet<>();
+        int added = 0;
+        while (strength > 0 && dist < 3 && added < limit) {
             dist += 0.5;
             Block block = world.getBlockAt(getPosition(dist).toLocation(world));
-            if (conflict(block))
-                broken.add(block);
+
+            if (block.getType().isAir())
+                continue;
+
+
+            if (conflict(block)) {
+                broken.add(new Tuple<>(block, dist));
+                added ++;
+            }
+
+            if (added >= limit)
+                break;
         }
         return broken;
     }

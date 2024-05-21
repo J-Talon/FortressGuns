@@ -86,7 +86,7 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
 
 
     @Override
-    protected void spawnTurretParts() {
+    protected boolean spawnTurretParts() {
 
         for (int slot = 0;slot < barrel.length;slot++) {
             double totalDistance = (0.5 * LARGE_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
@@ -101,11 +101,15 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
             ArtilleryPart stand;
 
             //if it is small, add 0.75 so that it is high enough
-            stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, aim, world, this);
+            stand = StandHelper.createInvisiblePart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, aim, world, this);
+            if (stand == null)
+                return false;
+
             stand.setSmall(true);
 
             barrel[slot] = stand;
         }
+        return true;
     }
 
     @Override
@@ -127,36 +131,54 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
 
 
     @Override
-    protected void spawnParts(){
+    protected boolean spawnParts(){
 
-        pivot = StandHelper.getCore(loc, BARREL_ITEM,aim,world, this);
-        spawnBaseParts();
+        pivot = StandHelper.createCore(loc, BARREL_ITEM,aim,world, this);
+        if (pivot == null)
+            return false;
+
+        if (!spawnBaseParts())
+            return false;
 
         ArtilleryPart support = base[0][0];
 
         Location seatPos = getSeatLocation(this, support);
         seatPos.add(0,0.5,0);
 
-        this.rotatingSeat = StandHelper.spawnPart(seatPos, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
-        this.triggerHandle = StandHelper.spawnTrigger(seatPos.clone().add(0,1,0),world, this);
+        this.rotatingSeat = StandHelper.createInvisiblePart(seatPos, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
+        this.triggerHandle = StandHelper.createTrigger(seatPos.clone().add(0,1,0),world, this);
+
+        if (rotatingSeat == null || triggerHandle == null)
+            return false;
 
 
-        spawnTurretParts();
+        if (!spawnTurretParts())
+            return false;
+
 
         calculateLoadedChunks();
         if (health <= 0)
             setHealth(HEALTH);
+
+        return true;
     }
 
 
 
     @Override
-    protected void spawnBaseParts() {
+    protected boolean spawnBaseParts() {
         ArtilleryPart support;
-        support = StandHelper.spawnVisiblePart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
+
+        support = StandHelper.createVisiblePart(loc.clone().subtract(0,0.5,0),null,aim, world,this);
+
+        if (support == null)
+            return false;
+
+
         support.setArms(true);
         support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
         base[0][0] = support;
+        return true;
     }
 
 
@@ -206,9 +228,6 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
             aim = new EulerAngle(vertAngle,horAngle,0);
             //setting the rotation of all of the barrel armorstands.
 
-            //rotating the face of the armorstand by 90 degrees.
-            //   if (stand.isFacesDown())
-            //        stand.setHeadPose(new Vector3f((float)aim.getX(),(float)(aim.getY()+PI/2),(float)aim.getZ()));
 
             stand.setRotation(aim);
             pivot.setRotation(aim);

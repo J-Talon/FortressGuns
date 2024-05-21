@@ -22,37 +22,44 @@ public class StandardShell extends Shell {
 
     }
 
+
+    protected float getStrength() {
+        return 3f;
+    }
+
     public void tick() {
         super.tick();
 
-        if (getMot().getY() >= 0)
-            return;
+//        if (getMot().getY() >= 0)
+//            return;
 
-        double diff = Math.abs(locY() - startingY);
+       // double diff = Math.abs(locY() - startingY);
 
 
-        SoundPlayer whistle = new SoundPlayer() {
-            @Override
-            public void playSound(Location loc) {
+//        SoundPlayer whistle = new SoundPlayer() {
+//            @Override
+//            public void playSound(Location loc) {
+//
+//                float pitch = (1/30f) * (float)diff;
+//                float volumeX = (-1/30f) * (float)diff + 2;
+//
+//                float volume = (float)Math.max(1,Math.min(0,(-1/5f) * getMot().getY()));
+//                volume *= volumeX;
+//
+//                if (volume == 0)
+//                    return;
+//
+//                bukkitWorld.playSound(loc,Sound.ENTITY_GUARDIAN_AMBIENT_LAND,Math.min(volume,2),Math.max(2,pitch));
+//            }
+//        };
 
-                float pitch = (1/30f) * (float)diff;
-                float volumeX = (-1/30f) * (float)diff + 2;
 
-                float volume = (float)Math.max(1,Math.min(0,(-1/5f) * getMot().getY()));
-                volume *= volumeX;
-
-                if (volume == 0)
-                    return;
-
-                bukkitWorld.playSound(loc,Sound.ENTITY_GUARDIAN_AMBIENT_LAND,Math.min(volume,2),Math.max(2,pitch));
-            }
-        };
-
-        playSound(whistle,5);
+        //fix this first and then do it
+      //  playSound(whistle,5);
     }
 
     @Override
-    protected void explode(MovingObjectPosition pos) {
+    public void explode(MovingObjectPosition pos) {
         super.explode(pos);
 
         SoundPlayer kaboom = new SoundPlayer() {

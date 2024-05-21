@@ -94,18 +94,17 @@ public class ArtilleryPart extends Component
                 return damageRaw(source, damage);
             }
 
-                EntityHuman human = ((EntityHuman)entity);
-
+            EntityHuman human = ((EntityHuman)entity);
             List<Entity> riders;
 
-            if (body instanceof RapidFire)
-                riders = ((RapidFire)body).getRotatingSeat().getPassengers();
-            else
-                riders = body.getPivot().getPassengers();
+            ArtilleryPart seat = body.getRotatingSeat();
+            if (seat != null) {
+                riders = seat.getPassengers();
+            }
+            else riders = body.getPivot().getPassengers();
 
 
-            if (riders.size() != 0) {
-
+            if (!riders.isEmpty()) {
                 Entity e = riders.get(0);
                 if (human.equals(e))
                     return false;

@@ -55,13 +55,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
         createFlash(muzzle);
         createShotParticles(muzzle);
 
-        //getting the values for the projectile velocity.
-        //tan and sine are (-) since MC's grid is inverted
-        double y = Math.tan(-aim.getX());
-        double z = Math.cos(aim.getY());
-        double x = -Math.sin(aim.getY());
-
-        Vector velocity = new Vector(x,y,z).normalize().multiply(vectorPower);
+        Vector velocity = eulerToVec(aim).normalize().multiply(vectorPower);
         final Vec3D vector = new Vec3D(velocity.getX(),velocity.getY(), velocity.getZ());
 
         smallBlockDist = 0;
@@ -113,7 +107,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
     }
 
 
-    protected void spawnBaseWithDegrees(int bar, double rads, double defaultRadValue, double defaultRadInc, boolean useDefault) {
+    protected boolean spawnBaseWithDegrees(int bar, double rads, double defaultRadValue, double defaultRadInc, boolean useDefault) {
         for (ArtilleryPart[] standRow: base) {
             double[] position = getBasePositions(rads);  //get the x, z values for the base
 
@@ -126,17 +120,21 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
                               -0.75,
                                 (LARGE_BLOCK_LENGTH*position[1]+length*position[1]));
 
+
                 //(World world, Artillery body, double d0, double d1, double d2)
                 ArtilleryPart part;
 
                 //if the length is close to base, then give it wheels, else give it
                 //supports
                 if (length >=1)
-                    part = StandHelper.spawnPart(loc, SUPPORT,null,world,this);
+                    part = StandHelper.createInvisiblePart(loc, SUPPORT,null,world,this);
                 else if (bar!=base.length-1)
-                    part = StandHelper.spawnPart(loc, WHEEL,null,world, this);
+                    part = StandHelper.createInvisiblePart(loc, WHEEL,null,world, this);
                 else
-                    part = StandHelper.spawnPart(loc,BODY,null,world, this);
+                    part = StandHelper.createInvisiblePart(loc,BODY,null,world, this);
+
+                if (part == null)
+                    return false;
 
                 length ++;
                 standRow[slot] = part;
@@ -148,12 +146,13 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
             else
                 rads += defaultRadInc;
         }
+        return true;
     }
 
 
 
     @Override
-    protected void spawnTurretParts() {
+    protected boolean spawnTurretParts() {
 
         int smallThresh = getSmallDistThreshold();
 
@@ -183,15 +182,25 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
 
             //if it is small, add 0.75 so that it is high enough
             if (small) {
-                stand = StandHelper.spawnPart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
+                stand = StandHelper.createInvisiblePart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
+                if (stand == null)
+                    return false;
+
                 stand.setSmall(true);
             }
-            else
-                stand = StandHelper.spawnPart(centre.add(x, height, z), BODY,aim,world,this);
+            else {
+                stand = StandHelper.createInvisiblePart(centre.add(x, height, z), BODY, aim, world, this);
+                if (stand == null)
+                    return false;
+            }
 
             barrel[slot] = stand;
         }
+        return true;
     }
+
+
+
 
 
     protected abstract int getSmallDistThreshold();

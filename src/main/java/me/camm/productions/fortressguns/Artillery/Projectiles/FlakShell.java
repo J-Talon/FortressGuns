@@ -30,6 +30,10 @@ public class FlakShell extends Shell {
         explodeTime = 1;
     }
 
+    public float getStrength() {
+        return 3f;
+    }
+
     public void setTerminus(Entity target){
         this.terminus = target;
 
