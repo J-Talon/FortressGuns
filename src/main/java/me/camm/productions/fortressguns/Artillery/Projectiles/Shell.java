@@ -58,7 +58,7 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
     }
 
 
-    protected abstract float getStrength();
+
 
 
     @Override
@@ -126,7 +126,7 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
     //base explosion
     @Override
     public void explode(MovingObjectPosition pos){
-        Vec3D hit = getHitLoc(pos);
+        Vec3D hit = getHitLoc(pos,this);
         explode(hit);
     }
 
@@ -146,12 +146,6 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
         explosion.a();
     }
 
-
-    protected Vec3D getHitLoc(MovingObjectPosition pos) {
-        final Vec3D vec3d = pos.getPos().a(this.locX(), this.locY(), this.locZ());
-        final Vec3D vec3d2 = vec3d.d().a(0.05000000074505806);  //DON'T ASK
-        return new Vec3D(this.locX() - vec3d2.b, this.locY() - vec3d2.c, this.locZ() - vec3d2.d);
-    }
 
     protected void playSound(SoundPlayer sp, double hypotenuse) {
 

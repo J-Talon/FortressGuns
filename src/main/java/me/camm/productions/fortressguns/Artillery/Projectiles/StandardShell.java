@@ -23,13 +23,13 @@ public class StandardShell extends Shell {
     }
 
 
-    protected float getStrength() {
+    public float getStrength() {
         return 3f;
     }
 
     public void tick() {
         super.tick();
-
+       // bukkitWorld.getChunkAt(1,1).getEntities();
 //        if (getMot().getY() >= 0)
 //            return;
 

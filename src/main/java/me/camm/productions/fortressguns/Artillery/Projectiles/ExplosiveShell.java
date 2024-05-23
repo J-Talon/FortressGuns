@@ -42,7 +42,7 @@ public class ExplosiveShell extends StandardShell {
 
 
     @Override
-    protected float getStrength() {
+    public float getStrength() {
          return 4f;
     }
 
@@ -53,7 +53,7 @@ public class ExplosiveShell extends StandardShell {
         Vector input =  new Vector(look.getX(), look.getY(), look.getZ());
 
 
-        Vec3D hitLoc = getHitLoc(pos);
+        Vec3D hitLoc = getHitLoc(pos,this);
 
 
         Location loc = new Location(bukkitWorld, hitLoc.getX(), hitLoc.getY(), hitLoc.getZ());

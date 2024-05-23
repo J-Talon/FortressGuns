@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
@@ -41,6 +42,8 @@ public class InteractionHandler implements Listener
 
     private final ChunkLoader handler;
 
+
+    private MissileLauncher debug = null;
 
 
     public InteractionHandler(){
@@ -150,9 +153,15 @@ public class InteractionHandler implements Listener
 
     public void handleArtilleryInteract(PlayerInteractEvent event) {
 
+
         Player player = event.getPlayer();
         Action action = event.getAction();
         EntityPlayer nms = ((CraftPlayer)player).getHandle();
+
+//        ////////////
+//        if (debug != null)
+//            debug.fire(player);
+//        ////////////////
 
         if (!event.hasItem()) {
             Entity ride = nms.getVehicle();
@@ -171,6 +180,7 @@ public class InteractionHandler implements Listener
                 if (body.canFire()) {
                     body.fire(player);
                     event.setCancelled(true);
+
                 }
 
             }
@@ -235,7 +245,6 @@ public class InteractionHandler implements Listener
                       .getConstructor(Location.class, World.class, ChunkLoader.class, EulerAngle.class)
                       .newInstance(loc,world,handler,aim);
 
-
               world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
                boolean spawned = artillery.spawn();
 
@@ -250,6 +259,12 @@ public class InteractionHandler implements Listener
               for (Chunk c: chunks) {
                   handler.add(c, artillery);
               }
+
+
+//              if (artillery instanceof MissileLauncher) {
+//                  debug = (MissileLauncher) artillery;
+//                  updateTarget(player.getUniqueId(), player);
+//              }
 
 
             }

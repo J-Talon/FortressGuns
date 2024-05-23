@@ -8,15 +8,14 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -30,11 +29,23 @@ import java.util.List;
 public class MissileLauncher extends Artillery implements SideSeated {
 
     boolean fireRight;
+    private Entity target;
+    private int rockets;
+    private long lastFireTime;
+
+
+
 
 
     static final ItemStack BODY, BASE, BARREL;
     static final double RIGHT_ANGLE = Math.PI / 2;
     static final double Y_OFFSET = 0.5;
+    static final double HOR_OFFSET = 1;
+    static final int MAX_ROCKETS = 6;
+    static final long FIRE_DELAY = 6000;
+
+
+
 
 
     static final int HEALTH;
@@ -43,10 +54,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
         BASE = new ItemStack(Material.STONE_BRICK_SLAB);
         BARREL = new ItemStack(Material.GREEN_TERRACOTTA);
         HEALTH = 35;
-
-
     }
-
 
     private final ArtilleryPart[] stem;
 
@@ -56,6 +64,9 @@ public class MissileLauncher extends Artillery implements SideSeated {
         base = new ArtilleryPart[3][3];
         stem = new ArtilleryPart[2];
         fireRight = true;
+        this.target = null;
+        rockets = MAX_ROCKETS;
+        lastFireTime = System.currentTimeMillis();
     }
 
     @Override
@@ -64,6 +75,13 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
         if (!canFire())
             return;
+
+        rockets --;
+        lastFireTime = System.currentTimeMillis();
+
+        if (shooter != null) {
+            this.target = InteractionHandler.getTarget(shooter.getUniqueId());
+        }
 
         //unfinished
         //note that frontLeft = barrel[midpoint]
@@ -81,7 +99,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
         fireRight = !fireRight;
 
         Vector dir = eulerToVec(aim).normalize();
-        Vector front = dir.clone().multiply(3);
+        Vector front = dir.clone().multiply(1.5);
 
         Location spawn = shootingPart.getEyeLocation().add(front);
         Location back = backBlast.getEyeLocation().add(front.multiply(-1));
@@ -92,16 +110,20 @@ public class MissileLauncher extends Artillery implements SideSeated {
         dir.multiply(0.5);
         Construct construct = this;
 
+
         new BukkitRunnable() {
             public void run() {
                 SimpleMissile missile = new SimpleMissile(EntityTypes.d, spawn.getX(), spawn.getY(), spawn.getZ(), nmsWorld, shooter,construct);
+                missile.setTarget(target);
                 missile.setMot(new Vec3D(dir.getX(), dir.getY(), dir.getZ()));
                 nmsWorld.addEntity(missile);
+                world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
-                int iters = 3;
+                int iters = 30;
                 do {
-                    world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,back.add(backBlastDir),0,
-                            backBlastDir.getX(),backBlastDir.getY(),backBlastDir.getZ(),0.1 + (iters * 0.1));
+                    world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,back,0,
+                            backBlastDir.getX(),backBlastDir.getY(),backBlastDir.getZ(),0.1 + (iters * Math.random()));
+                    world.spawnParticle(Particle.FLAME,back,0,backBlastDir.getX(), backBlastDir.getY(), backBlastDir.getZ(),0.1);
                     iters --;
                 }
                 while (iters > 0);
@@ -115,10 +137,11 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
 
 
+
     @Override
     protected boolean spawnParts() {
         pivot = StandHelper.createCore(loc.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
-        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this, Y_OFFSET), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
+        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this, HOR_OFFSET, Y_OFFSET), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
             return false;
@@ -183,6 +206,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
     @Override
     public synchronized void pivot(double vertAngle, double horAngle) {
 
+
         horAngle = nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
         vertAngle = nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
@@ -228,8 +252,33 @@ public class MissileLauncher extends Artillery implements SideSeated {
         double zRight = horDist * Math.cos(aim.getY() + RIGHT_ANGLE);
         double xRight = -horDist * Math.sin(aim.getY() + RIGHT_ANGLE);
 
-        double zLeft = horDist * Math.cos(aim.getY() - RIGHT_ANGLE);
-        double xLeft = -horDist * Math.sin(aim.getY() - RIGHT_ANGLE);
+        double horMag = Math.sqrt((zRight * zRight) + (xRight * xRight));
+
+       //this is to prevent the two barrels converging onto each other
+        //when the euler angle is near vertical (cause then the horizontal approaches 0)
+        if (horMag < 0.01) {
+
+            //preserves rotation so it doesn't look so weird
+            if (xRight < 0)
+                xRight = -1;
+            else
+                xRight = 1;
+
+
+            zRight = 0;
+        }
+        else {
+            zRight = zRight / horMag;
+            xRight = xRight / horMag;
+        }
+
+        xRight *= LARGE_BLOCK_LENGTH;
+        zRight *= LARGE_BLOCK_LENGTH;
+
+
+        double zLeft = -zRight;
+        double xLeft = -xRight;
+
 
         int midpoint = barrel.length / 2;
         double distFromMid;
@@ -267,7 +316,19 @@ public class MissileLauncher extends Artillery implements SideSeated {
     //not done
     @Override
     public boolean canFire() {
-        return true;
+        if (rockets > 0) {
+            return true;
+        }
+        else {
+
+            long currentTime = System.currentTimeMillis();
+            if (currentTime >= lastFireTime + FIRE_DELAY) {
+                lastFireTime = currentTime;
+                rockets = MAX_ROCKETS;
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -285,6 +346,6 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
     @Override
     protected void positionSeat() {
-        positionSeat(rotatingSeat, this, Y_OFFSET);
+        positionSeat(rotatingSeat, this, HOR_OFFSET, Y_OFFSET);
     }
 }
