@@ -1,40 +1,36 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 
-import me.camm.productions.fortressguns.Util.Tracer;
-import net.minecraft.core.BaseBlockPosition;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.Entity;
+
 import net.minecraft.world.entity.EntityTypes;
+
 
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
 
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
-
-
 
 
 public class ExplosiveShell extends StandardShell {
 
-
-
-    private static int NUM_TRACES = 15;
     private static Random rand = new Random();
+    private Vector spewDir = null;
+    private Location center = null;
 
     public ExplosiveShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world, shooter);
@@ -49,49 +45,67 @@ public class ExplosiveShell extends StandardShell {
     @Override
     public void explode(MovingObjectPosition pos) {
 
-        Vec3D look = this.getLookDirection();
-        Vector input =  new Vector(look.getX(), look.getY(), look.getZ());
-
-
+      //  Vector input =  new Vector(look.getX(), look.getY(), look.getZ());
         Vec3D hitLoc = getHitLoc(pos,this);
+        Vec3D currentPos = this.getPositionVector();
+
+        Vec3D blastDir = currentPos.a(hitLoc);  ///currentPos - hitLoc
+        blastDir = blastDir.d().e();
 
 
-        Location loc = new Location(bukkitWorld, hitLoc.getX(), hitLoc.getY(), hitLoc.getZ());
-        Vector locVec = loc.toVector();
+        RayTraceResult centerPoint = bukkitWorld.rayTraceBlocks(
+                new Location(bukkitWorld, currentPos.getX(), currentPos.getY(), currentPos.getZ())
+                , new Vector(blastDir.getX(), blastDir.getY(), blastDir.getZ()),
+                10,
+                FluidCollisionMode.NEVER);
 
-        for (int traces = 0; traces < NUM_TRACES; traces ++)
-        {
-            double[] comps = rand.doubles(3,0,1).toArray();
-            Vector dir = new Vector(comps[0] - 0.5, comps[1] - 0.5, comps[2] - 0.5).normalize();
-            Tracer tracer =  new Tracer(dir, locVec, bukkitWorld);
-            Set<Tuple<Block, Double>> broken = tracer.getBrokenBlocks();
-
-            for (Tuple<Block, Double> tup: broken) {
-                double dist = tup.b();
-                Block block = tup.a();
-
-                Location spawn = block.getLocation().add(0.5,0.5,0.5);
-                FallingBlock fallingBlock = bukkitWorld.spawnFallingBlock(spawn, block.getBlockData());
-                fallingBlock.setHurtEntities(true);
-                block.setType(Material.AIR);
-
-                Vector vel = spawn.toVector().subtract(loc.toVector()).normalize();
-                vel.multiply(Math.max(0.1f,dist * dist - 9));
-                vel.add(input.clone().multiply(3-dist));
-
-                fallingBlock.setVelocity(vel);
-
-            }
+        if (centerPoint == null || centerPoint.getHitBlock() == null) {
+            super.explode(pos);
+            return;
         }
 
-        playExplosionEffects(loc);
+        Block bukkitBlock = centerPoint.getHitBlock();
+        BlockFace face = centerPoint.getHitBlockFace();
+
+        if (bukkitBlock == null || face == null) {
+            super.explode(pos);
+            return;
+        }
+
+        spewDir = face.getDirection();
+        center = centerPoint.getHitPosition().add(spewDir.clone().multiply(-3)).toLocation(bukkitWorld);
         super.explode(pos);
     }
 
-    private void playExplosionEffects(Location explosion){
+    @Override
+    public void playExplosionEffects(Location explosion){
         bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,explosion,100,0,0,0,0.5);
         bukkitWorld.spawnParticle(Particle.CLOUD,explosion,100,0,0,0,0.5);
     }
 
+    @Override
+    public void postExplosion(EntityExplodeEvent event) {
+        super.postExplosion(event);
 
+        if (spewDir == null) {
+            return;
+        }
+
+        double SQRT_PI = Math.sqrt(Math.PI);
+
+
+        List<Block> blocks = event.blockList();
+        for (Block b: blocks) {
+            Location loc = b.getLocation();
+            Vector direction = loc.clone().subtract(center).toVector();
+            Vector velocity = direction.add(spewDir).normalize();
+
+            double xSquared = loc.distanceSquared(center);
+            double magnitude = (1 / 1.3 * SQRT_PI) * Math.pow(Math.E,-0.2f * xSquared) - (0.003 * xSquared) + 0.3;
+
+            velocity.multiply(magnitude);
+            FallingBlock block = bukkitWorld.spawnFallingBlock(loc,b.getBlockData());
+            block.setVelocity(velocity);
+        }
+    }
 }

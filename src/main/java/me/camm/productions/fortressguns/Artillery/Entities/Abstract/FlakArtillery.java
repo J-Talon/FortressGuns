@@ -68,6 +68,7 @@ This method is called in a loop. You can think of it as being called many times 
 
         createFlash(muzzle);
         createShotParticles(muzzle);
+        vibrateParticles();
 
         //getting the values for the projectile velocity.
         //tan and sine are (-) since MC's grid is inverted
@@ -88,6 +89,7 @@ This method is called in a loop. You can think of it as being called many times 
         new BukkitRunnable()
         {
             boolean shot = false;
+            int ticks = 0;
 
             @Override
             public void run() {
@@ -106,9 +108,14 @@ This method is called in a loop. You can think of it as being called many times 
                 }
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
-                    incrementSmallDistance(barrelRecoverRate);
+                    ticks ++;
+
+                    incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
                     Location loc = barrel[barrel.length-1].getEyeLocation();
-                    world.spawnParticle(Particle.SMOKE_NORMAL,loc,5,0,0.1,0,0.3);
+
+                    int count = (int)(Math.ceil(10 - (smallBlockDist / SMALL_BLOCK_LENGTH) * 10));
+                    for (int spawned = 0; spawned < count; spawned ++)
+                        world.spawnParticle(Particle.SMOKE_NORMAL,loc.clone().add(0,SMALL_BLOCK_LENGTH / 2,0),0,0,0.1,0,0.3);
                 }
                 else
                 {

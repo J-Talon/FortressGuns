@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
@@ -24,6 +25,7 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,15 +52,19 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
 
     private static final double ACCELERATION = 0.1;
     private static final double MAX_SPEED_SQUARED = 45;
-    private static final double DIST_ENGAGE_SQUARED = 900;
+    private static final double DIST_ENGAGE_SQUARED = 3600;
     private static final double DIST_ENGAGE;
 
-    private static final double KEY_DIST = 1;
+    private static final double KEY_DIST = 50;
     private static final double MAX_SPEED;
 
-
-
+    private int age;
     private static final int FUEL = 400;  // 20 sec
+    private static final int PRIME = 10; //1/2 sec
+
+    private final Vec3D initialVelocity;
+    private boolean hadTarget;
+
 
 
     private static Random rand;
@@ -74,30 +80,37 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         DIST_ENGAGE = Math.sqrt(DIST_ENGAGE_SQUARED);
     }
 
-    public SimpleMissile(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter, Construct source) {
+    public SimpleMissile(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter, Artillery source) {
         super(entitytypes, x, y, z, world);
         this.shooter = shooter;
         fuelUsed = 0;
         bukkitWorld = world.getWorld();
         direction = null;
         this.source = source;
-        this.setNoGravity(true);
-        setGlowingTag(true);
+        this.setNoGravity(false);
         keyPoint = new double[3];
         lastKeyTime = System.currentTimeMillis();
+        age = 0;
+
+        Vector initial = Construct.eulerToVec(source.getAim());
+
+        initialVelocity = new Vec3D(initial.getX(),initial.getY(),initial.getZ());
+        hadTarget = false;
     }
 
 
     public void setTarget(Entity target) {
         this.target = target;
+        hadTarget = true;
     }
 
     @Override
     public void explode(@Nullable MovingObjectPosition pos) {
         //explode the thing here
-        if (pos == null)
+        if (pos == null) {
+            playExplosionEffects(new Location(bukkitWorld, locX(), locY(), locZ()));
             return;
-
+        }
 
         if (pos instanceof MovingObjectPositionBlock) {
             BlockPosition blockPos = ((MovingObjectPositionBlock) pos).getBlockPosition();
@@ -134,16 +147,17 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         return 4f;
     }
 
-    private void playExplosionEffects(MovingObjectPosition pos) {
-
+    public void playExplosionEffects(Location hitLoc) {
         EntityPlayer nmsEntity = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
 
-        Vec3D hitLoc = getHitLoc(pos, this);
         World nmsWorld = ((CraftWorld)bukkitWorld).getHandle();
-        Explosion e = nmsWorld.createExplosion(nmsEntity,hitLoc.getX(), hitLoc.getY(), hitLoc.getZ(),getStrength(),false, Explosion.Effect.c);
-        e.a();
-        e.a(true);
+        nmsWorld.createExplosion(nmsEntity,hitLoc.getX(), hitLoc.getY(), hitLoc.getZ(),getStrength(),false, Explosion.Effect.c);
         this.die();
+    }
+
+    private void playExplosionEffects(MovingObjectPosition pos) {
+        Vec3D hitLoc = getHitLoc(pos, this);
+        playExplosionEffects(new Location(bukkitWorld,hitLoc.getX(),hitLoc.getY(),hitLoc.getZ()));
     }
 
 
@@ -155,8 +169,21 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
 
     public void tick() {
 
-        //unfinished
         super.tick();
+
+        if (age < PRIME) {
+            age ++;
+
+            if (age >= PRIME) {
+                setGlowingTag(true);
+                setNoGravity(true);
+            }
+
+            return;
+        }
+
+        //unfinished
+
 
         if (fuelUsed >= FUEL) {
             this.setNoGravity(false);
@@ -166,16 +193,25 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         fuelUsed ++;
 
         Location loc = new Location(bukkitWorld, locX(), locY(), locZ());
-        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,1,0,0,0,0.1);
-        bukkitWorld.spawnParticle(Particle.FLAME,loc,1,0,0,0,0.1);
+        Vec3D lookDir = getMot();
+        lookDir = lookDir.e();
+
+        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2);
+        bukkitWorld.spawnParticle(Particle.FLAME,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2);
+
         bukkitWorld.playSound(loc, Sound.ITEM_ARMOR_EQUIP_LEATHER,SoundCategory.BLOCKS,1,0.1f);
 
 
         if (target == null) {
 
             if (direction == null) {
-                direction = getMot().d();
+
+                if (hadTarget)
+                    direction = getMot().d();
+                else
+                    direction = initialVelocity;
             }
+
             flyNormally();
 
         }
@@ -196,7 +232,8 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
             setMot(motionMultiplied);
         }
         else {
-            setMot(direction.a(MAX_SPEED));
+            direction = direction.a(ACCELERATION);
+            setMot(motion.add(direction.getX(),direction.getY(),direction.getZ()));
         }
         this.C = true;
     }
@@ -210,10 +247,14 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         }
 
 
+
         Location targetLoc = target.getLocation().clone();
         Vector targetMot = target.getVelocity();
+        double distSquared = targetLoc.distanceSquared(missileLoc);
 
-        if (targetLoc.distanceSquared(missileLoc) <= INTERCEPT_DIST_SQUARED) {
+        Vec3D mot = getMot();
+        Vector missileVel = new Vector(mot.getX(),mot.getY(),mot.getZ());
+        if (distSquared <= INTERCEPT_DIST_SQUARED && targetMot.dot(missileVel) < 0) {
             explode(null);
             return;
         }

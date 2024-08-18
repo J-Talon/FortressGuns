@@ -111,12 +111,13 @@ public class ArtilleryPart extends Component
             }
 
 
-                ItemStack holding = human.getItemInMainHand();
+            ItemStack holding = human.getItemInMainHand();
 
-               org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
+            org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
 
                 //if they punch the thing with a stick, fire the cannon instead.
                 Material mat = bukkitStack.getType();
+
                 if (mat == FIRE) {
                     body.fire(new CraftPlayer(getWorld().getCraftServer(), (EntityPlayer)human));
                     return false;

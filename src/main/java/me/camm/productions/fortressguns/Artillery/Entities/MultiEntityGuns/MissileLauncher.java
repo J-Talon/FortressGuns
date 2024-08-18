@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.SideSeated;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
@@ -32,8 +33,6 @@ public class MissileLauncher extends Artillery implements SideSeated {
     private Entity target;
     private int rockets;
     private long lastFireTime;
-
-
 
 
 
@@ -72,7 +71,6 @@ public class MissileLauncher extends Artillery implements SideSeated {
     @Override
     public void fire(@Nullable Player shooter) {
 
-
         if (!canFire())
             return;
 
@@ -80,7 +78,14 @@ public class MissileLauncher extends Artillery implements SideSeated {
         lastFireTime = System.currentTimeMillis();
 
         if (shooter != null) {
-            this.target = InteractionHandler.getTarget(shooter.getUniqueId());
+
+            List<ArtilleryPart> parts = getParts();
+            Entity target = InteractionHandler.getTarget(shooter.getUniqueId());
+            if (target instanceof ArtilleryPart && parts.contains(target)) {
+                shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
+                return;
+            }
+            this.target = target;
         }
 
         //unfinished
@@ -107,22 +112,25 @@ public class MissileLauncher extends Artillery implements SideSeated {
         Vector backBlastDir = back.clone().subtract(spawn).toVector();
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
-        dir.multiply(0.5);
-        Construct construct = this;
+        Artillery construct = this;
 
 
         new BukkitRunnable() {
             public void run() {
                 SimpleMissile missile = new SimpleMissile(EntityTypes.d, spawn.getX(), spawn.getY(), spawn.getZ(), nmsWorld, shooter,construct);
+
+
                 missile.setTarget(target);
-                missile.setMot(new Vec3D(dir.getX(), dir.getY(), dir.getZ()));
+
+                missile.setMot(new Vec3D(dir.getX() * 2, dir.getY() * 2, dir.getZ() * 2));
                 nmsWorld.addEntity(missile);
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
                 int iters = 30;
                 do {
                     world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,back,0,
-                            backBlastDir.getX(),backBlastDir.getY(),backBlastDir.getZ(),0.1 + (iters * Math.random()));
+                            backBlastDir.getX(),backBlastDir.getY(),backBlastDir.getZ(),0.1);
+
                     world.spawnParticle(Particle.FLAME,back,0,backBlastDir.getX(), backBlastDir.getY(), backBlastDir.getZ(),0.1);
                     iters --;
                 }
@@ -211,6 +219,9 @@ public class MissileLauncher extends Artillery implements SideSeated {
         vertAngle = nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
         aim = new EulerAngle(vertAngle, horAngle, 0);
+
+        stem[stem.length-1].setRotation(new EulerAngle(0,horAngle, 0));
+
         Location[] aimPos = getBarrelLocations();
 
         int midpoint = barrel.length / 2;
@@ -256,6 +267,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
        //this is to prevent the two barrels converging onto each other
         //when the euler angle is near vertical (cause then the horizontal approaches 0)
+        //threshold value for horMag is 0.01 since we're div by mag we don't want the values --> infinity
         if (horMag < 0.01) {
 
             //preserves rotation so it doesn't look so weird
@@ -265,7 +277,12 @@ public class MissileLauncher extends Artillery implements SideSeated {
                 xRight = 1;
 
 
-            zRight = 0;
+            if (zRight < 0) {
+                zRight = -1;
+            }
+            else zRight = 1;
+
+
         }
         else {
             zRight = zRight / horMag;

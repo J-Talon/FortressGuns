@@ -131,19 +131,13 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
     }
 
     protected void explode(@Nullable Vec3D hit) {
-
-
         this.die();
 
-        Entity source = shooter == null ? this: shooter;
-        final Explosion explosion;
         if (hit == null)
-            explosion =  this.getWorld().createExplosion(source, locX(), locY(), locZ(), getStrength(), false, Explosion.Effect.c);
+            this.getWorld().createExplosion(this, locX(), locY(), locZ(), getStrength(), false, Explosion.Effect.c);
         else
-            explosion = this.getWorld().createExplosion(source, hit.getX(), hit.getY(), hit.getZ(), getStrength(), false, Explosion.Effect.c);
-
-        explosion.a(true);
-        explosion.a();
+            this.getWorld().createExplosion(this, hit.getX(), hit.getY(), hit.getZ(), getStrength(), false, Explosion.Effect.c);
+        //event is called here
     }
 
 

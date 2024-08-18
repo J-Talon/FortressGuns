@@ -3,7 +3,10 @@ package me.camm.productions.fortressguns.Artillery.Projectiles;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 public interface ArtilleryProjectile {
 
@@ -13,6 +16,21 @@ public interface ArtilleryProjectile {
      interface SoundPlayer {
           void playSound(Location loc);
      }
+
+     public default void postExplosion(EntityExplodeEvent event) {
+          World world = event.getEntity().getWorld();
+
+          boolean rule = Boolean.TRUE.equals(world.getGameRuleValue(GameRule.MOB_GRIEFING));
+          if (!rule) {
+               event.blockList().clear();
+          }
+     }
+
+
+     public default void playExplosionEffects(Location explosion) {
+
+     }
+
 
      public abstract float getStrength();
 

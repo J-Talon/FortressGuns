@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -23,6 +24,7 @@ public class ExplosionHandler implements Listener
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event){
 
+        System.out.println("Explosion happened");
         float yield = event.getYield();
         org.bukkit.entity.Entity entity = event.getEntity();
         Entity nms = ((CraftEntity)entity).getHandle();
@@ -62,5 +64,10 @@ public class ExplosionHandler implements Listener
                 e.damageEntity(source, damage);
             }
         }
+
+        if (nms instanceof ArtilleryProjectile) {
+            ((ArtilleryProjectile)nms).postExplosion(event);
+        }
+
     }
 }

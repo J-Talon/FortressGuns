@@ -70,24 +70,18 @@ public class FlakShell extends Shell {
 
 
     private void explode(){
-
-        org.bukkit.World world = this.getWorld().getWorld();
-        Location hit = new Location(world, u,v,w);
         this.die();
 
-        Explosion explosion = getWorld().createExplosion(this ,u,v,w,4, false, Explosion.Effect.c);
-        explosion.a(true);
-        playFlakEffects(world, hit);
+        getWorld().createExplosion(this ,u,v,w,4, false, Explosion.Effect.c);
+        playExplosionEffects(new Location(bukkitWorld,u,v,w));
 
     }
 
-    private void playFlakEffects(org.bukkit.World bukkitWorld, Location explosion){
-        bukkitWorld.spawnParticle(Particle.FLASH,explosion,3,0,0,0,0);
+     public void playExplosionEffects(Location explosion){
         bukkitWorld.spawnParticle(Particle.SMOKE_LARGE,explosion,50,0.1,0.1,0.1,0.2f);
         bukkitWorld.spawnParticle(Particle.SQUID_INK,explosion,50,0.1,0.1,0.1,0.2f);
-        bukkitWorld.spawnParticle(Particle.FLAME,explosion,50,0.1,0.1,0.1,0.1f);
 
-        bukkitWorld.createExplosion(explosion,4,true, false);
+
         //explode and make a sound
         bukkitWorld.playSound(explosion, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS,1,2);
         bukkitWorld.playSound(explosion, Sound.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.BLOCKS,1,0.2f);

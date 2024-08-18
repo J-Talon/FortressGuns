@@ -122,7 +122,7 @@ public abstract class Construct {
 
 
 
-    protected static Vector eulerToVec(EulerAngle aim) {
+    public static Vector eulerToVec(EulerAngle aim) {
         //getting the values for the projectile velocity.
         //tan and sine are (-) since MC's grid is inverted
         double y = Math.tan(-aim.getX());

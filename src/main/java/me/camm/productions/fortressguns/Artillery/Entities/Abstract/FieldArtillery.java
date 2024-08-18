@@ -54,6 +54,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
         //make a flash
         createFlash(muzzle);
         createShotParticles(muzzle);
+        vibrateParticles();
 
         Vector velocity = eulerToVec(aim).normalize().multiply(vectorPower);
         final Vec3D vector = new Vec3D(velocity.getX(),velocity.getY(), velocity.getZ());
@@ -64,6 +65,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
         new BukkitRunnable()
         {
             boolean shot = false;
+            int ticks = 0;
             @Override
             public void run() {
 
@@ -79,9 +81,12 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
                 }
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
-                    incrementSmallDistance(barrelRecoverRate);
+                    ticks ++;
+                    incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
                     Location barrelEnd = barrel[barrel.length-1].getEyeLocation();
-                    world.spawnParticle(Particle.SMOKE_NORMAL,barrelEnd,5,0,0.1,0,0.3);
+                    int count = (int)(Math.ceil(10 - (smallBlockDist / SMALL_BLOCK_LENGTH) * 10));
+                    for (int spawned = 0; spawned < count; spawned ++)
+                        world.spawnParticle(Particle.SMOKE_NORMAL,barrelEnd.clone().add(0,SMALL_BLOCK_LENGTH / 2,0),0,0,0.1,0,0.3);
                 }
                 else
                 {

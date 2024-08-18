@@ -282,6 +282,20 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     public abstract boolean canFire();
     public abstract double getMaxHealth();
 
+    protected void vibrateParticles() {
+        ArtilleryCore core = this.getPivot();
+        Location loc = core.getEyeLocation();
+
+        for (double rotation = 0; rotation < 2*Math.PI; rotation += (2*Math.PI / 10)) {
+            double z = Math.cos(rotation);
+            double x = -Math.sin(rotation);
+
+            world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc.clone().add(0,-LARGE_BLOCK_LENGTH,0),0,x,0,z,0.1f);
+
+        }
+
+    }
+
     protected void loadPieces() {
         List<ArtilleryPart> parts = getParts();
 
@@ -300,8 +314,8 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         try {
             components.forEach(Entity::die);
         }
-        catch (NullPointerException e) {
-            System.out.println("Npe on type:"+this.getType());
+        catch (NullPointerException ignored) {
+
         }
 
         Location loc = pivot.getLocation(world).clone();

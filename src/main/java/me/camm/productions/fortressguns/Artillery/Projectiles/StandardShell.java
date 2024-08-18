@@ -1,12 +1,15 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
+import me.camm.productions.fortressguns.Util.ExplosionEffect;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class StandardShell extends Shell {
@@ -58,10 +61,10 @@ public class StandardShell extends Shell {
       //  playSound(whistle,5);
     }
 
+
     @Override
     public void explode(MovingObjectPosition pos) {
         super.explode(pos);
-
         SoundPlayer kaboom = new SoundPlayer() {
             @Override
             public void playSound(Location loc) {

@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import net.minecraft.world.phys.MovingObjectPosition;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.util.Set;
 
@@ -23,6 +24,16 @@ public class ComplexMissile extends Construct implements ArtilleryProjectile {
     @Override
     public void explode(MovingObjectPosition pos) {
 
+    }
+
+    @Override
+    public void postExplosion(EntityExplodeEvent event) {
+
+    }
+
+    @Override
+    public float getStrength() {
+        return 0;
     }
 
     @Override
