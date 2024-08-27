@@ -45,11 +45,12 @@ public class ExplosiveShell extends StandardShell {
     @Override
     public void explode(MovingObjectPosition pos) {
 
-      //  Vector input =  new Vector(look.getX(), look.getY(), look.getZ());
-        Vec3D hitLoc = getHitLoc(pos,this);
+       // Vec3D hitLoc = pos.getPos();
+        Vec3D backstep = stepBack(pos,this);
+
         Vec3D currentPos = this.getPositionVector();
 
-        Vec3D blastDir = currentPos.a(hitLoc);  ///currentPos - hitLoc
+        Vec3D blastDir = currentPos.a(backstep);  ///currentPos - hitLoc
         blastDir = blastDir.d().e();
 
 
@@ -59,7 +60,7 @@ public class ExplosiveShell extends StandardShell {
                 10,
                 FluidCollisionMode.NEVER);
 
-        if (centerPoint == null || centerPoint.getHitBlock() == null) {
+        if (centerPoint == null) {
             super.explode(pos);
             return;
         }
@@ -95,6 +96,7 @@ public class ExplosiveShell extends StandardShell {
 
 
         List<Block> blocks = event.blockList();
+
         for (Block b: blocks) {
             Location loc = b.getLocation();
             Vector direction = loc.clone().subtract(center).toVector();

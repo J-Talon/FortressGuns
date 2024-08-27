@@ -43,8 +43,11 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
 
     public Shell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world);
-        if (shooter != null)
-           this.shooter =  ((CraftPlayer)shooter).getHandle();
+
+        if (shooter != null) {
+            this.shooter = ((CraftPlayer) shooter).getHandle();
+            setShooter(this.shooter);
+        }
 
         bukkitWorld = getWorld().getWorld();
         init();
@@ -126,7 +129,7 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
     //base explosion
     @Override
     public void explode(MovingObjectPosition pos){
-        Vec3D hit = getHitLoc(pos,this);
+        Vec3D hit = pos.getPos();
         explode(hit);
     }
 

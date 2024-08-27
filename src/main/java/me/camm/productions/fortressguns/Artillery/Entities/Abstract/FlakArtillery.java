@@ -143,6 +143,12 @@ This method is called in a loop. You can think of it as being called many times 
 
 
         Location piv = getPivot().getLocation(world);
+
+        if (!world.equals(target.getWorld())) {
+            aiming = false;
+            return;
+        }
+
         double targDist = target.distanceSquared(piv);
         double barrelDist = muzzle.distanceSquared(piv);
 

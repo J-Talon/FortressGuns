@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -110,6 +111,7 @@ public class InteractionHandler implements Listener
         handleArtilleryInteract(event);
     }
 
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
 
@@ -118,8 +120,22 @@ public class InteractionHandler implements Listener
         if (item.getItemMeta() == null)
             return;
 
+        /**************************/
+        //debug
+        if (item.getType() == Material.BARRIER) {
+            ArmorStand s = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), ArmorStand.class);
+            System.out.println(s.getLocation().toString());
+            System.out.println(s.getBoundingBox().toString());
+        }
+        //debug
+        /********************************/
+
+
+
         if (item.getType()!=Material.CHEST)
             return;
+
+
 
         String name = item.getItemMeta().getDisplayName();
         if (artilleryNames.containsKey(name))
@@ -158,11 +174,6 @@ public class InteractionHandler implements Listener
         Action action = event.getAction();
         EntityPlayer nms = ((CraftPlayer)player).getHandle();
 
-//        ////////////
-//        if (debug != null)
-//            debug.fire(player);
-//        ////////////////
-
         if (!event.hasItem()) {
             Entity ride = nms.getVehicle();
             if (ride instanceof ArtilleryPart) {
@@ -190,12 +201,23 @@ public class InteractionHandler implements Listener
         if (action != Action.RIGHT_CLICK_AIR)
             return;
 
+
+
         ItemStack item = event.getItem();
         if (item == null)
             return;
 
         if (item.getItemMeta() == null)
             return;
+
+        /***************************************/
+///////debug
+        if (item.getType() == Material.BLAZE_ROD) {
+            if (debug != null)
+                debug.fire(player);
+        }
+///////////
+        /***************************************/
 
         if (item.getType()!=Material.CHEST)
             return;
@@ -260,11 +282,13 @@ public class InteractionHandler implements Listener
                   handler.add(c, artillery);
               }
 
-
-//              if (artillery instanceof MissileLauncher) {
-//                  debug = (MissileLauncher) artillery;
-//                  updateTarget(player.getUniqueId(), player);
-//              }
+              //debug
+                /***************************************/
+              if (artillery instanceof MissileLauncher) {
+                  debug = (MissileLauncher) artillery;
+                  updateTarget(player.getUniqueId(), player);
+              }
+                /***************************************/
 
 
             }

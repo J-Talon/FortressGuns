@@ -272,15 +272,15 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
             //preserves rotation so it doesn't look so weird
             if (xRight < 0)
-                xRight = -1;
+                xRight = -0.75;
             else
-                xRight = 1;
+                xRight = 0.75;
 
 
             if (zRight < 0) {
-                zRight = -1;
+                zRight = -0.75;
             }
-            else zRight = 1;
+            else zRight = 0.75;
 
 
         }

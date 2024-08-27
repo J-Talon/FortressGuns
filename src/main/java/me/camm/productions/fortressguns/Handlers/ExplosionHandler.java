@@ -24,7 +24,6 @@ public class ExplosionHandler implements Listener
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event){
 
-        System.out.println("Explosion happened");
         float yield = event.getYield();
         org.bukkit.entity.Entity entity = event.getEntity();
         Entity nms = ((CraftEntity)entity).getHandle();
@@ -49,6 +48,7 @@ public class ExplosionHandler implements Listener
         int z2 = MathHelper.floor(z + yieldTwo + 1.0);
 
         List<Entity> list = world.getEntities(nms, new AxisAlignedBB(x1, y1, z1, x2,y2, z2));
+
         Vec3D vec3d = new Vec3D(x,y,z);
 
         Explosion dummy = new Explosion(world, nms, x,y,z,yield);
@@ -56,7 +56,9 @@ public class ExplosionHandler implements Listener
 
         for (Entity e: list) {
             if (e instanceof Component) {
+
                 double damageValue = Math.sqrt(e.e(vec3d)) / (double)yieldTwo;
+
                 double d12 = Explosion.a(vec3d, e);
 
                 double d13 = (1.0 - damageValue) * d12;

@@ -21,6 +21,8 @@ public interface ArtilleryProjectile {
           World world = event.getEntity().getWorld();
 
           boolean rule = Boolean.TRUE.equals(world.getGameRuleValue(GameRule.MOB_GRIEFING));
+          //change this to config later
+
           if (!rule) {
                event.blockList().clear();
           }
@@ -34,7 +36,7 @@ public interface ArtilleryProjectile {
 
      public abstract float getStrength();
 
-     default Vec3D getHitLoc(MovingObjectPosition pos, Entity e) {
+     default Vec3D stepBack(MovingObjectPosition pos, Entity e) {
           final Vec3D vec3d = pos.getPos().a(e.locX(), e.locY(), e.locZ());
           final Vec3D vec3d2 = vec3d.d().a(0.05000000074505806);  //DON'T ASK
           return new Vec3D(e.locX() - vec3d2.b, e.locY() - vec3d2.c, e.locZ() - vec3d2.d);

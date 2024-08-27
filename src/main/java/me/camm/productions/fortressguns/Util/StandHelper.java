@@ -25,19 +25,45 @@ public class StandHelper
     ///this is crude collision detection; it only works most of the time
     //cause the armorstand hitbox is a box, not a point
     //we may want to refine this.
-    public static boolean isPosObstructed(Location loc) {
-        return !loc.getBlock().isPassable();
+    public static boolean isPosClear(Location loc) {
+        return loc.getBlock().isPassable();
     }
 
-    //1.5 is since the pos is at the loc of the feet. since a block is 1, 1.5 should return the block
-    //above regardless
+
     public static boolean isPosObstructedRaw(Location rawLoc) {
-        //System.out.println(rawLoc);
-        return isPosObstructed(
-                new Location(rawLoc.getWorld(),
-                        rawLoc.getX(),
-                        rawLoc.getY() + 1.975, //from mc wiki - armorstand height
-                        rawLoc.getZ()));
+
+        /*
+        0  --> 1.975
+        1.725 is base of head
+
+        + 0.25 in x, z
+        - 0.25 in x, z
+
+         */
+        double heightLow = 1.725;
+        double heightHigh = 1.975;
+        double horOffset = 0.25;
+
+        Vector[] offsets = new Vector[]{
+                new Vector(horOffset, heightLow, horOffset),
+                new Vector(-horOffset, heightLow, horOffset),
+                new Vector(horOffset, heightLow, -horOffset),
+                new Vector(-horOffset, heightLow, -horOffset),
+
+                new Vector(horOffset, heightHigh, horOffset),
+                new Vector(-horOffset, heightHigh, horOffset),
+                new Vector(horOffset, heightHigh, -horOffset),
+                new Vector(-horOffset, heightHigh, -horOffset)
+        };
+
+        boolean clear = true;
+        for (Vector offset: offsets) {
+            Location current = new Location(rawLoc.getWorld(), rawLoc.getX(), rawLoc.getY(),rawLoc.getZ());
+            current.add(offset);
+            clear = clear && isPosClear(current);
+        }
+
+        return !clear;
     }
 
 

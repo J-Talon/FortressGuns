@@ -32,33 +32,6 @@ public class StandardShell extends Shell {
 
     public void tick() {
         super.tick();
-       // bukkitWorld.getChunkAt(1,1).getEntities();
-//        if (getMot().getY() >= 0)
-//            return;
-
-       // double diff = Math.abs(locY() - startingY);
-
-
-//        SoundPlayer whistle = new SoundPlayer() {
-//            @Override
-//            public void playSound(Location loc) {
-//
-//                float pitch = (1/30f) * (float)diff;
-//                float volumeX = (-1/30f) * (float)diff + 2;
-//
-//                float volume = (float)Math.max(1,Math.min(0,(-1/5f) * getMot().getY()));
-//                volume *= volumeX;
-//
-//                if (volume == 0)
-//                    return;
-//
-//                bukkitWorld.playSound(loc,Sound.ENTITY_GUARDIAN_AMBIENT_LAND,Math.min(volume,2),Math.max(2,pitch));
-//            }
-//        };
-
-
-        //fix this first and then do it
-      //  playSound(whistle,5);
     }
 
 

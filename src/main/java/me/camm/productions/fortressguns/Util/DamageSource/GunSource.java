@@ -31,9 +31,8 @@ public class GunSource extends EntityDamageSource {
    @Override
    public IChatBaseComponent getLocalizedDeathMessage(EntityLiving victim) {
 
-
-
-      String start = victim.getScoreboardDisplayName().getText()+ ChatColor.RESET;
+      //may need to fix this...
+      String start = victim.getScoreboardDisplayName().getText() + ChatColor.RESET;
       String end = this.z.getScoreboardDisplayName().getText();
 
       String body = victim.getUniqueID().toString().equalsIgnoreCase("ae5430bf-2066-43e6-8eff-2bb4cc730bd6") ?

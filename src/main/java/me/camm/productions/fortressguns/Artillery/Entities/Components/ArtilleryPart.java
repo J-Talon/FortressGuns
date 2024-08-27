@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyFlak;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.core.Vector3f;
@@ -11,6 +10,7 @@ import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.EnumHand;
 import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityInsentient;
 import net.minecraft.world.entity.EnumItemSlot;
@@ -118,12 +118,17 @@ public class ArtilleryPart extends Component
                 //if they punch the thing with a stick, fire the cannon instead.
                 Material mat = bukkitStack.getType();
 
-                if (mat == FIRE) {
-                    body.fire(new CraftPlayer(getWorld().getCraftServer(), (EntityPlayer)human));
-                    return false;
-                }
-                else
+                if (mat != FIRE) {
                     return damageRaw(source, damage);
+                }
+
+            if (source instanceof EntityDamageSource && source.u().equals("player")) {
+                body.fire(new CraftPlayer(getWorld().getCraftServer(), (EntityPlayer)human));
+                return false;
+            }
+            else return damageRaw(source, damage);
+
+
 
 
 
