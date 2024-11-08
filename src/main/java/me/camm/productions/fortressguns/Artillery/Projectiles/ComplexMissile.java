@@ -7,6 +7,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 /*
@@ -22,7 +23,7 @@ public class ComplexMissile extends Construct implements ArtilleryProjectile {
 
 
     @Override
-    public void explode(MovingObjectPosition pos) {
+    public void explode(@Nullable MovingObjectPosition pos) {
 
     }
 

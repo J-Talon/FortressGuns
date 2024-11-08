@@ -121,13 +121,13 @@ public class InteractionHandler implements Listener
             return;
 
         /**************************/
-        //debug
-        if (item.getType() == Material.BARRIER) {
-            ArmorStand s = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), ArmorStand.class);
-            System.out.println(s.getLocation().toString());
-            System.out.println(s.getBoundingBox().toString());
-        }
-        //debug
+//    //    debug
+//        if (item.getType() == Material.BARRIER) {
+//            ArmorStand s = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), ArmorStand.class);
+//            System.out.println(s.getLocation().toString());
+//            System.out.println(s.getBoundingBox().toString());
+//        }
+//      //  debug
         /********************************/
 
 
@@ -210,14 +210,14 @@ public class InteractionHandler implements Listener
         if (item.getItemMeta() == null)
             return;
 
-        /***************************************/
+//        /***************************************/
 ///////debug
-        if (item.getType() == Material.BLAZE_ROD) {
-            if (debug != null)
-                debug.fire(player);
-        }
+//        if (item.getType() == Material.BLAZE_ROD) {
+//            if (debug != null)
+//                debug.fire(player);
+//        }
 ///////////
-        /***************************************/
+//        /***************************************/
 
         if (item.getType()!=Material.CHEST)
             return;
@@ -282,13 +282,13 @@ public class InteractionHandler implements Listener
                   handler.add(c, artillery);
               }
 
-              //debug
-                /***************************************/
-              if (artillery instanceof MissileLauncher) {
-                  debug = (MissileLauncher) artillery;
-                  updateTarget(player.getUniqueId(), player);
-              }
-                /***************************************/
+//              //debug
+//                /***************************************/
+//              if (artillery instanceof MissileLauncher) {
+//                  debug = (MissileLauncher) artillery;
+//                  updateTarget(player.getUniqueId(), player);
+//              }
+//                /***************************************/
 
 
             }

@@ -8,9 +8,11 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import javax.annotation.Nullable;
+
 public interface ArtilleryProjectile {
 
-     abstract void explode(MovingObjectPosition hitPosition);
+     public abstract void explode(@Nullable MovingObjectPosition hitPosition);
 
      @FunctionalInterface
      interface SoundPlayer {

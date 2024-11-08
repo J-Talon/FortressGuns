@@ -310,6 +310,8 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     }
 
     public final synchronized void unload(boolean dropItem, boolean exploded) throws IllegalStateException {
+
+
         List<ArtilleryPart> components = getParts();
         try {
             components.forEach(Entity::die);
@@ -318,7 +320,10 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
         }
 
-        Location loc = pivot.getLocation(world).clone();
+        Location loc;
+        if (pivot != null)
+            loc = pivot.getLocation(world).clone();
+        else return;
 
         if (exploded) {
             ExplosionEffect.explodeArtillery(loc, world);

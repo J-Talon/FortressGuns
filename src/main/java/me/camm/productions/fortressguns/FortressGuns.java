@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
 import me.camm.productions.fortressguns.Handlers.ExplosionHandler;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,7 +49,7 @@ public final class FortressGuns extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        MissileLockNotifier.get(this).stop();
     }
 
 

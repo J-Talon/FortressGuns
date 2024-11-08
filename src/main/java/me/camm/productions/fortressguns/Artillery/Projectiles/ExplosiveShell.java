@@ -43,9 +43,13 @@ public class ExplosiveShell extends StandardShell {
     }
 
     @Override
-    public void explode(MovingObjectPosition pos) {
+    public void explode(@Nullable MovingObjectPosition pos) {
 
-       // Vec3D hitLoc = pos.getPos();
+        if (pos == null) {
+            super.explode((MovingObjectPosition) null);
+            return;
+        }
+
         Vec3D backstep = stepBack(pos,this);
 
         Vec3D currentPos = this.getPositionVector();

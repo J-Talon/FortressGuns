@@ -3,7 +3,10 @@ package me.camm.productions.fortressguns.Handlers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import org.bukkit.Chunk;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -48,6 +51,10 @@ public class ChunkLoader implements Listener
 
             Set<Chunk> loaders = next.getOccupiedChunks();
             boolean loaded = loaders.stream().allMatch(Chunk::isLoaded);
+            if (next.isInvalid()) {
+                remove(loaders, next);
+                continue;
+            }
 
             if (loaded) {
                 next.spawn();
@@ -124,6 +131,15 @@ public class ChunkLoader implements Listener
         int z = chunk.getZ();
         String name = chunk.getWorld().getName();
 
+        Entity[] entities = chunk.getEntities();
+
+        for (Entity e: entities) {
+            net.minecraft.world.entity.Entity nms = ((CraftEntity)e).getHandle();
+            if (nms instanceof ArtilleryProjectile) {
+                ((ArtilleryProjectile)nms).explode(null);
+            }
+        }
+
         if (!pieces.contains(x,z)) {
             return;
         }
@@ -138,6 +154,11 @@ public class ChunkLoader implements Listener
 
 
         for (Construct next : set) {
+            if (next.isInvalid()) {
+                remove(next.getOccupiedChunks(), next);
+                continue;
+            }
+
             next.unload(false, false);
             next.setChunkLoaded(false);
         }

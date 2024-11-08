@@ -57,6 +57,14 @@ health = 100
 power = 2
 cooldown = 10000
 
+[missiles]
+#difficulty to dodge missiles. From 1-10. 1 = easiest
+difficulty = 10
+orbitDistance = 17
+
+#whether missiles should be highlighted for their targets
+highlightMissiles = true
+
 #==============================
 #Railgun
 [railGun]
@@ -81,6 +89,8 @@ smallFlakDamage = 10
 
 #Whether artillery destroys blocks
 destructiveArtillery = true
+arcadeMode = true
+realisticReload = false
 
 
 

@@ -11,6 +11,8 @@ import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.core.Vector3f;
 import org.bukkit.*;
 
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventory;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -127,6 +129,9 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
         this.rotatingSeat.teleport(rotatingSeat.getX(),rotatingSeat.getY(), rotatingSeat.getZ());
         this.rotatingSeat.setRotation(0,(float)horAngle);
         this.triggerHandle.teleport(rotatingSeat.add(0,1,0));
+
+
+
     }
 
 

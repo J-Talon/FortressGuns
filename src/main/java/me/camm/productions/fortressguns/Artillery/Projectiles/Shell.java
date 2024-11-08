@@ -128,8 +128,15 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
 
     //base explosion
     @Override
-    public void explode(MovingObjectPosition pos){
-        Vec3D hit = pos.getPos();
+    public void explode(@Nullable MovingObjectPosition pos){
+
+        Vec3D hit;
+        if (pos == null) {
+            hit = new Vec3D(locX(), locY(), locZ());
+        }
+        else
+            hit = pos.getPos();
+
         explode(hit);
     }
 
