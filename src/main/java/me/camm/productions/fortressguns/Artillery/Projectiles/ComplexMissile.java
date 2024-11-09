@@ -23,17 +23,12 @@ public class ComplexMissile extends Construct implements ArtilleryProjectile {
 
 
     @Override
-    public void explode(@Nullable MovingObjectPosition pos) {
+    public void preTerminate(@Nullable MovingObjectPosition pos) {
 
     }
 
     @Override
-    public void postExplosion(EntityExplodeEvent event) {
-
-    }
-
-    @Override
-    public float getStrength() {
+    public float getDamageStrength() {
         return 0;
     }
 

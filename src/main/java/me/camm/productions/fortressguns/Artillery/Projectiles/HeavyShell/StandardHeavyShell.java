@@ -1,32 +1,31 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles;
+package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
-import me.camm.productions.fortressguns.Util.ExplosionEffect;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.Nullable;
 
-public class StandardShell extends Shell {
+public class StandardHeavyShell extends HeavyShell {
 
 
     private final double startingY;
 
 
 
-    public StandardShell(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter) {
+    public StandardHeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter) {
         super(entitytypes, x, y, z, world, shooter);
         startingY = y;
 
     }
 
 
-    public float getStrength() {
+    public float getDamageStrength() {
         return 3f;
     }
 
@@ -36,8 +35,8 @@ public class StandardShell extends Shell {
 
 
     @Override
-    public void explode(MovingObjectPosition pos) {
-        super.explode(pos);
+    public void preTerminate(MovingObjectPosition pos) {
+        super.preTerminate(pos);
         SoundPlayer kaboom = new SoundPlayer() {
             @Override
             public void playSound(Location loc) {
@@ -46,6 +45,12 @@ public class StandardShell extends Shell {
         };
 
         playSound(kaboom,30);
+    }
+
+    @Override
+    public void playExplosionEffects(Location explosion){
+        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,explosion,100,0,0,0,0.5);
+        bukkitWorld.spawnParticle(Particle.CLOUD,explosion,100,0,0,0,0.5);
     }
 
 

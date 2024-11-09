@@ -2,7 +2,9 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightFlakShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
+
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
@@ -29,9 +31,14 @@ public class LightFlak extends RapidFire {
     private final static int MAX_HEALTH;
     private static final Random random = new Random();
 
+    //can't use until I find a way to renew the projectiles
+
+
+
     static {
         COOLDOWN = 500;
         MAX_HEALTH = 20;
+
     }
 
     public LightFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
@@ -113,10 +120,10 @@ public class LightFlak extends RapidFire {
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
 
+
         EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
+        LightShell shell = new  FlakLightShell(nmsWorld,muzzle.getX(),muzzle.getY(),muzzle.getZ(),nmsOperator, this);
 
-
-        LightFlakShell shell = new LightFlakShell(nmsWorld,muzzle.getX(),muzzle.getY(),muzzle.getZ(),nmsOperator);
         shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
         nmsWorld.addEntity(shell);
 

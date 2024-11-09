@@ -2,13 +2,9 @@ package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.core.particles.ParticleParam;
-import net.minecraft.core.particles.Particles;
-import net.minecraft.network.protocol.game.PacketPlayOutWorldParticles;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
@@ -17,26 +13,22 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
-import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_17_R1.CraftParticle;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
+public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, ProjectileExplosive {
 
     private final Player shooter;
     private Entity target;
@@ -113,10 +105,10 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
     }
 
     @Override
-    public void explode(@Nullable MovingObjectPosition pos) {
+    public void preTerminate(@Nullable MovingObjectPosition pos) {
         //explode the thing here
         if (pos == null) {
-            playExplosionEffects(new Location(bukkitWorld, locX(), locY(), locZ()));
+            explode(null);
             return;
         }
 
@@ -126,38 +118,39 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
             if (hitBlock.getType().isAir())
                 return;
         }
-
-        playExplosionEffects(pos);
+        explode(pos.getPos());
     }
 
 
-    public float getStrength() {
+    public float getDamageStrength() {
         return 4f;
     }
 
-    public void playExplosionEffects(Location hitLoc) {
+    public void explode(@Nullable Vec3D hit) {
 
         if (target != null && target instanceof Player) {
             notifier.exitNotification(target.getUniqueId());
         }
+        Location explosionLoc;
+        org.bukkit.World world = getWorld().getWorld();
+        if (hit == null) {
+            explosionLoc = new Location(world, locX(), locY(), locZ());
+            world.createExplosion(explosionLoc,getDamageStrength());
+        }
+        else {
+            explosionLoc = new Location(world, hit.getX(), hit.getY(), hit.getZ());
+            world.createExplosion(explosionLoc, getDamageStrength(), false, true, shooter);
+        }
+        world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
 
-        EntityPlayer nmsEntity = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-
-        World nmsWorld = ((CraftWorld)bukkitWorld).getHandle();
-        nmsWorld.createExplosion(nmsEntity,hitLoc.getX(), hitLoc.getY(), hitLoc.getZ(),getStrength(),false, Explosion.Effect.c);
-        bukkitWorld.spawnParticle(Particle.EXPLOSION_HUGE,hitLoc,1,0,0,0,1,null, true);
         this.die();
     }
 
-    private void playExplosionEffects(MovingObjectPosition pos) {
-        Vec3D hitLoc = pos.getPos();
-        playExplosionEffects(new Location(bukkitWorld,hitLoc.getX(),hitLoc.getY(),hitLoc.getZ()));
-    }
 
 
     @Override
     public void a(MovingObjectPosition pos) {
-    explode(pos);
+    preTerminate(pos);
     }
 
 
@@ -169,41 +162,45 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         //0.00015x^{2}
 
         //maybe this should be an option
-        // I know other particles might look better
-        final ParticleParam PARAM = Particles.v;  //end rod particle
-        bukkitWorld.getPlayers().forEach(player -> {
+        // I know some peeps want the small explode particles instead
+//        final ParticleParam PARAM = Particles.v;  //end rod particle
+//        bukkitWorld.getPlayers().forEach(player -> {
+//
+//            double distSquared = loc.distanceSquared(player.getLocation());
+//            double glow = Math.max((-0.0008 * distSquared) + 5, 1);
+//
+//            PacketPlayOutWorldParticles packet;
+//            EntityPlayer nms = ((CraftPlayer)player).getHandle();
+//
+//            for (double angle = 0; angle < 2*Math.PI; angle += Math.PI / 2) {
+//                Location next = loc.clone();
+//                double z = Math.cos(angle);
+//                double x = -Math.sin(angle);
+//
+//                for (int num = 0; num < glow; num ++) {
+//                    packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
+//                    nms.b.sendPacket(packet);
+//                    next.add(x * 0.1 * num,0,z * 0.1 * num); /// 0.1 is arbitrary dist
+//                }
+//            }
+//
+//            for (int num = 0; num < glow; num ++) {
+//                Location next = loc.clone();
+//
+//                next.add(0,0.1 * num,0);
+//                packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
+//                nms.b.sendPacket(packet);
+//
+//                next.add(0,-0.2 * num,0);
+//                packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
+//                nms.b.sendPacket(packet);
+//            }
+//
+//        });
 
-            double distSquared = loc.distanceSquared(player.getLocation());
-            double glow = Math.max((-0.0008 * distSquared) + 5, 1);
 
-            PacketPlayOutWorldParticles packet;
-            EntityPlayer nms = ((CraftPlayer)player).getHandle();
-
-            for (double angle = 0; angle < 2*Math.PI; angle += Math.PI / 2) {
-                Location next = loc.clone();
-                double z = Math.cos(angle);
-                double x = -Math.sin(angle);
-
-                for (int num = 0; num < glow; num ++) {
-                    packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
-                    nms.b.sendPacket(packet);
-                    next.add(x * 0.1 * num,0,z * 0.1 * num); /// 0.1 is arbitrary dist
-                }
-            }
-
-            for (int num = 0; num < glow; num ++) {
-                Location next = loc.clone();
-
-                next.add(0,0.1 * num,0);
-                packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
-                nms.b.sendPacket(packet);
-
-                next.add(0,-0.2 * num,0);
-                packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
-                nms.b.sendPacket(packet);
-            }
-
-        });
+        //some people like this more???
+        bukkitWorld.spawnParticle(Particle.EXPLOSION_LARGE,loc,0,0,0,0,1,null, true);
 
         bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2);
         bukkitWorld.spawnParticle(Particle.FLAME,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2);
@@ -280,6 +277,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         //motion changed
         this.C = true;
 
+
     }
 
 
@@ -299,7 +297,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile {
         Location targetLoc = target.getLocation();
 
         if (targetLoc.distanceSquared(missileLoc) <= DIST_EXPLODE_SQUARED) {
-            explode(null);
+            preTerminate(null);
             return;
         }
 

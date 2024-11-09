@@ -2,7 +2,8 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.FlakShell;
+
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
@@ -97,7 +98,7 @@ This method is called in a loop. You can think of it as being called many times 
                 if (!shot) {
                     shot = true;
 
-                        FlakShell shell = new FlakShell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), shooter);
+                        FlakHeavyShell shell = new FlakHeavyShell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), shooter);
                         shell.setMot(vector);
                         shell.setTerminus(target);
                         ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);

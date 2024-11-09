@@ -136,7 +136,7 @@ public class ChunkLoader implements Listener
         for (Entity e: entities) {
             net.minecraft.world.entity.Entity nms = ((CraftEntity)e).getHandle();
             if (nms instanceof ArtilleryProjectile) {
-                ((ArtilleryProjectile)nms).explode(null);
+                ((ArtilleryProjectile)nms).preTerminate(null);
             }
         }
 

@@ -1,6 +1,8 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles;
+package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
@@ -14,24 +16,25 @@ import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
 
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 
 import javax.annotation.Nullable;
 
 
-public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
+public abstract class HeavyShell extends EntityArrow implements ArtilleryProjectile, ProjectileExplosive {
     private static final int DAMAGE;
     protected EntityPlayer shooter;
     org.bukkit.World bukkitWorld;
@@ -41,7 +44,7 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
     }
     private static final ItemStack stack = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.IRON_NUGGET));
 
-    public Shell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
+    public HeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world);
 
         if (shooter != null) {
@@ -80,7 +83,7 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
         Entity shooter = this.getShooter();
 
         if (!(shooter instanceof EntityHuman)) {
-            explode(pos);
+            preTerminate(pos);
             return;
         }
 
@@ -88,7 +91,7 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
         boolean isEnderman = hit.getEntityType() == EntityTypes.w;
 
         if (damageSource == null) {
-            explode(pos);
+            preTerminate(pos);
             return;
         }
 
@@ -116,19 +119,24 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
                 //t.y in class world is if the world is clentside
             }
         }
-        explode(pos);
+        preTerminate(pos);
 
     }
 
+
+
+
+
+
     @Override
     protected void a(MovingObjectPositionBlock pos) {
-       explode(pos);
+       preTerminate(pos);
     }
 
 
     //base explosion
     @Override
-    public void explode(@Nullable MovingObjectPosition pos){
+    public void preTerminate(@Nullable MovingObjectPosition pos){
 
         Vec3D hit;
         if (pos == null) {
@@ -140,15 +148,18 @@ public abstract class Shell extends EntityArrow implements ArtilleryProjectile {
         explode(hit);
     }
 
-    protected void explode(@Nullable Vec3D hit) {
+
+    public void explode(@Nullable Vec3D hit) {
         this.die();
 
         if (hit == null)
-            this.getWorld().createExplosion(this, locX(), locY(), locZ(), getStrength(), false, Explosion.Effect.c);
+            this.getWorld().createExplosion(this, locX(), locY(), locZ(), getDamageStrength(), false, Explosion.Effect.c);
         else
-            this.getWorld().createExplosion(this, hit.getX(), hit.getY(), hit.getZ(), getStrength(), false, Explosion.Effect.c);
+            this.getWorld().createExplosion(this, hit.getX(), hit.getY(), hit.getZ(), getDamageStrength(), false, Explosion.Effect.c);
         //event is called here
     }
+
+    public abstract void playExplosionEffects(Location explosion);
 
 
     protected void playSound(SoundPlayer sp, double hypotenuse) {

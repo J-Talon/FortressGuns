@@ -1,5 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles;
-
+package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import net.minecraft.world.entity.Entity;
@@ -17,20 +16,20 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
-public class FlakShell extends Shell {
+public class FlakHeavyShell extends HeavyShell {
 
     int flightTime;
     double explodeTime;
 
     private Entity terminus = null;
 
-    public FlakShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
+    public FlakHeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world,shooter);
         flightTime = 0;
         explodeTime = 1;
     }
 
-    public float getStrength() {
+    public float getDamageStrength() {
         return 3f;
     }
 

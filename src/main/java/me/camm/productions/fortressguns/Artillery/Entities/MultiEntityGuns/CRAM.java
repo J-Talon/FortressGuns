@@ -23,7 +23,7 @@ public class CRAM extends RapidFire {
 
     @Override
     public ArtilleryType getType() {
-        return null;
+        return ArtilleryType.CRAM;
     }
 
     @Override

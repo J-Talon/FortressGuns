@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.SideSeated;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ExplosiveShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
@@ -71,7 +71,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
 
                 if (!shot) {
                     shot = true;
-                    ExplosiveShell shell = new ExplosiveShell(EntityTypes.d,muzzle.getX(),muzzle.getY(),muzzle.getZ(),((CraftWorld)world).getHandle(), shooter);
+                    ExplosiveHeavyShell shell = new ExplosiveHeavyShell(EntityTypes.d,muzzle.getX(),muzzle.getY(),muzzle.getZ(),((CraftWorld)world).getHandle(), shooter);
                     shell.setMot(vector);
                     ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
                 }

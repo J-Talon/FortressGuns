@@ -12,31 +12,16 @@ import javax.annotation.Nullable;
 
 public interface ArtilleryProjectile {
 
-     public abstract void explode(@Nullable MovingObjectPosition hitPosition);
+     public abstract void preTerminate(@Nullable MovingObjectPosition hitPosition);
 
      @FunctionalInterface
      interface SoundPlayer {
           void playSound(Location loc);
      }
 
-     public default void postExplosion(EntityExplodeEvent event) {
-          World world = event.getEntity().getWorld();
-
-          boolean rule = Boolean.TRUE.equals(world.getGameRuleValue(GameRule.MOB_GRIEFING));
-          //change this to config later
-
-          if (!rule) {
-               event.blockList().clear();
-          }
-     }
 
 
-     public default void playExplosionEffects(Location explosion) {
-
-     }
-
-
-     public abstract float getStrength();
+     public abstract float getDamageStrength();
 
      default Vec3D stepBack(MovingObjectPosition pos, Entity e) {
           final Vec3D vec3d = pos.getPos().a(e.locX(), e.locY(), e.locZ());

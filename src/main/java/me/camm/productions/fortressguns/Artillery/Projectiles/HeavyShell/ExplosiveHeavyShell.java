@@ -1,5 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles;
-
+package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import net.minecraft.world.entity.EntityTypes;
@@ -23,30 +22,29 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Random;
 
 
-public class ExplosiveShell extends StandardShell {
 
-    private static Random rand = new Random();
+public class ExplosiveHeavyShell extends StandardHeavyShell {
+
     private Vector spewDir = null;
     private Location center = null;
 
-    public ExplosiveShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
+    public ExplosiveHeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
         super(entitytypes, d0, d1, d2, world, shooter);
     }
 
 
     @Override
-    public float getStrength() {
+    public float getDamageStrength() {
          return 4f;
     }
 
     @Override
-    public void explode(@Nullable MovingObjectPosition pos) {
+    public void preTerminate(@Nullable MovingObjectPosition pos) {
 
         if (pos == null) {
-            super.explode((MovingObjectPosition) null);
+            super.preTerminate((MovingObjectPosition) null);
             return;
         }
 
@@ -65,7 +63,7 @@ public class ExplosiveShell extends StandardShell {
                 FluidCollisionMode.NEVER);
 
         if (centerPoint == null) {
-            super.explode(pos);
+            super.preTerminate(pos);
             return;
         }
 
@@ -73,20 +71,15 @@ public class ExplosiveShell extends StandardShell {
         BlockFace face = centerPoint.getHitBlockFace();
 
         if (bukkitBlock == null || face == null) {
-            super.explode(pos);
+            super.preTerminate(pos);
             return;
         }
 
         spewDir = face.getDirection();
         center = centerPoint.getHitPosition().add(spewDir.clone().multiply(-3)).toLocation(bukkitWorld);
-        super.explode(pos);
+        super.preTerminate(pos);
     }
 
-    @Override
-    public void playExplosionEffects(Location explosion){
-        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,explosion,100,0,0,0,0.5);
-        bukkitWorld.spawnParticle(Particle.CLOUD,explosion,100,0,0,0,0.5);
-    }
 
     @Override
     public void postExplosion(EntityExplodeEvent event) {

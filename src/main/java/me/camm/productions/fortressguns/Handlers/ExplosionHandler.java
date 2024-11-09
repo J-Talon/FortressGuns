@@ -2,6 +2,8 @@ package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -67,8 +69,8 @@ public class ExplosionHandler implements Listener
             }
         }
 
-        if (nms instanceof ArtilleryProjectile) {
-            ((ArtilleryProjectile)nms).postExplosion(event);
+        if (nms instanceof ProjectileExplosive) {
+            ((ProjectileExplosive)nms).postExplosion(event);
         }
 
     }

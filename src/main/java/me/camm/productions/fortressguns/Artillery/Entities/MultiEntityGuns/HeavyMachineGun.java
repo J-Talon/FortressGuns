@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.EntityLiving;
 import org.bukkit.*;
 
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
@@ -45,6 +47,9 @@ public class HeavyMachineGun extends RapidFire {
     protected static final double HEALTH, RANGE;
     protected static final ItemStack BARREL_ITEM, MUZZLE_ITEM, SEAT_ITEM;
     protected static final Vector3f rightArm, leftArm, body, rightLeg, leftLeg;
+
+
+
 
     static {
         HEALTH = 20;
@@ -79,7 +84,9 @@ public class HeavyMachineGun extends RapidFire {
     private void fireBurst(){
         int iterations = 0;
         long delayTicks = 2;
-        final int shots = 3;
+        final int shots = 2;  //this is intentional
+                               // interact time is ~5 ticks, so 4 ticks waiting (2*2) + 1
+                               // tick to receive next interaction --> the action is fluid under normal conditions
 
         if (!canFire())
             return;
@@ -91,21 +98,32 @@ public class HeavyMachineGun extends RapidFire {
             final int reference = iterations;
             new BukkitRunnable() {
                 public void run() {
-                    fireSingleShot();
 
-                    if (reference == shots)
+                    Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
+                    fireSingleShot(muzzle);
+
+                    Vector origin = muzzle.toVector();
+                    Location pivLoc = pivot.getLocation(world);
+                    Item item = world.dropItem(pivLoc,CASING);
+                    Vector vel = origin.clone().normalize();
+                    double x = vel.getX();
+                    double z = vel.getZ();
+                    vel.setX(z);
+                    vel.setZ(x);
+
+                    item.setVelocity(vel);
+
+                    if (reference >= shots)
                         canFire = true;
 
                     cancel();
-
-
                 }
             }.runTaskLater(plugin, iterations * delayTicks);
         }
     }
 
 
-    private void fireSingleShot() {
+    private void fireSingleShot(Location muzzle) {
 
 
         List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
@@ -118,92 +136,19 @@ public class HeavyMachineGun extends RapidFire {
             return;
 
 
-        Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
-
-
         createFlash(muzzle);
         world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,1f,2f);
 
 
         projectileVelocity = eulerToVec(aim).normalize();
-        Vector direction = projectileVelocity.clone();
-        Vector origin = muzzle.toVector();
+        Vector direction = projectileVelocity.clone().multiply(vectorPower);
 
         EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
+        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
 
-
-        //Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode, boolean ignorePassableBlocks, double raySize, Predicate<Entity> filter
-        RayTraceResult result = world.rayTrace(
-                muzzle,
-                projectileVelocity,
-                RANGE,
-                FluidCollisionMode.ALWAYS,
-                true,
-                0.1,
-                new PredicateEqual(operator,this));
-
-
-        Location position = null;
-        if (result == null) {
-            canFire = true;
-        }
-        else {
-
-            Block hitBlock = result.getHitBlock();
-            Entity hit = result.getHitEntity();
-            position = result.getHitPosition().toLocation(world);
-
-
-            if (hitBlock != null && !hitBlock.getType().isAir()) {
-                world.spawnParticle(Particle.BLOCK_CRACK, position, 10, 0, 0, 0, hitBlock.getBlockData());
-                float hardness = hitBlock.getType().getHardness();
-
-                if (hardness < Material.DIRT.getHardness() && hardness >= 0)
-                    hitBlock.breakNaturally();
-
-            }
-
-
-            if (hit != null) {
-                net.minecraft.world.entity.Entity nms = ((CraftEntity) hit).getHandle();
-                nms.damageEntity(GunSource.gunShot(nmsOperator), 9);
-
-                if (nms instanceof EntityLiving)
-                    nms.W = 0;
-
-            }
-        }
-
-        final Location hitPosCopy = position;
-
-        new BukkitRunnable() {
-
-            final double distance = hitPosCopy != null ? hitPosCopy.distance(muzzle) : RANGE;
-            double travelled = 0;
-
-            public void run() {
-                canFire = true;
-                Location pivLoc = pivot.getLocation(world);
-                Item item = world.dropItem(pivLoc,CASING);
-                Vector vel = origin.clone().normalize();
-                double x = vel.getX();
-                double z = vel.getZ();
-                vel.setX(z);
-                vel.setZ(x);
-
-                item.setVelocity(vel);
-
-
-                do {
-                    travelled += 1;
-                    origin.add(direction);
-                    world.spawnParticle(Particle.SMOKE_NORMAL,origin.getX(), origin.getY(), origin.getZ(),1,0,0,0,0);
-                }
-                while (travelled < distance);
-            }
-        }.runTaskLater(FortressGuns.getInstance(),1);
-
-
+        StandardLightShell shell = new StandardLightShell(nms,muzzle.getX(), muzzle.getY(), muzzle.getZ(),nmsOperator,this);
+        shell.setMot(direction.getX(), direction.getY(), direction.getZ());
+        nms.addEntity(shell);
 
     }
 
@@ -230,29 +175,4 @@ public class HeavyMachineGun extends RapidFire {
         return HEALTH;
     }
 
-}
-
-
-
-
-class PredicateEqual implements Predicate<Entity> {
-
-    private final Player operator;
-    private final Artillery artillery;
-    public PredicateEqual(Player operator, Artillery artillery){
-        this.operator = operator;
-        this.artillery = artillery;
-    }
-
-    @Override
-    public boolean test(Entity e) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)e).getHandle();
-        if (nms instanceof ArtilleryPart) {
-            ArtilleryPart part = ((ArtilleryPart)nms);
-
-            return !part.getBody().equals(artillery);
-        }
-
-        return !e.equals(operator);
-    }
 }

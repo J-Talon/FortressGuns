@@ -49,6 +49,10 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     protected Plugin plugin;
     protected ArtilleryPart[] barrel;
     protected ArtilleryPart[][] base;
+
+
+
+
     protected ArtilleryCore pivot;
     protected EulerAngle aim;//
     protected final ChunkLoader handler;
@@ -70,7 +74,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     //default values for testing
     //===================
-    protected double vectorPower = 6;
+    protected double vectorPower = 4;
     protected int recoilTime = 1;
     protected double barrelRecoverRate = 0.03;
     //==============
@@ -78,6 +82,8 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     protected ArtilleryInventory loadingInventory;
 
     protected long lastFireTime;//
+
+
 
     //Enum for damage multipliers
     private enum DamageMultiplier{
