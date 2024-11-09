@@ -3,16 +3,13 @@ package me.camm.productions.fortressguns.Artillery.Projectiles;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.GameRule;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.event.entity.EntityExplodeEvent;
 
 import javax.annotation.Nullable;
 
 public interface ArtilleryProjectile {
 
-     public abstract void preTerminate(@Nullable MovingObjectPosition hitPosition);
+     public abstract void preHit(@Nullable MovingObjectPosition hitPosition);
 
      @FunctionalInterface
      interface SoundPlayer {

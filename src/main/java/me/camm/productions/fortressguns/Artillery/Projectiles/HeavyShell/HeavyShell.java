@@ -22,13 +22,11 @@ import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
 
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.EntityExplodeEvent;
 
 
 import javax.annotation.Nullable;
@@ -83,7 +81,7 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
         Entity shooter = this.getShooter();
 
         if (!(shooter instanceof EntityHuman)) {
-            preTerminate(pos);
+            preHit(pos);
             return;
         }
 
@@ -91,7 +89,7 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
         boolean isEnderman = hit.getEntityType() == EntityTypes.w;
 
         if (damageSource == null) {
-            preTerminate(pos);
+            preHit(pos);
             return;
         }
 
@@ -119,7 +117,7 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
                 //t.y in class world is if the world is clentside
             }
         }
-        preTerminate(pos);
+        preHit(pos);
 
     }
 
@@ -130,13 +128,13 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
 
     @Override
     protected void a(MovingObjectPositionBlock pos) {
-       preTerminate(pos);
+       preHit(pos);
     }
 
 
     //base explosion
     @Override
-    public void preTerminate(@Nullable MovingObjectPosition pos){
+    public void preHit(@Nullable MovingObjectPosition pos){
 
         Vec3D hit;
         if (pos == null) {

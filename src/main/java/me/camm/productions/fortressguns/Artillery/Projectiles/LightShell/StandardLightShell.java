@@ -2,15 +2,21 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
+import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.util.Vector;
 
 public class StandardLightShell extends LightShell {
 
@@ -20,28 +26,22 @@ public class StandardLightShell extends LightShell {
     }
 
     @Override
-    public void preTerminate(MovingObjectPosition hit) {
+    public void preHit(MovingObjectPosition hit) {
 
         if (hit == null) {
             return;
         }
 
-        Vec3D pos = hit.getPos();
+        Vec3D motion = this.getMot();
 
-        CraftWorld bukkit = getWorld().getWorld();
-        if (hit instanceof MovingObjectPositionBlock) {
-            Location position = new Location(bukkit, pos.getX(), pos.getY(), pos.getZ());
 
-            CraftBlock block = (CraftBlock) bukkit.getBlockAt(new Location(bukkit, pos.getX(), pos.getY(), pos.getZ()));
-            if (block.getType().isAir())
-                return;
+        if (hit instanceof MovingObjectPositionEntity) {
+            Entity hitEntity = ((MovingObjectPositionEntity) hit).getEntity();
+            motion = motion.d().a(-0.1f);  //mult -0.1 and normalize
 
-            bukkit.spawnParticle(Particle.BLOCK_CRACK, position, 10, 0, 0, 0, block.getBlockData());
-         //   float hardness = block.getType().getHardness();
-            //do something with sparks here? < decorative
+            hitEntity.setMot(motion);
+            hitEntity.C = true;
         }
-
-
     }
 
     @Override

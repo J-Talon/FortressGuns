@@ -23,7 +23,7 @@ public class ComplexMissile extends Construct implements ArtilleryProjectile {
 
 
     @Override
-    public void preTerminate(@Nullable MovingObjectPosition pos) {
+    public void preHit(@Nullable MovingObjectPosition pos) {
 
     }
 

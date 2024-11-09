@@ -5,19 +5,15 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -105,7 +101,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     }
 
     @Override
-    public void preTerminate(@Nullable MovingObjectPosition pos) {
+    public void preHit(@Nullable MovingObjectPosition pos) {
         //explode the thing here
         if (pos == null) {
             explode(null);
@@ -150,7 +146,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
     @Override
     public void a(MovingObjectPosition pos) {
-    preTerminate(pos);
+    preHit(pos);
     }
 
 
@@ -202,8 +198,8 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         //some people like this more???
         bukkitWorld.spawnParticle(Particle.EXPLOSION_LARGE,loc,0,0,0,0,1,null, true);
 
-        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2);
-        bukkitWorld.spawnParticle(Particle.FLAME,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2);
+        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2,null,true);
+        bukkitWorld.spawnParticle(Particle.FLAME,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2,null, true);
         bukkitWorld.playSound(loc, Sound.ITEM_ARMOR_EQUIP_LEATHER,SoundCategory.BLOCKS,1,0.1f);
 
 
@@ -297,7 +293,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         Location targetLoc = target.getLocation();
 
         if (targetLoc.distanceSquared(missileLoc) <= DIST_EXPLODE_SQUARED) {
-            preTerminate(null);
+            preHit(null);
             return;
         }
 

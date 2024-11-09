@@ -185,6 +185,9 @@ public class StandHelper
         //by implementation the core should not be obstructed when spawning.
         //this should only occur if we're loading from file (cause you need to click the air to spawn artys)
 
+        //one possibility is if there is a fallingblock -i.e sand.
+        // ^ account for this
+
         if (isPosObstructedRaw(loc))
             return null;
 

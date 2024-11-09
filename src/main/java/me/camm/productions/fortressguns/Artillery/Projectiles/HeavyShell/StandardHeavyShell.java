@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.level.World;
@@ -35,8 +34,8 @@ public class StandardHeavyShell extends HeavyShell {
 
 
     @Override
-    public void preTerminate(MovingObjectPosition pos) {
-        super.preTerminate(pos);
+    public void preHit(MovingObjectPosition pos) {
+        super.preHit(pos);
         SoundPlayer kaboom = new SoundPlayer() {
             @Override
             public void playSound(Location loc) {

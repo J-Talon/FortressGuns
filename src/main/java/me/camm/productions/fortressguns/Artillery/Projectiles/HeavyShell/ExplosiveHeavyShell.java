@@ -41,10 +41,10 @@ public class ExplosiveHeavyShell extends StandardHeavyShell {
     }
 
     @Override
-    public void preTerminate(@Nullable MovingObjectPosition pos) {
+    public void preHit(@Nullable MovingObjectPosition pos) {
 
         if (pos == null) {
-            super.preTerminate((MovingObjectPosition) null);
+            super.preHit((MovingObjectPosition) null);
             return;
         }
 
@@ -63,7 +63,7 @@ public class ExplosiveHeavyShell extends StandardHeavyShell {
                 FluidCollisionMode.NEVER);
 
         if (centerPoint == null) {
-            super.preTerminate(pos);
+            super.preHit(pos);
             return;
         }
 
@@ -71,13 +71,13 @@ public class ExplosiveHeavyShell extends StandardHeavyShell {
         BlockFace face = centerPoint.getHitBlockFace();
 
         if (bukkitBlock == null || face == null) {
-            super.preTerminate(pos);
+            super.preHit(pos);
             return;
         }
 
         spewDir = face.getDirection();
         center = centerPoint.getHitPosition().add(spewDir.clone().multiply(-3)).toLocation(bukkitWorld);
-        super.preTerminate(pos);
+        super.preHit(pos);
     }
 
 

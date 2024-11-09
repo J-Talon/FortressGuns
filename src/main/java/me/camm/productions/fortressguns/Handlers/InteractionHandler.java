@@ -138,8 +138,10 @@ public class InteractionHandler implements Listener
 
 
         String name = item.getItemMeta().getDisplayName();
-        if (artilleryNames.containsKey(name))
+        if (artilleryNames.containsKey(name)) {
+            event.getPlayer().sendMessage(ChatColor.RED+"[!] Right click the air if you're trying to assemble artillery.");
             event.setCancelled(true);
+        }
     }
 
     @EventHandler
