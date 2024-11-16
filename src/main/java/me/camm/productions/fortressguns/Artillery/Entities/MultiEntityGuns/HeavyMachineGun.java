@@ -36,7 +36,10 @@ Class that models a heavy machine gun which players can shoot and operate
  */
 public class HeavyMachineGun extends RapidFire {
 
-    protected static final double HEALTH, RANGE;
+    private static int maxHealth, magSize;
+    private static double overheat, jamPercent;
+
+
     protected static final ItemStack BARREL_ITEM, MUZZLE_ITEM, SEAT_ITEM;
     protected static final Vector3f rightArm, leftArm, body, rightLeg, leftLeg;
 
@@ -44,8 +47,6 @@ public class HeavyMachineGun extends RapidFire {
 
 
     static {
-        HEALTH = 20;
-        RANGE = 150;
         BARREL_ITEM = ArtilleryMaterial.STANDARD_BODY.asItem();
         MUZZLE_ITEM = ArtilleryMaterial.SMALL_BARREL.asItem();
         SEAT_ITEM = ArtilleryMaterial.SEAT.asItem();
@@ -54,12 +55,32 @@ public class HeavyMachineGun extends RapidFire {
         rightArm = new Vector3f(50,0,0);
                 leftArm = new Vector3f(50,0,0);  body = new Vector3f(330,0,0);
                 rightLeg = new Vector3f(267,0,0);  leftLeg = new Vector3f(267,0,0);
-
     }
 
     public HeavyMachineGun(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
+    }
 
+
+    public static void setMaxHealth(int maxHealth) {
+        HeavyMachineGun.maxHealth = maxHealth;
+    }
+
+    public static void setMagSize(int magSize) {
+        HeavyMachineGun.magSize = magSize;
+    }
+
+    public static void setOverheat(double overheat) {
+        HeavyMachineGun.overheat = overheat;
+    }
+
+    public static void setJamPercent(double jamPercent) {
+        HeavyMachineGun.jamPercent = jamPercent;
+    }
+
+    @Override
+    public double getVectorPower() {
+        return 4;
     }
 
     public ArtilleryPart getRotatingSeat(){
@@ -133,7 +154,7 @@ public class HeavyMachineGun extends RapidFire {
 
 
         projectileVelocity = eulerToVec(aim).normalize();
-        Vector direction = projectileVelocity.clone().multiply(vectorPower);
+        Vector direction = projectileVelocity.clone().multiply(getVectorPower());
 
         EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
         net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
@@ -164,7 +185,7 @@ public class HeavyMachineGun extends RapidFire {
 
     @Override
     public double getMaxHealth() {
-        return HEALTH;
+        return maxHealth;
     }
 
 }

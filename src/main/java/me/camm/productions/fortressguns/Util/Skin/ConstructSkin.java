@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Attribute.Skin;
+package me.camm.productions.fortressguns.Util.Skin;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

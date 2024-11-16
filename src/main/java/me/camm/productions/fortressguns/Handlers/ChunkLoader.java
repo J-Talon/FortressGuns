@@ -3,22 +3,29 @@ package me.camm.productions.fortressguns.Handlers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import org.bukkit.Chunk;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author CAMM
  */
+
+
+
+//consider also doing the portal events here to prevent portals causing dislocation
 public class ChunkLoader implements Listener
 {
     private final static Table<Integer, Integer, Map<String, Set<Construct>>> pieces;
@@ -26,6 +33,17 @@ public class ChunkLoader implements Listener
     static {
       pieces = HashBasedTable.create();
     }
+
+
+
+    @EventHandler
+    public void onEntityPortal(EntityPortalEvent event) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
+        if (nms instanceof Component) {
+            event.setCancelled(true);
+        }
+    }
+
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event){
@@ -88,7 +106,7 @@ public class ChunkLoader implements Listener
         else
         {
             set = new HashSet<>();
-            map = new HashMap<>();
+            map = new ConcurrentHashMap<>();
             set.add(construct);
             map.put(name,set);
             pieces.put(x,z,map);
@@ -150,7 +168,8 @@ public class ChunkLoader implements Listener
             return;
         }
 
-        Set<Construct> set = map.get(name);
+        //prevent the concurrent mod exception with sets
+        Set<Construct> set = new HashSet<>(map.get(name));
 
 
         for (Construct next : set) {

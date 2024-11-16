@@ -27,22 +27,45 @@ import java.util.Random;
  * @author CAMM
  */
 public class LightFlak extends RapidFire {
-    private final static long COOLDOWN;
-    private final static int MAX_HEALTH;
+    private  static long cooldown;
+    private static int maxHealth, magSize;
+
+    private static float jamPercent, overheat;
+
+
     private static final Random random = new Random();
 
     //can't use until I find a way to renew the projectiles
 
 
 
-    static {
-        COOLDOWN = 500;
-        MAX_HEALTH = 20;
-
-    }
 
     public LightFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
+    }
+
+    public static void setCooldown(long cooldown) {
+        LightFlak.cooldown = cooldown;
+    }
+
+    public static void setMaxHealth(int maxHealth) {
+        LightFlak.maxHealth = maxHealth;
+    }
+
+    public static void setMagSize(int magSize) {
+        LightFlak.magSize = magSize;
+    }
+
+    public static void setJamPercent(float jamPercent) {
+        LightFlak.jamPercent = jamPercent;
+    }
+
+    public static void setOverheat(float overheat) {
+        LightFlak.overheat = overheat;
+    }
+
+    public double getVectorPower() {
+        return 4;
     }
 
     @NotNull
@@ -114,7 +137,7 @@ public class LightFlak extends RapidFire {
         projectileVelocity.setX(x);
         projectileVelocity.setY(y);
         projectileVelocity.setZ(z);
-        projectileVelocity.normalize().multiply(vectorPower);
+        projectileVelocity.normalize().multiply(getVectorPower());
         projectileVelocity.add(new Vector(random.nextDouble()*0.1 - 0.05,random.nextDouble()*0.1 - 0.05,random.nextDouble()*0.1 - 0.05));
 
 
@@ -135,12 +158,12 @@ public class LightFlak extends RapidFire {
 
     @Override
     public boolean canFire() {
-        return canFire && System.currentTimeMillis() - lastFireTime >= COOLDOWN;
+        return canFire && System.currentTimeMillis() - lastFireTime >= cooldown;
     }
 
     @Override
     public double getMaxHealth() {
-        return MAX_HEALTH;
+        return maxHealth;
     }
 
     @Override

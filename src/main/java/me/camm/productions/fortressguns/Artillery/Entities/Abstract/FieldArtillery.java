@@ -7,10 +7,14 @@ import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
+import net.minecraft.network.protocol.game.PacketPlayOutPosition;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +22,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
+import java.util.*;
 
 public abstract class FieldArtillery extends Artillery implements SideSeated
 {
@@ -34,6 +39,8 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
     public FieldArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
     }
+
+
 
     public synchronized void fire(@Nullable Player shooter)
     {
@@ -56,16 +63,19 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
         createShotParticles(muzzle);
         vibrateParticles();
 
-        Vector velocity = eulerToVec(aim).normalize().multiply(vectorPower);
+        Vector velocity = eulerToVec(aim).normalize().multiply(getVectorPower());
         final Vec3D vector = new Vec3D(velocity.getX(),velocity.getY(), velocity.getZ());
 
         smallBlockDist = 0;
         canFire = false;
 
+        final List<Player> vibrateFor = getVibratedPlayers();
+
         new BukkitRunnable()
         {
             boolean shot = false;
             int ticks = 0;
+
             @Override
             public void run() {
 
@@ -76,20 +86,29 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
                     ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
                 }
 
+
+
+                //pivot is already called if there is a rider so don't call pivot twice
                 if (!getHasRider()) {
                     pivot(aim.getX(), aim.getY());
                 }
 
+                vibrateAnimation(vibrateFor,ticks, 1);
+
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;
+                    //sin(PIx + (Pi/2)) * max(-0.1x + 1, 0)
                     incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
                     Location barrelEnd = barrel[barrel.length-1].getEyeLocation();
                     int count = (int)(Math.ceil(10 - (smallBlockDist / SMALL_BLOCK_LENGTH) * 10));
-                    for (int spawned = 0; spawned < count; spawned ++)
-                        world.spawnParticle(Particle.SMOKE_NORMAL,barrelEnd.clone().add(0,SMALL_BLOCK_LENGTH / 2,0),0,0,0.1,0,0.3);
+
+                    for (int spawned = 0; spawned < count; spawned ++) {
+                        world.spawnParticle(Particle.SMOKE_NORMAL, barrelEnd.clone().add(0, SMALL_BLOCK_LENGTH / 2, 0), 0, 0, 0.1, 0, 0.3);
+                    }
                 }
                 else
                 {
+                    setVibrationOffsetY(0);
                     smallBlockDist = SMALL_BLOCK_LENGTH;
                     canFire = true;
                     cancel();
@@ -103,7 +122,8 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
     @Override
     protected void positionSeat() {
         if (rotatingSeat != null) {
-            ((SideSeated)this).positionSeat(rotatingSeat,this);
+            //implements SideSeated
+            positionSeat(rotatingSeat,this, getVibrationOffsetY());
         }
     }
 

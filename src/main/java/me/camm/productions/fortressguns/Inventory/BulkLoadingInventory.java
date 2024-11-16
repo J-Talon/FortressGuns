@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 
-public class BulkLoadingInventory extends ArtilleryInventory {
+public class BulkLoadingInventory extends ConstructInventory {
 
 
     public BulkLoadingInventory(Artillery owner) {

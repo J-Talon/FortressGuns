@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
+import me.camm.productions.fortressguns.Inventory.ConstructInventory;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,12 +26,12 @@ public class InventoryHandler implements Listener
            }
 
            if (!(holder instanceof Artillery)) {
-               throw new IllegalStateException("An artillery inventory does not belong to an artillery piece!");
+               return;
            }
 
-           Artillery arty = (Artillery)inv.getHolder();
-         ArtilleryInventory transaction = arty.getLoadingInventory();
-          transaction.transact(event);
+         Artillery arty = (Artillery)inv.getHolder();
+         ConstructInventory transaction = arty.getLoadingInventory();
+         transaction.transact(event);
 
     }
 

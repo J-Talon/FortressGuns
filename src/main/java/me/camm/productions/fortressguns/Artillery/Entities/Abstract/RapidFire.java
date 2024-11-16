@@ -11,8 +11,6 @@ import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.core.Vector3f;
 import org.bukkit.*;
 
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftInventory;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -34,10 +32,8 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
     protected static final ItemStack BARREL_ITEM, MUZZLE_ITEM, SEAT_ITEM;
     protected static final Vector3f rightArm, leftArm, body, rightLeg, leftLeg;
 
-    protected static final double HEALTH;
 
     static {
-        HEALTH = 20;
 
         BARREL_ITEM = ArtilleryMaterial.STANDARD_BODY.asItem();
         MUZZLE_ITEM = ArtilleryMaterial.SMALL_BARREL.asItem();
@@ -163,7 +159,7 @@ public abstract class RapidFire extends Artillery implements BulkLoaded, BackSea
 
         calculateLoadedChunks();
         if (health <= 0)
-            setHealth(HEALTH);
+            setHealth(getMaxHealth());
 
         return true;
     }

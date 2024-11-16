@@ -1,6 +1,6 @@
-package me.camm.productions.fortressguns.Util.Attribute.Skin;
+package me.camm.productions.fortressguns.Util.Skin;
 
-import static me.camm.productions.fortressguns.Util.Attribute.Skin.ConstructSkin.TurretComponent.*;
+import static me.camm.productions.fortressguns.Util.Skin.ConstructSkin.TurretComponent.*;
 
 public class SkinFieldArtillery extends ConstructSkin {
 

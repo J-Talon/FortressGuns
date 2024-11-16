@@ -31,7 +31,6 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 
 
 public abstract class LightShell extends EntitySnowball implements ArtilleryProjectile {

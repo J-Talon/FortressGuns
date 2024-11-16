@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
+import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -39,7 +40,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     private static final double MAX_SPEED_SQUARED = 6; //slightly faster than max spd elytra
     private static final double MAX_SPEED;
     private static final double ORBIT_DIST = 17;
-    private static final int DIST_EXPLODE_SQUARED = 16;
+    private static final int DIST_EXPLODE_SQUARED = 10;  //slightly more than 3b
 
     private int readyTime;
     private static final int FUEL = 600;  //
@@ -150,6 +151,10 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     }
 
 
+    @Override
+    protected void a(MovingObjectPositionEntity pos) { preHit(pos);}
+
+
     public void playEffects(Location loc) {
 
         Vec3D lookDir = getMot();
@@ -196,7 +201,6 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
 
         //some people like this more???
-        bukkitWorld.spawnParticle(Particle.EXPLOSION_LARGE,loc,0,0,0,0,1,null, true);
 
         bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2,null,true);
         bukkitWorld.spawnParticle(Particle.FLAME,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2,null, true);
@@ -219,7 +223,8 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
             return;
         }
 
-
+        Location loc = new Location(bukkitWorld, locX(), locY(), locZ());
+        bukkitWorld.spawnParticle(Particle.EXPLOSION_LARGE,loc,0,0,0,0,1,null, true);
 
         if (fueledFlightAge >= FUEL) {
             this.setNoGravity(false);
@@ -232,7 +237,6 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         }
 
         fueledFlightAge++;
-        Location loc = new Location(bukkitWorld, locX(), locY(), locZ());
         playEffects(loc);
 
         if (target == null) {

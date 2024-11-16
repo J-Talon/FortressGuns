@@ -80,6 +80,8 @@ public class FlakHeavyShell extends HeavyShell {
         bukkitWorld.spawnParticle(Particle.SMOKE_LARGE,explosion,50,0.1,0.1,0.1,0.2f);
         bukkitWorld.spawnParticle(Particle.SQUID_INK,explosion,50,0.1,0.1,0.1,0.2f);
 
+         Particle.DustOptions options = new Particle.DustOptions(org.bukkit.Color.fromRGB(0,0,0),15);
+         bukkitWorld.spawnParticle(Particle.REDSTONE,explosion, 30,0.5,0.5,0.5,1,options,true);
 
         //explode and make a sound
         bukkitWorld.playSound(explosion, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS,1,2);

@@ -5,14 +5,12 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,7 +42,7 @@ public class InteractionHandler implements Listener
     private final ChunkLoader handler;
 
 
-    private MissileLauncher debug = null;
+  //  private MissileLauncher debug = null;
 
 
     public InteractionHandler(){
@@ -212,6 +210,7 @@ public class InteractionHandler implements Listener
         if (item.getItemMeta() == null)
             return;
 
+
 //        /***************************************/
 ///////debug
 //        if (item.getType() == Material.BLAZE_ROD) {
@@ -283,7 +282,7 @@ public class InteractionHandler implements Listener
               for (Chunk c: chunks) {
                   handler.add(c, artillery);
               }
-
+//
 //              //debug
 //                /***************************************/
 //              if (artillery instanceof MissileLauncher) {

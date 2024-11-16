@@ -5,10 +5,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
-import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftArmorStand;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
@@ -19,13 +17,9 @@ public class HeavyArtillery extends FieldArtillery
 {
 
     private static final int SMALL_THRESH = 1;
-    private static final double HEALTH;
-    private static final long FIRE_COOLDOWN;
+    private static double maxHealth;
+    private static long cooldown;
 
-    static {
-        HEALTH = 80;
-        FIRE_COOLDOWN = 3000;
-    }
 
     public HeavyArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world,loader, aim);
@@ -33,10 +27,24 @@ public class HeavyArtillery extends FieldArtillery
         base = new ArtilleryPart[4][3];
     }
 
+
+    public static void setMaxHealth(int health) {
+        maxHealth = health;
+    }
+
+    public static void setFireCooldown(long cooldown) {
+        HeavyArtillery.cooldown = cooldown;
+    }
+
+    @Override
+    public double getVectorPower() {
+        return 6;
+    }
+
     ///
     @Override
     public synchronized boolean canFire(){
-        return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
+        return canFire && System.currentTimeMillis() - lastFireTime >= cooldown;
     }
 
     @Override
@@ -65,7 +73,7 @@ public class HeavyArtillery extends FieldArtillery
 
     @Override
     public double getMaxHealth() {
-        return HEALTH;
+        return maxHealth;
     }
 
     @Override
@@ -88,7 +96,7 @@ public class HeavyArtillery extends FieldArtillery
         calculateLoadedChunks();
 
         if (health <= 0)
-            setHealth(HEALTH);
+            setHealth(maxHealth);
 
         return true;
     }

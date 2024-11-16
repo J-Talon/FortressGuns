@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import org.bukkit.Location;
 import org.bukkit.util.EulerAngle;
 
@@ -12,14 +11,29 @@ public interface SideSeated {
     positionSeat(part, artillery, 0,0);
     }
 
+
+    default void positionSeat(ArtilleryPart part, Artillery artillery, double vibrationOffsetY) {
+        positionSeat(part, artillery, 0,0, vibrationOffsetY);
+    }
+
     default void positionSeat(ArtilleryPart part, Artillery artillery, double xOffset, double yOffset) {
+        positionSeat(part, artillery, xOffset, yOffset, 0);
+    }
+
+
+    default void positionSeat(ArtilleryPart part, Artillery artillery, double xOffset, double yOffset, double vibrationOffsetY) {
         EulerAngle aim = artillery.getAim();
         Location next = getSeatSpawnLocation(artillery, xOffset, yOffset);
+
+        if (artillery.getHasRider()) {
+            double amount = Math.abs(vibrationOffsetY) > 1 ? (vibrationOffsetY > 0 ? 0.25 : -0.25) : vibrationOffsetY;
+            next.add(0, amount, 0);
+        }
+
         EulerAngle seatFacing = new EulerAngle(0,aim.getY(),0);
         part.setRotation(seatFacing);
         part.teleport(next);
     }
-
 
 
     default Location getSeatSpawnLocation(Artillery artillery){

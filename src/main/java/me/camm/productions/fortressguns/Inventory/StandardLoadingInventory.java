@@ -12,12 +12,16 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 
-public class StandardLoadingInventory extends ArtilleryInventory {
+
+public class StandardLoadingInventory extends ConstructInventory {
 
     static final ItemStack DESTINATION = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
     static final ItemStack PROPELLANT = new ItemStack(Material.GUNPOWDER);
     static final ItemStack PROJECTILE = new ItemStack(Material.LEVER);
+
+    static final ItemStack AIR = new ItemStack(Material.AIR);
     static {
 
         ItemMeta dest = DESTINATION.getItemMeta();
@@ -33,6 +37,8 @@ public class StandardLoadingInventory extends ArtilleryInventory {
             PROJECTILE.setItemMeta(proj);
     }
 
+    private boolean addedProp;
+
     public StandardLoadingInventory(Artillery owner) {
         super(owner, InventorySetting.LOADING);
         init();
@@ -40,11 +46,16 @@ public class StandardLoadingInventory extends ArtilleryInventory {
 
     @Override
     public void transact(InventoryDragEvent event) {
+        System.out.println("on transact drag event");
         event.setCancelled(true);
     }
 
     @Override
     public void transact(InventoryClickEvent event) {
+
+        System.out.println("on transact click event");
+
+
        Inventory inv = event.getClickedInventory();
        if (inv == null) {
            return;
@@ -58,33 +69,35 @@ public class StandardLoadingInventory extends ArtilleryInventory {
        if (stack == null || stack.getItemMeta() == null)
            return;
 
-       if (stack.isSimilar(DESTINATION))
-           return;
-
        int currentSlot = event.getSlot();
-       int nextSlot = ++currentSlot;
+       int nextSlot = currentSlot + 1;
+
+       if (nextSlot > gui.getSize()-1) {
+           ItemStack zeroth = gui.getItem(0);
+           if (!addedProp && (zeroth == null || zeroth.getItemMeta() == null)) {
+               gui.setItem(0,PROPELLANT);
+               addedProp = true;
+           }
+
+           return;
+       }
 
        ItemStack next = gui.getItem(nextSlot);
 
        if (next == null || next.getItemMeta() == null) {
-           gui.setItem(currentSlot,null);
            gui.setItem(nextSlot, stack);
+           gui.setItem(currentSlot, null);
 
            HumanEntity e = event.getWhoClicked();
            if (e instanceof Player){
                Player p = (Player)e;
-               p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING,1,1);
+               p.playSound(p.getLocation(), Sound.BLOCK_PISTON_EXTEND,1,1);
            }
-
-
        }
        else {
-
-           ItemStack end = gui.getItem(currentSlot + 2);
-           if (PROPELLANT.isSimilar(next) && DESTINATION.isSimilar(end) ) {
+           if (PROPELLANT.isSimilar(stack) && PROJECTILE.isSimilar(next) && PROJECTILE.isSimilar(gui.getItem(gui.getSize()-1))) {
                owner.setBullets(1);
-
-               for (HumanEntity e: gui.getViewers()) {
+               for (HumanEntity e: new ArrayList<>(gui.getViewers())) {
                    e.closeInventory();
                    e.sendMessage(ChatColor.GRAY+"Artillery is loaded with 1 shell.");
 
@@ -97,19 +110,12 @@ public class StandardLoadingInventory extends ArtilleryInventory {
                init();
            }
        }
-
-
-
-
-
     }
 
     @Override
     public void init() {
-
+        addedProp = false;
         gui.clear();
-        gui.setItem(7,DESTINATION);
-        gui.setItem(1,PROJECTILE);
-        gui.setItem(0,PROPELLANT);
+        gui.setItem(0,PROJECTILE);
     }
 }

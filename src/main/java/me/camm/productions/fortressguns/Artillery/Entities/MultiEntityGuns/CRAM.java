@@ -36,5 +36,8 @@ public class CRAM extends RapidFire {
         return 0;
     }
 
-
+    @Override
+    public double getVectorPower() {
+        return 0;
+    }
 }

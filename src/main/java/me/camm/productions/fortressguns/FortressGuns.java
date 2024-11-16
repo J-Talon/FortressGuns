@@ -5,7 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
 import me.camm.productions.fortressguns.Handlers.ExplosionHandler;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
+import me.camm.productions.fortressguns.Util.DataLoading.FileManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,9 +32,17 @@ public final class FortressGuns extends JavaPlugin implements Listener {
     public void onEnable() {
 
       plugin = this;
+      boolean success = FileManager.loadArtilleryConfig();
+      if (!success) {
+          getLogger().warning("All Config failed to load. Shutting down.");
+          Bukkit.getPluginManager().disablePlugin(this);
+          return;
+      }
+
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(new InteractionHandler(),this);
       manager.registerEvents(new ExplosionHandler(),this);
+      manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(this, this);
 
     }

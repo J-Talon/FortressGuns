@@ -16,16 +16,11 @@ import org.jetbrains.annotations.NotNull;
 public class HeavyFlak extends FlakArtillery {
 
     private static final int SMALL_THRESH = 3;
-    private static final double HEALTH;
-    private static final long FIRE_COOLDOWN;
+    private static int maxHealth;
+    private static long fireCooldown;
 
     //length of body before starting the barrel
    // private static final int BODY_LENGTH = 3;
-
-    static {
-        HEALTH = 70;
-        FIRE_COOLDOWN = 3000;
-    }
 
     public HeavyFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world,loader,aim);
@@ -36,10 +31,18 @@ public class HeavyFlak extends FlakArtillery {
         this.horRotSpeed = 2;
     }
 
+    public static void setMaxHealth(int health) {
+        maxHealth = health;
+    }
+
+    public static void setCooldown(long cooldown) {
+        fireCooldown = cooldown;
+    }
+
 
     @Override
     public boolean canFire(){
-        return canFire && System.currentTimeMillis() - lastFireTime >= FIRE_COOLDOWN;
+        return canFire && System.currentTimeMillis() - lastFireTime >= fireCooldown;
     }
 
     @NotNull
@@ -83,7 +86,7 @@ public class HeavyFlak extends FlakArtillery {
 
     @Override
     public double getMaxHealth() {
-        return HEALTH;
+        return maxHealth;
     }
 
     @Override

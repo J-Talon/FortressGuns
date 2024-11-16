@@ -2,11 +2,9 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.SideSeated;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
@@ -40,19 +38,17 @@ public class MissileLauncher extends Artillery implements SideSeated {
     static final double RIGHT_ANGLE = Math.PI / 2;
     static final double Y_OFFSET = 0.5;
     static final double HOR_OFFSET = 1;
-    static final int MAX_ROCKETS = 6;
-    static final long FIRE_DELAY = 6000;
+    static int maxRockets = 6;
+    static long cooldown = 6000;
+    static int maxHealth;
 
 
 
 
-
-    static final int HEALTH;
     static {
         BODY = new ItemStack(Material.STONE_BRICKS);
         BASE = new ItemStack(Material.STONE_BRICK_SLAB);
         BARREL = new ItemStack(Material.GREEN_TERRACOTTA);
-        HEALTH = 35;
     }
 
     private final ArtilleryPart[] stem;
@@ -64,8 +60,24 @@ public class MissileLauncher extends Artillery implements SideSeated {
         stem = new ArtilleryPart[2];
         fireRight = true;
         this.target = null;
-        rockets = MAX_ROCKETS;
+        rockets = maxRockets;
         lastFireTime = System.currentTimeMillis();
+    }
+
+    public static void setMaxRockets(int maxRockets) {
+        MissileLauncher.maxRockets = maxRockets;
+    }
+
+    public static void setCooldown(long cooldown) {
+        MissileLauncher.cooldown = cooldown;
+    }
+
+    public static void setMaxHealth(int maxHealth) {
+        MissileLauncher.maxHealth = maxHealth;
+    }
+
+    public double getVectorPower() {
+        return 2;
     }
 
     @Override
@@ -122,7 +134,9 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
                 missile.setTarget(target);
 
-                missile.setMot(new Vec3D(dir.getX() * 2, dir.getY() * 2, dir.getZ() * 2));
+                double vecPow = getVectorPower();
+
+                missile.setMot(new Vec3D(dir.getX() * vecPow, dir.getY() * vecPow, dir.getZ() * vecPow));
                 nmsWorld.addEntity(missile);
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
@@ -155,7 +169,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
             return false;
 
         if (health <= 0)
-            setHealth(HEALTH);
+            setHealth(maxHealth);
         calculateLoadedChunks();
 
         return true;
@@ -339,9 +353,9 @@ public class MissileLauncher extends Artillery implements SideSeated {
         else {
 
             long currentTime = System.currentTimeMillis();
-            if (currentTime >= lastFireTime + FIRE_DELAY) {
+            if (currentTime >= lastFireTime + cooldown) {
                 lastFireTime = currentTime;
-                rockets = MAX_ROCKETS;
+                rockets = maxRockets;
                 return true;
             }
         }

@@ -20,12 +20,16 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 
 public abstract class FlakArtillery extends HeavyArtillery
 {
 
     protected Entity target;
     protected boolean aiming;
+
+    protected static double vectorPower = 5;
 
     //variables for aiming based on average v
 
@@ -82,10 +86,12 @@ This method is called in a loop. You can think of it as being called many times 
         x = velocity.getX()*vectorPower;
         y = velocity.getY()*vectorPower;
         z = velocity.getZ()*vectorPower;
-
         final Vec3D vector = new Vec3D(x,y,z);
         smallBlockDist = 0;
         canFire = false;
+
+        final List<Player> vibratedFor = getVibratedPlayers();
+
 
         new BukkitRunnable()
         {
@@ -108,9 +114,10 @@ This method is called in a loop. You can think of it as being called many times 
                     pivot(aim.getX(), aim.getY());
                 }
 
+                vibrateAnimation(vibratedFor,ticks,1.5);
+
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;
-
                     incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
                     Location loc = barrel[barrel.length-1].getEyeLocation();
 

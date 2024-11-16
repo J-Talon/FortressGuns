@@ -9,12 +9,12 @@ import org.bukkit.inventory.Inventory;
 /**
  * @author CAMM
  */
-public abstract class ArtilleryInventory
+public abstract class ConstructInventory
 {
      protected final Inventory gui;
      protected final Artillery owner;
 
-     public ArtilleryInventory(Artillery owner, InventorySetting setting) {
+     public ConstructInventory(Artillery owner, InventorySetting setting) {
           this.owner = owner;
           this.gui = Bukkit.createInventory(owner, setting.size, setting.title);
      }

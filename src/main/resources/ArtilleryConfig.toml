@@ -1,17 +1,13 @@
 
 #Field light artillery
+
 #==============================
 [fieldLight]
 #healthpoints of the artillery
 health = 20
-#fire power of the artillery (float)
-power = 2
-#How much time (in ticks) should the artillery wait before recovering the recoverDistance
-recoverTime = 1
-#The recover distance the artillery should recover every n ticks of recoverTime
-recoverDistance = 0.05
-
 #The cooldown time to wait until the artillery can fire again, if reloading is disabled
+#if cooldown is disabled the firing speed is still gated by the time required to play out
+#the current animation and current shot being fired.
 cooldown = 3000
 
 
@@ -19,9 +15,6 @@ cooldown = 3000
 #Field Heavy artillery
 [fieldHeavy]
 health = 80
-power = 3
-recoverTime = 2
-recoverDistance = 0.05
 cooldown = 5000
 
 #==============================
@@ -29,70 +22,100 @@ cooldown = 5000
 
 [heavyFlak]
 health = 100
-power = 4
-recoverTime = 2
-recoverDistance = 0.05
 cooldown = 5000
 
 #==============================
 #Light flak
 [lightFlak]
 health = 15
-power = 2
 cooldown = 1000
 
+#ammo drum size of the light flak before needing reload
+#set to 0 to allow arbitrary length belt feeding
+magsize = 40
+
+#The percent chance for any one shot to jam the gun. float value, 0 to 1.
+jampercent = 0
+
+#the amount of heat which should be incurred if the gun is fired continuously.
+#float value, 0-100, where 100 is max heat. If the gun is fired beyond max heat it will take damage.
+overheat = 0
 #==============================
 #Heavy machine gun
 
 [heavyMachineGun]
 health = 15
-cooldown = 2
-range = 150
-damage = 10
+
+#ammo drum size of the machine gun before needing reload.
+#set to 0 to allow arbitrary length belt feeding
+magsize = 100
+
+#The percent chance for any one shot to jam the gun. float value, 0 to 1.
+jampercent = 0
+
+#the amount of heat which should be incurred if the gun is fired continuously.
+#float value, 0-100, where 100 is max heat. If the gun is fired beyond max heat it will take damage.
+overheat = 0
 
 #==============================
 #Missile launcher
 [missileLauncher]
 health = 100
-power = 2
 cooldown = 10000
-
-[missiles]
-#difficulty to dodge missiles. From 1-10. 1 = easiest
-difficulty = 10
-orbitDistance = 17
-
-#whether missiles should be highlighted for their targets
-highlightMissiles = true
+missiles = 6
 
 #==============================
 #Railgun
 [railGun]
 health = 50
-cooldown = 20000
-range = 150
-damage = 75
+
+#The cooldown for the railgun works a bit differently.
+#This is the time required until the next shot is fully charged
+cooldown = 1000
+
+#max range of the railgun
+range = 500
+
+
+# damage on a fully charged shot. Lower power shots will deal a percentage of this number.
+maxdamage = 150
+#==============================
+
+[cram]
+health = 30
+cooldown = 500
 
 #==============================
 #General options
 
 [general]
-#Explosion power of the shells
-standardShellPower = 2
-highExplosivePower = 2
-missilePower = 2
+#Explosion power of the ammo (How big and how much damage the shell should do)
+heavyHighExplosive = 4
+heavyFlak = 4
+missile = 4
+#light flak always explodes with an explosion power of 1
 
-#Damage to inflict on direct hit
+# If a shell hits the target directly, how much damage the target should receive
+# this damage is applied before explosion damage if the shell explodes
+# missiles do no contact damage
+heavyHighExplosiveDamage = 10
 heavyFlakDamage = 10
-bulletDamage = 10
-smallFlakDamage = 10
+
+lightStandardDamage = 5
+lightFlakDamage = 5
+
 
 #Whether artillery destroys blocks
 destructiveArtillery = true
-arcadeMode = true
-realisticReload = false
 
+#whether artillery need to reload
+requireReloading = false
 
+#difficulty to dodge missiles. From 1-10. 1 = easiest
+missileDifficulty = 10
+
+#whether flares should be enabled to help players survive barrages of missiles
+enableFlares = true
 
 
 

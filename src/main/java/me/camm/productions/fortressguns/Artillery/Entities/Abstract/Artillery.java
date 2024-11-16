@@ -8,16 +8,19 @@ import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemCreator;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
-import me.camm.productions.fortressguns.Inventory.ArtilleryInventory;
+import me.camm.productions.fortressguns.Inventory.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.BulkLoadingInventory;
 import me.camm.productions.fortressguns.Inventory.StandardLoadingInventory;
 import me.camm.productions.fortressguns.Util.ExplosionEffect;
+import net.minecraft.network.protocol.game.PacketPlayOutPosition;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.Inventory;
@@ -50,13 +53,9 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     protected ArtilleryPart[] barrel;
     protected ArtilleryPart[][] base;
 
-
-
-
     protected ArtilleryCore pivot;
     protected EulerAngle aim;//
     protected final ChunkLoader handler;
-
 
     protected volatile double health;//--
     private final Set<Chunk> occupiedChunks;//
@@ -74,15 +73,46 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     //default values for testing
     //===================
-    protected double vectorPower = 4;
+
+
     protected int recoilTime = 1;
     protected double barrelRecoverRate = 0.03;
     //==============
 
-    protected ArtilleryInventory loadingInventory;
+    protected ConstructInventory loadingInventory;
 
     protected long lastFireTime;//
 
+    protected final static double [] offsetX;
+    protected final static double [] offsetZ;
+
+    protected double vibrationOffsetY;
+
+    protected final static Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> flags;
+
+    static {
+
+        flags = new HashSet<>(Arrays.asList(
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.a,
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.b,
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.c,
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.d)
+        );
+
+        final int LEN = 12;
+        offsetX = new double[LEN];
+        offsetZ = new double[LEN];
+
+        int slot = 0;
+        for (double rotation = 0; rotation < 2*Math.PI; rotation += (2*Math.PI / LEN)) {
+            double z = Math.cos(rotation);
+            double x = -Math.sin(rotation);
+            offsetX[slot] = x;
+            offsetZ[slot] = z;
+
+            slot ++;
+        }
+    }
 
 
     //Enum for damage multipliers
@@ -118,6 +148,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         this.aim = aim;
         this.canFire = true;
         this.bullets = 0;
+        this.vibrationOffsetY = 0;
 
         if (this instanceof BulkLoaded) {
             loadingInventory = new BulkLoadingInventory(this);
@@ -137,8 +168,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         return loadingInventory.getInventory();
     }
 
-
-    public ArtilleryInventory getLoadingInventory(){
+    public ConstructInventory getLoadingInventory(){
         return loadingInventory;
     }
 
@@ -174,6 +204,12 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     }
 
     protected abstract void positionSeat();
+
+    public abstract double getVectorPower();
+
+
+
+
 
 
 
@@ -268,6 +304,15 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     public abstract void fire(@Nullable Player shooter);
 
+    public synchronized double getVibrationOffsetY(){
+        return vibrationOffsetY;
+    }
+
+    public synchronized void setVibrationOffsetY(double vib) {
+        this.vibrationOffsetY = vib;
+    }
+
+
 
 
 
@@ -291,16 +336,53 @@ public abstract class Artillery extends Construct implements InventoryHolder {
     protected void vibrateParticles() {
         ArtilleryCore core = this.getPivot();
         Location loc = core.getEyeLocation();
+        Location initial = loc.clone().add(0,-LARGE_BLOCK_LENGTH,0);
 
-        for (double rotation = 0; rotation < 2*Math.PI; rotation += (2*Math.PI / 10)) {
-            double z = Math.cos(rotation);
-            double x = -Math.sin(rotation);
-
-            world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc.clone().add(0,-LARGE_BLOCK_LENGTH,0),0,x,0,z,0.1f);
+        for (int len = 0; len < offsetX.length; len ++) {
+            world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, initial,0,offsetX[len],0,offsetZ[len],0.3f);
 
         }
-
     }
+
+    protected List<Player> getVibratedPlayers() {
+        Set<Chunk> occupied = getOccupiedChunks();
+
+        final List<Player> vibrateFor = new LinkedList<>();
+        for (Chunk c: occupied) {
+            org.bukkit.entity.Entity[] entities = c.getEntities();
+
+            for (org.bukkit.entity.Entity e: entities) {
+                if (e instanceof Player && e.getVehicle() == null)
+                    vibrateFor.add((Player)e);
+            }
+        }
+        return vibrateFor;
+    }
+
+    protected void vibrateAnimation(List<Player> vibrateFor, int ticks, double mult) {
+        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.1 * ticks + 1, 0) * mult;
+        if (offset != 0) {
+            setVibrationOffsetY(offset);
+            for (Player observer : vibrateFor) {
+
+                if (observer.getVehicle() != null)
+                    continue;
+                //0.017 ==> 1 rad
+                EntityPlayer nms = ((CraftPlayer)observer).getHandle();
+
+                PacketPlayOutPosition packet = new PacketPlayOutPosition(0,0,0,
+                        0,
+                        nms.getXRot() + ( (float) offset),
+                        flags, 1, true);
+
+                nms.b.sendPacket(packet);
+            }
+        }
+        else {
+            setVibrationOffsetY(0);
+        }
+    }
+
 
     protected void loadPieces() {
         List<ArtilleryPart> parts = getParts();
@@ -378,10 +460,14 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
     }
 
+
     public void createShotParticles(Location muzzle){
         world.spawnParticle(Particle.SMOKE_LARGE,muzzle.getX(),muzzle.getY(), muzzle.getZ(),30,0,0,0,0.2);
         world.spawnParticle(Particle.FLASH,muzzle.getX(),muzzle.getY(), muzzle.getZ(),1,0,0,0,0.2);
+
         world.playSound(muzzle, Sound.ENTITY_GENERIC_EXPLODE,SoundCategory.BLOCKS,2,0.2f);
+        world.playSound(muzzle, Sound.ENTITY_LIGHTNING_BOLT_THUNDER,SoundCategory.BLOCKS,0.2f,0.2f);
+        world.playSound(muzzle, Sound.ITEM_ARMOR_EQUIP_GENERIC,SoundCategory.BLOCKS,1f,0.2f);
 
     }
 

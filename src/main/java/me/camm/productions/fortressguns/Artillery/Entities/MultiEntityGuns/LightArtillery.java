@@ -20,13 +20,8 @@ public class LightArtillery extends FieldArtillery
 
     private static final int SMALL_THRESH = 2;
 
-    private static final double HEALTH;
-    private static final long FIRE_COOLDOWN;
-
-    static {
-        HEALTH = 40;
-        FIRE_COOLDOWN = 1000;
-    }
+    private static double maxHealth;
+    private static long fireCooldown;
 
 
     public LightArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
@@ -35,8 +30,16 @@ public class LightArtillery extends FieldArtillery
         base = new ArtilleryPart[3][3];
     }
 
+    public static void setMaxHealth(double maxHealth) {
+        LightArtillery.maxHealth = maxHealth;
+    }
+
+    public static void setCooldown(long fireCooldown) {
+        LightArtillery.fireCooldown = fireCooldown;
+    }
+
     public synchronized boolean canFire(){
-        return canFire && System.currentTimeMillis()-lastFireTime >= FIRE_COOLDOWN;
+        return canFire && System.currentTimeMillis()-lastFireTime >= fireCooldown;
     }
 
     @Override
@@ -46,7 +49,12 @@ public class LightArtillery extends FieldArtillery
 
     @Override
     public double getMaxHealth() {
-        return HEALTH;
+        return maxHealth;
+    }
+
+    @Override
+    public double getVectorPower() {
+        return 4;
     }
 
     @Override
@@ -80,7 +88,7 @@ public class LightArtillery extends FieldArtillery
         //for the base of the artillery
         calculateLoadedChunks();
         if (health <= 0)
-            setHealth(HEALTH);
+            setHealth(maxHealth);
 
 
         return true;
