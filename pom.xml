@@ -11,9 +11,9 @@
 
     <name>FortressGuns</name>
 
-    <description>Gun Plugin version 1.2, with new Artillery and guns.</description>
+    <description>Artillery plugin</description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -24,8 +24,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -71,11 +71,12 @@
                                 </filter>
 
                                 <filter>
-                                    <artifact>com.fasterxml.jackson*</artifact>
+                                    <artifact>com.fasterxml*:*</artifact>
                                     <excludes>
-                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/*</exclude>
                                         <exclude>META-INF/LICENSE</exclude>
-                                        <exclude>module-info*</exclude>
+                                        <exclude>META-INF/versions/9/module-info.class</exclude>
+                                        <exclude>module-info.class</exclude>
                                     </excludes>
                                 </filter>
 
