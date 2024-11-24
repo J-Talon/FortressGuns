@@ -79,7 +79,7 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
 
 
         if (gunOperator != null) {
-            DamageSource source = GunSource.gunShot(gunOperator);
+            DamageSource source = GunSource.gunShot(gunOperator,this);
             hit.damageEntity(source, damage);
         }
         else

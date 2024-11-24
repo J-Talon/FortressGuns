@@ -1,9 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyFlak;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.core.Vector3f;
-import net.minecraft.network.chat.ChatMessage;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -12,27 +11,20 @@ import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityInsentient;
-import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
-
-
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.UUID;
 
 public class ArtilleryPart extends Component
 {
@@ -172,25 +164,33 @@ public class ArtilleryPart extends Component
         return SoundEffects.gJ;
     }
 
-    public void seat(EntityHuman human){
+    public void seat(EntityHuman human) {
 
-        ArtilleryCore core = body.getPivot();
+        ArtilleryPart seat = body.getRotatingSeat();
+        Player bukkit = (CraftPlayer)human.getBukkitEntity();
 
-        if (core.getPassengers().size() > 0 || this.getPassengers().size() > 0)
+        if (seat == null) {
+            bukkit.sendMessage(ChatColor.RED+"No valid seat found!");
             return;
+        }
 
-        if (body instanceof HeavyFlak) {
-            HeavyFlak f = (HeavyFlak) body;
-            if (f.isAiming()) {
-                human.sendMessage(new ChatMessage(ChatColor.RED+"You cannot ride this artillery while it's aiming!"),
-                        UUID.randomUUID());
+        if (seat.getPassengers().size() > 0) {
+            bukkit.sendMessage(ChatColor.RED+"Someone else is using this!");
+            return;
+        }
+
+        if (body instanceof AutoTracking tracking) {
+            if (tracking.isAiming()) {
+              bukkit.sendMessage(ChatColor.RED+"You cannot operate this artillery while it's auto-tracking!");
                 return;
             }
         }
 
+        bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName()+" Artillery.");
+        bukkit.playSound(bukkit.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,1,1);
+
         body.setHasRider(true);
-        human.startRiding(this);
-        ArtilleryPart part = this;
+        human.startRiding(seat);
 
         new BukkitRunnable(){
 
@@ -204,7 +204,7 @@ public class ArtilleryPart extends Component
                 }
 
                 Entity vehicle = human.getVehicle();
-                if (vehicle!= null && vehicle.equals(part)) {
+                if (vehicle!= null && vehicle.equals(seat)) {
                     body.pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
                 }
                 else {
@@ -224,6 +224,15 @@ public class ArtilleryPart extends Component
     @Override
     public EnumInteractionResult a(EntityHuman entityhuman, Vec3D vec3d, EnumHand enumhand)
     {
+
+        /*
+                        a = success
+                        b = consume
+                        c = consume partial
+                        d = pass
+                        e = fail
+        */
+
         ItemStack itemstack = entityhuman.b(enumhand);
         if (!this.isMarker() && !itemstack.a(Items.rQ)) {
             if (entityhuman.isSpectator()) {
@@ -231,94 +240,40 @@ public class ArtilleryPart extends Component
             } else if (entityhuman.t.y) {
                 return EnumInteractionResult.b;
             } else {
-                EnumItemSlot enumitemslot = EntityInsentient.getEquipmentSlotForItem(itemstack);
-                if (itemstack.isEmpty()) {
-                    EnumItemSlot enumitemslot1 = this.findInteractionArea(vec3d);
-                    EnumItemSlot enumitemslot2 = this.d(enumitemslot1) ? enumitemslot : enumitemslot1;
-                    if (this.a(enumitemslot2) && this.handleInteraction(entityhuman, enumitemslot2, itemstack)) {
-                        return EnumInteractionResult.a;
-                    }
-                } else {
-                    if (this.d(enumitemslot)) {
-                        return EnumInteractionResult.e;
-                    }
 
-                    if (enumitemslot.a() == EnumItemSlot.Function.a && !this.hasArms()) {
-                        return EnumInteractionResult.e;
+                    handleInteraction(entityhuman, itemstack);
+                    ArtilleryPart seat = body.getRotatingSeat();
+                    if (seat == null) {
+                        return EnumInteractionResult.b;
                     }
+                    else {
+                        List<Entity> pass = seat.getPassengers();
+                        if (pass.isEmpty())
+                            return EnumInteractionResult.b;
 
-                    if (this.handleInteraction(entityhuman, enumitemslot, itemstack)) {
-                        return EnumInteractionResult.a;
+                        if (pass.get(0).equals(entityhuman))
+                            return EnumInteractionResult.d;
                     }
-                }
-
-                return EnumInteractionResult.d;
             }
         } else {
             return EnumInteractionResult.d;
         }
+        return EnumInteractionResult.b;
     }
 
-    private boolean d(EnumItemSlot enumitemslot) {
-        return (this.cf & 1 << enumitemslot.getSlotFlag()) != 0 || enumitemslot.a() == EnumItemSlot.Function.a && !this.hasArms();
-    }
 
-    protected EnumItemSlot findInteractionArea(Vec3D vec3d) {
-        EnumItemSlot enumitemslot = EnumItemSlot.a;
-        boolean flag = this.isSmall();
-        double d0 = flag ? vec3d.c * 2.0D : vec3d.c;
-        EnumItemSlot enumitemslot1 = EnumItemSlot.c;
-        if (d0 >= 0.1D && d0 < 0.1D + (flag ? 0.8D : 0.45D) && this.a(enumitemslot1)) {
-            enumitemslot = EnumItemSlot.c;
-        } else if (d0 >= 0.9D + (flag ? 0.3D : 0.0D) && d0 < 0.9D + (flag ? 1.0D : 0.7D) && this.a(EnumItemSlot.e)) {
-            enumitemslot = EnumItemSlot.e;
-        } else if (d0 >= 0.4D && d0 < 0.4D + (flag ? 1.0D : 0.8D) && this.a(EnumItemSlot.d)) {
-            enumitemslot = EnumItemSlot.d;
-        } else if (d0 >= 1.6D && this.a(EnumItemSlot.f)) {
-            enumitemslot = EnumItemSlot.f;
-        } else if (!this.a(EnumItemSlot.a) && this.a(EnumItemSlot.b)) {
-            enumitemslot = EnumItemSlot.b;
+
+    protected void handleInteraction(EntityHuman human, ItemStack stack) {
+
+        if (stack == null) {
+            seat(human);
+            return;
         }
 
-        return enumitemslot;
+        org.bukkit.inventory.ItemStack bukkit = CraftItemStack.asBukkitCopy(stack);
+        if (bukkit.getType() == Material.AIR || bukkit.getItemMeta() == null) {
+            seat(human);
+        }
     }
 
-
-    private boolean handleInteraction(EntityHuman human, EnumItemSlot enumitemslot, ItemStack stack) {
-       // ItemStack itemstack1 = this.getEquipment(enumitemslot);
-        ArtilleryCore core = body.getPivot();
-        return core.handlePlayerInteract(human,stack);
-
-
-        //if the itemstack is not empty and something bit shifting + 8 is not 0,
-        /*
-        These probably mean: whether or not the itemstack to place in is empty or not, and if the slot is locked, then
-        return false
-
-        we should probably return false for all cases here actually.
-         */
-
-        /*
-        if (!itemstack1.isEmpty() && (this.cf & 1 << enumitemslot.getSlotFlag() + 8) != 0) {
-            return false;
-        }
-
-        if (itemstack1.isEmpty() && (this.cf & 1 << enumitemslot.getSlotFlag() + 16) != 0)
-        {
-            return false;
-        }
-
-         */
-
-
-
-
-
-
-
-
-
-
-        //maybe open up an inventory here for loading and shooting?
-    }
 }

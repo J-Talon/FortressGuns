@@ -3,16 +3,10 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.EnumHand;
-import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityInsentient;
-import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 
 import java.util.List;
@@ -23,29 +17,29 @@ public class FireTrigger extends ArtilleryPart {
         super(world, body, loc);
     }
 
-
     @Override
-    public EnumInteractionResult a(EntityHuman entityhuman, Vec3D vec3d, EnumHand enumhand)
-    {
-
-        if (!( entityhuman instanceof EntityPlayer))
-            return EnumInteractionResult.d;
+    protected void handleInteraction(EntityHuman human, ItemStack stack) {
 
 
-        if (!body.canFire())
-            return EnumInteractionResult.d;
+        if (!( human instanceof EntityPlayer))
+            return;
 
-        if (body instanceof RapidFire) {
+        if (body instanceof RapidFire rapid) {
 
-
-            RapidFire rapid = (RapidFire)body;
             List<Entity> entities = rapid.getRotatingSeat().getPassengers();
 
-            if (entities.contains(entityhuman)) {
-                body.fire(((EntityPlayer)entityhuman).getBukkitEntity());
-            }
+            if (entities.size() > 0) {
+                if (!body.canFire() || !(entities.get(0).equals(human)))
+                    return;
 
+                body.fire(((EntityPlayer)human).getBukkitEntity());
+            }
+            else {
+                seat(human);
+            }
         }
-        return EnumInteractionResult.d;
+
+
+
     }
 }

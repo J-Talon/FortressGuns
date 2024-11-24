@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FlakArtillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -13,7 +14,7 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
 
 
-public class HeavyFlak extends FlakArtillery {
+public class HeavyFlak extends FlakArtillery implements AutoTracking {
 
     private static final int SMALL_THRESH = 3;
     private static int maxHealth;
@@ -80,6 +81,7 @@ public class HeavyFlak extends FlakArtillery {
         this.aiming = aiming;
     }
 
+    @Override
     public boolean isAiming() {
         return aiming;
     }

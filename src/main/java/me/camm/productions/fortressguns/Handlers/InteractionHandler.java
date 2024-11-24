@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,8 +42,6 @@ public class InteractionHandler implements Listener
 
     private final ChunkLoader handler;
 
-
-  //  private MissileLauncher debug = null;
 
 
     public InteractionHandler(){
@@ -118,17 +117,6 @@ public class InteractionHandler implements Listener
         if (item.getItemMeta() == null)
             return;
 
-        /**************************/
-//    //    debug
-//        if (item.getType() == Material.BARRIER) {
-//            ArmorStand s = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), ArmorStand.class);
-//            System.out.println(s.getLocation().toString());
-//            System.out.println(s.getBoundingBox().toString());
-//        }
-//      //  debug
-        /********************************/
-
-
 
         if (item.getType()!=Material.CHEST)
             return;
@@ -174,10 +162,12 @@ public class InteractionHandler implements Listener
         Action action = event.getAction();
         EntityPlayer nms = ((CraftPlayer)player).getHandle();
 
+
+
+
         if (!event.hasItem()) {
             Entity ride = nms.getVehicle();
-            if (ride instanceof ArtilleryPart) {
-                ArtilleryPart part = (ArtilleryPart)ride;
+            if (ride instanceof ArtilleryPart part) {
                 Artillery body = part.getBody();
 
                 if (!part.equals(body.getRotatingSeat())) {
@@ -188,6 +178,8 @@ public class InteractionHandler implements Listener
                 if (a != Action.LEFT_CLICK_AIR)
                     return;
 
+                //this is for the guns which don't have a fire trigger
+                //otherwise the logic in the firetrigger handles the shooting
                 if (body.canFire()) {
                     body.fire(player);
                     event.setCancelled(true);
@@ -210,15 +202,23 @@ public class InteractionHandler implements Listener
         if (item.getItemMeta() == null)
             return;
 
+      /*
+    //    debug
+        if (item.getType() == Material.BARRIER) {
+            ArmorStand s = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), ArmorStand.class);
+            System.out.println(s.getLocation().toString());
+            System.out.println(s.getBoundingBox().toString());
+            System.out.println(s.getEyeHeight());
+        }
+      //  debug
 
-//        /***************************************/
-///////debug
-//        if (item.getType() == Material.BLAZE_ROD) {
-//            if (debug != null)
-//                debug.fire(player);
-//        }
-///////////
-//        /***************************************/
+[15:03:23] [Server thread/INFO]: BoundingBox [minX=-127.98155273146776, minY=93.0, minZ=-22.283999314610398, maxX=-127.48155273146776, maxY=94.97500002384186, maxZ=-21.783999314610398]
+[15:03:23] [Server thread/INFO]: 1.777500033378601
+
+       */
+
+
+
 
         if (item.getType()!=Material.CHEST)
             return;
@@ -229,6 +229,7 @@ public class InteractionHandler implements Listener
 
         if (!artilleryNames.containsKey(name))
             return;
+
 
 
 
@@ -282,14 +283,6 @@ public class InteractionHandler implements Listener
               for (Chunk c: chunks) {
                   handler.add(c, artillery);
               }
-//
-//              //debug
-//                /***************************************/
-//              if (artillery instanceof MissileLauncher) {
-//                  debug = (MissileLauncher) artillery;
-//                  updateTarget(player.getUniqueId(), player);
-//              }
-//                /***************************************/
 
 
             }

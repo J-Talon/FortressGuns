@@ -16,7 +16,10 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class ExplosionHandler implements Listener
 {
 
     @EventHandler
-    public void onEntityExplode(EntityExplodeEvent event){
+    public void onEntityExplode(EntityExplodeEvent event) {
 
         float yield = event.getYield();
         org.bukkit.entity.Entity entity = event.getEntity();

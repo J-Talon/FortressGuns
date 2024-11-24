@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Handlers;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import jdk.javadoc.internal.doclets.toolkit.taglets.snippet.Style;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;

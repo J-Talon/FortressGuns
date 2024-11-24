@@ -85,7 +85,7 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
             return;
         }
 
-        DamageSource damageSource = GunSource.gunShot((EntityHuman)shooter);
+        DamageSource damageSource = GunSource.gunShot((EntityHuman)shooter, this);
         boolean isEnderman = hit.getEntityType() == EntityTypes.w;
 
         if (damageSource == null) {
@@ -99,8 +99,7 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
                 return;
             }
 
-            if (hit instanceof EntityLiving) {
-                EntityLiving entityliving = (EntityLiving) hit;
+            if (hit instanceof EntityLiving entityliving) {
 
                 //probably knockback or something.
                 if (this.aw > 0) {
