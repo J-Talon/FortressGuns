@@ -317,7 +317,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
 
     //to spawn an artillery piece, an external method calls spawn(). In the actual artillery classes however, the artillery
-    // is actually spawned when the spawnParts method is called.
+    // is actually created when the spawnParts method is called, and loaded into the world (drawn) when loadPieces() is called
     public final boolean spawn() {
         dead = false;
         loaded = true;
@@ -465,7 +465,7 @@ public abstract class Artillery extends Construct implements InventoryHolder {
         world.spawnParticle(Particle.SMOKE_LARGE,muzzle.getX(),muzzle.getY(), muzzle.getZ(),30,0,0,0,0.2);
         world.spawnParticle(Particle.FLASH,muzzle.getX(),muzzle.getY(), muzzle.getZ(),1,0,0,0,0.2);
 
-        world.playSound(muzzle, Sound.ENTITY_GENERIC_EXPLODE,SoundCategory.BLOCKS,2,0.2f);
+        world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR,SoundCategory.BLOCKS,2,0.2f);
         world.playSound(muzzle, Sound.ENTITY_LIGHTNING_BOLT_THUNDER,SoundCategory.BLOCKS,0.2f,0.2f);
         world.playSound(muzzle, Sound.ITEM_ARMOR_EQUIP_GENERIC,SoundCategory.BLOCKS,1f,0.2f);
 
@@ -523,7 +523,8 @@ public abstract class Artillery extends Construct implements InventoryHolder {
 
 
     /*
-This method spawns the artillery components into the world
+These methods create the artillery components but don't spawn them.
+see: loadPieces()
  */
     protected abstract boolean spawnParts();
     protected abstract boolean spawnBaseParts();

@@ -31,6 +31,11 @@ public class HeavyFlak extends FlakArtillery {
         this.horRotSpeed = 2;
     }
 
+    static {
+        maxHealth = 100;
+        fireCooldown = 5000;
+    }
+
     public static void setMaxHealth(int health) {
         maxHealth = health;
     }

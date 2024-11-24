@@ -28,10 +28,9 @@ import java.util.Random;
  */
 public class LightFlak extends RapidFire {
     private  static long cooldown;
-    private static int maxHealth, magSize;
+    private static int magSize;
 
-    private static float jamPercent, overheat;
-
+    private static double jamPercent, overheat, maxHealth;
 
     private static final Random random = new Random();
 
@@ -44,11 +43,18 @@ public class LightFlak extends RapidFire {
         super(loc, world, loader, aim);
     }
 
+    static {
+        maxHealth = 15;
+        cooldown = 1000;
+    }
+
+
+
     public static void setCooldown(long cooldown) {
         LightFlak.cooldown = cooldown;
     }
 
-    public static void setMaxHealth(int maxHealth) {
+    public static void setMaxHealth(double maxHealth) {
         LightFlak.maxHealth = maxHealth;
     }
 
@@ -56,11 +62,11 @@ public class LightFlak extends RapidFire {
         LightFlak.magSize = magSize;
     }
 
-    public static void setJamPercent(float jamPercent) {
+    public static void setJamPercent(double jamPercent) {
         LightFlak.jamPercent = jamPercent;
     }
 
-    public static void setOverheat(float overheat) {
+    public static void setOverheat(double overheat) {
         LightFlak.overheat = overheat;
     }
 

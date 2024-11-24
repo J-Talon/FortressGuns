@@ -69,6 +69,16 @@
                                         <exclude>META-INF/*.MF</exclude>
                                     </excludes>
                                 </filter>
+
+                                <filter>
+                                    <artifact>com.fasterxml.jackson*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>module-info*</exclude>
+                                    </excludes>
+                                </filter>
+
                             </filters>
 
 
@@ -114,6 +124,12 @@
             <groupId>org.tomlj</groupId>
             <artifactId>tomlj</artifactId>
             <version>1.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.2</version>
         </dependency>
 
     </dependencies>

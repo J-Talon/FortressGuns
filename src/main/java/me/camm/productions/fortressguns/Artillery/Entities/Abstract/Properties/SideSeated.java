@@ -25,8 +25,9 @@ public interface SideSeated {
         EulerAngle aim = artillery.getAim();
         Location next = getSeatSpawnLocation(artillery, xOffset, yOffset);
 
+        final double MAX_VIB = 0.25;  //artistic choice. too much makes it look bad, too little and they don't feel it
         if (artillery.getHasRider()) {
-            double amount = Math.abs(vibrationOffsetY) > 1 ? (vibrationOffsetY > 0 ? 0.25 : -0.25) : vibrationOffsetY;
+            double amount = Math.abs(vibrationOffsetY) > MAX_VIB ? (vibrationOffsetY > 0 ? MAX_VIB : -MAX_VIB) : vibrationOffsetY;
             next.add(0, amount, 0);
         }
 
@@ -42,7 +43,7 @@ public interface SideSeated {
 
     default Location getSeatSpawnLocation(Artillery artillery, double xOffset, double yOffset) {
         double seatAngle = Math.PI*1.5 + artillery.getAim().getY(); //get 90* offset
-        double seatDistance = artillery.getBaseLength()*0.25;  //0.25 is for distance
+        double seatDistance = artillery.getBaseLength()*0.25;  //0.25 is for distance. arbitrary
 
         Location center = artillery.getPivot().getLocation(artillery.getWorld());
 

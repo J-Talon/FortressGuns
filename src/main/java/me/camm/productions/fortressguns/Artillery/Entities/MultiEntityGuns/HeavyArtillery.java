@@ -27,8 +27,14 @@ public class HeavyArtillery extends FieldArtillery
         base = new ArtilleryPart[4][3];
     }
 
+    static {
+        //default values
+        maxHealth = 80;
+        cooldown = 5000;
+    }
 
-    public static void setMaxHealth(int health) {
+
+    public static void setMaxHealth(double health) {
         maxHealth = health;
     }
 

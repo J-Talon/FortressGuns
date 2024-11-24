@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 
 public class MissileLauncher extends Artillery implements SideSeated {
@@ -38,10 +39,11 @@ public class MissileLauncher extends Artillery implements SideSeated {
     static final double RIGHT_ANGLE = Math.PI / 2;
     static final double Y_OFFSET = 0.5;
     static final double HOR_OFFSET = 1;
-    static int maxRockets = 6;
-    static long cooldown = 6000;
-    static int maxHealth;
+    static int maxRockets;
+    static long cooldown;
+    static double maxHealth;
 
+    static final Random RANDOM;
 
 
 
@@ -49,6 +51,12 @@ public class MissileLauncher extends Artillery implements SideSeated {
         BODY = new ItemStack(Material.STONE_BRICKS);
         BASE = new ItemStack(Material.STONE_BRICK_SLAB);
         BARREL = new ItemStack(Material.GREEN_TERRACOTTA);
+        RANDOM = new Random();
+
+        maxHealth = 100;
+        cooldown = 10000;
+        maxRockets = 6;
+
     }
 
     private final ArtilleryPart[] stem;
@@ -72,7 +80,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
         MissileLauncher.cooldown = cooldown;
     }
 
-    public static void setMaxHealth(int maxHealth) {
+    public static void setMaxHealth(double maxHealth) {
         MissileLauncher.maxHealth = maxHealth;
     }
 
@@ -100,8 +108,8 @@ public class MissileLauncher extends Artillery implements SideSeated {
             this.target = target;
         }
 
-        //unfinished
-        //note that frontLeft = barrel[midpoint]
+        //
+        //frontLeft = barrel[midpoint]
         ArtilleryPart shootingPart, backBlast;
 
         if (fireRight) {
@@ -116,7 +124,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
         fireRight = !fireRight;
 
         Vector dir = eulerToVec(aim).normalize();
-        Vector front = dir.clone().multiply(1.5);
+        Vector front = dir.clone().multiply(1.5);  //slightly in front of the thing
 
         Location spawn = shootingPart.getEyeLocation().add(front);
         Location back = backBlast.getEyeLocation().add(front.multiply(-1));
@@ -140,12 +148,16 @@ public class MissileLauncher extends Artillery implements SideSeated {
                 nmsWorld.addEntity(missile);
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
-                int iters = 30;
-                do {
-                    world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,back,0,
-                            backBlastDir.getX(),backBlastDir.getY(),backBlastDir.getZ(),0.1);
+                //may want to change this to make the stuff more visible
+                int iters = 20;
 
-                    world.spawnParticle(Particle.FLAME,back,0,backBlastDir.getX(), backBlastDir.getY(), backBlastDir.getZ(),0.1);
+                do {
+                    double x = RANDOM.nextDouble() * 0.1, y = RANDOM.nextDouble() * 0.1, z = RANDOM.nextDouble() * 0.1;
+
+                    world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,back,0,
+                            backBlastDir.getX() + x,backBlastDir.getY()+ y,backBlastDir.getZ() + z,0.1);
+
+                    world.spawnParticle(Particle.FLAME,back,0,backBlastDir.getX() - x, backBlastDir.getY() - y, backBlastDir.getZ() - z,0.1);
                     iters --;
                 }
                 while (iters > 0);
@@ -250,10 +262,10 @@ public class MissileLauncher extends Artillery implements SideSeated {
         positionSeat();
     }
 
-    //basically if a player sits on the seat then they can start locking onto
+    //basically there's an idea that if a player sits on the seat then they can start locking onto
     //targets
     public synchronized void startTracking() {
-
+     //onions. yummy.
     }
 
 
@@ -261,9 +273,6 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
     private Location[] getBarrelLocations() {
 
-
-
-        Location nextStemLoc = stem[stem.length - 1].getLocation(world);
 
         double xStraight, zStraight;
         double yHeight = -LARGE_BLOCK_LENGTH * Math.sin(aim.getX());
@@ -282,19 +291,20 @@ public class MissileLauncher extends Artillery implements SideSeated {
        //this is to prevent the two barrels converging onto each other
         //when the euler angle is near vertical (cause then the horizontal approaches 0)
         //threshold value for horMag is 0.01 since we're div by mag we don't want the values --> infinity
+        final double PRESERVATION = 0.75;  //arbitrary artistic choice
         if (horMag < 0.01) {
 
             //preserves rotation so it doesn't look so weird
             if (xRight < 0)
-                xRight = -0.75;
+                xRight = -PRESERVATION;
             else
-                xRight = 0.75;
+                xRight = PRESERVATION;
 
 
             if (zRight < 0) {
-                zRight = -0.75;
+                zRight = -PRESERVATION;
             }
-            else zRight = 0.75;
+            else zRight = PRESERVATION;
 
 
         }
@@ -314,9 +324,21 @@ public class MissileLauncher extends Artillery implements SideSeated {
         int midpoint = barrel.length / 2;
         double distFromMid;
 
+        Location nextStemLoc = stem[stem.length - 1].getLocation(world);
         Location[] barrelLocs = new Location[barrel.length];
+
         for (int slot = 0; slot < midpoint; slot ++) {
             distFromMid = slot - (barrel.length / 4.0) + 0.5;
+            /*
+            [][][]...
+               |      top view
+            [][][]...
+
+            barrel.length / 2 means either the left or the right barrel
+            ((barrel.length / 2) / 2) means 1/2 of either the left or right barrel
+            we add +0.5 cause we want the midpoint between 2 blocks
+
+             */
 
             Location spawnRight = nextStemLoc.clone().add(
                     xRight + (xStraight * distFromMid),
@@ -364,7 +386,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
     @Override
     public double getMaxHealth() {
-        return 35;
+        return maxHealth;
     }
 
     public List<ArtilleryPart> getParts(){

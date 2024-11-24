@@ -30,6 +30,10 @@ public class LightArtillery extends FieldArtillery
         base = new ArtilleryPart[3][3];
     }
 
+    static {
+        maxHealth = 20;
+        fireCooldown = 3000;
+    }
     public static void setMaxHealth(double maxHealth) {
         LightArtillery.maxHealth = maxHealth;
     }

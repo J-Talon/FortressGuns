@@ -1,15 +1,14 @@
 package me.camm.productions.fortressguns.Util.DataLoading;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.DataLoading.Adapters.AdapterArtillery;
-import me.camm.productions.fortressguns.Util.DataLoading.Adapters.AdapterBuilder;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ArtillerySchema;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.SchemaKey;
+import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema.ConfigObject;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Nullable;
 import org.tomlj.Toml;
-import org.tomlj.TomlInvalidTypeException;
 import org.tomlj.TomlParseResult;
 
 import java.io.File;
@@ -18,6 +17,7 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class FileManager {
 
@@ -88,9 +88,9 @@ public class FileManager {
 
     public static boolean loadArtilleryConfig() {
 
-        Map<ArtilleryType, Map<String, Object>> values = new HashMap<>();
         Plugin plugin = FortressGuns.getInstance();
-        boolean errored = false;
+        Logger logger = plugin.getLogger();
+
 
         try {
             File file = initResource(Resource.CONFIG);
@@ -98,117 +98,38 @@ public class FileManager {
             TomlParseResult res = Toml.parse(path);
 
             if (res.hasErrors()) {
-                plugin.getLogger().warning("Artillery config failed to load due to TOML errors in the file, trying to load defaults...");
-                return tryLoadDefaults();
+                logger.warning("Artillery config failed to load due to TOML errors in the file, using defaults...");
+                return true;
             }
 
-            for (ArtillerySchema schema: ArtillerySchema.values()) {
-                Map<String, Object> map = getValue(schema, res);
-                if (map == null) {
-                    errored = true;
-                    values.put(schema.getType(),null);
+            String json = res.toJson();
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(json);
+
+
+
+            for (ArtilleryType type: ArtilleryType.values()) {
+                mapper.registerSubtypes(new NamedType(type.getAdapter(), type.getId()));
+                try {
+                    ConfigObject co = mapper.treeToValue(node.get(type.getId()),type.getAdapter());
+                    boolean result = co.apply();
+                    if (!result)
+                        throw new IllegalArgumentException("Invalid config value");
+
+                    logger.info("Loaded config for: "+type.getId());
                 }
-                else
-                    values.put(schema.getType(), map);
+                catch (JsonProcessingException | IllegalArgumentException e) {
+                    logger.warning("Failed to load "+ type.getId() +" due to: "+e.getMessage() +" Using defaults.");
+                }
             }
+
+
         }
         catch (IOException e) {
-            plugin.getLogger().warning("Could not load config due to IO errors- Trying to load default config...");
-            return tryLoadDefaults();
+            logger.warning("Could not load config due to IO error:"+e.getMessage()+"...Using default config.");
         }
-
-        if (errored) {
-            plugin.getLogger().warning("Some Artillery Config did not load due to parsing errors. Attempting to load default values for them.");
-        }
-
-
-            for (ArtilleryType type : values.keySet()) {
-
-                Class<? extends AdapterArtillery> adapterClass = type.getAdapter();
-                AdapterArtillery adapt = AdapterBuilder.build(adapterClass, values.get(type));
-                //this sets the config here
-                if (adapt == null) {
-                    plugin.getLogger().warning("Unable to build adapters!");
-                    return false;
-                }
-            }
 
        return true;
-
     }
 
-    private static boolean tryLoadDefaults() {
-        for (ArtilleryType type: ArtilleryType.values()) {
-            Class<? extends AdapterArtillery> adapterClass = type.getAdapter();
-            AdapterArtillery adapt = AdapterBuilder.build(adapterClass, null);
-            if (adapt == null)
-                return false;
-        }
-        return true;
-    }
-
-
-
-
-
-
-
-
-    private static @Nullable Map<String, Object> getValue(ArtillerySchema property, TomlParseResult res) {
-       Map<String, Object> map = new HashMap<>();
-        ArtilleryType type = property.getType();
-        try {
-            SchemaKey[] keys = property.getConfigValues();
-
-            for (SchemaKey key: keys) {
-                Object value = get(key.getClazz(), res, type.getId() + "." + key.getLabel());
-
-                if (value == null) {
-                    throw new IllegalArgumentException("Invalid value for: "+key.getLabel());
-                }
-
-
-                map.put(key.getLabel(), value);
-            }
-        }
-        catch (Exception e) {
-            Plugin plugin = FortressGuns.getInstance();
-            plugin.getLogger().warning("Failed to read the config section for the artillery: "+type.getId()+" due to: "+e.getMessage());
-            return null;
-        }
-        return map;
-    }
-
-
-    private static @Nullable Object get(Class<?> clazz, TomlParseResult result, String label) {
-
-        try {
-            if (clazz == Integer.class) {
-                return result.getLong(label);
-            } else if (clazz == Float.class || clazz == Double.class) {
-                try {
-                    return result.getDouble(label);
-                } catch (TomlInvalidTypeException invalid) {
-
-                    try {
-                        return result.getLong(label);
-                    } catch (Exception ignored) {
-                        return null;
-                    }
-                }
-            } else if (clazz == Boolean.class) {
-                return result.getBoolean(label);
-            }
-            else if (clazz == String.class) {
-                return result.getString(label);
-            }
-
-        }
-        catch (Exception e) {
-            return null;
-        }
-
-        return null;
-
-    }
 }

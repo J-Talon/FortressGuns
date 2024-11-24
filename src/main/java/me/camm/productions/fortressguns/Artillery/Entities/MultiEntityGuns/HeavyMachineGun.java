@@ -36,8 +36,8 @@ Class that models a heavy machine gun which players can shoot and operate
  */
 public class HeavyMachineGun extends RapidFire {
 
-    private static int maxHealth, magSize;
-    private static double overheat, jamPercent;
+    private static int magSize;
+    private static double overheat, jamPercent, maxHealth;
 
 
     protected static final ItemStack BARREL_ITEM, MUZZLE_ITEM, SEAT_ITEM;
@@ -51,10 +51,16 @@ public class HeavyMachineGun extends RapidFire {
         MUZZLE_ITEM = ArtilleryMaterial.SMALL_BARREL.asItem();
         SEAT_ITEM = ArtilleryMaterial.SEAT.asItem();
 
+        maxHealth = 15;
+        magSize = 100;
+        jamPercent = 0;
+        overheat = 0;
 
         rightArm = new Vector3f(50,0,0);
                 leftArm = new Vector3f(50,0,0);  body = new Vector3f(330,0,0);
                 rightLeg = new Vector3f(267,0,0);  leftLeg = new Vector3f(267,0,0);
+
+
     }
 
     public HeavyMachineGun(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
@@ -62,8 +68,8 @@ public class HeavyMachineGun extends RapidFire {
     }
 
 
-    public static void setMaxHealth(int maxHealth) {
-        HeavyMachineGun.maxHealth = maxHealth;
+    public static void setMaxHealth(double max) {
+        maxHealth = max;
     }
 
     public static void setMagSize(int magSize) {

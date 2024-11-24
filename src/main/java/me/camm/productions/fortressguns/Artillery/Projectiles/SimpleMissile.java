@@ -317,7 +317,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
 
         ////orthogonal calculations
-        ///0.03 is period
+        ///0.03 is period. arbitrary artistic decision
         double offset = Math.sin(0.03 * fueledFlightAge + sineOffset) * ORBIT_DIST;
 
         Vector targetLocVec = targetLoc.toVector();
@@ -348,19 +348,49 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         Vector travelTowards = trackingLocation.subtract(missileLoc.toVector());
         travelTowards.normalize();   //sqrt here
 
+        //determining where to travel towards
         travelTowards.multiply(Math.min(ACCELERATION + acceleration, MAX_ACCELERATION));  //arbitrary
 
         Vec3D motion = getMot();
 
-        double originalMotionPercent = -Math.abs(0.15 * (targetSpeed-1.5)) +0.8;
+
+        final double OFFSET_X = 1.5, OFFSET_Y = 1, PEN_FACTOR = 0.3, ALIGN = OFFSET_Y - PEN_FACTOR * OFFSET_X;
+
+        double originalMotionPercent = -Math.abs(0.15 * (targetSpeed-OFFSET_X)) + 0.8;
+
+        //the less the target is moving, the more accurate the missiles are
+        //this is to help prevent the "spiralling behaviour" when targets don't move as much
+        //and then the missile just ends up circling them
+        double idlePenalty = Math.min(PEN_FACTOR * targetSpeed + ALIGN, OFFSET_Y);
+
+        originalMotionPercent = Math.max(0, originalMotionPercent + idlePenalty - OFFSET_Y);
+
+        /*
+        x = target speed
+        w           (offset y)  changing w shouldn't affect anything. this is just to clamp the thing at 1
+        p           (offset x)
+        a           (idle penalty factor  << change this for the difficulty addition before speed = 1.5)
+        b = w - ap  (aligns the point for where y = w for the penalty function to the motion function)
+
+        g = -abs(0.15(x+p)) + 0.8  (motion percent function)
+        h = min(ax + b, w)         (penalty function)
+
+        y = max(g + h - w, 0)      (final function for the missile difficulty)
+                                    numbers closer to 0 mean that the missiles are more accurate
+
+         */
+
+
+
+
         double accAmount = (1 - originalMotionPercent) + 1;
         travelTowards.multiply(accAmount);
 
-        motion.a(originalMotionPercent);  //0.8
+        motion.a(originalMotionPercent);  //vector.multiply() in NMS
         motion = motion.add(travelTowards.getX(), travelTowards.getY(), travelTowards.getZ());
 
-        if (motion.g() > MAX_SPEED_SQUARED) {
-            motion = motion.d().a(MAX_SPEED);  //sqrt here
+        if (motion.g() > MAX_SPEED_SQUARED) {   //vector.magnitudeSquared()
+            motion = motion.d().a(MAX_SPEED);  //vector.magnitude().multiply()
         }
 
 
@@ -377,10 +407,22 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
     private Vector getOrthogonal(Vector other) {
         double denom = Double.NaN;
-        double linComb = Double.NaN;
+        double linComb = Double.NaN;  ///linear combination method to get orthagonal
         double mult1, mult2;
         mult1 = rand.nextDouble() - 0.5;
         mult2 = rand.nextDouble() - 0.5;
+
+        //A is orthagonal to B if A dot B = 0
+        /*
+        A = {a1,a2,a3}
+        B = {b1, b2, b3}
+        A ' B means:
+
+        a1 * b1 + a2 * b2 + a3 * b3 = 0
+        where mult1 and mult2 serve as either b1, b2, or b3 depending on the situation
+
+        We're basically solving for either b1, b2, or b3 depending on what a1, a2, and a3 are
+         */
 
         if (other.getX() != 0) {
            denom = other.getX();

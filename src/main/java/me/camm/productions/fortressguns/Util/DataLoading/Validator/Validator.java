@@ -1,13 +1,19 @@
 package me.camm.productions.fortressguns.Util.DataLoading.Validator;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface Validator<T> {
-    public T validate(@NotNull Object in);
+    public boolean validate(@NotNull T in);
 
 
-     default Float getFloat(@NotNull Object in) {
+     default float getFloat(@Nullable Object in) {
+
+         if (in == null) {
+             return Float.NaN;
+         }
+
         float value;
         if (in instanceof Integer) {
             value = (Integer)in;
@@ -20,9 +26,9 @@ public interface Validator<T> {
             double temp = (Double) in;
             return (float)temp;
         }
-        return null;
-
+        return Float.NaN;
     }
+
 
     default Integer getInt(@NotNull Object in) {
          int value;
@@ -36,97 +42,5 @@ public interface Validator<T> {
              return (Integer) in;
          }
          return null;
-    }
-
-
-    //dont nest the classes if you do you'll be SORRY
-
-    static class ValidateIntPositive implements Validator<Integer> {
-        @Override
-        public Integer validate(@NotNull Object in) {
-            try {
-
-                Integer value = getInt(in);
-
-                if (value == null)
-                    return null;
-
-                if (value > 0)
-                    return value;
-                return null;
-            }
-            catch (ClassCastException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }
-
-
-
-    static class ValidateIntUnsigned implements Validator<Integer> {
-
-        @Override
-        public Integer validate(@NotNull Object in) {
-            try {
-
-                Integer value = getInt(in);
-                if (value == null)
-                    return null;
-
-                if (value >= 0) {
-                    return value;
-                }
-                return null;
-
-            }
-            catch (ClassCastException e) {
-                return null;
-            }
-        }
-    }
-
-
-    static class ValidateJam implements Validator<Float> {
-
-        @Override
-        public Float validate(@NotNull Object in) {
-            try {
-
-
-                Float value = getFloat(in);
-                if (value == null)
-                    return null;
-
-
-                if (value >= 0 && value <= 1) {
-                    return value;
-                }
-                return null;
-            }
-            catch (ClassCastException e) {
-                return null;
-            }
-        }
-    }
-
-    static class ValidateHeat implements Validator<Float> {
-
-        @Override
-        public Float validate(@NotNull Object in) {
-            try {
-                Float value = getFloat(in);
-                if (value == null)
-                    return null;
-
-                if (value >= 0 && value <= 100) {
-                    return value;
-                }
-                return null;
-            }
-            catch (ClassCastException e) {
-                return null;
-            }
-        }
     }
 }

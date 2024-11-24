@@ -7,14 +7,10 @@ import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
-import net.minecraft.network.protocol.game.PacketPlayOutPosition;
-import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -98,7 +94,11 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;
                     //sin(PIx + (Pi/2)) * max(-0.1x + 1, 0)
+
+                    //basically makes the barrel recover faster as it progresses, starting out slow
                     incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
+
+
                     Location barrelEnd = barrel[barrel.length-1].getEyeLocation();
                     int count = (int)(Math.ceil(10 - (smallBlockDist / SMALL_BLOCK_LENGTH) * 10));
 
@@ -132,6 +132,14 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
     }
 
 
+    /*
+    bar is basically the dist from the center to the edge of the cannon, basically controlling whether
+    a possible "overwrite" is possible of the legs
+
+    rads is the angle to increment after every "drawing" of the legs
+
+
+     */
     protected boolean spawnBaseWithDegrees(int bar, double rads, double defaultRadValue, double defaultRadInc, boolean useDefault) {
         for (ArtilleryPart[] standRow: base) {
             double[] position = getBasePositions(rads);  //get the x, z values for the base
@@ -140,10 +148,14 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
 
             for (int slot=0;slot<standRow.length;slot++) {
                 Location loc = pivot.getLocation(this.world).clone().
-                        add(
-                                (position[0]*LARGE_BLOCK_LENGTH+length*position[0]),
-                              -0.75,
-                                (LARGE_BLOCK_LENGTH*position[1]+length*position[1]));
+                        add((position[0] * LARGE_BLOCK_LENGTH + length*position[0]),
+                              -0.75,    //-0.75 makes stuff look nice (from testing)
+                                (LARGE_BLOCK_LENGTH * position[1] + length*position[1]));
+                /*
+                I know, there's z fighting for the closest blocks cause of the distance
+                the alternative is making it hollow in the middle, so pick your poison
+
+                 */
 
 
                 //(World world, Artillery body, double d0, double d1, double d2)
@@ -187,12 +199,50 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
             boolean small = false;
             double totalDistance;
 
-            if (slot>=smallThresh) {
-                totalDistance = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
+
+            //totalDistance = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
+            /*
+            total distance = the number of large blocks + the number of small blocks + correction factor
+            The correction factor 0.5 is because of the awkward positioning from the transition from the large to small blocks
+
+            we could use correctionFactor == small block length but if we use 0.1 more than it we get a barrel that's
+            slightly more visible.
+
+            totalDist = (large block length * smallThresh) + ((slot - smallThresh) * small block length) + 0.45
+                              ^                                   ^                                         ^
+                              the amount of large blocks         current small blocks                 correction
+
+            l = large block length
+            t = smallthresh
+            x = slot
+            s = small block length
+
+            totalDist = lt + ((x - t) * s) + 0.45
+                      = lt + (xs - ts) + 0.45
+                      = lt + xs - ts + 0.45
+
+                      = 0.6t + xs - 0.4t + 0.45
+                      = 0.2t + xs + 0.45
+                      = 0.2 + x + 0.45
+                      = 0.65 + x
+
+
+             The old implementation for the artillery was:
+            totalDistance = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
+                          = 0.75l + 0.5s + xs
+                          = 0.75(0.6) + 0.5(0.4) + xs
+                          = 0.2 + 0.45 + xs
+                          = 0.65 + xs
+                          = 0.65 + x
+
+            */
+
+            if (slot >= smallThresh) {
+                totalDistance = (LARGE_BLOCK_LENGTH * smallThresh) + ((slot - smallThresh) * SMALL_BLOCK_LENGTH) + 0.45;
                 small = true;
             }
             else
-                totalDistance = (slot+1)* LARGE_BLOCK_LENGTH;
+                totalDistance = (slot + 1) * LARGE_BLOCK_LENGTH;
 
             double height = -totalDistance*Math.sin(aim.getX());
             double horizontalDistance = totalDistance*Math.cos(aim.getX());
@@ -202,7 +252,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
 
             Location centre = pivot.getLocation(world).clone();
 
-            //if it is small, add 0.75 so that it is high enough
+
             ArtilleryPart stand;
 
             //if it is small, add 0.75 so that it is high enough

@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Handlers;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import jdk.javadoc.internal.doclets.toolkit.taglets.snippet.Style;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
@@ -140,7 +141,32 @@ public class ChunkLoader implements Listener
     }
 
 
-    //should be good
+
+    public List<Construct> getEntries() {
+        List<Construct> list = new LinkedList<>();
+        Map<Integer,Map<Integer, Map<String, Set<Construct>>>> xMap = pieces.rowMap();
+        for (int x: xMap.keySet()) {
+
+            Map<Integer,Map<String, Set<Construct>>> zMap = xMap.get(x);
+
+            for (int z: zMap.keySet()) {
+                Map<String, Set<Construct>> chunkWorldMap = zMap.get(z);
+
+                for (String worldName: chunkWorldMap.keySet()) {
+
+                    Set<Construct> constructsInChunk = chunkWorldMap.get(worldName);
+                    list.addAll(constructsInChunk);
+
+                }
+            }
+
+        }
+
+        return list;
+    }
+
+
+
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event){
 

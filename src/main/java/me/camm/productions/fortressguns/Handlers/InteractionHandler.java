@@ -100,7 +100,7 @@ public class InteractionHandler implements Listener
         updateTarget(player.getUniqueId(), hit);
 
         player.playSound(player.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
-        player.sendMessage(ChatColor.RED+"Target Acquired: "+hit.getType());
+        player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
     }
 
     @EventHandler
