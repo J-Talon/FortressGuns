@@ -26,7 +26,7 @@ public class FireTrigger extends ArtilleryPart {
 
         if (body instanceof RapidFire rapid) {
 
-            List<Entity> entities = rapid.getRotatingSeat().getPassengers();
+            List<Entity> entities = rapid.getSeat().getPassengers();
 
             if (entities.size() > 0) {
                 if (!body.canFire() || !(entities.get(0).equals(human)))

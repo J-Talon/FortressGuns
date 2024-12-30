@@ -1,20 +1,27 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Tuneable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
+import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
+import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.StandHelper;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -23,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 
-public abstract class FlakArtillery extends HeavyArtillery
+public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
 {
 
     protected Entity target;
@@ -47,9 +54,6 @@ This method is called in a loop. You can think of it as being called many times 
     }
 
 
-    protected synchronized void incrementSmallDistance(double increment){
-        this.smallBlockDist += increment;
-    }
 
     public void fire(@Nullable Player shooter) {
 
@@ -87,7 +91,9 @@ This method is called in a loop. You can think of it as being called many times 
         y = velocity.getY()*vectorPower;
         z = velocity.getZ()*vectorPower;
         final Vec3D vector = new Vec3D(x,y,z);
-        smallBlockDist = 0;
+
+        setSmallDistance(0);
+
         canFire = false;
 
         final List<Player> vibratedFor = getVibratedPlayers();
@@ -106,7 +112,13 @@ This method is called in a loop. You can think of it as being called many times 
 
                         FlakHeavyShell shell = new FlakHeavyShell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), shooter);
                         shell.setMot(vector);
-                        shell.setTerminus(target);
+
+                        if (target == null && shooter != null) {
+                            double time = InteractionHandler.getTime(shooter.getUniqueId()).getA();
+                            shell.setExplodeTime(time);
+                        }
+                        else
+                            shell.setTerminus(target);
                         ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
                 }
 
@@ -127,7 +139,7 @@ This method is called in a loop. You can think of it as being called many times 
                 }
                 else
                 {
-                    smallBlockDist = SMALL_BLOCK_LENGTH;
+                    setSmallDistance(SMALL_BLOCK_LENGTH);
                     canFire = true;
                     cancel();
                 }
@@ -136,9 +148,38 @@ This method is called in a loop. You can think of it as being called many times 
     }
 
 
+    @Override
+    public void rideTick(EntityHuman human) {
+        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+        double x, y;
+        x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
+        y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
+        double roundHealth = Math.round(health * 100d) / 100d;
+        Player player = (Player)(human.getBukkitEntity());
+
+
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+
+        ChatColor color = canFire() ? ChatColor.GREEN: ChatColor.RED;
+        if (ArtilleryItemHelper.getStick().isSimilar(offhand)) {
+            int time = InteractionHandler.getTime(player.getUniqueId()).getA();
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(color+"Shell Fuse: ["+time+"/"+InteractionHandler.getSettingMax()+"] (Ticks)"));
+        }
+        else {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(color + "Rotation: [" + x + " | " + y + "] Health: " + roundHealth));
+        }
+    }
+
+    @Override
+    public synchronized void pivot(double vertAngle, double horAngle) {
+        vertAngle = (Math.min(vertAngle, 0));
+        super.pivot(vertAngle, horAngle);
+    }
 
     public void aimStatic() {
-        Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+
+        //once again clone shouldn't be needed cause it's a new object each time
+        Location muzzle = barrel[barrel.length - 1].getEyeLocation().add(0, 0.2, 0);
 
         if (target == null || target.isRemoved() || !target.isAlive()) {
             target = null;
@@ -146,9 +187,7 @@ This method is called in a loop. You can think of it as being called many times 
             return;
         }
 
-       Location target = this.target.getBukkitEntity().getLocation();
-
-
+       Location target = this.target.getBukkitEntity().getBoundingBox().getCenter().toLocation(world);
 
         Location piv = getPivot().getLocation(world);
 
@@ -185,10 +224,6 @@ This method is called in a loop. You can think of it as being called many times 
         return true;
     }
 
-    public void aimMoving(){
-
-
-    }
 
 
 }

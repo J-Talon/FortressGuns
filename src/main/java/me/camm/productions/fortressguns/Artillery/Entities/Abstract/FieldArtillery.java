@@ -1,10 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.SideSeated;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.world.entity.EntityTypes;
@@ -20,9 +21,10 @@ import org.bukkit.util.Vector;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public abstract class FieldArtillery extends Artillery implements SideSeated
+public abstract class FieldArtillery extends ArtilleryRideable
 {
 
+    private final double DIST_X = 0, DIST_Y = 0;
 
     protected static ItemStack BODY = ArtilleryMaterial.STANDARD_BODY.asItem();
     protected static ItemStack WHEEL = ArtilleryMaterial.WHEEL.asItem();
@@ -37,6 +39,11 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
     }
 
 
+    @Override
+    protected void initInventories() {
+        interactionInv = new InventoryGroup.StandardGroup(this);
+
+    }
 
     public synchronized void fire(@Nullable Player shooter)
     {
@@ -62,7 +69,8 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
         Vector velocity = eulerToVec(aim).normalize().multiply(getVectorPower());
         final Vec3D vector = new Vec3D(velocity.getX(),velocity.getY(), velocity.getZ());
 
-        smallBlockDist = 0;
+        setSmallDistance(0);
+
         canFire = false;
 
         final List<Player> vibrateFor = getVibratedPlayers();
@@ -85,7 +93,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
 
 
                 //pivot is already called if there is a rider so don't call pivot twice
-                if (!getHasRider()) {
+                if (!hasRider()) {
                     pivot(aim.getX(), aim.getY());
                 }
 
@@ -109,7 +117,7 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
                 else
                 {
                     setVibrationOffsetY(0);
-                    smallBlockDist = SMALL_BLOCK_LENGTH;
+                    setSmallDistance(SMALL_BLOCK_LENGTH);
                     canFire = true;
                     cancel();
                 }
@@ -120,16 +128,71 @@ public abstract class FieldArtillery extends Artillery implements SideSeated
 
 
     @Override
-    protected void positionSeat() {
+    public void positionSeat() {
         if (rotatingSeat != null) {
-            //implements SideSeated
-            positionSeat(rotatingSeat,this, getVibrationOffsetY());
+            //Math.PI * 1.5 --> 90* angle. Technically it's 270 degrees though
+            posSeatAbsoluteHorizon(rotatingSeat,DIST_X, DIST_Y, getVibrationOffsetY(),Math.PI*1.5);
         }
+    }
+
+    @Override
+    public int getMaxAmmo() {
+        return 1;
+    }
+
+    @Override
+    public Component getSeat() {
+        return rotatingSeat;
     }
 
     protected synchronized void incrementSmallDistance(double increment){
         this.smallBlockDist += increment;
+        lengthChanged = true;
     }
+
+    protected synchronized void setSmallDistance(double dist) {
+        this.smallBlockDist = dist;
+        lengthChanged = true;
+    }
+
+    protected synchronized void incrementLargeDistance(double increment) {
+        this.largeBlockDist += increment;
+        lengthChanged = true;
+    }
+
+    protected synchronized void setLargeDistance(double dist) {
+        this.largeBlockDist = dist;
+        lengthChanged = true;
+    }
+
+
+    @Override
+    protected boolean spawnParts()
+    {
+
+        pivot = StandHelper.createCore(loc, BODY, aim, world, this);
+
+        //pivot.setRotation(aim);
+        rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(DIST_X, DIST_Y,Math.PI*1.5),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
+
+        if (pivot == null || rotatingSeat == null) {
+            return false;
+        }
+
+        if (!spawnTurretParts() || !spawnBaseParts()) {
+            return false;
+        }
+
+        //for the base of the artillery
+        calculateLoadedChunks();
+        if (health <= 0)
+            setHealth(getMaxHealth());
+
+
+        return true;
+
+    }
+
 
 
     /*

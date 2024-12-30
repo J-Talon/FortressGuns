@@ -4,7 +4,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtille
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
-import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.Inventory;
@@ -80,31 +79,6 @@ public class HeavyArtillery extends FieldArtillery
     @Override
     public double getMaxHealth() {
         return maxHealth;
-    }
-
-    @Override
-    protected boolean spawnParts(){
-
-
-        pivot = StandHelper.createCore(loc, BODY,aim,world,this);
-        if (pivot == null)
-            return false;
-
-        pivot.setLocation(loc.getX(),loc.getY(),loc.getZ());
-        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
-
-        if (rotatingSeat == null)
-            return false;
-
-        if (!super.spawnTurretParts() || !this.spawnBaseParts())
-            return false;
-
-        calculateLoadedChunks();
-
-        if (health <= 0)
-            setHealth(maxHealth);
-
-        return true;
     }
 
 

@@ -13,19 +13,31 @@ import org.jetbrains.annotations.Nullable;
 public class StandardHeavyShell extends HeavyShell {
 
 
-    private final double startingY;
-
+    private static float hitDamage = 10;
+    private static float explosionPower = 4;
 
 
     public StandardHeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter) {
         super(entitytypes, x, y, z, world, shooter);
-        startingY = y;
-
     }
 
 
-    public float getDamageStrength() {
-        return 3f;
+    public static void setHitDamage(float hitDamage) {
+        StandardHeavyShell.hitDamage = hitDamage;
+    }
+
+    public static void setExplosionPower(float explosionPower) {
+        StandardHeavyShell.explosionPower = explosionPower;
+    }
+
+    @Override
+    public  float getExplosionPower() {
+        return explosionPower;
+    }
+
+    @Override
+    public float getHitDamage() {
+        return hitDamage;
     }
 
     public void tick() {
@@ -45,13 +57,4 @@ public class StandardHeavyShell extends HeavyShell {
 
         playSound(kaboom,30);
     }
-
-    @Override
-    public void playExplosionEffects(Location explosion){
-        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,explosion,100,0,0,0,0.5);
-        bukkitWorld.spawnParticle(Particle.CLOUD,explosion,100,0,0,0,0.5);
-    }
-
-
-
 }

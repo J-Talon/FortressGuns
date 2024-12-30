@@ -1,6 +1,10 @@
 package me.camm.productions.fortressguns.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryName;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,6 +26,7 @@ public class StandardLoadingInventory extends ConstructInventory {
     static final ItemStack PROJECTILE = new ItemStack(Material.LEVER);
 
     static final ItemStack AIR = new ItemStack(Material.AIR);
+
     static {
 
         ItemMeta dest = DESTINATION.getItemMeta();
@@ -39,8 +44,8 @@ public class StandardLoadingInventory extends ConstructInventory {
 
     private boolean addedProp;
 
-    public StandardLoadingInventory(Artillery owner) {
-        super(owner, InventorySetting.LOADING);
+    public StandardLoadingInventory(Artillery owner, InventoryGroup group) {
+        super(owner, InventoryCategory.RELOADING, group);
         init();
     }
 
@@ -48,6 +53,10 @@ public class StandardLoadingInventory extends ConstructInventory {
     public void transact(InventoryDragEvent event) {
         System.out.println("on transact drag event");
         event.setCancelled(true);
+    }
+
+    public String getName() {
+        return InventoryName.STANDARD.toString();
     }
 
     @Override
@@ -88,23 +97,20 @@ public class StandardLoadingInventory extends ConstructInventory {
            gui.setItem(nextSlot, stack);
            gui.setItem(currentSlot, null);
 
-           HumanEntity e = event.getWhoClicked();
-           if (e instanceof Player){
-               Player p = (Player)e;
-               p.playSound(p.getLocation(), Sound.BLOCK_PISTON_EXTEND,1,1);
-           }
+           Player p = (Player) event.getWhoClicked();
+           p.playSound(p.getLocation(), Sound.BLOCK_PISTON_EXTEND,1,1);
+
        }
        else {
            if (PROPELLANT.isSimilar(stack) && PROJECTILE.isSimilar(next) && PROJECTILE.isSimilar(gui.getItem(gui.getSize()-1))) {
-               owner.setBullets(1);
+               ((Artillery)owner).setAmmo(1);
                for (HumanEntity e: new ArrayList<>(gui.getViewers())) {
                    e.closeInventory();
                    e.sendMessage(ChatColor.GRAY+"Artillery is loaded with 1 shell.");
 
-                   if (e instanceof Player) {
-                       Player p = (Player)e;
-                       p.playSound(p.getLocation(),Sound.BLOCK_IRON_DOOR_CLOSE,1,2);
-                   }
+                   Player p = (Player)e;
+                   p.playSound(p.getLocation(),Sound.BLOCK_IRON_DOOR_CLOSE,1,2);
+
                }
 
                init();

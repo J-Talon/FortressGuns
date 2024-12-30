@@ -73,39 +73,6 @@ public class LightArtillery extends FieldArtillery
 
 
     @Override
-    protected boolean spawnParts()
-    {
-
-        pivot = StandHelper.createCore(loc, BODY, aim, world, this);
-
-        //pivot.setRotation(aim);
-        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
-
-        if (pivot == null || rotatingSeat == null) {
-            return false;
-        }
-
-        if (!super.spawnTurretParts() || !spawnBaseParts()) {
-            return false;
-        }
-
-        //for the base of the artillery
-        calculateLoadedChunks();
-        if (health <= 0)
-            setHealth(maxHealth);
-
-
-        return true;
-
-    }
-
-    @NotNull
-    @Override
-    public Inventory getInventory() {
-        return loadingInventory.getInventory();
-    }
-
-    @Override
     public List<ArtilleryPart> getParts(){
         List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
         for (ArtilleryPart[] segment: base)
@@ -120,4 +87,6 @@ public class LightArtillery extends FieldArtillery
     protected int getSmallDistThreshold() {
         return SMALL_THRESH;
     }
+
+
 }

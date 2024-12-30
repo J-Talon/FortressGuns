@@ -30,7 +30,6 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     private final Player shooter;
     private Entity target;
     private final org.bukkit.World bukkitWorld;
-    private final Construct source;
 
     private int fueledFlightAge;
     private Vec3D direction;
@@ -59,6 +58,13 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     private final MissileLockNotifier notifier;
 
 
+    private static float explosionPower; //4
+    private static int difficulty;
+
+
+    private Vec3D terminalVel = null;
+
+
 
     static {
         org.bukkit.inventory.ItemStack bukkitVer = new org.bukkit.inventory.ItemStack(Material.LEVER);
@@ -68,6 +74,8 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         item = CraftItemStack.asNMSCopy(bukkitVer);
         rand = new Random();
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
+        explosionPower = 4;
+        difficulty = 5;
     }
 
     public SimpleMissile(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter, Artillery source) {
@@ -76,7 +84,6 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         fueledFlightAge = 0;
         bukkitWorld = world.getWorld();
         direction = null;
-        this.source = source;
         readyTime = 0;
         Vector initial = Construct.eulerToVec(source.getAim());
         initialVelocity = new Vec3D(initial.getX(),initial.getY(),initial.getZ());
@@ -101,6 +108,16 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         hadTarget = true;
     }
 
+
+    public static void setExplosionPower(float explosionPower) {
+        SimpleMissile.explosionPower = explosionPower;
+    }
+
+    @Override
+    public float getExplosionPower() {
+        return explosionPower;
+    }
+
     @Override
     public void preHit(@Nullable MovingObjectPosition pos) {
         //explode the thing here
@@ -119,8 +136,8 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     }
 
 
-    public float getDamageStrength() {
-        return 4f;
+    public float getHitDamage() {
+        return 0;
     }
 
     public void explode(@Nullable Vec3D hit) {
@@ -130,13 +147,16 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         }
         Location explosionLoc;
         org.bukkit.World world = getWorld().getWorld();
+
+        //this.getWorld().createExplosion(this, locX(), locY(), locZ(), getDamageStrength(), false, Explosion.Effect.c);
+        //change this to use our custom explosion stuff later
         if (hit == null) {
             explosionLoc = new Location(world, locX(), locY(), locZ());
-            world.createExplosion(explosionLoc,getDamageStrength());
+            world.createExplosion(explosionLoc, getExplosionPower());
         }
         else {
             explosionLoc = new Location(world, hit.getX(), hit.getY(), hit.getZ());
-            world.createExplosion(explosionLoc, getDamageStrength(), false, true, shooter);
+            world.createExplosion(explosionLoc, getExplosionPower(), false, true, shooter);
         }
         world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
 
@@ -157,8 +177,8 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
     public void playEffects(Location loc) {
 
-        Vec3D lookDir = getMot();
-        lookDir = lookDir.e();  ///e() --> multiply(-1)
+        Vec3D motion = getMot();
+        motion = motion.e();  ///e() --> multiply(-1)
 
         //0.00015x^{2}
 
@@ -201,10 +221,11 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
 
         //some people like this more???
+        double x = motion.getX(), y = motion.getY(), z = motion.getZ();
 
-        bukkitWorld.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2,null,true);
-        bukkitWorld.spawnParticle(Particle.FLAME,loc,0,lookDir.getX(), lookDir.getY(),lookDir.getZ(),0.2,null, true);
-        bukkitWorld.playSound(loc, Sound.ITEM_ARMOR_EQUIP_LEATHER,SoundCategory.BLOCKS,1,0.1f);
+        bukkitWorld.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc,0,x, y, z,0.2,null,true);
+        bukkitWorld.spawnParticle(Particle.FLAME,loc,0,x, y, z,0.2,null, true);
+        bukkitWorld.playSound(loc, Sound.ITEM_ARMOR_EQUIP_LEATHER,SoundCategory.BLOCKS,3,0.1f);
 
 
     }
@@ -212,7 +233,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
 
     public void tick() {
-        super.tick(); /// <<<< issue here???
+        super.tick();
 
         if (readyTime < PRIME) {
             readyTime++;
@@ -248,7 +269,6 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
                     direction = initialVelocity;
             }
 
-            setMot(new Vec3D(0,0,0));
             flyNormally();
         }
         else {
@@ -265,12 +285,32 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         double magnitudeSquared = motion.g(); // length squared
         if (magnitudeSquared >= MAX_SPEED_SQUARED) {  //if >= than max speed
             //a = multiply()
-            Vec3D motionMultiplied = direction.a(MAX_SPEED);
-            setMot(motionMultiplied);
+
+            if (terminalVel == null) {
+                terminalVel = motion.d().a(MAX_SPEED);
+            }
+            else setMot(terminalVel);
+
         }
-        else {  //accelerate
-            direction = direction.a(MAX_ACCELERATION + 1);
-            motion = motion.add(direction.getX(),direction.getY(),direction.getZ());
+        else {
+
+            //there isn't really a way nextMagnitude == 0 assuming the rocket isn't modified midflight
+            //but just in case cause we don't want it zero-ing out
+            //cause I know that they're susceptible to commandblock modification
+            double nextMagnitude = magnitudeSquared + (ACCELERATION * ACCELERATION);
+            if (nextMagnitude == 0) {
+                double dirX = direction.getX() * ACCELERATION,
+                        dirY = direction.getY() * ACCELERATION,
+                        dirZ = direction.getZ() * ACCELERATION;
+
+                motion = motion.add(dirX, dirY, dirZ);
+
+
+            } else {
+                double mult = Math.sqrt(magnitudeSquared / nextMagnitude);
+                motion = motion.a(mult + 1);
+            }
+
             setMot(motion);
         }
 

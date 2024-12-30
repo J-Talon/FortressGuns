@@ -26,6 +26,7 @@ public class GunSource extends EntityDamageSourceIndirect {
      return new GunSource("gunshot",projectile,entity).D();
    }
 
+
    /*
    This is the method that controls the death message for when an entity is killed.
    See: CombatTracker, IChatMutableComponent
@@ -37,13 +38,13 @@ public class GunSource extends EntityDamageSourceIndirect {
       String body = victim.getUniqueID().toString().equalsIgnoreCase("ae5430bf-2066-43e6-8eff-2bb4cc730bd6") ?
               " got their circuits fried by " : " was shot to bits by ";
 
-      ChatMessage m = new ChatMessage("");
+      ChatMessage message = new ChatMessage("");
       IChatBaseComponent killerName = owner.getScoreboardDisplayName();
       IChatBaseComponent victimName = victim.getScoreboardDisplayName();
       IChatBaseComponent middle = IChatBaseComponent.a(body);
 
-      m.addSibling(victimName).addSibling(middle).addSibling(killerName);
-      return m;
+      message.addSibling(victimName).addSibling(middle).addSibling(killerName);
+      return message;
    }
 
 }

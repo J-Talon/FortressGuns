@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectil
 import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 
+import me.camm.productions.fortressguns.Util.Explosions.ExplosionHelper;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
@@ -33,13 +33,9 @@ import javax.annotation.Nullable;
 
 
 public abstract class HeavyShell extends EntityArrow implements ArtilleryProjectile, ProjectileExplosive {
-    private static final int DAMAGE;
     protected EntityPlayer shooter;
     org.bukkit.World bukkitWorld;
 
-    static {
-        DAMAGE = 35;
-    }
     private static final ItemStack stack = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.IRON_NUGGET));
 
     public HeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
@@ -57,11 +53,8 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
 
 
     private void init(){
-        this.setDamage(DAMAGE);
         this.setCritical(true);
     }
-
-
 
 
 
@@ -94,7 +87,7 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
         }
 
 
-        if (hit.damageEntity(damageSource, DAMAGE)) {
+        if (hit.damageEntity(damageSource, getHitDamage())) {
             if (isEnderman) {
                 return;
             }
@@ -119,10 +112,6 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
         preHit(pos);
 
     }
-
-
-
-
 
 
     @Override
@@ -150,13 +139,10 @@ public abstract class HeavyShell extends EntityArrow implements ArtilleryProject
         this.die();
 
         if (hit == null)
-            this.getWorld().createExplosion(this, locX(), locY(), locZ(), getDamageStrength(), false, Explosion.Effect.c);
+            ExplosionHelper.heavyShellExplosion(getWorld(),this,locX(),locY(),locZ(), getExplosionPower(),this);
         else
-            this.getWorld().createExplosion(this, hit.getX(), hit.getY(), hit.getZ(), getDamageStrength(), false, Explosion.Effect.c);
-        //event is called here
+            ExplosionHelper.heavyShellExplosion(getWorld(),this,hit.getX(),hit.getY(),hit.getZ(), getExplosionPower(),this);
     }
-
-    public abstract void playExplosionEffects(Location explosion);
 
 
     protected void playSound(SoundPlayer sp, double hypotenuse) {

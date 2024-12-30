@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +43,7 @@ public class ArtilleryQueue {
                 continue;
             }
 
-            if (a.getHasRider()) {
+            if (a instanceof Rideable && ((Rideable) a).hasRider()) {
                 artillery[index] = null;
                 caller.sendMessage("The artillery at "+a.getLoc().toString()+" " +
                         "has an operator and cannot perform that action.");

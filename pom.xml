@@ -11,7 +11,7 @@
 
     <name>FortressGuns</name>
 
-    <description>Artillery plugin</description>
+    <description>A plugin which adds artillery into Minecraft</description>
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -43,36 +43,9 @@
 
                             <filters>
                                 <filter>
-                                    <artifact>org.jetbrains:*</artifact>
+                                    <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-
-                                <filter>
-                                    <artifact>org.tomlj:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-
-                                <filter>
-                                    <artifact>org.antlr:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-
-                                <filter>
-                                    <artifact>org.checkerframework:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.MF</exclude>
-                                    </excludes>
-                                </filter>
-
-                                <filter>
-                                    <artifact>com.fasterxml*:*</artifact>
-                                    <excludes>
                                         <exclude>META-INF/*</exclude>
                                         <exclude>META-INF/LICENSE</exclude>
                                         <exclude>META-INF/versions/9/module-info.class</exclude>
@@ -122,16 +95,17 @@
         </dependency>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.tomlj</groupId>
             <artifactId>tomlj</artifactId>
             <version>1.1.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.2</version>
-        </dependency>
 
     </dependencies>
 </project>

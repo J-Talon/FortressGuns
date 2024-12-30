@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Util.DataLoading.Validator;
 
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema.ConfigMissileLauncher;
+import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConfigMissileLauncher;
 import org.jetbrains.annotations.NotNull;
 
 public class ValidatorMissileLauncher implements Validator<ConfigMissileLauncher> {

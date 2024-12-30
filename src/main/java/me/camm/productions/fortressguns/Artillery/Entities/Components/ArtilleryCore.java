@@ -2,15 +2,20 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
+
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
+import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import net.minecraft.network.chat.ChatMessage;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
 
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
@@ -22,7 +27,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
+import java.util.List;
 
 /*
 Models the core of an artillery piece.
@@ -62,14 +67,26 @@ public class ArtilleryCore extends ArtilleryPart {
 
     protected void handleInteraction(EntityHuman human, ItemStack item) {
 
-        if (!(human instanceof EntityPlayer)) {
-            openMenu(human);
-            return;
+
+        Artillery arty = getBody();
+        if (arty instanceof Rideable ride) {
+            Component seat = ride.getSeat();
+            List<Entity> riders = seat.getPassengers();
+
+            if (!riders.isEmpty() && riders.get(0).equals(human)) {
+
+                if (arty.canFire()) {
+                    arty.fire((Player)human.getBukkitEntity());
+                    return;
+                }
+            }
         }
 
-        org.bukkit.inventory.ItemStack stack = CraftItemStack.asBukkitCopy(item);
 
-        if (stack.getType() != FIRE) {
+        org.bukkit.inventory.ItemStack stack = CraftItemStack.asBukkitCopy(item);
+        org.bukkit.inventory.ItemStack pointer = ArtilleryItemHelper.getStick();
+
+        if ((!pointer.isSimilar(stack))) {
 
             if (human.isCrouching())
                 openMenu(human);
@@ -78,6 +95,29 @@ public class ArtilleryCore extends ArtilleryPart {
 
             return;
         }
+
+
+        /////////////////////////////////////////////////////////////
+        //testing
+//
+//        if (arty instanceof CRAM) {
+//            org.bukkit.entity.Entity target = InteractionHandler.getTarget(human.getUniqueID());
+//            Entity e = ((CraftEntity)target).getHandle();
+//
+//            ((CRAM) arty).setTarget(e);
+//            arty.fire(null);
+//            return;
+//        }
+
+        /////////////////////////////////////////////////////////////
+
+        if (human.isCrouching()) {
+
+            //I have some plans for this
+            //batteries anyone?
+            return;
+        }
+
 
         if (!(body instanceof AutoTracking auto))
             return;
@@ -91,7 +131,8 @@ public class ArtilleryCore extends ArtilleryPart {
         Entity targetNMS = ((CraftEntity)target).getHandle();
         Player bukkit = ((EntityPlayer) human).getBukkitEntity();
 
-        if (human.isCrouching()) {
+
+        if (auto.isAiming()) {
             auto.setTarget(null);
             auto.setAiming(false);
             bukkit.sendMessage(ChatColor.GRAY+"Stopped targeting.");
@@ -102,10 +143,16 @@ public class ArtilleryCore extends ArtilleryPart {
         if (!success) {
             bukkit.sendMessage(ChatColor.GRAY+"Cannot aim at self!");
         }
-        else
-            bukkit.sendMessage(ChatColor.GRAY+"Aiming at target.");
+        else {
 
-        auto.startAiming();
+            if (target.isDead() || (!target.isValid())) {
+                bukkit.sendMessage(ChatColor.GRAY+"Invalid target, already terminated.");
+                return;
+            }
+
+            bukkit.sendMessage(ChatColor.GRAY + "Aiming at target.");
+            auto.startAiming();
+        }
     }
 
 
@@ -113,14 +160,41 @@ public class ArtilleryCore extends ArtilleryPart {
 
     private void openMenu(EntityHuman human) {
 
-
         if (human.getVehicle() != null) {
             return;
         }
 
-        if (human.isCrouching()) {
-            human.getBukkitEntity().openInventory(body.getInventory());
+        if (!human.isCrouching())
+            return;
+
+        Player player = (Player)human.getBukkitEntity();
+        ConstructInventory menu;
+        org.bukkit.inventory.ItemStack stack = player.getInventory().getItemInMainHand();
+
+        FIND_INV:
+        {
+            if (body instanceof RapidFire rapid && rapid.isJammed()) {
+                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.JAM_CLEAR);
+                break FIND_INV;
+            }
+
+            if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
+                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
+            } else {
+                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
+            }
         }
+
+
+        if (menu == null) {
+            FortressGuns.getInstance().getLogger().warning("Inventory instance returned null!");
+            return;
+        }
+
+        body.getInventoryGroup().openInventory(menu, player);
+
+        //the idea here is that if player is holding a reloading item, then it will
+        //open the reloading inventory, else it will open a menu inventory
 
     }
 }

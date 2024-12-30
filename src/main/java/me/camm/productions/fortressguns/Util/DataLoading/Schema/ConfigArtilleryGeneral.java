@@ -1,6 +1,6 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema;
+package me.camm.productions.fortressguns.Util.DataLoading.Schema;
 
-import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorGeneral;
+import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorArtillery;
 
 public abstract class ConfigArtilleryGeneral implements ConfigObject {
 
@@ -25,7 +25,7 @@ public abstract class ConfigArtilleryGeneral implements ConfigObject {
 
     @Override
     public boolean apply() {
-        ValidatorGeneral gen = new ValidatorGeneral();
+        ValidatorArtillery gen = new ValidatorArtillery();
         return gen.validate(this);
     }
 }

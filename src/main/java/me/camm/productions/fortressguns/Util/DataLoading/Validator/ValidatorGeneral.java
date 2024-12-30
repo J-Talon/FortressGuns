@@ -1,15 +1,26 @@
 package me.camm.productions.fortressguns.Util.DataLoading.Validator;
 
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema.ConfigArtilleryGeneral;
+import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConfigGeneral;
 import org.jetbrains.annotations.NotNull;
 
-public class ValidatorGeneral implements Validator<ConfigArtilleryGeneral> {
+import java.util.Arrays;
+import java.util.function.DoublePredicate;
 
+public class ValidatorGeneral implements Validator<ConfigGeneral>{
     @Override
-    public boolean validate(@NotNull ConfigArtilleryGeneral in) {
-        double health = in.getHealth();
-        long cool = in.getCooldown();
+    public boolean validate(@NotNull ConfigGeneral in) {
 
-        return health > 0 && cool > 0;
+        double[] values = in.getDoubleValues();
+        double missileDifficulty = in.getMissileDifficulty();
+        boolean invalidValue = Arrays.stream(values).anyMatch(new DoublePredicate() {
+            @Override
+            public boolean test(double value) {
+                return value <= 0;
+            }
+        });
+
+        return missileDifficulty <= 100 && missileDifficulty >= 1 && !(invalidValue);
+
+
     }
 }

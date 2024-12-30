@@ -3,9 +3,13 @@ package me.camm.productions.fortressguns.Artillery.Projectiles;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import net.minecraft.world.phys.MovingObjectPosition;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -28,7 +32,7 @@ public class ComplexMissile extends Construct implements ArtilleryProjectile {
     }
 
     @Override
-    public float getDamageStrength() {
+    public float getHitDamage() {
         return 0;
     }
 
@@ -52,7 +56,10 @@ public class ComplexMissile extends Construct implements ArtilleryProjectile {
         return false;
     }
 
+
     public void setLocation(double x, double y, double z){
 
     }
+
+
 }

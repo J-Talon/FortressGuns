@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.*;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema.*;
+import me.camm.productions.fortressguns.Util.DataLoading.Schema.*;
 import org.bukkit.ChatColor;
 
 public enum ArtilleryType {
@@ -13,7 +13,7 @@ public enum ArtilleryType {
     MISSILE_LAUNCHER(ChatColor.GRAY+"Missile Launcher"+ChatColor.BLUE, MissileLauncher.class, "missileLauncher", ConfigMissileLauncher.class),
     HEAVY_MACHINE(ChatColor.GRAY+"Heavy Machine Gun", HeavyMachineGun.class, "heavyMachineGun", ConfigHeavyMach.class),
 
-    CRAM(ChatColor.GRAY+"CRAM", CRAM.class, "cram",ConfigCRAM.class),
+    CRAM(ChatColor.GRAY+"CRAM", CRAM.class, "cram", ConfigCRAM.class),
     FLAK_LIGHT(ChatColor.GRAY+"Light Flak"+ChatColor.YELLOW, LightFlak.class,"lightFlak", ConfigLightFlak.class);
 
     private final String name;

@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.SideSeated;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
@@ -14,6 +14,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public class MissileLauncher extends Artillery implements SideSeated {
+public class MissileLauncher extends ArtilleryRideable {
 
     boolean fireRight;
     private Entity target;
@@ -42,6 +43,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
     static int maxRockets;
     static long cooldown;
     static double maxHealth;
+
 
     static final Random RANDOM;
 
@@ -88,6 +90,12 @@ public class MissileLauncher extends Artillery implements SideSeated {
         return 2;
     }
 
+    public void setTarget(Entity target) {
+        this.target = target;
+    }
+
+
+
     @Override
     public void fire(@Nullable Player shooter) {
 
@@ -101,11 +109,14 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
             List<ArtilleryPart> parts = getParts();
             Entity target = InteractionHandler.getTarget(shooter.getUniqueId());
-            if (target instanceof ArtilleryPart && parts.contains(target)) {
-                shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
-                return;
+            if (target != null) {
+                net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
+                if (nms instanceof ArtilleryPart && parts.contains(nms)) {
+                    shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
+                    return;
+                }
             }
-            this.target = target;
+            setTarget(target);
         }
 
         //
@@ -138,9 +149,9 @@ public class MissileLauncher extends Artillery implements SideSeated {
         new BukkitRunnable() {
             public void run() {
                 SimpleMissile missile = new SimpleMissile(EntityTypes.d, spawn.getX(), spawn.getY(), spawn.getZ(), nmsWorld, shooter,construct);
-
-
                 missile.setTarget(target);
+                setTarget(null);
+
 
                 double vecPow = getVectorPower();
 
@@ -149,18 +160,21 @@ public class MissileLauncher extends Artillery implements SideSeated {
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
                 //may want to change this to make the stuff more visible
-                int iters = 20;
+                int ITERS = 20;
 
+                final double HALF = 0.5;
+                final double MAG = 0.1;
                 do {
-                    double x = RANDOM.nextDouble() * 0.1, y = RANDOM.nextDouble() * 0.1, z = RANDOM.nextDouble() * 0.1;
+                    double x = (RANDOM.nextDouble() - HALF) * MAG, y = (RANDOM.nextDouble() - HALF) * MAG, z = (RANDOM.nextDouble() - HALF) * MAG;
+                    x = backBlastDir.getX() + x;
+                    y = backBlastDir.getY() + y;
+                    z = backBlastDir.getZ() + z;
 
-                    world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,back,0,
-                            backBlastDir.getX() + x,backBlastDir.getY()+ y,backBlastDir.getZ() + z,0.1);
+                    world.spawnParticle(Particle.FLAME,back,0, x,y,z + z,0.1);
 
-                    world.spawnParticle(Particle.FLAME,back,0,backBlastDir.getX() - x, backBlastDir.getY() - y, backBlastDir.getZ() - z,0.1);
-                    iters --;
+                    ITERS --;
                 }
-                while (iters > 0);
+                while (ITERS > 0);
 
 
                 cancel();
@@ -169,13 +183,10 @@ public class MissileLauncher extends Artillery implements SideSeated {
     }
 
 
-
-
-
     @Override
     protected boolean spawnParts() {
         pivot = StandHelper.createCore(loc.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
-        rotatingSeat = StandHelper.createInvisiblePart(getSeatSpawnLocation(this, HOR_OFFSET, Y_OFFSET), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
+        rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
             return false;
@@ -274,6 +285,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
     private Location[] getBarrelLocations() {
 
 
+
         double xStraight, zStraight;
         double yHeight = -LARGE_BLOCK_LENGTH * Math.sin(aim.getX());
         //90* offset
@@ -359,6 +371,11 @@ public class MissileLauncher extends Artillery implements SideSeated {
 
 
 
+    @Override
+    public int getMaxAmmo() {
+        return maxRockets;
+    }
+
 
     @Override
     public ArtilleryType getType() {
@@ -398,7 +415,7 @@ public class MissileLauncher extends Artillery implements SideSeated {
     }
 
     @Override
-    protected void positionSeat() {
-        positionSeat(rotatingSeat, this, HOR_OFFSET, Y_OFFSET);
+    public void positionSeat() {
+        posSeatAbsoluteHorizon(rotatingSeat,HOR_OFFSET,Y_OFFSET,0,Math.PI*1.5);
     }
 }

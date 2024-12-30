@@ -12,7 +12,6 @@ import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -23,10 +22,14 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 {
 
 
+    private static float hitDamage = 10;
+
+
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
     public FlakLightShell(World world, double x, double y, double z, EntityHuman human, Artillery source) {
         super(world,x,y,z, human, source);
     }
+
 
     public void preHit(MovingObjectPosition hit) {
 
@@ -44,24 +47,29 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
             explode(hit.getPos());
         }
+        this.die();
 
     }
 
     @Override
-    public float getDamageStrength() {
-        return 0;
+    public float getHitDamage() {
+        return hitDamage;
     }
 
+    public static void setHitDamage(float hitDamage) {
+        FlakLightShell.hitDamage = hitDamage;
+    }
+
+
+    @Override
+    public float getExplosionPower() {
+        return 1;
+    }
 
     @Override
     public void explode(@Nullable Vec3D hit) {
         DamageSource source = GunSource.gunShot(gunOperator,this);
         World world = getWorld();
         world.createExplosion(this, source,null,locX(), locY(), locZ(),1,false, Explosion.Effect.a);
-    }
-
-    @Override
-    public void postExplosion(EntityExplodeEvent event) {
-        ProjectileExplosive.super.postExplosion(event);
     }
 }

@@ -1,29 +1,36 @@
 package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Tuneable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.RayTraceResult;
 import org.spigotmc.event.entity.EntityDismountEvent;
+import oshi.util.tuples.Triplet;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,24 +44,20 @@ import java.util.function.Predicate;
  */
 public class InteractionHandler implements Listener
 {
-    private final Map<String, Class<? extends Artillery>> artilleryNames;
     private final static Map<UUID, org.bukkit.entity.Entity> targets = new HashMap<>();
+    private final static Map<UUID, Triplet<Integer, Integer, Long>> artSetting = new HashMap<>();
 
     private final ChunkLoader handler;
+
+    static final int MAX = 100, MIN = 0;
+
 
 
 
     public InteractionHandler(){
         handler = new ChunkLoader();
-
-
-        artilleryNames = new HashMap<>();
         Plugin plugin = FortressGuns.getInstance();
         plugin.getServer().getPluginManager().registerEvents(handler, plugin);
-
-        for (ArtilleryType type: ArtilleryType.values()) {
-            artilleryNames.put(type.getName(), type.getClazz());
-        }
     }
 
 
@@ -62,8 +65,21 @@ public class InteractionHandler implements Listener
         targets.put(id, target);
     }
 
+    public static int getSettingMax() {
+        return MAX;
+    }
+
+    public static int getSettingMin() {
+        return MIN;
+    }
+
     public static org.bukkit.entity.Entity getTarget(UUID id) {
         return targets.getOrDefault(id, null);
+    }
+
+
+    public static Triplet<Integer, Integer,Long> getTime(UUID id) {
+        return artSetting.getOrDefault(id,new Triplet<Integer, Integer,Long>((MAX - MIN) / 2,0,System.currentTimeMillis()));
     }
 
     public void findTarget(PlayerInteractEvent event) {
@@ -109,22 +125,104 @@ public class InteractionHandler implements Listener
     }
 
 
+
+    @EventHandler
+    public void onPlayerScroll(PlayerItemHeldEvent event) {
+
+        int to = event.getNewSlot();
+        int from = event.getPreviousSlot();
+
+        Player player = event.getPlayer();
+        ItemStack stack = player.getInventory().getItemInOffHand();
+        ItemStack pointer = ArtilleryItemHelper.getStick();
+
+        if (!(pointer.isSimilar(stack))) {
+            return;
+        }
+
+        int diff = to-from;
+        int diffAbs = Math.abs(diff);
+
+
+        UUID id = player.getUniqueId();
+        Triplet<Integer, Integer,Long> trip = getTime(id);
+        int time = trip.getA();
+        int dir = trip.getB();
+        long lastAction = trip.getC();
+
+
+
+        if (diffAbs == 8) {
+            time -= (diff / diffAbs);
+            dir = (diff / diffAbs);
+        }
+        else if (diffAbs == 1 || (System.currentTimeMillis() - lastAction > 700)) {
+            if (diff < 0) {
+                dir = -1;
+                time -= diffAbs;
+            } else {
+                time += diffAbs;
+                dir = 1;
+            }
+        }
+        else {
+            if (dir > 0) {
+                time += diffAbs;
+            }
+             else {
+                time -= diffAbs;
+            }
+        }
+
+
+        org.bukkit.entity.Entity vehicle = player.getVehicle();
+        if (vehicle == null) {
+            time = updateSetting(time,dir,id);
+            notifySettingChange(time, player);
+            return;
+        }
+
+        Entity nms = ((CraftEntity)vehicle).getHandle();
+
+        if (!(nms instanceof Component)) {
+            time = updateSetting(time, dir, id);
+            notifySettingChange(time, player);
+            return;
+        }
+
+        time = updateSetting(time, dir, id);
+        player.playSound(player.getLocation(),Sound.BLOCK_NOTE_BLOCK_HAT,SoundCategory.BLOCKS,1,(((float)time / MAX) * 2f));
+
+
+
+        /*
+         1 - 2 --> increase
+         0 - 9 --> increase
+
+         9 - 0 --> decrease
+         2 - 1 --> decrease
+         */
+    }
+
+    private int updateSetting(int time, int dir, UUID id) {
+        time = Math.max(MIN,time);
+        time = Math.min(MAX,time);
+
+        artSetting.put(id, new Triplet<>(time, dir, System.currentTimeMillis()));
+        return time;
+    }
+
+    private void notifySettingChange(int time, Player player) {
+        player.playSound(player.getLocation(),Sound.BLOCK_NOTE_BLOCK_HAT,SoundCategory.BLOCKS,1,(((float)time / MAX) * 2f));
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(ChatColor.GOLD+"Power/Fuse: ["+time+"/"+MAX+"] (Ticks/Percent)"));
+    }
+
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
 
         ItemStack item = event.getItemInHand();
-
-        if (item.getItemMeta() == null)
-            return;
-
-
-        if (item.getType()!=Material.CHEST)
-            return;
-
-
-
-        String name = item.getItemMeta().getDisplayName();
-        if (artilleryNames.containsKey(name)) {
+        if (ArtilleryItemHelper.isArtillery(item) != null) {
             event.getPlayer().sendMessage(ChatColor.RED+"[!] Right click the air if you're trying to assemble artillery.");
             event.setCancelled(true);
         }
@@ -146,10 +244,11 @@ public class InteractionHandler implements Listener
        if (nms instanceof Component) {
            nmsPlayer.stopRiding();
 
-           if (nms instanceof ArtilleryPart) {
-               ((ArtilleryPart)nms).getBody().setHasRider(false);
-           }
+           Construct cons = ((Component) nms).getBody();
 
+           if (cons instanceof Rideable) {
+               ((Rideable) cons).setHasRider(false);
+           }
        }
     }
 
@@ -163,85 +262,49 @@ public class InteractionHandler implements Listener
         EntityPlayer nms = ((CraftPlayer)player).getHandle();
 
 
+        //logic for when they're operating a gun and are interacting
+        Entity ride = nms.getVehicle();
+        if (ride instanceof ArtilleryPart part) {
+            Artillery body = part.getBody();
 
-
-        if (!event.hasItem()) {
-            Entity ride = nms.getVehicle();
-            if (ride instanceof ArtilleryPart part) {
-                Artillery body = part.getBody();
-
-                if (!part.equals(body.getRotatingSeat())) {
-                    return;
-                }
-
-                Action a = event.getAction();
-                if (a != Action.LEFT_CLICK_AIR)
-                    return;
-
-                //this is for the guns which don't have a fire trigger
-                //otherwise the logic in the firetrigger handles the shooting
-                if (body.canFire()) {
-                    body.fire(player);
-                    event.setCancelled(true);
-
-                }
-
+            if (!(body instanceof Rideable)) {
+                //how the heck did you manage to ride the artillery???
+                return;
             }
 
+            if (!part.equals(((Rideable) body).getSeat())) {
+                return;
+            }
+
+            Action a = event.getAction();
+            if (a != Action.LEFT_CLICK_AIR)
+                return;
+
+            //this is for the guns which don't have a fire trigger
+            //otherwise the logic in the firetrigger handles the shooting
+            if (body.canFire()) {
+                body.fire(player);
+                event.setCancelled(true);
+            }
         }
 
         if (action != Action.RIGHT_CLICK_AIR)
             return;
 
-
-
         ItemStack item = event.getItem();
-        if (item == null)
-            return;
-
-        if (item.getItemMeta() == null)
-            return;
-
-      /*
-    //    debug
-        if (item.getType() == Material.BARRIER) {
-            ArmorStand s = event.getPlayer().getWorld().spawn(event.getPlayer().getLocation(), ArmorStand.class);
-            System.out.println(s.getLocation().toString());
-            System.out.println(s.getBoundingBox().toString());
-            System.out.println(s.getEyeHeight());
-        }
-      //  debug
-
-[15:03:23] [Server thread/INFO]: BoundingBox [minX=-127.98155273146776, minY=93.0, minZ=-22.283999314610398, maxX=-127.48155273146776, maxY=94.97500002384186, maxZ=-21.783999314610398]
-[15:03:23] [Server thread/INFO]: 1.777500033378601
-
-       */
-
-
-
-
-        if (item.getType()!=Material.CHEST)
-            return;
-
-
-        //we used to do switches for modifiers. Now we do this :D
-        String name = item.getItemMeta().getDisplayName();
-
-        if (!artilleryNames.containsKey(name))
-            return;
-
-
-
-
 
         if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
-
-            player.sendMessage(ChatColor.RED+"You must be on the ground to assemble artillery.");
+            player.sendMessage(ChatColor.RED+"[!] You must be on the ground to assemble artillery.");
             return;
         }
+
+
         EulerAngle aim = new EulerAngle(Math.toRadians(nms.getXRot()),Math.toRadians(nms.getHeadRotation()),0);
 
-            Class<? extends Artillery> artClass = artilleryNames.get(name);
+            Class<? extends Artillery> artClass = ArtilleryItemHelper.isArtillery(item);
+            if (artClass == null)
+                return;
+
             try {
 
 
@@ -262,22 +325,22 @@ public class InteractionHandler implements Listener
               }
 
                 World world = player.getWorld();
-                Location loc = player.getLocation().clone().add(0,-0.6,0);
+                Location loc = player.getLocation().add(0,-0.6,0);
                 // -0.6 so it's on the ground
+                //no clone needed cause it's a new object each time
 
               Artillery artillery = artClass
                       .getConstructor(Location.class, World.class, ChunkLoader.class, EulerAngle.class)
                       .newInstance(loc,world,handler,aim);
 
-              world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
                boolean spawned = artillery.spawn();
 
                if (!spawned) {
-                   player.sendMessage(ChatColor.RED + "There is not enough space here to build an artillery piece!");
+                   player.sendMessage(ChatColor.RED + "[!] There is not enough space here to build an artillery piece!");
                    return;
                }
 
-
+              world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
 
               Set<Chunk> chunks = artillery.getOccupiedChunks();
               for (Chunk c: chunks) {
@@ -300,11 +363,16 @@ public class InteractionHandler implements Listener
     public void onEntityDismount(EntityDismountEvent event) {
 
         org.bukkit.entity.Entity mount = event.getDismounted();
-
         Entity nms  = ((CraftEntity)mount).getHandle();
-        if (nms instanceof ArtilleryPart) {
-            Artillery arty = ((ArtilleryPart)nms).getBody();
-            arty.setHasRider(false);
+
+        if (!(nms instanceof Component)) {
+            return;
+        }
+
+        Construct cons = ((Component) nms).getBody();
+
+        if (cons instanceof Rideable) {
+            ((Rideable) cons).setHasRider(false);
         }
     }
 }

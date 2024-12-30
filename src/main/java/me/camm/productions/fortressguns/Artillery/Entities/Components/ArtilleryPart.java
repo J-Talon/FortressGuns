@@ -1,8 +1,9 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
-import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -22,15 +23,13 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.EulerAngle;
+
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class ArtilleryPart extends Component
 {
     protected Artillery body;
-    protected final Material FIRE = Material.STICK;
-
     public ArtilleryPart(World world, Artillery body, double d0, double d1, double d2) {
         super(world, d0, d1, d2, body);
         this.body = body;
@@ -45,32 +44,6 @@ public class ArtilleryPart extends Component
         return body;
     }
 
-    public void teleport( double x, double y, double z) {
-        this.teleportAndSync(x,y,z);
-        this.g(x,y,z);
-    }
-
-    public void teleport(Location loc) {
-        this.teleport(loc.getX(), loc.getY(), loc.getZ());
-    }
-
-    public void setRotation(float x, float y){
-        this.setHeadPose(new Vector3f((float)Math.toDegrees(x),(float)Math.toDegrees(y),0));
-    }
-
-    public void setRotation( EulerAngle angle) {
-        setRotation((float)angle.getX(),(float)angle.getY());
-    }
-
-
-    public void setPose(Vector3f rightArm, Vector3f leftArm, Vector3f body, Vector3f rightLeg, Vector3f leftLeg){
-
-        super.setRightArmPose(rightArm);
-        super.setLeftArmPose(leftArm);
-        super.setBodyPose(body);
-        super.setRightLegPose(rightLeg);
-        super.setLeftLegPose(leftLeg);
-    }
 
 
 
@@ -89,9 +62,9 @@ public class ArtilleryPart extends Component
             EntityHuman human = ((EntityHuman)entity);
             List<Entity> riders;
 
-            ArtilleryPart seat = body.getRotatingSeat();
-            if (seat != null) {
-                riders = seat.getPassengers();
+
+            if (body instanceof Rideable) {
+                riders = ((Rideable) body).getSeat().getPassengers();
             }
             else riders = body.getPivot().getPassengers();
 
@@ -106,11 +79,12 @@ public class ArtilleryPart extends Component
             ItemStack holding = human.getItemInMainHand();
 
             org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
+            org.bukkit.inventory.ItemStack pointer = ArtilleryItemHelper.getStick();
 
                 //if they punch the thing with a stick, fire the cannon instead.
-                Material mat = bukkitStack.getType();
 
-                if (mat != FIRE) {
+
+                if (!(pointer.isSimilar(bukkitStack))) {
                     return damageRaw(source, damage);
                 }
 
@@ -166,30 +140,35 @@ public class ArtilleryPart extends Component
 
     public void seat(EntityHuman human) {
 
-        ArtilleryPart seat = body.getRotatingSeat();
+        if (!(body instanceof Rideable rideable)) {
+            return;
+        }
+
+        Component seat = rideable.getSeat();
         Player bukkit = (CraftPlayer)human.getBukkitEntity();
 
         if (seat == null) {
-            bukkit.sendMessage(ChatColor.RED+"No valid seat found!");
+            bukkit.sendMessage(ChatColor.RED+"[!] No valid seat found!");
             return;
         }
 
         if (seat.getPassengers().size() > 0) {
-            bukkit.sendMessage(ChatColor.RED+"Someone else is using this!");
+            bukkit.sendMessage(ChatColor.RED+"[!] Someone else is using this!");
             return;
         }
 
         if (body instanceof AutoTracking tracking) {
             if (tracking.isAiming()) {
-              bukkit.sendMessage(ChatColor.RED+"You cannot operate this artillery while it's auto-tracking!");
+              bukkit.sendMessage(ChatColor.RED+"[!] You cannot use this while it's auto-tracking!");
                 return;
             }
         }
 
-        bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName()+" Artillery.");
+        bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName()+"");
         bukkit.playSound(bukkit.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,1,1);
 
-        body.setHasRider(true);
+        ((Rideable) body).setHasRider(true);
+        ((Rideable) body).updateOnInteraction();
         human.startRiding(seat);
 
         new BukkitRunnable(){
@@ -199,16 +178,16 @@ public class ArtilleryPart extends Component
 
                 if (body.isInvalid()) {
                     human.stopRiding();
-                    body.setHasRider(false);
+                    rideable.setHasRider(false);
                     cancel();
                 }
 
                 Entity vehicle = human.getVehicle();
                 if (vehicle!= null && vehicle.equals(seat)) {
-                    body.pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+                    body.rideTick(human);
                 }
                 else {
-                    body.setHasRider(false);
+                    rideable.setHasRider(false);
                     cancel();
                 }
             }
@@ -241,19 +220,20 @@ public class ArtilleryPart extends Component
                 return EnumInteractionResult.b;
             } else {
 
-                    handleInteraction(entityhuman, itemstack);
-                    ArtilleryPart seat = body.getRotatingSeat();
-                    if (seat == null) {
-                        return EnumInteractionResult.b;
-                    }
-                    else {
-                        List<Entity> pass = seat.getPassengers();
-                        if (pass.isEmpty())
-                            return EnumInteractionResult.b;
+                handleInteraction(entityhuman, itemstack);
+                if (!(body instanceof Rideable)) {
+                    return EnumInteractionResult.b;
+                }
 
-                        if (pass.get(0).equals(entityhuman))
-                            return EnumInteractionResult.d;
-                    }
+                Component seat = ((Rideable) body).getSeat();
+
+                List<Entity> pass = seat.getPassengers();
+                if (pass.isEmpty())
+                    return EnumInteractionResult.b;
+
+                if (pass.get(0).equals(entityhuman))
+                    return EnumInteractionResult.d;
+
             }
         } else {
             return EnumInteractionResult.d;
@@ -265,13 +245,25 @@ public class ArtilleryPart extends Component
 
     protected void handleInteraction(EntityHuman human, ItemStack stack) {
 
-        if (stack == null) {
-            seat(human);
-            return;
+        Artillery arty = getBody();
+
+
+        //basically if they are riding then don't try to seat them again
+        if (arty instanceof Rideable ride) {
+            Component seat = ride.getSeat();
+            List<Entity> riders = seat.getPassengers();
+
+            if (!riders.isEmpty() && riders.get(0).equals(human)) {
+
+                if (arty.canFire()) {
+                    arty.fire((Player)human.getBukkitEntity());
+                    return;
+                }
+            }
         }
 
         org.bukkit.inventory.ItemStack bukkit = CraftItemStack.asBukkitCopy(stack);
-        if (bukkit.getType() == Material.AIR || bukkit.getItemMeta() == null) {
+        if ( bukkit.getType() == Material.AIR || bukkit.getItemMeta() == null) {
             seat(human);
         }
     }

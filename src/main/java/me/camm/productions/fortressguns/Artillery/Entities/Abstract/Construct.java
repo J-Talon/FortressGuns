@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import org.bukkit.Chunk;
 
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -27,8 +28,6 @@ public abstract class Construct {
 
    public abstract void unload(boolean drop, boolean explode);
    public abstract boolean isInvalid();
-
-
 
 
 
@@ -130,5 +129,15 @@ public abstract class Construct {
         double x = -Math.sin(aim.getY());
         return new Vector(x,y,z);
 
+    }
+
+
+    //only for when the up direction is <0,1,0>
+    //whhiiiiich should be true generally here
+    public static EulerAngle vecToEuler(Vector vec) {
+        Vector vec2 = vec.clone().normalize();
+        double y = -Math.atan2(vec2.getX(), vec2.getZ());
+        double x = -Math.asin(vec2.getY());
+        return new EulerAngle(x, y, 0);
     }
 }

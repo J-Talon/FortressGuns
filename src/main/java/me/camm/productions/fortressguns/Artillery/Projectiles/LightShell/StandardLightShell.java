@@ -2,23 +2,17 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import net.minecraft.core.BlockPosition;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.util.Vector;
+
 
 public class StandardLightShell extends LightShell {
+
+    private static float hitDamage = 5;
 
 
     public StandardLightShell(World world, double x, double y, double z, EntityHuman human, Artillery source) {
@@ -42,10 +36,17 @@ public class StandardLightShell extends LightShell {
             hitEntity.setMot(motion);
             hitEntity.C = true;
         }
+        this.die();
     }
 
+
+    public static void setHitDamage(float hitDamage) {
+        StandardLightShell.hitDamage = hitDamage;
+    }
+
+
     @Override
-    public float getDamageStrength() {
-        return 10;
+    public float getHitDamage() {
+        return hitDamage;
     }
 }

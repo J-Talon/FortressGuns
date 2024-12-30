@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema;
+package me.camm.productions.fortressguns.Util.DataLoading.Schema;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.LightFlak;
@@ -8,10 +8,13 @@ import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorLigh
 public class ConfigLightFlak implements ConfigObject {
 
     private double health;
-    private int magsize;
-    private double jampercent;
+    private int magSize;
+    private double jamPercent;
     private double overheat;
     private long cooldown;
+
+    private long inactiveHeatTicks;
+    private double heatDissipationRate;
 
     public double getHealth() {
         return health;
@@ -21,20 +24,20 @@ public class ConfigLightFlak implements ConfigObject {
         this.health = health;
     }
 
-    public int getMagsize() {
-        return magsize;
+    public int getMagSize() {
+        return magSize;
     }
 
-    public void setMagsize(int magsize) {
-        this.magsize = magsize;
+    public void setMagSize(int magSize) {
+        this.magSize = magSize;
     }
 
-    public double getJampercent() {
-        return jampercent;
+    public double getJamPercent() {
+        return jamPercent;
     }
 
-    public void setJampercent(double jampercent) {
-        this.jampercent = jampercent;
+    public void setJamPercent(double jamPercent) {
+        this.jamPercent = jamPercent;
     }
 
     public double getOverheat() {
@@ -53,16 +56,32 @@ public class ConfigLightFlak implements ConfigObject {
         this.cooldown = cooldown;
     }
 
+    public long getInactiveHeatTicks() {
+        return inactiveHeatTicks;
+    }
+
+    public void setInactiveHeatTicks(long inactiveHeatTicks) {
+        this.inactiveHeatTicks = inactiveHeatTicks;
+    }
+
+    public double getHeatDissipationRate() {
+        return heatDissipationRate;
+    }
+
+    public void setHeatDissipationRate(double heatDissipationRate) {
+        this.heatDissipationRate = heatDissipationRate;
+    }
+
     @Override
     public boolean apply() {
         boolean res = new ValidatorLightFlak().validate(this);
         if (!res)
             return false;
 
-        LightFlak.setMagSize(magsize);
+        LightFlak.setMagSize(magSize);
         LightFlak.setCooldown(cooldown);
         LightFlak.setOverheat(overheat);
-        LightFlak.setJamPercent(jampercent);
+        LightFlak.setJamPercent(jamPercent);
         LightFlak.setMaxHealth(health);
         return true;
 

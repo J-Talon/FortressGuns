@@ -28,18 +28,25 @@ cooldown = 5000
 #Light flak
 [lightFlak]
 health = 15
-cooldown = 1000
+cooldown = 500
 
 #ammo drum size of the light flak before needing reload
 #set to 0 to allow arbitrary length belt feeding
-magsize = 40
+magSize = 40
 
 #The percent chance for any one shot to jam the gun. float value, 0 to 1.
-jampercent = 0
+jamPercent = 0
 
-#the amount of heat which should be incurred if the gun is fired continuously.
-#float value, 0-100, where 100 is max heat. If the gun is fired beyond max heat it will take damage.
-overheat = 0
+#the amount of heat which should be incurred per shot.
+#float value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
+overheat = 1
+
+
+#the rate at which the gun cools down. [0-100]
+heatDissipationRate = 1
+
+#The amount of time in ticks after shooting to wait before the gun starts cooling down
+inactiveHeatTicks = 2000
 #==============================
 #Heavy machine gun
 
@@ -48,19 +55,26 @@ health = 15
 
 #ammo drum size of the machine gun before needing reload.
 #set to 0 to allow arbitrary length belt feeding
-magsize = 100
+magSize = 100
 
-#The percent chance for any one shot to jam the gun. float value, 0 to 1.
-jampercent = 0
+#The percent chance for any one shot to jam the gun. float value, [0 - 1]
+jamPercent = 0
 
-#the amount of heat which should be incurred if the gun is fired continuously.
-#float value, 0-100, where 100 is max heat. If the gun is fired beyond max heat it will take damage.
-overheat = 0
+#the amount of heat which should be incurred per shot.
+#float value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
+overheat = 0.8
+
+#the rate at which the gun cools down. [0-100]
+heatDissipationRate = 1
+
+#The amount of time in ticks after shooting to wait before the gun starts cooling down
+inactiveHeatTicks = 2000
+
 
 #==============================
 #Missile launcher
 [missileLauncher]
-health = 100
+health = 35
 cooldown = 10000
 missiles = 6
 
@@ -90,20 +104,33 @@ cooldown = 500
 
 [general]
 #Explosion power of the ammo (How big and how much damage the shell should do)
+#Because of vanilla limitations with particles, explosion power above the recommended may result in
+#custom explosions looking undersized
+
+#recommended power: 4
 heavyHighExplosive = 4
 heavyFlak = 4
 missile = 4
+standard = 4
 #light flak always explodes with an explosion power of 1
+#same with CRAM
 
 # If a shell hits the target directly, how much damage the target should receive
 # this damage is applied before explosion damage if the shell explodes
 # missiles do no contact damage
 heavyHighExplosiveDamage = 10
 heavyFlakDamage = 10
+standardDamage = 10
 
 lightStandardDamage = 5
 lightFlakDamage = 5
+cramDamage = 10
+railgunDamage = 150
 
+
+#Whether the explosions from the artillery should be
+#vanilla explosions which call Spigot/Bukkit/Paper API events
+useVanillaExplosions = false
 
 #Whether artillery destroys blocks
 destructiveArtillery = true
@@ -111,8 +138,8 @@ destructiveArtillery = true
 #whether artillery need to reload
 requireReloading = false
 
-#difficulty to dodge missiles. From 1-10. 1 = easiest
-missileDifficulty = 10
+#difficulty to dodge missiles. Decimal value from [0-100]
+missileDifficulty = 100
 
 #whether flares should be enabled to help players survive barrages of missiles
 enableFlares = true

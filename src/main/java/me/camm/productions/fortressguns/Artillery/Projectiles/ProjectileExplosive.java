@@ -1,23 +1,17 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles;
 
+import me.camm.productions.fortressguns.Util.Explosions.ShellExplosion;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.GameRule;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.jetbrains.annotations.Nullable;
 
 public interface ProjectileExplosive {
 
     public void explode(@Nullable Vec3D hit);
 
-    default void postExplosion(EntityExplodeEvent event) {
-        org.bukkit.World world = event.getEntity().getWorld();
+    default void modifyExplosion(ShellExplosion explosion) {
 
-        boolean rule = Boolean.TRUE.equals(world.getGameRuleValue(GameRule.MOB_GRIEFING));
-        //change this to config later
-        if (!rule) {
-            event.blockList().clear();
-        }
     }
 
+    abstract float getExplosionPower();
 
 }

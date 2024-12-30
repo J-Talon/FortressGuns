@@ -62,11 +62,9 @@ public class ChunkLoader implements Listener
         if (!map.containsKey(name))
             return;
 
-        Set<Construct> set = map.get(name);
-
+        Set<Construct> set = new HashSet<>(map.get(name));
 
         for (Construct next : set) {
-
             Set<Chunk> loaders = next.getOccupiedChunks();
             boolean loaded = loaders.stream().allMatch(Chunk::isLoaded);
             if (next.isInvalid()) {
@@ -78,6 +76,7 @@ public class ChunkLoader implements Listener
                 next.spawn();
                 next.setChunkLoaded(true);
             }
+
         }
     }
 

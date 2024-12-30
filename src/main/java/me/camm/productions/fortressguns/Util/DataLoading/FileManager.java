@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConstructSchema.ConfigObject;
+import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConfigGeneral;
+import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConfigObject;
 import org.bukkit.plugin.Plugin;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
@@ -26,9 +27,10 @@ public class FileManager {
 
     enum Resource {
 
+        ///we're not gonna do skins cause I'm planning on
+        //doing optional resource pack models
         CONFIG("ArtilleryConfig.toml"),
-        SAVES("SavedArtillery.toml"),
-        SKINS("Skins.txt");
+        SAVES("SavedArtillery.toml");
         private Resource(String file) {
             this.file = file;
         }
@@ -121,6 +123,24 @@ public class FileManager {
                 catch (JsonProcessingException | IllegalArgumentException e) {
                     logger.warning("Failed to load "+ type.getId() +" due to: "+e.getMessage() +" Using defaults.");
                 }
+            }
+
+
+
+            try {
+                String genId = "general";
+                Class<? extends ConfigObject> genClass = ConfigGeneral.class;
+                mapper.registerSubtypes(new NamedType(genClass, genId));
+                ConfigObject genCo = mapper.treeToValue(node.get(genId),genClass);
+
+                if (!genCo.apply()) {
+                    throw new IllegalArgumentException("Invalid general config value");
+                }
+
+                logger.info("Loaded general options");
+              }
+            catch (JsonProcessingException e) {
+                logger.warning("Failed to load general options. Using defaults.");
             }
 
 

@@ -17,11 +17,9 @@ import org.jetbrains.annotations.NotNull;
 public class HeavyFlak extends FlakArtillery implements AutoTracking {
 
     private static final int SMALL_THRESH = 3;
-    private static int maxHealth;
+    private static double maxHealth;
     private static long fireCooldown;
 
-    //length of body before starting the barrel
-   // private static final int BODY_LENGTH = 3;
 
     public HeavyFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world,loader,aim);
@@ -37,7 +35,7 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking {
         fireCooldown = 5000;
     }
 
-    public static void setMaxHealth(int health) {
+    public static void setMaxHealth(double health) {
         maxHealth = health;
     }
 

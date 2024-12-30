@@ -18,7 +18,7 @@ public interface ArtilleryProjectile {
 
 
 
-     public abstract float getDamageStrength();
+     public abstract float getHitDamage();
 
      default Vec3D stepBack(MovingObjectPosition pos, Entity e) {
           final Vec3D vec3d = pos.getPos().a(e.locX(), e.locY(), e.locZ());
