@@ -7,11 +7,12 @@ import org.jetbrains.annotations.Nullable;
 public enum AmmoItem {
 
     STANDARD_HEAVY(Material.LEVER, ChatColor.GRAY+"Standard Shell"),
-    EXPLOSIVE_HEAVY(Material.LEVER, ChatColor.GRAY+"High Explosive"),
-    FLAK_HEAVY(Material.LEVER, ChatColor.GRAY+"Flak Heavy"),
-    STANDARD_LIGHT(Material.RAIL,ChatColor.GRAY+"Standard Light"),
-    FLAK_LIGHT(Material.RAIL, ChatColor.GRAY+"Flak Light"),
-    CRAM(Material.RAIL, ChatColor.GRAY+"CRAM");
+    EXPLOSIVE_HEAVY(Material.LEVER, ChatColor.GRAY+"High Explosive Shell"),
+    FLAK_HEAVY(Material.LEVER, ChatColor.GRAY+"Flak Shell"),
+    STANDARD_LIGHT(Material.RAIL,ChatColor.GRAY+"Heavy Caliber Rounds"),
+    FLAK_LIGHT(Material.RAIL, ChatColor.GRAY+"Light Flak Rounds"),
+    MISSILE(Material.LEVER,ChatColor.GRAY + "Rocket"),
+    CRAM(Material.RAIL, ChatColor.GRAY+"CRAM Explosive Rounds");
 
 
     private AmmoItem(Material mat, String name) {

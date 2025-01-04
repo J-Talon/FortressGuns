@@ -3,10 +3,9 @@ package me.camm.productions.fortressguns.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
-import me.camm.productions.fortressguns.Inventory.BulkLoadingInventory;
-import me.camm.productions.fortressguns.Inventory.PrecisionMenuInventory;
-import me.camm.productions.fortressguns.Inventory.StandardLoadingInventory;
+import me.camm.productions.fortressguns.Inventory.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,16 +20,16 @@ public abstract class InventoryGroup {
 
     private final static Map<Class<? extends ConstructInventory>, String> registeredInventories = new HashMap<>();
 
-    public static void register(InventoryName name) {
+    static {
+        for (InventoryId name: InventoryId.values()) {
+            register(name);
+        }
+    }
+
+    public static void register(InventoryId name) {
         if (registeredInventories.containsValue(name.getName()) || registeredInventories.containsKey(name.getInv()))
             throw new IllegalArgumentException("Inventory already registered: "+name.getName());
         registeredInventories.put(name.getInv(), name.getName());
-    }
-
-    static {
-        for (InventoryName name: InventoryName.values()) {
-            register(name);
-        }
     }
 
 
@@ -78,6 +77,8 @@ public abstract class InventoryGroup {
             throw new IllegalStateException("Inventory was not registered before adding to group:"+ cl);
 
         InventoryCategory cat = inv.getTag();
+
+
         if (tags.containsKey(cat))
             throw new IllegalArgumentException("Inventory group already has an inventory for "+cat);
 
@@ -110,6 +111,8 @@ public abstract class InventoryGroup {
         @Override
         protected void init() {
             addInventory(new BulkLoadingInventory((Artillery)owner,this));
+            addInventory(new JamInventory((RapidFire)owner, this));
+            addInventory(new RoughMenuInventory((Artillery)owner, this));
         }
     }
 

@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.A
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.StandHelper;
@@ -211,6 +212,12 @@ public class CRAM extends Artillery implements AutoTracking {
     @Override
     public void setAiming(boolean aiming) {
         this.aiming = aiming;
+    }
+
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.CRAM == item;
     }
 
     @Override

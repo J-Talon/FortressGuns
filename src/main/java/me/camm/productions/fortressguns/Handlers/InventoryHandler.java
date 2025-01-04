@@ -19,7 +19,7 @@ public class InventoryHandler implements Listener
     private static final Map<UUID, ConstructInventory> activeInventories = new HashMap<>();
 
     public static void startInteraction(Player player, ConstructInventory cons) {
-        player.closeInventory();
+     //   player.closeInventory();
         Inventory inv = cons.getInventory();
         activeInventories.put(player.getUniqueId(), cons);
         player.openInventory(inv);
@@ -46,11 +46,12 @@ public class InventoryHandler implements Listener
         UUID id = event.getWhoClicked().getUniqueId();
         InventoryView view = event.getView();
 
-        if (!activeInventories.containsKey(id))
+        if (!activeInventories.containsKey(id)) {
             return true;
+        }
 
         Inventory cons = activeInventories.get(id).getInventory();
-        if (!(view.getTopInventory().equals(cons)) || !(view.getBottomInventory().equals(cons))) {
+        if (!(view.getTopInventory().equals(cons)) && !(view.getBottomInventory().equals(cons))) {
             activeInventories.remove(id);
             return true;
         }
@@ -61,6 +62,11 @@ public class InventoryHandler implements Listener
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         UUID id = event.getPlayer().getUniqueId();
+
+        if (activeInventories.containsKey(id)) {
+            activeInventories.get(id).onInventoryClose();
+        }
+
         activeInventories.remove(id);
         //under any circumstance when an inventory is closed, we should end the interaction
     }

@@ -1,14 +1,13 @@
 package me.camm.productions.fortressguns.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryName;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.Nullable;
 
-public class BulkLoadingInventory extends ConstructInventory {
+public class BulkLoadingInventory extends TransactionInventory {
 
 
     public BulkLoadingInventory(Artillery owner, InventoryGroup group) {
@@ -21,12 +20,38 @@ public class BulkLoadingInventory extends ConstructInventory {
     }
 
     @Override
-    public String getName() {
-        return InventoryName.BULK.toString();
+    protected void onDrag(InventoryDragEvent event, @Nullable Inventory inv) {
+        if (inv == null)
+            return;
+    }
+
+    @Override
+    protected void onDragAcross(InventoryDragEvent event) {
+
     }
 
     @Override
     public void transact(InventoryClickEvent event) {
+
+    }
+
+    @Override
+    protected void onItemDrop(InventoryClickEvent event) {
+
+    }
+
+    @Override
+    protected void onItemMove(InventoryClickEvent event) {
+
+    }
+
+    @Override
+    protected void onItemPickup(InventoryClickEvent event) {
+
+    }
+
+    @Override
+    protected void onItemPlace(InventoryClickEvent event) {
 
     }
 

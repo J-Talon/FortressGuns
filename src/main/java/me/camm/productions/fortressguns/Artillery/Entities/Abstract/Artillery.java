@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.R
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
@@ -375,6 +376,9 @@ public abstract class Artillery extends Construct {
     public abstract ArtilleryType getType();
     public abstract boolean canFire();
     public abstract double getMaxHealth();
+
+    public abstract boolean acceptsAmmo(AmmoItem item);
+
 
     protected void vibrateParticles() {
         ArtilleryCore core = this.getPivot();

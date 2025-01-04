@@ -21,6 +21,7 @@ public abstract class ConstructInventory
           this.owner = owner;
           this.group = group;
           this.gui = Bukkit.createInventory(null, setting.size, setting.title);
+          this.tag = setting;
      }
 
 
@@ -37,19 +38,15 @@ public abstract class ConstructInventory
           return owner;
      }
 
-     public abstract String getName();
-
      public abstract void transact(InventoryDragEvent event);
-
-
-
-
 
      public abstract void transact(InventoryClickEvent event);
 
-
      public abstract void init();
 
+     public void onInventoryClose() {
+
+     }
 
 
 }

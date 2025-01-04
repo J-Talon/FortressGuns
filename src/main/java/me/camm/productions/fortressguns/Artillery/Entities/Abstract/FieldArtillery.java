@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
@@ -138,6 +139,11 @@ public abstract class FieldArtillery extends ArtilleryRideable
     @Override
     public int getMaxAmmo() {
         return 1;
+    }
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.EXPLOSIVE_HEAVY == item || AmmoItem.STANDARD_HEAVY == item;
     }
 
     @Override

@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -177,7 +178,7 @@ public class LightFlak extends RapidFire {
         double z = Math.cos(aim.getY());
         double x = -Math.sin(aim.getY());
 
-        final double INACCURACY = 0.1;
+        final double INACCURACY = 0.05;
         double halfInaccuracy = INACCURACY / 2;
 
         projectileVelocity.setX(x);
@@ -218,6 +219,11 @@ public class LightFlak extends RapidFire {
     @Override
     public int getMaxAmmo() {
         return magSize;
+    }
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.STANDARD_LIGHT == item;
     }
 
     @Override

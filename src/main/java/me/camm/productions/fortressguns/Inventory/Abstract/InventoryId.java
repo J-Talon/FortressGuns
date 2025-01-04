@@ -1,19 +1,19 @@
 package me.camm.productions.fortressguns.Inventory.Abstract;
 
-import me.camm.productions.fortressguns.Inventory.BulkLoadingInventory;
-import me.camm.productions.fortressguns.Inventory.PrecisionMenuInventory;
-import me.camm.productions.fortressguns.Inventory.StandardLoadingInventory;
+import me.camm.productions.fortressguns.Inventory.*;
 
-public enum InventoryName {
+public enum InventoryId {
 
     BULK("bulkLoading", BulkLoadingInventory.class),
     MENU_PRECISE("preciseMenu", PrecisionMenuInventory.class),
+    MENU_ROUGH("roughMenu", RoughMenuInventory.class),
+    JAM("jam", JamInventory.class),
     STANDARD("standardLoading", StandardLoadingInventory.class);
 
     private final String name;
     private final Class<? extends ConstructInventory> inv;
 
-    private InventoryName(String name, Class<? extends ConstructInventory> inv) {
+    private InventoryId(String name, Class<? extends ConstructInventory> inv) {
         this.name = name;
         this.inv = inv;
     }

@@ -6,8 +6,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.world.entity.EntityTypes;
@@ -72,6 +74,11 @@ public class MissileLauncher extends ArtilleryRideable {
         this.target = null;
         rockets = maxRockets;
         lastFireTime = System.currentTimeMillis();
+    }
+
+    @Override
+    protected void initInventories() {
+        interactionInv = new InventoryGroup.StandardGroup(this);
     }
 
     public static void setMaxRockets(int maxRockets) {
@@ -376,6 +383,11 @@ public class MissileLauncher extends ArtilleryRideable {
         return maxRockets;
     }
 
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.MISSILE == item;
+    }
 
     @Override
     public ArtilleryType getType() {

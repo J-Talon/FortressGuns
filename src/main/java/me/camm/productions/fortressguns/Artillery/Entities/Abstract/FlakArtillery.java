@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
@@ -147,6 +148,11 @@ This method is called in a loop. You can think of it as being called many times 
         }.runTaskTimer(FortressGuns.getInstance(), 3, recoilTime);
     }
 
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.FLAK_HEAVY == item;
+    }
 
     @Override
     public void rideTick(EntityHuman human) {

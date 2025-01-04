@@ -6,7 +6,7 @@
 
     <groupId>me.camm.productions</groupId>
     <artifactId>FortressGuns</artifactId>
-    <version>BETA-0.6</version>
+    <version>BETA-0.8</version>
     <packaging>jar</packaging>
 
     <name>FortressGuns</name>

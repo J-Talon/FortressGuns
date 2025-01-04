@@ -82,6 +82,7 @@ public class ConfigLightFlak implements ConfigObject {
         LightFlak.setCooldown(cooldown);
         LightFlak.setOverheat(overheat);
         LightFlak.setJamPercent(jamPercent);
+        LightFlak.setInactiveHeatTicks(inactiveHeatTicks);
         LightFlak.setMaxHealth(health);
         return true;
 

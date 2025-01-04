@@ -60,10 +60,6 @@ public class HeavyArtillery extends FieldArtillery
         return parts;
     }
 
-    public @NotNull Inventory getInventory(){
-        return loadingInventory.getInventory();
-    }
-
 
     @Override
     public ArtilleryType getType() {

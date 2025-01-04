@@ -49,12 +49,6 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking {
         return canFire && System.currentTimeMillis() - lastFireTime >= fireCooldown;
     }
 
-    @NotNull
-    @Override
-    public Inventory getInventory() {
-        return loadingInventory.getInventory();
-    }
-
 
     public void startAiming() {
 

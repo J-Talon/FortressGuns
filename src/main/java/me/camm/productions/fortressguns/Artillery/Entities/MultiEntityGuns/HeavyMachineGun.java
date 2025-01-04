@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
@@ -90,6 +91,10 @@ public class HeavyMachineGun extends RapidFire {
         return magSize;
     }
 
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+       return AmmoItem.STANDARD_LIGHT == item;
+    }
 
     private void fireBurst(){
 

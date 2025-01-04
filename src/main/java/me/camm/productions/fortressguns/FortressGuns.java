@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Handlers.ExplosionHandler;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
@@ -56,6 +57,11 @@ public final class FortressGuns extends JavaPlugin implements Listener {
         for (ArtilleryType type: ArtilleryType.values()) {
             ItemStack created = ArtilleryItemHelper.createArtilleryItem(type);
             inv.addItem(created);
+        }
+
+        for (AmmoItem item: AmmoItem.values()) {
+            ItemStack ammo = ArtilleryItemHelper.createAmmoItem(item, 1);
+            inv.addItem(ammo);
         }
 
         inv.addItem(ArtilleryItemHelper.getStick());

@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import org.bukkit.Location;
@@ -36,6 +37,11 @@ public class LightArtillery extends FieldArtillery
     }
     public static void setMaxHealth(double maxHealth) {
         LightArtillery.maxHealth = maxHealth;
+    }
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.STANDARD_HEAVY == item;
     }
 
     public static void setCooldown(long fireCooldown) {
