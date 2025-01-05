@@ -26,8 +26,8 @@ Made to destroy airborne targets, this gun has a faster swivel speed and program
 this gun cannot aim lower than the horizon line and can only be loaded with flak shells.
 
 ### Missile launcher
-Modelled after a Surface to Air launchers, the main use of this piece is to target fast moving aerial targets such as players using elytra. The missiles use adaptive speed and acceleration to catch these targets, 
-meaning that players cannot outfly these with rockets, and must use evasive maneuvers or flares to survive- But the missiles don't simply fly towards the player; Instead they'll use a variety of angles to try and intercept the target before they run out of fuel.
+Modelled after Surface to Air launchers, the main use of this piece is to target fast moving aerial targets such as players using elytra. The missiles use adaptive speed and acceleration to catch these targets, 
+meaning that targeted players cannot simply outfly these with rockets, and instead must use evasive maneuvers or flares to survive- But the missiles don't simply fly towards the player; Instead they'll use a variety of angles to try and intercept the target before they run out of fuel.
 
 ### Heavy Machine gun
 Technically not an artillery piece, but I thought it would be cool to also model and bring into the game. The heavy machine gun rapidly fires bullets which can deflect projectiles such as other artillery shells and vanilla projectiles like fireballs and TNT. These projectiles account for gravity and air resistance, meaning you'll need to lead your shots in order to hit moving targets which are far away.
