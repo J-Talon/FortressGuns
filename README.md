@@ -36,6 +36,15 @@ Because this gun fires rapidly, it suffers from overheating (configurable) and m
 ### Light Flak
 Similar to the heavy machine gun, but fires bursts of projectiles which explode on impact. The light flak also suffers from overheating issues and jamming issues. 
 
+Content to complete before first release
+---
+- [X] Custom Explosion Configuration
+- [ ] Artillery saving and loading between world saves
+- [ ] Bugfixing and polishing for some specific mechanics
+- [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
+- [ ] Flares
+- [ ] Server commands for admins (?)
+
 Planned Content
 ---
 
