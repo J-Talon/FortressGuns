@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Tuneable;
@@ -10,6 +11,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
@@ -80,48 +83,6 @@ public class InteractionHandler implements Listener
 
     public static Triplet<Integer, Integer,Long> getTime(UUID id) {
         return artSetting.getOrDefault(id,new Triplet<Integer, Integer,Long>((MAX - MIN) / 2,0,System.currentTimeMillis()));
-    }
-
-    public void findTarget(PlayerInteractEvent event) {
-        ItemStack stack = event.getItem();
-        if (stack == null || stack.getItemMeta() == null) {
-            return;
-        }
-
-        if (stack.getType() != Material.SPYGLASS)
-            return;
-
-        if (event.getAction() != Action.LEFT_CLICK_AIR)
-            return;
-
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-
-        Predicate<org.bukkit.entity.Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
-            @Override
-            public boolean test(org.bukkit.entity.Entity entity) {
-                return !(entity.equals(player));
-            }
-        };
-
-        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
-        if (res == null)
-            return;
-
-        org.bukkit.entity.Entity hit = res.getHitEntity();
-        if (hit == null)
-            return;
-
-        updateTarget(player.getUniqueId(), hit);
-
-        player.playSound(player.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
-        player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
-    }
-
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event){
-        findTarget(event);
-        handleArtilleryInteract(event);
     }
 
 
@@ -251,6 +212,87 @@ public class InteractionHandler implements Listener
            }
        }
     }
+
+
+
+
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+
+        ItemStack stack = event.getItem();
+        if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
+            Player player = event.getPlayer();
+
+            org.bukkit.entity.Entity ride = player.getVehicle();
+            if (ride == null || !ride.isValid() || ride.isDead())
+                return;
+
+            Entity nms = ((CraftEntity)ride).getHandle();
+
+
+            if (!(nms instanceof Component)) {
+                return;
+            }
+
+            Construct cons = ((Component) nms).getBody();
+
+            if (!(cons instanceof ArtilleryRideable rideable)) {
+                return;
+            }
+
+            InventoryGroup group = rideable.getInventoryGroup();
+            if (rideable instanceof RapidFire rapid && rapid.isJammed()) {
+                group.openInventory(InventoryCategory.JAM_CLEAR, player);
+            }
+            else {
+                group.openInventory(InventoryCategory.RELOADING, player);
+            }
+            return;
+        }
+
+        findTarget(event);
+        handleArtilleryInteract(event);
+    }
+
+
+
+    public void findTarget(PlayerInteractEvent event) {
+        ItemStack stack = event.getItem();
+        if (stack == null || stack.getItemMeta() == null) {
+            return;
+        }
+
+        if (stack.getType() != Material.SPYGLASS)
+            return;
+
+        if (event.getAction() != Action.LEFT_CLICK_AIR)
+            return;
+
+        Player player = event.getPlayer();
+        World world = player.getWorld();
+
+        Predicate<org.bukkit.entity.Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
+            @Override
+            public boolean test(org.bukkit.entity.Entity entity) {
+                return !(entity.equals(player));
+            }
+        };
+
+        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
+        if (res == null)
+            return;
+
+        org.bukkit.entity.Entity hit = res.getHitEntity();
+        if (hit == null)
+            return;
+
+        updateTarget(player.getUniqueId(), hit);
+
+        player.playSound(player.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
+        player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
+    }
+
 
 
 

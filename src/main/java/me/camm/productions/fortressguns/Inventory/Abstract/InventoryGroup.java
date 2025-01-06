@@ -46,6 +46,11 @@ public abstract class InventoryGroup {
         return inventories.getOrDefault(name, null);
     }
 
+    public void openInventory(InventoryCategory cat, Player player) {
+       ConstructInventory inv = getInventoryByCategory(cat);
+       openInventory(inv, player);
+    }
+
 
     public void openInventory(Player player, String name) {
         ConstructInventory inv = getInventory(name);

@@ -1,8 +1,10 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Explosions.ShellExplosion;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 
 
@@ -49,8 +51,8 @@ public class ExplosiveHeavyShell extends StandardHeavyShell {
     private Vector spewDir = null;
     private Location center = null;
 
-    public ExplosiveHeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
-        super(entitytypes, d0, d1, d2, world, shooter);
+    public ExplosiveHeavyShell(World world, double d0, double d1, double d2, @Nullable EntityPlayer shooter, Artillery source) {
+        super(world, d0, d1, d2, shooter, source);
     }
 
 

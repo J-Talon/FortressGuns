@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectil
 import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
@@ -48,7 +49,7 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
 
 
     //world may be null
-    public LightShell(@Nullable World world, double x, double y, double z, @Nullable EntityHuman human, Artillery source) {
+    public LightShell(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human, Artillery source) {
         super(world,x,y,z);
         gunOperator = human;
         this.source = source;
@@ -127,14 +128,14 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
     protected void a(MovingObjectPosition hit) {
 
 
-        MovingObjectPosition.EnumMovingObjectType movingobjectposition_enummovingobjecttype = hit.getType();
-        if (movingobjectposition_enummovingobjecttype == MovingObjectPosition.EnumMovingObjectType.c) {
+        MovingObjectPosition.EnumMovingObjectType objectType = hit.getType();
+        if (objectType == MovingObjectPosition.EnumMovingObjectType.c) {
             this.a((MovingObjectPositionEntity)hit);
-        } else if (movingobjectposition_enummovingobjecttype == MovingObjectPosition.EnumMovingObjectType.b) {
+        } else if (objectType == MovingObjectPosition.EnumMovingObjectType.b) {
             this.a((MovingObjectPositionBlock)hit);
         }
 
-        if (movingobjectposition_enummovingobjecttype != MovingObjectPosition.EnumMovingObjectType.a) {
+        if (objectType != MovingObjectPosition.EnumMovingObjectType.a) {
             this.a(GameEvent.I, this.getShooter());
         }
 
@@ -157,13 +158,17 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
 
             Vec3D vec = hit.getPos();
             Vec3D mot = getMot().e().d().a(0.7);
+            //0.7 is an arbitrary artistic decision
+            //we're basically normalizing, reversing the vector and multiplying it by 0.7
+            //to determine where we should spawn particles for an effect
+
             vec = vec.e(mot);
-            Location loc = new Location(bukkit, vec.getX(), vec.getY(), vec.getZ());
+            Location effectLoc = new Location(bukkit, vec.getX(), vec.getY(), vec.getZ());
 
             if (!mat.isAir()) {
 
 
-                bukkit.spawnParticle(Particle.BLOCK_CRACK,loc, 30, 0.1, 0.1, 0.1,1, block.getBlockData());
+                bukkit.spawnParticle(Particle.BLOCK_CRACK,effectLoc, 30, 0.1, 0.1, 0.1,1, block.getBlockData());
 
                 net.minecraft.world.level.block.Block nms = CraftMagicNumbers.getBlock(mat);
 
@@ -174,7 +179,7 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
                 }
 
                 Particle.DustOptions options = new Particle.DustOptions(org.bukkit.Color.fromRGB(color),1);
-                bukkit.spawnParticle(Particle.REDSTONE,loc, 30,0.3,0.3,0.3,1,options);
+                bukkit.spawnParticle(Particle.REDSTONE,effectLoc, 17,0.3,0.3,0.3,1,options);
             }
 
             if (mat == Material.TNT) {
@@ -188,11 +193,8 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
                 float hardness = mat.getHardness();
                 if (hardness < Material.DIRT.getHardness() && hardness >= 0) {
                     block.breakNaturally();
-                    getWorld().getWorld().playSound(loc,block.getBlockData().getSoundGroup().getBreakSound(), SoundCategory.BLOCKS,1,1);
                 }
-                else {
-                    getWorld().getWorld().playSound(loc,block.getBlockData().getSoundGroup().getHitSound(), SoundCategory.BLOCKS,1,1);
-                }
+                bukkit.playSound(effectLoc,block.getBlockData().getSoundGroup().getHitSound(), SoundCategory.BLOCKS,1,0);
             }
         }
 
@@ -200,6 +202,8 @@ public abstract class LightShell extends EntitySnowball implements ArtilleryProj
     }
 
 
+    //This was code in the superclass which basically showed snowball particles
+    //we don't want snowball particles so this goes blank
     @Override
     public void a(byte var0) {};
 

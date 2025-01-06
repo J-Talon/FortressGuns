@@ -5,18 +5,19 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -155,8 +156,12 @@ public class MissileLauncher extends ArtilleryRideable {
 
         new BukkitRunnable() {
             public void run() {
-                SimpleMissile missile = new SimpleMissile(EntityTypes.d, spawn.getX(), spawn.getY(), spawn.getZ(), nmsWorld, shooter,construct);
+                EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
+
+
+                SimpleMissile missile = new SimpleMissile(nmsWorld, spawn.getX(), spawn.getY(), spawn.getZ(), shooterNMS, construct);
                 missile.setTarget(target);
+                setAmmo(Math.max(0, getAmmo()-1));
                 setTarget(null);
 
 
@@ -395,22 +400,12 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
 
-    //not done
     @Override
     public boolean canFire() {
-        if (rockets > 0) {
-            return true;
-        }
-        else {
 
-            long currentTime = System.currentTimeMillis();
-            if (currentTime >= lastFireTime + cooldown) {
-                lastFireTime = currentTime;
-                rockets = maxRockets;
-                return true;
-            }
-        }
-        return false;
+        if (rockets > 0 || (!requiresReloading()))
+            return true;
+        return System.currentTimeMillis() >= (lastFireTime + cooldown);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
@@ -34,15 +35,17 @@ import javax.annotation.Nullable;
 
 public abstract class HeavyShell extends EntityArrow implements ArtilleryProjectile, ProjectileExplosive {
     protected EntityPlayer shooter;
-    org.bukkit.World bukkitWorld;
+    protected org.bukkit.World bukkitWorld;
+    protected Artillery source;
 
     private static final ItemStack stack = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(Material.IRON_NUGGET));
 
-    public HeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world, @Nullable Player shooter) {
-        super(entitytypes, d0, d1, d2, world);
+    public HeavyShell(World world, double locX, double locY, double locZ, @Nullable EntityPlayer shooter, Artillery source) {
+        super(EntityTypes.d, locX, locY, locZ, world);
 
+        this.source = source;
         if (shooter != null) {
-            this.shooter = ((CraftPlayer) shooter).getHandle();
+            this.shooter = shooter;
             setShooter(this.shooter);
         }
 

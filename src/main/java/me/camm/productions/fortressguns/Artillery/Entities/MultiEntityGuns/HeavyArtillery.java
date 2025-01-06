@@ -49,7 +49,7 @@ public class HeavyArtillery extends FieldArtillery
     ///
     @Override
     public synchronized boolean canFire(){
-        return canFire && System.currentTimeMillis() - lastFireTime >= cooldown;
+        return (getAmmo() > 0 || !requiresReloading()) && canFire && System.currentTimeMillis() - lastFireTime >= cooldown;
     }
 
     @Override

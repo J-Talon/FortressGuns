@@ -1,11 +1,10 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.projectile.EntityArrow;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -17,8 +16,8 @@ public class StandardHeavyShell extends HeavyShell {
     private static float explosionPower = 4;
 
 
-    public StandardHeavyShell(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter) {
-        super(entitytypes, x, y, z, world, shooter);
+    public StandardHeavyShell(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+        super(world, x, y, z, shooter, source);
     }
 
 

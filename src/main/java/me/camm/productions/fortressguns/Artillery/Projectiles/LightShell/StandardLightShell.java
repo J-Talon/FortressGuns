@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
@@ -15,7 +16,7 @@ public class StandardLightShell extends LightShell {
     private static float hitDamage = 5;
 
 
-    public StandardLightShell(World world, double x, double y, double z, EntityHuman human, Artillery source) {
+    public StandardLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
         super(world, x, y, z, human, source);
     }
 

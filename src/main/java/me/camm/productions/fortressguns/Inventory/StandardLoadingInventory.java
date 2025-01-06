@@ -9,9 +9,10 @@ import net.minecraft.util.Tuple;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Item;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -20,28 +21,36 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 
 public class StandardLoadingInventory extends TransactionInventory {
 
-    static final ItemStack START = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-    static final ItemStack STOP = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+    static final ItemStack LOAD = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+    static final ItemStack BLOCK = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
     static final ItemStack STICK = new ItemStack(Material.STICK);
+
+
+    private ItemStack loading;
+
 
 
 
     static {
 
-        ItemMeta dest = START.getItemMeta();
-        ItemMeta placeholder = STOP.getItemMeta();
+        ItemMeta dest = LOAD.getItemMeta();
+        ItemMeta placeholder = BLOCK.getItemMeta();
         ItemMeta ramRod = STICK.getItemMeta();
 
-            dest.setDisplayName(ChatColor.GREEN + "Load");
+            dest.setDisplayName(ChatColor.GREEN + "Left click: Load | Right click: Unload");
             placeholder.setDisplayName(ChatColor.GRAY + "");
             ramRod.setDisplayName(ChatColor.WHITE + "Ram rod");
 
-            START.setItemMeta(dest);
-            STOP.setItemMeta(placeholder);
+
+            LOAD.setItemMeta(dest);
+            BLOCK.setItemMeta(placeholder);
             STICK.setItemMeta(ramRod);
+
     }
 
     private boolean isLoading;
@@ -51,23 +60,17 @@ public class StandardLoadingInventory extends TransactionInventory {
         init();
     }
 
-    @Override
-    public void transact(InventoryDragEvent event) {
-        event.getType();
-        event.setCancelled(true);
-    }
-
-
 
     @Override
     public void init() {
         isLoading = false;
         gui.clear();
         for (int slot = 1; slot < gui.getSize()-1; slot ++) {
-            gui.setItem(slot,STOP);
+            gui.setItem(slot, BLOCK);
         }
 
-        gui.setItem(gui.getSize()-1,START);
+        gui.setItem(gui.getSize()-1, LOAD);
+        loading = null;
     }
 
 
@@ -75,6 +78,10 @@ public class StandardLoadingInventory extends TransactionInventory {
     //oldCursor() --> cursor before dragging
     @Override
     protected void onDrag(InventoryDragEvent event, @Nullable Inventory inv) {
+
+        System.out.println("on drag");
+        System.out.println(inv);
+
         if (gui.equals(inv)) {
             event.setCancelled(true);
         }
@@ -94,7 +101,7 @@ public class StandardLoadingInventory extends TransactionInventory {
         Inventory currentInv = event.getClickedInventory();
 
         if (gui.equals(currentInv)) {
-            if (START.isSimilar(current) || STOP.isSimilar(current) || STICK.isSimilar(current)) {
+            if (LOAD.isSimilar(current) || BLOCK.isSimilar(current) || STICK.isSimilar(current)) {
                 event.setCancelled(true);
                 return;
             }
@@ -115,7 +122,6 @@ hovering over when you tapped the numpad
     @Override
     protected void onItemMove(InventoryClickEvent event) {
 
-        System.out.println("on move");
         Artillery body = (Artillery)owner;
 
         InventoryView view = event.getView();
@@ -131,7 +137,6 @@ hovering over when you tapped the numpad
         //this means that it's shift click etc
         if (hotbarButton < 0) {
 
-            System.out.println("shift click");
             input = event.getCurrentItem();
             dest = (view.getTopInventory().equals(clicked)) ? view.getBottomInventory(): view.getTopInventory();
 
@@ -239,7 +244,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
         ItemStack current = event.getCurrentItem();
 
 
-        if (START.isSimilar(current) || STOP.isSimilar(current) || STICK.isSimilar(current))
+        if (LOAD.isSimilar(current) || BLOCK.isSimilar(current) || STICK.isSimilar(current))
             event.setCancelled(true);
 
         if (!gui.equals(inv)) {
@@ -258,57 +263,103 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
         event.setCancelled(true);
 
+        if (LOAD.isSimilar(current)) {
+
+            Artillery body = (Artillery) owner;
+            Player player = (Player) event.getWhoClicked();
+
+            if (event.isLeftClick()) {
+                isLoading = true;
 
 
-        if (START.isSimilar(current)) {
-            isLoading = true;
-            Player player = (Player)event.getWhoClicked();
+                new BukkitRunnable() {
+                    int slot = 0;
+                    boolean pushed = false;
+                    AmmoItem type = null;
+
+                    public void run() {
 
 
-            new BukkitRunnable() {
-                int slot = 0;
-                boolean pushed = false;
-                AmmoItem type = null;
-                public void run() {
-
-                    if (!pushed && slot < gui.getSize() - 2) {
-                        ItemStack shell = gui.getItem(slot);
-                        player.playSound(player.getLocation(), Sound.BLOCK_PISTON_EXTEND,0.5f,1);
-
-                        if (type == null) {
-                            type = ArtilleryItemHelper.isAmmoItem(shell);
+                        if (gui.getViewers().isEmpty()) {
+                            isLoading = false;
+                            loading = null;
+                            cancel();
+                            return;
                         }
 
-                        gui.setItem(slot + 1, shell);
-                        gui.setItem(slot, STICK);
+                        if (!pushed && slot < gui.getSize() - 2) {
+                            ItemStack shell = gui.getItem(slot);
+                            player.playSound(player.getLocation(), Sound.BLOCK_PISTON_EXTEND, 0.5f, 1);
 
-                        slot++;
+                            if (type == null) {
+                                type = ArtilleryItemHelper.isAmmoItem(shell);
 
-                        if (slot >= gui.getSize() - 2)
-                            pushed = true;
-                    }
-                    else {
-                        gui.setItem(slot + 1, STOP);
+                                if (type != null)
+                                    loading = shell;
+                            }
 
-                        if (type != null && slot == gui.getSize() - 2) {
-                            ((Artillery) owner).setAmmo(((Artillery) owner).getAmmo() + 1);
-                            player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE,1,2);
+                            ItemStack next = gui.getItem(slot + 1);
+                            if (next == null || BLOCK.isSimilar(next))
+                                gui.setItem(slot + 1, shell);
+
+                            gui.setItem(slot, STICK);
+
+                            slot++;
+
+                            if (slot >= gui.getSize() - 2)
+                                pushed = true;
+                        } else {
+                            gui.setItem(Math.max(slot,0), BLOCK);
+
+                            if (type != null && slot == gui.getSize() - 2) {
+                                body.setAmmo(body.getAmmo() + 1);
+                                body.setLoadedAmmoType(type);
+
+                                player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 2);
+                            } else
+                                player.playSound(player.getLocation(), Sound.BLOCK_PISTON_CONTRACT, 0.5f, 1);
+
+                            slot--;
                         }
-                        else
-                            player.playSound(player.getLocation(), Sound.BLOCK_PISTON_CONTRACT,0.5f,1);
 
-                        slot --;
+                        if (pushed && slot < -1) {
+                            isLoading = false;
+                            gui.setItem(0, new ItemStack(Material.AIR));
+                            loading = null;
+                            cancel();
+                        }
                     }
+                }.runTaskTimer(FortressGuns.getInstance(), 0, 2);
+            }
+            else {
 
-                    gui.setItem(gui.getSize() - 1, START);
-
-                    if (pushed && slot < -1) {
-                        isLoading = false;
-                        gui.setItem(0, new ItemStack(Material.AIR));
-                        cancel();
-                    }
+                int loadedAmount = body.getAmmo();
+                AmmoItem loaded = body.getLoadedAmmoType();
+                if (loadedAmount <= 0 || isLoading) {
+                    return;
                 }
-            }.runTaskTimer(FortressGuns.getInstance(),0,2);
+
+                if (loaded == null) {
+                    return;
+                }
+
+                ItemStack ammo = ArtilleryItemHelper.createAmmoItem(loaded,1);
+                ItemStack residing = gui.getItem(0);
+
+                if (residing == null || residing.getType().isAir()) {
+                    body.setAmmo(loadedAmount - 1);
+                    gui.setItem(0, ammo);
+                    return;
+                }
+
+                if (!ammo.isSimilar(residing)) {
+                    return;
+                }
+
+                residing.setAmount(residing.getAmount() + 1);
+                gui.setItem(0, residing);
+                player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 2);
+            }
         }
     }
 
@@ -322,7 +373,6 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
     @Override
     protected void onItemPlace(InventoryClickEvent event) {
 
-        System.out.println("on place");
         Inventory inv = event.getClickedInventory();
         if (event.getView().getBottomInventory().equals(inv) || inv == null) {
             return;
@@ -361,10 +411,29 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
     }
 
 
-
-
     @Override
-    public void onInventoryClose() {
-        isLoading = false;
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (isLoading) {
+            Player player = (Player)event.getPlayer();
+
+            if (loading == null) {
+                init();
+                return;
+            }
+
+            Map<Integer, ItemStack> remainder = player.getInventory().addItem(loading);
+
+            if (remainder.isEmpty()) {
+                init();
+                return;
+            }
+
+            World world = player.getWorld();
+            for (ItemStack item: remainder.values()) {
+                world.dropItem(player.getLocation(),item);
+            }
+
+            init();
+        }
     }
 }

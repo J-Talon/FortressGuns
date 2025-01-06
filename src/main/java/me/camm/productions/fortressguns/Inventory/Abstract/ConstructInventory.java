@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Inventory.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -44,7 +45,7 @@ public abstract class ConstructInventory
 
      public abstract void init();
 
-     public void onInventoryClose() {
+     public void onInventoryClose(InventoryCloseEvent event) {
 
      }
 

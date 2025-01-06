@@ -1,10 +1,10 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Util.Explosions.ExplosionHelper;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.level.World;
 
 import net.minecraft.world.phys.Vec3D;
@@ -23,8 +23,8 @@ public class FlakHeavyShell extends HeavyShell {
     int flightTime;
     double explodeTime;
 
-    public FlakHeavyShell(EntityTypes<? extends EntityArrow> type, double d0, double d1, double d2, World world, @Nullable Player shooter) {
-        super(type, d0, d1, d2, world,shooter);
+    public FlakHeavyShell(World world, double d0, double d1, double d2, @Nullable EntityPlayer shooter, Artillery source) {
+        super(world, d0, d1, d2, shooter, source);
         flightTime = 0;
         explodeTime = 1;
     }

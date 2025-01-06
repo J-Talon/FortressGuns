@@ -1,21 +1,19 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles;
+package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.projectile.EntityArrow;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
-import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,14 +21,11 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Random;
+public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile, ProjectileExplosive {
 
-public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, ProjectileExplosive {
 
-    private final Player shooter;
     private Entity target;
     private final org.bukkit.World bukkitWorld;
-
     private int fueledFlightAge;
     private Vec3D direction;
 
@@ -48,8 +43,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     private final Vec3D initialVelocity;
     private boolean hadTarget;
 
-    private static final Random rand;
-    private static final ItemStack item;
+
     private final double sineOffset;
 
     private float initialXRot, initialYRot;
@@ -71,42 +65,28 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
         ItemMeta meta = bukkitVer.getItemMeta();
         meta.setDisplayName("Rocket");
         bukkitVer.setItemMeta(meta);
-        item = CraftItemStack.asNMSCopy(bukkitVer);
-        rand = new Random();
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
         explosionPower = 4;
         difficulty = 5;
     }
 
-    public SimpleMissile(EntityTypes<? extends EntityArrow> entitytypes, double x, double y, double z, World world, @Nullable Player shooter, Artillery source) {
-        super(entitytypes, x, y, z, world);
-        this.shooter = shooter;
+    public SimpleMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+        super(world, x, y, z, shooter, source);
         fueledFlightAge = 0;
-        bukkitWorld = world.getWorld();
         direction = null;
         readyTime = 0;
         Vector initial = Construct.eulerToVec(source.getAim());
         initialVelocity = new Vec3D(initial.getX(),initial.getY(),initial.getZ());
         hadTarget = false;
+        bukkitWorld = world.getWorld();
 
         sineOffset = rand.nextDouble() * Math.PI * 2; // 2PI = period of sine function
         initialYRot = initialXRot = Float.NaN;
         notifier = MissileLockNotifier.get(FortressGuns.getInstance());
-
-
         //velocity is in blocks/tick
 
     }
 
-
-    public void setTarget(Entity target) {
-        this.target = target;
-        if (target instanceof Player) {
-            notifier.addNotification(target.getUniqueId());
-        }
-
-        hadTarget = true;
-    }
 
 
     public static void setExplosionPower(float explosionPower) {
@@ -155,8 +135,9 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
             world.createExplosion(explosionLoc, getExplosionPower());
         }
         else {
+            Player bukkit = shooter.getBukkitEntity();
             explosionLoc = new Location(world, hit.getX(), hit.getY(), hit.getZ());
-            world.createExplosion(explosionLoc, getExplosionPower(), false, true, shooter);
+            world.createExplosion(explosionLoc, getExplosionPower(), false, true, bukkit);
         }
         world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
 
@@ -165,14 +146,7 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
 
 
 
-    @Override
-    public void a(MovingObjectPosition pos) {
-    preHit(pos);
-    }
 
-
-    @Override
-    protected void a(MovingObjectPositionEntity pos) { preHit(pos);}
 
 
     public void playEffects(Location loc) {
@@ -484,10 +458,6 @@ public class SimpleMissile extends EntityArrow implements ArtilleryProjectile, P
     }
 
 
-    @Override
-    protected ItemStack getItemStack() {
-        return item;
-    }
 
 
     public static int getFuelTicks(){

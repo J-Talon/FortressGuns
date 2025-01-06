@@ -3,16 +3,19 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -75,6 +78,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         canFire = false;
 
         final List<Player> vibrateFor = getVibratedPlayers();
+        Artillery source = this;
 
         new BukkitRunnable()
         {
@@ -86,9 +90,18 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
                 if (!shot) {
                     shot = true;
-                    ExplosiveHeavyShell shell = new ExplosiveHeavyShell(EntityTypes.d,muzzle.getX(),muzzle.getY(),muzzle.getZ(),((CraftWorld)world).getHandle(), shooter);
+                    EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
+                    HeavyShell shell = (HeavyShell)createProjectile(((CraftWorld)world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
+
+                    if (shell == null) {
+                        cancel();
+                        return;
+                    }
+
                     shell.setMot(vector);
                     ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
+
+                    setAmmo(Math.max(0, getAmmo() - 1));
                 }
 
 

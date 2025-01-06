@@ -1,14 +1,18 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
+import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -26,7 +30,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
 
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
-    public FlakLightShell(World world, double x, double y, double z, EntityHuman human, Artillery source) {
+    public FlakLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
         super(world,x,y,z, human, source);
     }
 

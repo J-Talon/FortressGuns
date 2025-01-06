@@ -1,7 +1,8 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles;
+package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import net.minecraft.world.phys.MovingObjectPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;

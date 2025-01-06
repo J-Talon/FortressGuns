@@ -14,12 +14,14 @@ import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -98,7 +100,7 @@ This method is called in a loop. You can think of it as being called many times 
         canFire = false;
 
         final List<Player> vibratedFor = getVibratedPlayers();
-
+        Artillery source = this;
 
         new BukkitRunnable()
         {
@@ -110,9 +112,10 @@ This method is called in a loop. You can think of it as being called many times 
 
                 if (!shot) {
                     shot = true;
-
-                        FlakHeavyShell shell = new FlakHeavyShell(EntityTypes.d, muzzle.getX(), muzzle.getY(), muzzle.getZ(), ((CraftWorld) world).getHandle(), shooter);
+                    EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
+                        FlakHeavyShell shell = new FlakHeavyShell(((CraftWorld) world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
                         shell.setMot(vector);
+                        setAmmo(Math.max(0, getAmmo()-1));
 
                         if (target == null && shooter != null) {
                             double time = InteractionHandler.getTime(shooter.getUniqueId()).getA();

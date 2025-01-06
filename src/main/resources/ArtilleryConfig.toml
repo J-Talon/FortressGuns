@@ -136,7 +136,7 @@ useVanillaExplosions = false
 destructiveArtillery = true
 
 #whether artillery need to reload
-requireReloading = false
+requireReloading = true
 
 #difficulty to dodge missiles. Decimal value from [0-100]
 missileDifficulty = 100

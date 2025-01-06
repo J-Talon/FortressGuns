@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Handlers;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;

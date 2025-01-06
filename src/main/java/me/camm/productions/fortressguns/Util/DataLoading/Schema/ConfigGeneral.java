@@ -9,7 +9,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.Standar
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorGeneral;
 import me.camm.productions.fortressguns.Util.Explosions.ExplosionHelper;
 

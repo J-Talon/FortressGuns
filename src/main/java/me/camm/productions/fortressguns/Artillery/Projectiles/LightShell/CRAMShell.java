@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.particles.Particles;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.ProjectileHelper;
 import net.minecraft.world.level.World;
@@ -23,7 +24,7 @@ public class CRAMShell extends LightShell implements ProjectileExplosive {
 
 
 
-    public CRAMShell(@Nullable World world, double x, double y, double z, @Nullable EntityHuman human, Artillery source) {
+    public CRAMShell(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human, Artillery source) {
         super(world, x, y, z, human, source);
     }
 

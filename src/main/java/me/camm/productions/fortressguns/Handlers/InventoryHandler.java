@@ -64,7 +64,7 @@ public class InventoryHandler implements Listener
         UUID id = event.getPlayer().getUniqueId();
 
         if (activeInventories.containsKey(id)) {
-            activeInventories.get(id).onInventoryClose();
+            activeInventories.get(id).onInventoryClose(event);
         }
 
         activeInventories.remove(id);

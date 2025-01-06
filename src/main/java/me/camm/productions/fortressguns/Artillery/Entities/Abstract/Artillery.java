@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.R
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
@@ -45,6 +46,8 @@ public abstract class Artillery extends Construct {
     protected int baseLength;
 
     protected volatile int ammo;
+    protected AmmoItem loadedAmmoType;
+
     protected double vertRotSpeed = 1;
     protected double horRotSpeed = 1;
     protected Plugin plugin;
@@ -154,6 +157,7 @@ public abstract class Artillery extends Construct {
         this.ammo = 0;
         this.vibrationOffsetY = 0;
         lengthChanged = false;
+        loadedAmmoType = null;
 
         initInventories();
     }
@@ -187,6 +191,14 @@ public abstract class Artillery extends Construct {
 
     public synchronized void setAmmo(int ammo) {
     this.ammo = ammo;
+    }
+
+    public AmmoItem getLoadedAmmoType() {
+        return loadedAmmoType;
+    }
+
+    public void setLoadedAmmoType(AmmoItem loadedAmmoType) {
+        this.loadedAmmoType = loadedAmmoType;
     }
 
     public EulerAngle getAim(){
@@ -593,6 +605,21 @@ see: loadPieces()
 
             Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
             occupiedChunks.add(chunk);
+        }
+    }
+
+
+    protected @Nullable ArtilleryProjectile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        AmmoItem item = getLoadedAmmoType();
+        if (item == null)
+            return null;
+        try {
+            Class<? extends ArtilleryProjectile> proj = item.getProjClass();
+            return proj.getConstructor(net.minecraft.world.level.World.class, Double.class, Double.class, Double.class, EntityPlayer.class, Artillery.class)
+                    .newInstance(world, x,y,z,shooter,source);
+        }
+        catch (Exception e) {
+            return null;
         }
     }
 

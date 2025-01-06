@@ -14,10 +14,7 @@ public class BulkLoadingInventory extends TransactionInventory {
         super(owner, InventoryCategory.RELOADING, group);
     }
 
-    @Override
-    public void transact(InventoryDragEvent event) {
 
-    }
 
     @Override
     protected void onDrag(InventoryDragEvent event, @Nullable Inventory inv) {
@@ -27,11 +24,6 @@ public class BulkLoadingInventory extends TransactionInventory {
 
     @Override
     protected void onDragAcross(InventoryDragEvent event) {
-
-    }
-
-    @Override
-    public void transact(InventoryClickEvent event) {
 
     }
 

@@ -101,7 +101,7 @@ public class LightFlak extends RapidFire {
             return;
 
         int delayTicks = 1;
-        final int shots = 5;
+        final int shots = 8;
         canFire = false;
             new BukkitRunnable() {
 
@@ -115,13 +115,13 @@ public class LightFlak extends RapidFire {
                         return;
                     }
 
+                    lastFireTime = System.currentTimeMillis();
                     fireOneShot();
                     setAmmo(Math.max(0,getAmmo()-1));
 
                     fired ++;
                     if (fired >= shots) {
                         canFire = true;
-                        lastFireTime = System.currentTimeMillis();
                         cancel();
                     }
 
@@ -178,15 +178,23 @@ public class LightFlak extends RapidFire {
         double z = Math.cos(aim.getY());
         double x = -Math.sin(aim.getY());
 
-        final double INACCURACY = 0.05;
-        double halfInaccuracy = INACCURACY / 2;
-
         projectileVelocity.setX(x);
         projectileVelocity.setY(y);
         projectileVelocity.setZ(z);
-        projectileVelocity.normalize().multiply(getVectorPower());
-        projectileVelocity.add(new Vector(random.nextDouble() * INACCURACY - halfInaccuracy, random.nextDouble() * INACCURACY - halfInaccuracy, random.nextDouble() * INACCURACY - halfInaccuracy));
+        projectileVelocity.normalize();
 
+        final double INACCURACY = 1;
+        final double INACURACY_FACTOR = 0.3;
+        double halfInaccuracy = INACCURACY / 2;
+
+        Vector inaccuracy = new Vector(random.nextDouble() * INACCURACY - halfInaccuracy, random.nextDouble() * INACCURACY - halfInaccuracy, random.nextDouble() * INACCURACY - halfInaccuracy);
+        if (projectileVelocity.dot(inaccuracy) < 0) {
+            inaccuracy.multiply(-1);
+        }
+
+        inaccuracy.multiply(INACURACY_FACTOR);
+        projectileVelocity.multiply(getVectorPower());
+        projectileVelocity.add(inaccuracy);
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld) world).getHandle();
 
