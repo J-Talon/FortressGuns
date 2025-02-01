@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 
 /**
@@ -15,7 +16,6 @@ public abstract class ConstructInventory
      protected final Inventory gui;
      protected final Construct owner;
      protected InventoryGroup group;
-
      protected InventoryCategory tag;
 
      public ConstructInventory(Construct owner, InventoryCategory setting, InventoryGroup group) {
@@ -46,6 +46,14 @@ public abstract class ConstructInventory
      public abstract void init();
 
      public void onInventoryClose(InventoryCloseEvent event) {
+
+     }
+
+     public void onInventoryOpen(InventoryOpenEvent event) {
+
+     }
+
+     public void updateState() {
 
      }
 

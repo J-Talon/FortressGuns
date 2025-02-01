@@ -14,15 +14,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ArtilleryItemHelper
 {
     private static final String CRATE = "Crate";
     private static final Material CHEST =  Material.CHEST;
+    private static final String VALUE = ChatColor.GOLD+"Value: ";
 
     private static Map<String, Class<? extends Artillery>> artilleryNames;
     private static Map<String, AmmoItem> itemNames;
@@ -102,7 +100,7 @@ public class ArtilleryItemHelper
         return stack;
     }
 
-    public static ItemStack createAmmoItem(AmmoItem item, int value) throws IllegalStateException {
+    public static ItemStack createAmmoItem(AmmoItem item) throws IllegalStateException {
         ItemStack stack = new ItemStack(item.getMat());
         ItemMeta meta = stack.getItemMeta();
 
@@ -110,13 +108,7 @@ public class ArtilleryItemHelper
             throw new IllegalStateException("Stack meta is null!");
 
         meta.setDisplayName(item.getName());
-        List<String> lore = meta.getLore();
-        if (lore == null)
-            lore = new ArrayList<>();
 
-        lore.add(ChatColor.GOLD+"Value: "+value);
-
-        meta.setLore(lore);
         stack.setItemMeta(meta);
         return stack;
     }

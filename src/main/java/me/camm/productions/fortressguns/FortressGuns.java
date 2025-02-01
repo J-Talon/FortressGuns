@@ -60,7 +60,7 @@ public final class FortressGuns extends JavaPlugin implements Listener {
         }
 
         for (AmmoItem item: AmmoItem.values()) {
-            ItemStack ammo = ArtilleryItemHelper.createAmmoItem(item, 1);
+            ItemStack ammo = ArtilleryItemHelper.createAmmoItem(item);
             inv.addItem(ammo);
         }
 

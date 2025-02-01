@@ -25,6 +25,7 @@ public abstract class TransactionInventory extends ConstructInventory {
 
     @Override
     public void transact(InventoryDragEvent event) {
+
         Set<Integer> slots = event.getRawSlots();
 
         if (slots.isEmpty())
@@ -73,7 +74,6 @@ public abstract class TransactionInventory extends ConstructInventory {
     public void transact(InventoryClickEvent event) {
 
         String actionName = event.getAction().toString().toLowerCase();
-        System.out.println(actionName);
 
         if (actionName.contains("drop")) {
             onItemDrop(event);
@@ -103,6 +103,7 @@ public abstract class TransactionInventory extends ConstructInventory {
 
 
 
+
     /*
 return: tuple<A,B> where:
 A is the new residing item
@@ -110,7 +111,7 @@ B is the remainder from the transaction
 
 return null? --> stacks cannot be merged
  */
-    protected @Nullable Tuple<ItemStack, ItemStack> merge(@Nullable ItemStack residing, ItemStack input) {
+    protected @Nullable Tuple<ItemStack, ItemStack> mergeAmmo(@Nullable ItemStack residing, ItemStack input) {
 
         AmmoItem resAmmo = ArtilleryItemHelper.isAmmoItem(residing);
         AmmoItem inputAmmo = ArtilleryItemHelper.isAmmoItem(input);
@@ -156,6 +157,7 @@ return null? --> stacks cannot be merged
 
     /*
     @pre: both are ammo items of the same type, both non null
+    calculates the remaining amount of item left from stacking into the artillery's max amount
      */
     protected int getAdditionDifference(ItemStack residing, ItemStack incoming) {
 
@@ -177,6 +179,7 @@ return null? --> stacks cannot be merged
 
     /*
     @pre residing is null
+    calculates the remaining amount of item left from stacking into the artillery's max amount
      */
     protected int getAdditionDifference(ItemStack incoming) {
         Artillery body = (Artillery) owner;
@@ -210,7 +213,20 @@ return null? --> stacks cannot be merged
     getClickedInventory() --> if you are swapping, then clickedInventory is the inv that your mouse was
     hovering over when you tapped the numpad
      */
-    protected abstract void onItemMove(InventoryClickEvent event);
+    protected void onItemMove(InventoryClickEvent event) {
+
+        if (event.getHotbarButton() < 0 && event.isShiftClick()) {
+            onShiftMove(event);
+        }
+        else {
+            onHotbarItemMove(event);
+        }
+    }
+
+
+    protected abstract void onHotbarItemMove(InventoryClickEvent event);
+    protected abstract void onShiftMove(InventoryClickEvent event);
+
 
 
     /*
@@ -227,6 +243,13 @@ return null? --> stacks cannot be merged
     getCursor() --> item on cursor before the place in
      */
     protected abstract void onItemPlace(InventoryClickEvent event);
+
+
+    /*
+    returns whether this is a static item in the inventory and shouldn't be moved
+    by the player under any circumstances
+     */
+    protected abstract boolean isStaticItem(ItemStack current);
 
 
 

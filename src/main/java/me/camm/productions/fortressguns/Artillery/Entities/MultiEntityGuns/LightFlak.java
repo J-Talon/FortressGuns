@@ -8,6 +8,8 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLig
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.EntityHuman;
@@ -151,7 +153,7 @@ public class LightFlak extends RapidFire {
         Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
         boolean jammed = random.nextDouble() < jamPercent;
 
-        if (jammed) {
+        if (jammed || isJammed()) {
             operator.sendMessage(ChatColor.RED+"Gun is jammed!");
             world.playSound(muzzle, Sound.ITEM_FLINTANDSTEEL_USE,SoundCategory.BLOCKS,1f,0f);
             setJammed(true);
@@ -204,6 +206,10 @@ public class LightFlak extends RapidFire {
 
         shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
         nmsWorld.addEntity(shell);
+
+        ConstructInventory inv = interactionInv.getInventoryByCategory(InventoryCategory.RELOADING);
+        if (inv != null)
+            inv.updateState();
 
 
     }

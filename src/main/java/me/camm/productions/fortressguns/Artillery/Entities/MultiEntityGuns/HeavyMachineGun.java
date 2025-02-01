@@ -171,7 +171,7 @@ public class HeavyMachineGun extends RapidFire {
             return;
 
         boolean jammed = random.nextDouble() < jamPercent;
-        if (jammed) {
+        if (jammed || isJammed()) {
             world.playSound(muzzle, Sound.ITEM_FLINTANDSTEEL_USE,SoundCategory.BLOCKS,1f,0f);
             operator.sendMessage(ChatColor.RED+"Gun is jammed!");
             setJammed(true);

@@ -38,7 +38,10 @@ public class InventoryHandler implements Listener
         Inventory consInv = cons.getInventory();
         if (!inv.equals(consInv)) {
             activeInventories.remove(id);
+            return;
         }
+
+        cons.onInventoryOpen(event);
     }
 
 
