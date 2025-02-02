@@ -161,6 +161,13 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                                 body.setAmmo(body.getAmmo() + 1);
                                 body.setLoadedAmmoType(type);
 
+
+                                InventoryGroup group = body.getInventoryGroup();
+                                ConstructInventory inv = group.getInventoryByCategory(InventoryCategory.MENU);
+
+                                if (inv != null)
+                                    inv.updateState();
+
                                 player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 2);
                             } else
                                 player.playSound(player.getLocation(), Sound.BLOCK_PISTON_CONTRACT, 0.5f, 1);

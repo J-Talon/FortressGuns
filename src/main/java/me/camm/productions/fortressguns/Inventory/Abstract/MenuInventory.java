@@ -88,6 +88,8 @@ public abstract class MenuInventory extends TransactionInventory {
         if (function == null)
             return;
 
+        System.out.println("menu function:"+name);
+
         function.onEvent(event, owner);
     }
 
@@ -133,6 +135,7 @@ public abstract class MenuInventory extends TransactionInventory {
         @Override
         public void onEvent(InventoryClickEvent event, Construct body) {
             ((Artillery)body).remove(true,false);
+            event.getWhoClicked().closeInventory();
         }
     };
 

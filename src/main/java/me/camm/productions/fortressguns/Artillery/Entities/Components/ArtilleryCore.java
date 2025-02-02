@@ -158,43 +158,5 @@ public class ArtilleryCore extends ArtilleryPart {
 
 
 
-    private void openMenu(EntityHuman human) {
 
-        if (human.getVehicle() != null) {
-            return;
-        }
-
-        if (!human.isCrouching())
-            return;
-
-        Player player = (Player)human.getBukkitEntity();
-        ConstructInventory menu;
-        org.bukkit.inventory.ItemStack stack = player.getInventory().getItemInMainHand();
-
-        FIND_INV:
-        {
-            if (body instanceof RapidFire rapid && rapid.isJammed()) {
-                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.JAM_CLEAR);
-                break FIND_INV;
-            }
-
-            if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
-                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
-            } else {
-                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
-            }
-        }
-
-
-        if (menu == null) {
-            FortressGuns.getInstance().getLogger().warning("Inventory instance returned null!");
-            return;
-        }
-
-        body.getInventoryGroup().openInventory(menu, player);
-
-        //the idea here is that if player is holding a reloading item, then it will
-        //open the reloading inventory, else it will open a menu inventory
-
-    }
 }

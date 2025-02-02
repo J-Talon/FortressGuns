@@ -6,6 +6,13 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryC
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.StandardHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
@@ -270,16 +277,27 @@ public abstract class Artillery extends Construct {
     }
 
 
+    public synchronized void setInterpolating(boolean interpolating) {
+        this.interpolating = interpolating;
+    }
+
     public void startPivotInterpolation() {
 
-        if (interpolating)
+        if (interpolating) {
             return;
+        }
 
         interpolating = true;
         new BukkitRunnable() {
             @Override
             public void run() {
+
                 if (isCameraLocked()) {
+                    cancel();
+                    return;
+                }
+
+                if (isInvalid() || !chunkLoaded()) {
                     cancel();
                     return;
                 }
@@ -288,8 +306,41 @@ public abstract class Artillery extends Construct {
                 x = interpolatedAim.getX();
                 y = interpolatedAim.getY();
 
-                if (aim.getX() == x && aim.getY() == y && !lengthChanged) {
-                    interpolating = false;
+                //
+                final double POINT_ONE_RAD = 0.001;   ///0.1 degrees -> rads = ~0.0017
+
+
+                double currX = aim.getX();
+                final double TWO_PI = 2*Math.PI;
+
+                double diffX = Math.abs(x - currX) % TWO_PI;
+                double accX = 1 - Math.abs(x - currX) / TWO_PI;
+
+                double diffY = Math.abs((y - aim.getY())) % TWO_PI;
+                double accY = 1 - Math.abs(y - aim.getY()) % TWO_PI;
+
+                //ty:-1.8536780967314401 | cy: 4.412053917928212 | dy:6.265732014659652
+                //TODO still bugged fix next time
+                //basically some values are causing the runnable to continually run
+                //it's mainly the y values causing trouble
+                //TODO also you gotta make the menu stuff for the light guns
+
+                System.out.println("tx:"+x+" | cx: "+aim.getX() +" | dx:"+diffX);
+                System.out.println("ty:"+y+" | cy: "+aim.getY()+" | dy:"+diffY);
+
+
+
+                if (currX < -1.57 || currX > 1.57) {
+                    setInterpolating(false);
+                    cancel();
+                    return;
+                }
+
+                boolean closeEnough = (diffX < POINT_ONE_RAD && diffY < POINT_ONE_RAD)
+                        || (accX < 0.1 && accY < 0.1);
+
+                if (closeEnough && !lengthChanged) {
+                    setInterpolating(false);
                     cancel();
                     return;
                 }
@@ -299,6 +350,7 @@ public abstract class Artillery extends Construct {
                 ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
                 if (inv != null)
                     inv.updateState();
+
             }
         }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
 
@@ -321,17 +373,36 @@ public abstract class Artillery extends Construct {
             return;
         }
 
-        if (aim.getX() == vertAngle && aim.getY() == horAngle && !lengthChanged)
+
+        double currX,currY;
+        currX = aim.getX();
+        currY = aim.getY();
+
+
+        ///90 degrees in the up and down directions
+        //in radians
+        if (currX < -1.57) {
+            currX = Math.max(-1.57, currX);
+        }
+
+        if (currX > 1.57) {
+            currX = Math.min(currX, 1.57);
+        }
+
+
+        if (currX == vertAngle && currY == horAngle && !lengthChanged)
             return;
 
         lengthChanged = false;
 
-        vertAngle = nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
+
+
+        vertAngle = nextVerticalAngle(currX, vertAngle, vertRotSpeed);
 
 
         //don't add PI to give an extra 180 * to the rotation (see Construct.getASFace(EntityHuman) )
         //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
-        horAngle = nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
+        horAngle = nextHorizontalAngle(currY, horAngle, horRotSpeed);
 
         if (this instanceof Rideable)
             ((Rideable)this).positionSeat();
@@ -475,7 +546,7 @@ public abstract class Artillery extends Construct {
     }
 
     protected void vibrateAnimation(List<Player> vibrateFor, int ticks, double mult) {
-        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.1 * ticks + 1, 0) * mult;
+        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.12 * ticks + 1, 0) * mult;
         if (offset != 0) {
             setVibrationOffsetY(offset);
             for (Player observer : vibrateFor) {
@@ -667,16 +738,39 @@ see: loadPieces()
 
     protected @Nullable ArtilleryProjectile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
         AmmoItem item = getLoadedAmmoType();
-        if (item == null)
-            return null;
-        try {
-            Class<? extends ArtilleryProjectile> proj = item.getProjClass();
-            return proj.getConstructor(net.minecraft.world.level.World.class, Double.class, Double.class, Double.class, EntityPlayer.class, Artillery.class)
-                    .newInstance(world, x,y,z,shooter,source);
-        }
-        catch (Exception e) {
+        if (item == null) {
+            System.out.println("loaded type is null");
             return null;
         }
+        ///well I don't really like making a switch for every single flipping thing cause I then gotta
+        // go back and change it everytime I make a new thing, but if it's faster than
+        //reflection okay sure (mainly cause we might be rapidly creating these things so...)
+        //I guess a better way could be to make the specific class determine what to make- especially if there's
+        // a lot of options...that might cut the time down
+        ArtilleryProjectile projectile;
+
+        switch (item) {
+            case STANDARD_HEAVY -> projectile = new StandardHeavyShell(world, x, y, z, shooter, source);
+            case EXPLOSIVE_HEAVY -> projectile = new ExplosiveHeavyShell(world, x, y, z, shooter, source);
+            case STANDARD_LIGHT -> projectile = new StandardLightShell(world, x, y, z, shooter, source);
+            case FLAK_LIGHT -> projectile = new FlakLightShell(world, x, y, z, shooter, source);
+            case MISSILE -> projectile = new SimpleMissile(world, x, y, z, shooter, source);
+            case FLAK_HEAVY -> projectile = new FlakHeavyShell(world, x, y, z, shooter, source);
+            case CRAM -> projectile = new CRAMShell(world, x, y, z, shooter, source);
+            default -> {
+                try {
+                    ///plan b
+                    projectile = item.getProjClass()
+                            .getConstructor(net.minecraft.world.level.World.class, Double.class, Double.class, Double.class, EntityPlayer.class, Artillery.class)
+                            .newInstance(world, x, y, z, shooter, source);
+                } catch (Exception e) {
+                    FortressGuns.getInstance().getLogger().warning("Could not create artillery projectile: "+item.getName());
+                    return null;
+                }
+            }
+        }
+        return projectile;
+
     }
 
 

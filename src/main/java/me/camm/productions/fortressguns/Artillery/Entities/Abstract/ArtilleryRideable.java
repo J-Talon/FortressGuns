@@ -36,8 +36,17 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
         return rotatingSeat;
     }
 
+    public void onDismount() {
+        setHasRider(false);
+        setCameraLocked(false);
+        setInterpolatedAim(getAim());
+    }
 
-
+    public void onMount() {
+        setCameraLocked(true);
+        setHasRider(true);
+        setInterpolating(false);
+    }
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
     protected void posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {

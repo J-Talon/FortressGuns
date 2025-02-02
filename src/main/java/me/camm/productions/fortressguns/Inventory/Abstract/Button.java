@@ -14,7 +14,7 @@ public enum Button {
     ROTATE_HORIZONTAL(ChatColor.GOLD+"Rotate Turret Left/right", Material.YELLOW_TERRACOTTA),
     FIRE(ChatColor.RED+"FIRE!", Material.RED_TERRACOTTA),
     DISASSEMBLE(ChatColor.BLUE+"Disassemble", Material.BLUE_TERRACOTTA),
-    INFO(ChatColor.WHITE+"", Material.CYAN_TERRACOTTA),
+    INFO(ChatColor.WHITE+"Information", Material.CYAN_TERRACOTTA),
     BORDER(ChatColor.BLACK+"", Material.BLACK_STAINED_GLASS_PANE),
     RELOAD(ChatColor.GREEN+"Reload", Material.GREEN_TERRACOTTA);
 
@@ -37,13 +37,18 @@ public enum Button {
         return mat;
     }
 
-    public ItemStack toItem() {
-        return new ItemStack(mat);
+    public ItemStack toItemRaw() {
+        ItemStack stack = new ItemStack(mat);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(getName());
+        stack.setItemMeta(meta);
+        return stack;
     }
 
     public ItemStack toItem(String lore) {
-        ItemStack stack = toItem();
+        ItemStack stack = new ItemStack(getMat());
         ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(getName());
         List<String> val = new ArrayList<>();
         val.add(lore);
         meta.setLore(val);

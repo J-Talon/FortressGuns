@@ -14,6 +14,10 @@ public interface Rideable {
 
     abstract void setHasRider(boolean hasRider);
 
+    abstract void onDismount();
+
+    abstract void onMount();
+
     default void updateOnInteraction() {
 
     }

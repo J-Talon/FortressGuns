@@ -2,8 +2,11 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -133,6 +136,7 @@ public class ArtilleryPart extends Component
     }
 
 
+
     @Nullable
     protected SoundEffect getSoundDeath() {
         return SoundEffects.gJ;
@@ -167,8 +171,8 @@ public class ArtilleryPart extends Component
         bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName()+"");
         bukkit.playSound(bukkit.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,1,1);
 
-        ((Rideable) body).setHasRider(true);
-        body.setCameraLocked(true);
+
+        ((Rideable)body).onMount();
         ((Rideable) body).updateOnInteraction();
         human.startRiding(seat);
 
@@ -178,6 +182,7 @@ public class ArtilleryPart extends Component
             {
 
                 if (body.isInvalid()) {
+                    ((Rideable) body).onDismount();
                     human.stopRiding();
                     cancel();
                 }
@@ -187,9 +192,7 @@ public class ArtilleryPart extends Component
                     body.rideTick(human);
                 }
                 else {
-                    rideable.setHasRider(false);
-                    body.setCameraLocked(false);
-                    body.setInterpolatedAim(body.getAim());
+                    ((Rideable) body).onDismount();
                     cancel();
                 }
             }
@@ -266,10 +269,59 @@ public class ArtilleryPart extends Component
             }
         }
 
-        org.bukkit.inventory.ItemStack bukkit = CraftItemStack.asBukkitCopy(stack);
-        if ( bukkit.getType() == Material.AIR || bukkit.getItemMeta() == null) {
-            seat(human);
+
+        org.bukkit.inventory.ItemStack stackBukkit = CraftItemStack.asBukkitCopy(stack);
+        org.bukkit.inventory.ItemStack pointer = ArtilleryItemHelper.getStick();
+
+        if ((!pointer.isSimilar(stackBukkit))) {
+
+            if (human.isCrouching())
+                openMenu(human);
+            else
+                seat(human);
         }
+
+    }
+
+
+    protected void openMenu(EntityHuman human) {
+
+        if (human.getVehicle() != null) {
+            return;
+        }
+
+        if (!human.isCrouching())
+            return;
+
+        Player player = (Player)human.getBukkitEntity();
+        ConstructInventory menu;
+        org.bukkit.inventory.ItemStack stack = player.getInventory().getItemInMainHand();
+
+        FIND_INV:
+        {
+            if (body instanceof RapidFire rapid && rapid.isJammed()) {
+                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.JAM_CLEAR);
+                break FIND_INV;
+            }
+
+            if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
+                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
+            } else {
+                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
+            }
+        }
+
+
+        if (menu == null) {
+            FortressGuns.getInstance().getLogger().warning("Inventory instance returned null!");
+            return;
+        }
+
+        body.getInventoryGroup().openInventory(menu, player);
+
+        //the idea here is that if player is holding a reloading item, then it will
+        //open the reloading inventory, else it will open a menu inventory
+
     }
 
 }

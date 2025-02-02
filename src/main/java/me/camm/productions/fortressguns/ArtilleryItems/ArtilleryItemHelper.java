@@ -161,23 +161,11 @@ public class ArtilleryItemHelper
 
     public static void packageArtillery(Artillery artillery) throws IllegalStateException {
 
-
         ArtilleryCore pivot = artillery.getPivot();
         Location loc = pivot.getEyeLocation();
 
+        World bukkit = artillery.getWorld();
+        bukkit.dropItem(loc,toItem(artillery));
 
-        Block pack = loc.getBlock();
-        if (pack.isPassable()) {
-            pack.setType(Material.CHEST);
-            Chest chest = (Chest)pack.getState();
-            chest.setCustomName(CRATE);
-
-            Inventory inv = chest.getInventory();
-            inv.addItem(toItem(artillery));
-        }
-        else {
-            World bukkit = artillery.getWorld();
-            bukkit.dropItem(loc,toItem(artillery));
-        }
     }
 }

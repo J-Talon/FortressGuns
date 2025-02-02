@@ -94,6 +94,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     HeavyShell shell = (HeavyShell)createProjectile(((CraftWorld)world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
 
                     if (shell == null) {
+                        FortressGuns.getInstance().getLogger().warning("Shell creation result returned null! "+getLoadedAmmoType());
                         cancel();
                         return;
                     }
@@ -111,7 +112,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     pivot(aim.getX(), aim.getY());
                 }
 
-                vibrateAnimation(vibrateFor,ticks, 1);
+                vibrateAnimation(vibrateFor,ticks, 5);
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;

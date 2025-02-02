@@ -130,7 +130,7 @@ This method is called in a loop. You can think of it as being called many times 
                     pivot(aim.getX(), aim.getY());
                 }
 
-                vibrateAnimation(vibratedFor,ticks,1.5);
+                vibrateAnimation(vibratedFor,ticks,5);
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;

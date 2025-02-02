@@ -27,6 +27,12 @@ public class GunSource extends EntityDamageSourceIndirect {
    }
 
 
+   //boolean isThorns()
+   @Override
+   public boolean E() {
+      return false;
+   }
+
    /*
    This is the method that controls the death message for when an entity is killed.
    See: CombatTracker, IChatMutableComponent

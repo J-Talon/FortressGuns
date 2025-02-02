@@ -43,6 +43,7 @@ public abstract class Construct {
 */
     public double nextHorizontalAngle(double currentAngle, double targetAngle, double offsetDiff) {
 
+        final double targetOrig = targetAngle;
         double horAngleDiff = Math.abs(currentAngle - targetAngle);
 
 
@@ -64,7 +65,7 @@ public abstract class Construct {
         targetAngle = targetAngle % FULL_CIRCLE_DEG;
 
         if (horAngleDiff <= offsetDiff * RAD) {
-            return Math.toRadians(targetAngle);
+            return targetOrig;
         }
 
         //returns a value which determines what direction the thing should rotate.

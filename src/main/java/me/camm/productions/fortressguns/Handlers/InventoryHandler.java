@@ -4,11 +4,14 @@ import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -19,14 +22,24 @@ public class InventoryHandler implements Listener
     private static final Map<UUID, ConstructInventory> activeInventories = new HashMap<>();
 
     public static void startInteraction(Player player, ConstructInventory cons) {
-     //   player.closeInventory();
         Inventory inv = cons.getInventory();
-        activeInventories.put(player.getUniqueId(), cons);
+        player.closeInventory();
+        System.out.println("active before: "+cons.getInventory() +" "+cons.getInventory().getSize());
+
+        UUID id = player.getUniqueId();
+        if (activeInventories.containsKey(id)) {
+            activeInventories.replace(id, cons);
+        }
+        else
+            activeInventories.put(id, cons);
+
         player.openInventory(inv);
     }
 
+
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent event) {
+
         UUID id = event.getPlayer().getUniqueId();
         Inventory inv = event.getInventory();
         ConstructInventory cons = activeInventories.getOrDefault(id, null);
@@ -54,6 +67,8 @@ public class InventoryHandler implements Listener
         }
 
         Inventory cons = activeInventories.get(id).getInventory();
+
+
         if (!(view.getTopInventory().equals(cons)) && !(view.getBottomInventory().equals(cons))) {
             activeInventories.remove(id);
             return true;
@@ -79,7 +94,9 @@ public class InventoryHandler implements Listener
 
         if (isNotInventory(event))
             return;
+
         activeInventories.get(event.getWhoClicked().getUniqueId()).transact(event);
+
     }
 
     @EventHandler

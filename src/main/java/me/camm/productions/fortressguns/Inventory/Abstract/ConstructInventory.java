@@ -23,6 +23,7 @@ public abstract class ConstructInventory
           this.group = group;
           this.gui = Bukkit.createInventory(null, setting.size, setting.title);
           this.tag = setting;
+
      }
 
 

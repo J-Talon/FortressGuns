@@ -208,7 +208,7 @@ public class InteractionHandler implements Listener
            Construct cons = ((Component) nms).getBody();
 
            if (cons instanceof Rideable) {
-               ((Rideable) cons).setHasRider(false);
+               ((Rideable) cons).onDismount();
            }
        }
     }
@@ -333,21 +333,21 @@ public class InteractionHandler implements Listener
         if (action != Action.RIGHT_CLICK_AIR)
             return;
 
+
         ItemStack item = event.getItem();
+            Class<? extends Artillery> artClass = ArtilleryItemHelper.isArtillery(item);
+
+            if (artClass == null)
+                return;
 
         if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
             player.sendMessage(ChatColor.RED+"[!] You must be on the ground to assemble artillery.");
             return;
         }
 
-
         EulerAngle aim = new EulerAngle(Math.toRadians(nms.getXRot()),Math.toRadians(nms.getHeadRotation()),0);
 
-            Class<? extends Artillery> artClass = ArtilleryItemHelper.isArtillery(item);
-            if (artClass == null)
-                return;
-
-            try {
+        try {
 
 
                Class<?> value = artClass.getSuperclass();
@@ -414,7 +414,8 @@ public class InteractionHandler implements Listener
         Construct cons = ((Component) nms).getBody();
 
         if (cons instanceof Rideable) {
-            ((Rideable) cons).setHasRider(false);
+            ((Rideable) cons).onDismount();
         }
+
     }
 }

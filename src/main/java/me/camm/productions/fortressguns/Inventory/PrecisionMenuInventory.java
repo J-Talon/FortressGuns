@@ -2,17 +2,14 @@ package me.camm.productions.fortressguns.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.PowerDrill;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -33,9 +30,13 @@ public class PrecisionMenuInventory extends MenuInventory {
             degrees = degrees.split(ChatColor.WHITE+"")[1].split(" ")[0];
             double targetVertical = Math.toRadians(convert(degrees)) * -1;
 
+            Player player = (Player)event.getWhoClicked();
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK,1,1);
+
             Artillery art = (Artillery) body;
             EulerAngle interpolated = art.getInterpolatedAim();
-            interpolated.setX(interpolated.getX() + targetVertical);
+            interpolated = interpolated.setX(interpolated.getX() + targetVertical);
+            art.setInterpolatedAim(interpolated);
             art.startPivotInterpolation();
         }
     };
@@ -49,6 +50,9 @@ public class PrecisionMenuInventory extends MenuInventory {
             if (!(preconditions(stack)))
                 return;
 
+            Player player = (Player)event.getWhoClicked();
+            player.playSound(player.getLocation(), Sound.BLOCK_LEVER_CLICK,1,1);
+
             List<String> lore = stack.getItemMeta().getLore();
             String degrees = lore.get(0);
             degrees = degrees.split(ChatColor.WHITE+"")[1].split(" ")[0];
@@ -56,7 +60,8 @@ public class PrecisionMenuInventory extends MenuInventory {
 
             Artillery art = (Artillery) body;
             EulerAngle interpolated = art.getInterpolatedAim();
-            interpolated.setY(interpolated.getY() + targetHorizontal);
+            interpolated = interpolated.setY(interpolated.getY() + targetHorizontal);
+            art.setInterpolatedAim(interpolated);
             art.startPivotInterpolation();
         }
     };
@@ -74,6 +79,8 @@ public class PrecisionMenuInventory extends MenuInventory {
 
 
 
+
+
     public PrecisionMenuInventory(Artillery owner, InventoryGroup group) {
         super(owner, group);
         functions.put(Button.ROTATE_HORIZONTAL.getName(), aimHorizontal);
@@ -81,6 +88,7 @@ public class PrecisionMenuInventory extends MenuInventory {
         functions.put(Button.FIRE.getName(), fire);
         functions.put(Button.DISASSEMBLE.getName(), disassemble);
         functions.put(Button.RELOAD.getName(), openReloading);
+        init();
     }
 
     @Override
@@ -96,33 +104,36 @@ public class PrecisionMenuInventory extends MenuInventory {
     @Override
     public void init() {
         double[] settings = new double[]{0.1, 1, 5, 30, 90, 180};
-        ItemStack border = Button.BORDER.toItem();
+        ItemStack border = Button.BORDER.toItemRaw();
 
         int i;
         for ( i = 0; i < 6; i ++) {
-            String value = ChatColor.GOLD +""+ settings[i];
-            gui.setItem(9 * i + 3, border);
-            gui.setItem(9 * i + 3, border);
+            String value = ChatColor.WHITE +""+ settings[i] +" degrees";
+            String nValue = ChatColor.WHITE +"-"+ settings[i] +" degrees";
 
-            ItemStack label = Button.INFO.toItem(value);
+
+            gui.setItem(9 * i + 6, border);
+
+            ItemStack label = Button.INFO.toItem(ChatColor.WHITE+"Use the buttons to rotate the turret");
             gui.setItem(9 * i, label);
+            gui.setItem(9 * i + 3, label);
 
             ItemStack upHor = Button.ROTATE_HORIZONTAL.toItem(value);
-            gui.setItem(9 * i + 1, upHor);
+            gui.setItem(9 * i + 2, upHor);
 
-            ItemStack downHor = Button.ROTATE_HORIZONTAL.toItem(value);
-            gui.setItem(9 * i + 2, downHor);
+            ItemStack downHor = Button.ROTATE_HORIZONTAL.toItem(nValue);
+            gui.setItem(9 * i + 1, downHor);
 
             ItemStack upVert = Button.ROTATE_VERTICAL.toItem(value);
-            gui.setItem(9 * i + 4, upVert);
-
-            ItemStack downVert = Button.ROTATE_VERTICAL.toItem(value);
             gui.setItem(9 * i + 5, upVert);
+
+            ItemStack downVert = Button.ROTATE_VERTICAL.toItem(nValue);
+            gui.setItem(9 * i + 4, downVert);
         }
 
-        ItemStack fire = Button.FIRE.toItem();
-        ItemStack reload = Button.RELOAD.toItem();
-        ItemStack disassemble = Button.DISASSEMBLE.toItem();
+        ItemStack fire = Button.FIRE.toItemRaw();
+        ItemStack reload = Button.RELOAD.toItemRaw();
+        ItemStack disassemble = Button.DISASSEMBLE.toItemRaw();
 
         for (i = 0; i < 3; i++ ) {
             gui.setItem(9 * i + 8, fire);
@@ -136,6 +147,30 @@ public class PrecisionMenuInventory extends MenuInventory {
 
         gui.setItem(52, disassemble);
         gui.setItem(53, disassemble);
+
+    }
+
+
+    @Override
+    public void updateState() {
+
+        Artillery art = (Artillery)owner;
+        EulerAngle aim = art.getAim();
+        double x = Math.toDegrees(aim.getX());
+        x = Math.round((x * 10)) / 10.0;
+
+        double y = Math.toDegrees(aim.getY());
+        y = Math.round((y * 10)) / 10.0;
+
+        String rotation = ChatColor.RED + "["+y +" | "+ x +"]";
+        String loaded = ChatColor.BLUE +""+ art.getAmmo();
+        rotation = rotation +" "+ loaded;
+
+        ItemStack rotationInfo = Button.INFO.toItem(rotation);
+        for (int i = 0; i < 6; i ++) {
+            gui.setItem(9 * i + 3, rotationInfo);
+        }
+
 
     }
 }
