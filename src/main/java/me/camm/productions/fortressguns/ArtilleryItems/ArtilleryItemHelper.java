@@ -84,6 +84,29 @@ public class ArtilleryItemHelper
         return itemNames.getOrDefault(name, null);
     }
 
+    public static boolean matchesName(ItemStack first, ItemStack second) {
+
+        if (first == null || second == null)
+            return false;
+
+        if (!first.hasItemMeta() || !second.hasItemMeta())
+            return false;
+
+        //has item meta literally compares it to null
+        return first.getItemMeta().getDisplayName().equals(second.getItemMeta().getDisplayName());
+    }
+
+
+    public static boolean matchesName(ItemStack first, String second) {
+
+        if (first == null || second == null)
+            return false;
+
+        if (!first.hasItemMeta())
+            return false;
+
+        return first.getItemMeta().getDisplayName().equals(second);
+    }
 
 
 

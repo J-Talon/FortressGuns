@@ -78,8 +78,6 @@ public class HeavyArtillery extends FieldArtillery
     }
 
 
-
-
     @Override
     protected boolean spawnBaseParts() {
         double rads = 0;

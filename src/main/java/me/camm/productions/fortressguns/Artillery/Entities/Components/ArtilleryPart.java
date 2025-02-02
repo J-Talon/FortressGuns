@@ -168,6 +168,7 @@ public class ArtilleryPart extends Component
         bukkit.playSound(bukkit.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,1,1);
 
         ((Rideable) body).setHasRider(true);
+        body.setCameraLocked(true);
         ((Rideable) body).updateOnInteraction();
         human.startRiding(seat);
 
@@ -178,20 +179,23 @@ public class ArtilleryPart extends Component
 
                 if (body.isInvalid()) {
                     human.stopRiding();
-                    rideable.setHasRider(false);
                     cancel();
                 }
 
                 Entity vehicle = human.getVehicle();
-                if (vehicle!= null && vehicle.equals(seat)) {
+                if (vehicle != null && vehicle.equals(seat)) {
                     body.rideTick(human);
                 }
                 else {
                     rideable.setHasRider(false);
+                    body.setCameraLocked(false);
+                    body.setInterpolatedAim(body.getAim());
                     cancel();
                 }
             }
         }.runTaskTimer(FortressGuns.getInstance(),0,1);
+
+
     }
 
 

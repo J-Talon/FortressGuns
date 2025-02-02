@@ -8,6 +8,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -56,6 +58,11 @@ public abstract class Artillery extends Construct {
 
     protected ArtilleryCore pivot;
     protected EulerAngle aim;//
+    protected volatile EulerAngle interpolatedAim;
+    protected volatile boolean cameraLocked;
+    protected volatile boolean interpolating;
+
+
     protected final ChunkLoader handler;
 
     protected volatile double health;//--
@@ -73,13 +80,8 @@ public abstract class Artillery extends Construct {
 
     protected volatile boolean canFire;
 
-    //default values for testing
-    //===================
-
-
     protected int recoilTime = 1;
     protected double barrelRecoverRate = 0.03;
-    //==============
 
     protected InventoryGroup interactionInv;
 
@@ -152,7 +154,10 @@ public abstract class Artillery extends Construct {
         smallBlockDist = SMALL_BLOCK_LENGTH;
         health = 0;
         dead = false;
+        cameraLocked = false;
+        interpolating = false;
         this.aim = aim;
+        this.interpolatedAim = aim;
         this.canFire = true;
         this.ammo = 0;
         this.vibrationOffsetY = 0;
@@ -172,6 +177,23 @@ public abstract class Artillery extends Construct {
 
     public int getAmmo() {
         return ammo;
+    }
+
+    public synchronized void setInterpolatedAim(EulerAngle angle) {
+        this.interpolatedAim = angle;
+    }
+
+    public synchronized EulerAngle getInterpolatedAim() {
+        return interpolatedAim;
+    }
+
+
+    public synchronized boolean isCameraLocked() {
+        return cameraLocked;
+    }
+
+    public synchronized void setCameraLocked(boolean cameraLocked) {
+        this.cameraLocked = cameraLocked;
     }
 
     public static void setRequiresReloading(boolean requiresReloading) {
@@ -247,6 +269,40 @@ public abstract class Artillery extends Construct {
         }
     }
 
+
+    public void startPivotInterpolation() {
+
+        if (interpolating)
+            return;
+
+        interpolating = true;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (isCameraLocked()) {
+                    cancel();
+                    return;
+                }
+
+                double x,y;
+                x = interpolatedAim.getX();
+                y = interpolatedAim.getY();
+
+                if (aim.getX() == x && aim.getY() == y && !lengthChanged) {
+                    interpolating = false;
+                    cancel();
+                    return;
+                }
+
+                pivot(x,y);
+
+                ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
+                if (inv != null)
+                    inv.updateState();
+            }
+        }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
+
+    }
 
     /*
     @param vertAngle, horAngle
