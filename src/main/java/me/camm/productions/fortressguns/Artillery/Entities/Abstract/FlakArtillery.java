@@ -179,12 +179,10 @@ This method is called in a loop. You can think of it as being called many times 
         }
     }
 
-    @Override
-    public synchronized void pivot(double vertAngle, double horAngle) {
-        vertAngle = (Math.min(vertAngle, 0));
-        super.pivot(vertAngle, horAngle);
-    }
 
+    public double getMinVertAngle() {
+        return 0;
+    }
     public void aimStatic() {
 
         //once again clone shouldn't be needed cause it's a new object each time

@@ -72,14 +72,15 @@ public abstract class Construct {
         //https://math.stackexchange.com/questions/110080/shortest-way-to-achieve-target-angle
         double diffAngle = ((targetAngle - currentAngle + 540) % 360) - 180;
 
-        int direction;
+        //you twisted witch
+        double direction;
 
         if (diffAngle > 0)
             direction =  1;
         else if (diffAngle < 0)
             direction = -1;
         else
-            direction = 0;
+            return targetOrig;
 
         double offset = Math.min(offsetDiff,Math.abs(diffAngle));
 

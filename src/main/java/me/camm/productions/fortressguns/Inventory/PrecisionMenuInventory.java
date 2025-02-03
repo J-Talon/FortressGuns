@@ -103,7 +103,7 @@ public class PrecisionMenuInventory extends MenuInventory {
 
     @Override
     public void init() {
-        double[] settings = new double[]{0.1, 1, 5, 30, 90, 180};
+        double[] settings = new double[]{0.1, 1, 5, 10, 30, 45};
         ItemStack border = Button.BORDER.toItemRaw();
 
         int i;

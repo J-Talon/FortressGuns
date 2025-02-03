@@ -19,7 +19,7 @@ import java.util.Map;
 public class BulkLoadingInventory extends TransactionReloadInventory {
 
 
-    static final ItemStack BORDER = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
+    static final ItemStack BORDER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
     static final ItemStack LOAD = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
     static final ItemStack IN = new ItemStack(Material.RAIL);
 
@@ -40,6 +40,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
     public BulkLoadingInventory(Artillery owner, InventoryGroup group) {
         super(owner, group);
+        init();
     }
 
 

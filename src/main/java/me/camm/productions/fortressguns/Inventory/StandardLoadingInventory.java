@@ -30,6 +30,7 @@ public class StandardLoadingInventory extends TransactionReloadInventory {
 
 
     private ItemStack loading;
+    private volatile boolean loaded;
 
 
 
@@ -56,12 +57,14 @@ public class StandardLoadingInventory extends TransactionReloadInventory {
     public StandardLoadingInventory(Artillery owner, InventoryGroup group) {
         super(owner, group);
         init();
+
     }
 
 
     @Override
     public void init() {
         inLoadingAnimation = false;
+        loaded = false;
         gui.clear();
         for (int slot = 1; slot < gui.getSize()-1; slot ++) {
             gui.setItem(slot, BLOCK);
@@ -160,6 +163,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                             if (type != null && slot == gui.getSize() - 2) {
                                 body.setAmmo(body.getAmmo() + 1);
                                 body.setLoadedAmmoType(type);
+                                loaded = true;
 
 
                                 InventoryGroup group = body.getInventoryGroup();
@@ -226,6 +230,11 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
             Player player = (Player)event.getPlayer();
 
             if (loading == null) {
+                init();
+                return;
+            }
+
+            if (loaded) {
                 init();
                 return;
             }

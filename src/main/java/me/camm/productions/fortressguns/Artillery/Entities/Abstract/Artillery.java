@@ -187,7 +187,10 @@ public abstract class Artillery extends Construct {
     }
 
     public synchronized void setInterpolatedAim(EulerAngle angle) {
-        this.interpolatedAim = angle;
+        double x = angle.getX();
+        x = Math.max(getMaxVertAngle(), x);
+        x = Math.min(getMinVertAngle(), x);
+        this.interpolatedAim = new EulerAngle(x, angle.getY(), 0);
     }
 
     public synchronized EulerAngle getInterpolatedAim() {
@@ -216,6 +219,14 @@ public abstract class Artillery extends Construct {
             parts.addAll(Arrays.asList(segment));
 
         return parts;
+    }
+
+    protected double getMaxVertAngle() {
+        return -1.57;
+    }
+
+    protected double getMinVertAngle() {
+        return 1.57;
     }
 
     public synchronized void setAmmo(int ammo) {
@@ -307,7 +318,7 @@ public abstract class Artillery extends Construct {
                 y = interpolatedAim.getY();
 
                 //
-                final double POINT_ONE_RAD = 0.001;   ///0.1 degrees -> rads = ~0.0017
+                final double POINT_ONE_RAD = 0.0017;   ///0.1 degrees -> rads = ~0.0017
 
 
                 double currX = aim.getX();
@@ -318,23 +329,6 @@ public abstract class Artillery extends Construct {
 
                 double diffY = Math.abs((y - aim.getY())) % TWO_PI;
                 double accY = 1 - Math.abs(y - aim.getY()) % TWO_PI;
-
-                //ty:-1.8536780967314401 | cy: 4.412053917928212 | dy:6.265732014659652
-                //TODO still bugged fix next time
-                //basically some values are causing the runnable to continually run
-                //it's mainly the y values causing trouble
-                //TODO also you gotta make the menu stuff for the light guns
-
-                System.out.println("tx:"+x+" | cx: "+aim.getX() +" | dx:"+diffX);
-                System.out.println("ty:"+y+" | cy: "+aim.getY()+" | dy:"+diffY);
-
-
-
-                if (currX < -1.57 || currX > 1.57) {
-                    setInterpolating(false);
-                    cancel();
-                    return;
-                }
 
                 boolean closeEnough = (diffX < POINT_ONE_RAD && diffY < POINT_ONE_RAD)
                         || (accX < 0.1 && accY < 0.1);
@@ -381,12 +375,13 @@ public abstract class Artillery extends Construct {
 
         ///90 degrees in the up and down directions
         //in radians
-        if (currX < -1.57) {
-            currX = Math.max(-1.57, currX);
+
+        if (vertAngle <= getMaxVertAngle()) {
+            vertAngle = Math.max(getMaxVertAngle(), vertAngle);
         }
 
-        if (currX > 1.57) {
-            currX = Math.min(currX, 1.57);
+        if (vertAngle >= getMinVertAngle()) {
+            vertAngle = Math.min(vertAngle, getMinVertAngle());
         }
 
 
@@ -394,8 +389,6 @@ public abstract class Artillery extends Construct {
             return;
 
         lengthChanged = false;
-
-
 
         vertAngle = nextVerticalAngle(currX, vertAngle, vertRotSpeed);
 
