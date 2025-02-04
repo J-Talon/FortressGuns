@@ -6,8 +6,10 @@ import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 
@@ -170,7 +172,12 @@ public class PrecisionMenuInventory extends MenuInventory {
         for (int i = 0; i < 6; i ++) {
             gui.setItem(9 * i + 3, rotationInfo);
         }
+    }
 
 
+    @Override
+    public void onInventoryClose(InventoryCloseEvent event) {
+        Player player = (Player)event.getPlayer();
+        player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS,1,1);
     }
 }

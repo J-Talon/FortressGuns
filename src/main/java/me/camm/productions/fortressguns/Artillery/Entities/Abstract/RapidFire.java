@@ -40,7 +40,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     protected static final Vector3f rightArm, leftArm, body, rightLeg, leftLeg;
 
 
-    protected double barrelHeat;
+    protected volatile double barrelHeat;
     protected boolean isJammed;
 
     protected long lastInteractionTime;
@@ -269,11 +269,11 @@ public abstract class RapidFire extends ArtilleryRideable {
         }
     }
 
-    public double getBarrelHeat() {
+    public synchronized double getBarrelHeat() {
         return barrelHeat;
     }
 
-    public void setBarrelHeat(double barrelHeat) {
+    public synchronized void setBarrelHeat(double barrelHeat) {
         this.barrelHeat = barrelHeat;
     }
 
@@ -314,7 +314,11 @@ public abstract class RapidFire extends ArtilleryRideable {
         pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
         Player player = (Player)human.getBukkitEntity();
 
-        float heatPercent = (float)barrelHeat / 100;   ///heat is from [0-100]
+        double heat = getBarrelHeat();
+        float heatPercent = (float)heat / 100;   ///heat is from [0-100]
+        //System.out.println("barrelheat:"+heat);
+
+
         int b = (int) ((1 - heatPercent) * MAX_OCT);    //blue
         int g = (int) ((1 - 0.8 * heatPercent) * MAX_OCT);   //green
 
@@ -338,7 +342,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
         /////left side
-        String displayTemp = ""+(int)Math.round(barrelHeat);
+        String displayTemp = ""+(int)Math.round(heat);
         displayTemp = "[H:"+ ("0".repeat(3-displayTemp.length())) + displayTemp +"%]";
 
         componentLeft = new TextComponent(displayTemp);
@@ -376,6 +380,26 @@ public abstract class RapidFire extends ArtilleryRideable {
             else {
                 ammoPercentLeft = (int) (((float)currentAmmo / maxAmmo) * BAR_LENGTH);
             }
+
+//
+//            boolean debug = true;
+//            if (debug) {
+//
+//                try {
+//                    progressBar.substring(0, ammoPercentLeft);
+//                }
+//                catch (Exception e) {
+//                    System.out.println("pb:"+progressBar +"| len: "+progressBar.length());
+//                    System.out.println("apl:"+ammoPercentLeft);
+//                    System.out.println("max ammo: "+maxAmmo);
+//                    System.out.println("current ammo:"+currentAmmo);
+//                }
+//
+//
+//                //[21:34:18] [Server thread/INFO]: pb:||||||||||||||||||||||||||||||||||||||||||||||||||| len: 50
+//                //[21:34:18] [Server thread/INFO]: apl:60
+//                return;
+//            }
 
             componentRight = new TextComponent(progressBar.substring(0, ammoPercentLeft));
             componentRight.setColor(ammoColor);

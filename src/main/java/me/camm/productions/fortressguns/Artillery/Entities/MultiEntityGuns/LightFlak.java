@@ -160,9 +160,9 @@ public class LightFlak extends RapidFire {
             return;
         }
 
-        barrelHeat = Math.min(100, overheat + barrelHeat);
+        setBarrelHeat(Math.min(100, overheat + getBarrelHeat()));
 
-        if (barrelHeat >= 100) {
+        if (getBarrelHeat() >= 100) {
             ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
             barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
             world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
@@ -225,7 +225,7 @@ public class LightFlak extends RapidFire {
             if (timeElapsed < inactiveHeatTicks)
                 return;
 
-            barrelHeat = Math.max(0, barrelHeat - heatDissipation);
+            setBarrelHeat(Math.max(0, barrelHeat - heatDissipation));
         }
 
     }
@@ -234,6 +234,7 @@ public class LightFlak extends RapidFire {
     public int getMaxAmmo() {
         return magSize;
     }
+
 
     @Override
     public boolean acceptsAmmo(AmmoItem item) {

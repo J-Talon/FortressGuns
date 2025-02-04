@@ -24,7 +24,7 @@ public class InventoryHandler implements Listener
     public static void startInteraction(Player player, ConstructInventory cons) {
         Inventory inv = cons.getInventory();
         player.closeInventory();
-        System.out.println("active before: "+cons.getInventory() +" "+cons.getInventory().getSize());
+       // System.out.println("active before: "+cons.getInventory() +" "+cons.getInventory().getSize());
 
         UUID id = player.getUniqueId();
         if (activeInventories.containsKey(id)) {

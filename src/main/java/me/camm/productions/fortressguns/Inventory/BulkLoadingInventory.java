@@ -65,13 +65,20 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             int exchange;
             if (input == null) {
                 ItemStack ammoOut = ArtilleryItemHelper.createAmmoItem(body.getLoadedAmmoType());
-                exchange = body.getAmmo() - ammoOut.getMaxStackSize();
+                exchange = Math.min(Math.max(body.getAmmo(),body.getAmmo() - ammoOut.getMaxStackSize()), ammoOut.getMaxStackSize());
+
+
                 ammoOut.setAmount(exchange);
                 gui.setItem(getInputSlot(),ammoOut);
             }
             else {
-                exchange = body.getAmmo() - (residing.getMaxStackSize() - residing.getAmount());
-                residing.setAmount(exchange);
+
+                exchange = Math.min(Math.max(body.getAmmo(),body.getAmmo() - residing.getMaxStackSize()),residing.getMaxStackSize());
+                int diff = residing.getMaxStackSize() - residing.getAmount();
+                exchange = Math.min(diff, exchange);
+                residing.setAmount(exchange + residing.getAmount());
+
+
                 gui.setItem(getInputSlot(), residing);
             }
 

@@ -180,7 +180,6 @@ public class ArtilleryPart extends Component
 
             public void run()
             {
-
                 if (body.isInvalid()) {
                     ((Rideable) body).onDismount();
                     human.stopRiding();

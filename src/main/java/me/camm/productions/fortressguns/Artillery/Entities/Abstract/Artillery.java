@@ -328,7 +328,7 @@ public abstract class Artillery extends Construct {
                 double accX = 1 - Math.abs(x - currX) / TWO_PI;
 
                 double diffY = Math.abs((y - aim.getY())) % TWO_PI;
-                double accY = 1 - Math.abs(y - aim.getY()) % TWO_PI;
+                double accY = 1 - Math.abs(y - aim.getY()) / TWO_PI;
 
                 boolean closeEnough = (diffX < POINT_ONE_RAD && diffY < POINT_ONE_RAD)
                         || (accX < 0.1 && accY < 0.1);

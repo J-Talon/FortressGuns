@@ -218,8 +218,9 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
         Player player = (Player)event.getPlayer();
         player.playSound(player.getLocation(),Sound.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS,1,2);
 
-        if (inLoadingAnimation) {
 
+        Map<Integer, ItemStack> remainder;
+        if (inLoadingAnimation) {
             if (loading == null) {
                 init();
                 return;
@@ -230,20 +231,29 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                 return;
             }
 
-            Map<Integer, ItemStack> remainder = player.getInventory().addItem(loading);
-
-            if (remainder.isEmpty()) {
+           remainder = player.getInventory().addItem(loading);
+        }
+        else {
+            ItemStack currentItem = gui.getItem(getInputSlot());
+            if (currentItem == null) {
                 init();
                 return;
             }
-
-            World world = player.getWorld();
-            for (ItemStack item: remainder.values()) {
-                world.dropItem(player.getLocation(),item);
-            }
-
-            init();
+               remainder = player.getInventory().addItem(currentItem);
         }
+
+        if (remainder.isEmpty()) {
+            init();
+            return;
+        }
+
+        World world = player.getWorld();
+        for (ItemStack item : remainder.values()) {
+            world.dropItem(player.getLocation(), item);
+        }
+
+        init();
+
     }
 
 
