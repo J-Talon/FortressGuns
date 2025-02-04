@@ -6,10 +6,7 @@ import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import net.minecraft.util.Tuple;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -24,32 +21,19 @@ import java.util.Map;
 
 public class StandardLoadingInventory extends TransactionReloadInventory {
 
-    static final ItemStack LOAD = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-    static final ItemStack BLOCK = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);
-    static final ItemStack STICK = new ItemStack(Material.STICK);
+    static final ItemStack LOAD;
+    static final ItemStack BLOCK;
+    static final ItemStack STICK;
 
 
     private ItemStack loading;
     private volatile boolean loaded;
 
 
-
-
     static {
-
-        ItemMeta dest = LOAD.getItemMeta();
-        ItemMeta placeholder = BLOCK.getItemMeta();
-        ItemMeta ramRod = STICK.getItemMeta();
-
-            dest.setDisplayName(ChatColor.GREEN + "Left click: Load | Right click: Unload");
-            placeholder.setDisplayName(ChatColor.GRAY + "");
-            ramRod.setDisplayName(ChatColor.WHITE + "Ram rod");
-
-
-            LOAD.setItemMeta(dest);
-            BLOCK.setItemMeta(placeholder);
-            STICK.setItemMeta(ramRod);
-
+        LOAD = StaticItem.LOAD_UNLOAD.toItemRaw();
+        BLOCK = StaticItem.BORDER.toItemRaw();
+        STICK = StaticItem.RAMROD.toItemRaw();
     }
 
 
@@ -71,6 +55,7 @@ public class StandardLoadingInventory extends TransactionReloadInventory {
         }
 
         gui.setItem(gui.getSize()-1, LOAD);
+        updateState();
         loading = null;
     }
 
@@ -136,7 +121,10 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                             return;
                         }
 
-                        if (!pushed && slot < gui.getSize() - 2) {
+                        int end = gui.getSize() - 3;
+
+
+                        if (!pushed && slot < end) {
                             ItemStack shell = gui.getItem(slot);
                             player.playSound(player.getLocation(), Sound.BLOCK_PISTON_EXTEND, 0.5f, 1);
 
@@ -155,22 +143,17 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
                             slot++;
 
-                            if (slot >= gui.getSize() - 2)
+                            if (slot >= end)
                                 pushed = true;
                         } else {
                             gui.setItem(Math.max(slot,0), BLOCK);
 
-                            if (type != null && slot == gui.getSize() - 2) {
-                                body.setAmmo(body.getAmmo() + 1);
+                            if (type != null && slot == end) {
+                                body.setAmmo(body.getAmmo() + loading.getAmount());
                                 body.setLoadedAmmoType(type);
                                 loaded = true;
 
-
-                                InventoryGroup group = body.getInventoryGroup();
-                                ConstructInventory inv = group.getInventoryByCategory(InventoryCategory.MENU);
-
-                                if (inv != null)
-                                    inv.updateState();
+                                updateState();
 
                                 player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 2);
                             } else
@@ -206,6 +189,10 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                 if (residing == null || residing.getType().isAir()) {
                     body.setAmmo(loadedAmount - 1);
                     gui.setItem(0, ammo);
+
+                    player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 1);
+                    updateState();
+
                     return;
                 }
 
@@ -215,7 +202,8 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
                 residing.setAmount(residing.getAmount() + 1);
                 gui.setItem(0, residing);
-                player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 2);
+                player.playSound(player.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 1);
+                updateState();
             }
         }
     }
@@ -226,8 +214,11 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
     @Override
     public void onInventoryClose(InventoryCloseEvent event) {
+
+        Player player = (Player)event.getPlayer();
+        player.playSound(player.getLocation(),Sound.BLOCK_IRON_TRAPDOOR_CLOSE, SoundCategory.BLOCKS,1,2);
+
         if (inLoadingAnimation) {
-            Player player = (Player)event.getPlayer();
 
             if (loading == null) {
                 init();
@@ -258,6 +249,29 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
     @Override
     protected boolean isStaticItem(ItemStack current) {
-        return LOAD.isSimilar(current) || BLOCK.isSimilar(current) || STICK.isSimilar(current);
+        boolean isLoad = LOAD.isSimilar(current) || BLOCK.isSimilar(current) || STICK.isSimilar(current);
+        return isLoad || currentLoaded().isSimilar(current);
+    }
+
+    private ItemStack currentLoaded() {
+        Artillery owner = (Artillery)getOwner();
+        AmmoItem ammo = owner.getLoadedAmmoType();
+        String load;
+        if (ammo == null || owner.getAmmo() <= 0) {
+            load = ChatColor.RED+"None";
+        }
+        else {
+            load = ChatColor.GOLD + ammo.getName();
+        }
+
+        return StaticItem.INFO.toItem(ChatColor.WHITE+"Loaded ammo: "+load);
+    }
+
+
+    @Override
+    public void updateState() {
+        ItemStack stack = currentLoaded();
+        gui.setItem(gui.getSize()-2, stack);
+
     }
 }

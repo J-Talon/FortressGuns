@@ -8,19 +8,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum Button {
+public enum StaticItem {
 
     ROTATE_VERTICAL(ChatColor.GOLD+"Rotate Turret Up/down", Material.YELLOW_TERRACOTTA),
+    LOAD_UNLOAD(ChatColor.GOLD+"Left click: Load | Right click: Unload", Material.GREEN_TERRACOTTA),
+    ROUND_SHOWCASE(ChatColor.GRAY+"", Material.RAIL),
+    RAMROD(ChatColor.WHITE + "Ramrod",Material.STICK),
     ROTATE_HORIZONTAL(ChatColor.GOLD+"Rotate Turret Left/right", Material.YELLOW_TERRACOTTA),
     FIRE(ChatColor.RED+"FIRE!", Material.RED_TERRACOTTA),
     DISASSEMBLE(ChatColor.BLUE+"Disassemble", Material.BLUE_TERRACOTTA),
-    INFO(ChatColor.WHITE+"Information", Material.CYAN_TERRACOTTA),
+    INFO(ChatColor.WHITE+"", Material.CYAN_TERRACOTTA),
     BORDER(ChatColor.BLACK+"", Material.BLACK_STAINED_GLASS_PANE),
     RELOAD(ChatColor.GREEN+"Reload", Material.GREEN_TERRACOTTA);
 
     final String name;
     final Material mat;
-    private Button(String name, Material mat) {
+    private StaticItem(String name, Material mat) {
         this.name = name;
         this.mat = mat;
     }

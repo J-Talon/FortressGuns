@@ -24,20 +24,28 @@ public class FireTrigger extends ArtilleryPart {
         if (!( human instanceof EntityPlayer))
             return;
 
-        if (body instanceof RapidFire rapid) {
-
-            List<Entity> entities = rapid.getSeat().getPassengers();
-
-            if (entities.size() > 0) {
-                if (!body.canFire() || !(entities.get(0).equals(human)))
-                    return;
-
-                body.fire(((EntityPlayer)human).getBukkitEntity());
-            }
-            else {
-                seat(human);
-            }
+        if (!(body instanceof RapidFire rapid)) {
+            return;
         }
+
+        List<Entity> entities = rapid.getSeat().getPassengers();
+
+        if (entities.size() > 0) {
+            if (!body.canFire() || !(entities.get(0).equals(human)))
+                return;
+
+            body.fire(((EntityPlayer)human).getBukkitEntity());
+        }
+        else {
+
+            if (human.isCrouching()) {
+                openMenu(human);
+                return;
+            }
+
+            seat(human);
+        }
+
 
 
 

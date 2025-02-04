@@ -83,17 +83,17 @@ public class PrecisionMenuInventory extends MenuInventory {
 
     public PrecisionMenuInventory(Artillery owner, InventoryGroup group) {
         super(owner, group);
-        functions.put(Button.ROTATE_HORIZONTAL.getName(), aimHorizontal);
-        functions.put(Button.ROTATE_VERTICAL.getName(), aimVertical);
-        functions.put(Button.FIRE.getName(), fire);
-        functions.put(Button.DISASSEMBLE.getName(), disassemble);
-        functions.put(Button.RELOAD.getName(), openReloading);
+        functions.put(StaticItem.ROTATE_HORIZONTAL.getName(), aimHorizontal);
+        functions.put(StaticItem.ROTATE_VERTICAL.getName(), aimVertical);
+        functions.put(StaticItem.FIRE.getName(), fire);
+        functions.put(StaticItem.DISASSEMBLE.getName(), disassemble);
+        functions.put(StaticItem.RELOAD.getName(), openReloading);
         init();
     }
 
     @Override
     protected boolean isStaticItem(ItemStack current) {
-        for (Button b: Button.values()) {
+        for (StaticItem b: StaticItem.values()) {
             if (ArtilleryItemHelper.matchesName(current, b.getName()))
                 return true;
         }
@@ -104,7 +104,7 @@ public class PrecisionMenuInventory extends MenuInventory {
     @Override
     public void init() {
         double[] settings = new double[]{0.1, 1, 5, 10, 30, 45};
-        ItemStack border = Button.BORDER.toItemRaw();
+        ItemStack border = StaticItem.BORDER.toItemRaw();
 
         int i;
         for ( i = 0; i < 6; i ++) {
@@ -114,26 +114,26 @@ public class PrecisionMenuInventory extends MenuInventory {
 
             gui.setItem(9 * i + 6, border);
 
-            ItemStack label = Button.INFO.toItem(ChatColor.WHITE+"Use the buttons to rotate the turret");
+            ItemStack label = StaticItem.INFO.toItem(ChatColor.WHITE+"Use the buttons to rotate the turret");
             gui.setItem(9 * i, label);
             gui.setItem(9 * i + 3, label);
 
-            ItemStack upHor = Button.ROTATE_HORIZONTAL.toItem(value);
+            ItemStack upHor = StaticItem.ROTATE_HORIZONTAL.toItem(value);
             gui.setItem(9 * i + 2, upHor);
 
-            ItemStack downHor = Button.ROTATE_HORIZONTAL.toItem(nValue);
+            ItemStack downHor = StaticItem.ROTATE_HORIZONTAL.toItem(nValue);
             gui.setItem(9 * i + 1, downHor);
 
-            ItemStack upVert = Button.ROTATE_VERTICAL.toItem(value);
+            ItemStack upVert = StaticItem.ROTATE_VERTICAL.toItem(value);
             gui.setItem(9 * i + 5, upVert);
 
-            ItemStack downVert = Button.ROTATE_VERTICAL.toItem(nValue);
+            ItemStack downVert = StaticItem.ROTATE_VERTICAL.toItem(nValue);
             gui.setItem(9 * i + 4, downVert);
         }
 
-        ItemStack fire = Button.FIRE.toItemRaw();
-        ItemStack reload = Button.RELOAD.toItemRaw();
-        ItemStack disassemble = Button.DISASSEMBLE.toItemRaw();
+        ItemStack fire = StaticItem.FIRE.toItemRaw();
+        ItemStack reload = StaticItem.RELOAD.toItemRaw();
+        ItemStack disassemble = StaticItem.DISASSEMBLE.toItemRaw();
 
         for (i = 0; i < 3; i++ ) {
             gui.setItem(9 * i + 8, fire);
@@ -166,7 +166,7 @@ public class PrecisionMenuInventory extends MenuInventory {
         String loaded = ChatColor.BLUE +""+ art.getAmmo();
         rotation = rotation +" "+ loaded;
 
-        ItemStack rotationInfo = Button.INFO.toItem(rotation);
+        ItemStack rotationInfo = StaticItem.INFO.toItem(rotation);
         for (int i = 0; i < 6; i ++) {
             gui.setItem(9 * i + 3, rotationInfo);
         }

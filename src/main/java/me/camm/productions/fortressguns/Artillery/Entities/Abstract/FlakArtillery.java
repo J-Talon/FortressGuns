@@ -5,12 +5,15 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -113,17 +116,30 @@ This method is called in a loop. You can think of it as being called many times 
                 if (!shot) {
                     shot = true;
                     EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-                        FlakHeavyShell shell = new FlakHeavyShell(((CraftWorld) world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
-                        shell.setMot(vector);
-                        setAmmo(Math.max(0, getAmmo()-1));
+                    FlakHeavyShell shell = (FlakHeavyShell) createProjectile(((CraftWorld) world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
 
-                        if (target == null && shooter != null) {
-                            double time = InteractionHandler.getTime(shooter.getUniqueId()).getA();
-                            shell.setExplodeTime(time);
-                        }
-                        else
-                            shell.setTerminus(target);
-                        ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
+                    if (shell == null) {
+                        plugin.getLogger().warning("Unable to create shell: "+getLoadedAmmoType());
+                        shot = true;
+                        return;
+                    }
+
+                    shell.setMot(vector);
+                    setAmmo(Math.max(0, getAmmo()-1));
+
+                    if (target == null && shooter != null) {
+                        double time = InteractionHandler.getTime(shooter.getUniqueId()).getA();
+                        shell.setExplodeTime(time);
+                    }
+                    else
+                        shell.setTerminus(target);
+                    ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
+
+                    ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
+                    if (inv != null) {
+                        inv.updateState();
+                    }
+
                 }
 
                 if (!hasRider) {

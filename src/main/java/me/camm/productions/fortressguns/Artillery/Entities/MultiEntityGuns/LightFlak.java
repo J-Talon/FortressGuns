@@ -237,7 +237,7 @@ public class LightFlak extends RapidFire {
 
     @Override
     public boolean acceptsAmmo(AmmoItem item) {
-        return AmmoItem.STANDARD_LIGHT == item;
+        return AmmoItem.FLAK_LIGHT == item;
     }
 
     @Override

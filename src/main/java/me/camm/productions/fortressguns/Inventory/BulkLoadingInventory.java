@@ -4,9 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -19,22 +17,12 @@ import java.util.Map;
 public class BulkLoadingInventory extends TransactionReloadInventory {
 
 
-    static final ItemStack BORDER = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-    static final ItemStack LOAD = new ItemStack(Material.GREEN_STAINED_GLASS_PANE);
-    static final ItemStack IN = new ItemStack(Material.RAIL);
+    static final ItemStack BORDER;
+    static final ItemStack LOAD;
 
     static {
-        ItemMeta bord = BORDER.getItemMeta();
-        ItemMeta load = LOAD.getItemMeta();
-        ItemMeta in = IN.getItemMeta();
-
-        bord.setDisplayName(ChatColor.GRAY+"");
-        in.setDisplayName(ChatColor.GRAY+"");
-        load.setDisplayName(ChatColor.GREEN+"Left click: Load | Right click: Unload");
-
-        BORDER.setItemMeta(bord);
-        LOAD.setItemMeta(load);
-        IN.setItemMeta(in);
+        BORDER = StaticItem.BORDER.toItemRaw();
+        LOAD = StaticItem.LOAD_UNLOAD.toItemRaw();
 
     }
 
@@ -46,6 +34,8 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
     @Override
     protected void onItemPickup(InventoryClickEvent event) {
+
+        Player player = (Player)event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
         if (isStaticItem(clicked)) {
             event.setCancelled(true);
@@ -59,6 +49,8 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
         Artillery body = (Artillery)getOwner();
         AmmoItem input = ArtilleryItemHelper.isAmmoItem(residing);
 
+        player.playSound(player.getLocation(),Sound.BLOCK_PISTON_CONTRACT,SoundCategory.BLOCKS,1,1);
+
         if (event.isRightClick()) {
 
             if (body.getAmmo() <= 0)
@@ -70,7 +62,6 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             }
 
             ///input == null || input is the same
-
             int exchange;
             if (input == null) {
                 ItemStack ammoOut = ArtilleryItemHelper.createAmmoItem(body.getLoadedAmmoType());
@@ -85,6 +76,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             }
 
             body.setAmmo(body.getAmmo() - exchange);
+            updateState();
 
 
         }
@@ -92,7 +84,6 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
             if (input == null)
                 return;
-
 
             if (!body.acceptsAmmo(input))
                 return;
@@ -104,8 +95,9 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
             int difference = Math.min(body.getMaxAmmo() - body.getAmmo(), residing.getAmount());
 
-            if (difference <= 0)
+            if (difference <= 0) {
                 return;
+            }
 
             int remainder = difference - residing.getAmount();
             if (remainder <= 0) {
@@ -118,7 +110,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
             body.setLoadedAmmoType(input);
             body.setAmmo(body.getAmmo() + difference);
-            updateAppearance();
+            updateState();
         }
     }
 
@@ -138,10 +130,10 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
     private void updateAppearance() {
         Artillery body = (Artillery)owner;
-
+        ItemStack curr = currentLoaded();
         int i;
         for (i = 3; i < Math.min(9, body.getAmmo()); i ++) {
-            gui.setItem(i, IN);
+            gui.setItem(i, curr);
         }
 
         for (;i < 9; i ++) {
@@ -167,17 +159,37 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
         gui.setItem(0, LOAD);
     }
 
+
+    private ItemStack currentLoaded() {
+        Artillery owner = (Artillery)getOwner();
+        AmmoItem item = owner.getLoadedAmmoType();
+        String lore;
+        if (owner.getAmmo() <= 0 || item == null) {
+            lore = ChatColor.RED+"None";
+        }
+        else
+            lore = ChatColor.GOLD + ""+item.getName();
+
+        return StaticItem.ROUND_SHOWCASE.toItem(ChatColor.WHITE+"Loaded Ammo: "+lore);
+    }
+
     @Override
     protected boolean isStaticItem(ItemStack current) {
-        return BORDER.isSimilar(current) || LOAD.isSimilar(current) || IN.isSimilar(current);
+        return BORDER.isSimilar(current) || LOAD.isSimilar(current) || currentLoaded().isSimilar(current);
     }
 
 
     @Override
     public void onInventoryClose(InventoryCloseEvent event) {
         Player player = (Player)event.getPlayer();
+        player.playSound(player.getLocation(),Sound.BLOCK_IRON_TRAPDOOR_CLOSE,SoundCategory.BLOCKS,1,2);
 
         ItemStack loading = gui.getItem(getInputSlot());
+        if (loading == null) {
+            updateAppearance();
+            return;
+        }
+
         Map<Integer, ItemStack> remainder = player.getInventory().addItem(loading);
         gui.setItem(getInputSlot(), new ItemStack(Material.AIR));
 

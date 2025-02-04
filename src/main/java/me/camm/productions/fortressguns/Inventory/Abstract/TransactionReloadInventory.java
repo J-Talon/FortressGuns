@@ -5,6 +5,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import net.minecraft.util.Tuple;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
@@ -125,6 +130,10 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
             return;
         }
 
+        if (res.a().getType() == Material.AIR) {
+            onAmmoFull(event);
+        }
+
         gui.setItem(getInputSlot(), res.a());
         playerInv.setItem(hotbarButton,res.b());
     }
@@ -181,9 +190,21 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
             return;
         }
 
+        if (res.a().getType() == Material.AIR) {
+            onAmmoFull(event);
+        }
+
         gui.setItem(getInputSlot(),res.a());
         clicked.setItem(event.getSlot(),res.b());
         event.setCancelled(true);
+    }
+
+
+    private void onAmmoFull(InventoryClickEvent event) {
+        Player player = (Player)event.getWhoClicked();
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.BLOCKS,1,1);
+        player.sendMessage(ChatColor.RED+" [!] The gun's ammo capacity is full!");
+
     }
 
 
@@ -226,8 +247,11 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         if (res == null)
             return;
 
-
         inv.setItem(slot, res.a());
+        if (res.a().getType() == Material.AIR) {
+            onAmmoFull(event);
+        }
+
         event.getWhoClicked().setItemOnCursor(res.b());
 
     }

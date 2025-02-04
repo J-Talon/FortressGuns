@@ -7,6 +7,8 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavySh
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
@@ -98,11 +100,14 @@ public abstract class FieldArtillery extends ArtilleryRideable
                         cancel();
                         return;
                     }
-
                     shell.setMot(vector);
                     ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
-
                     setAmmo(Math.max(0, getAmmo() - 1));
+
+                    ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
+                    if (inv != null) {
+                        inv.updateState();
+                    }
                 }
 
 
