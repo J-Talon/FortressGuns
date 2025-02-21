@@ -136,6 +136,7 @@ public abstract class Construct {
 
     //only for when the up direction is <0,1,0>
     //whhiiiiich should be true generally here
+    @Deprecated  //see StandHelper.getLookatRotation()
     public static EulerAngle vecToEuler(Vector vec) {
         Vector vec2 = vec.clone().normalize();
         double y = -Math.atan2(vec2.getX(), vec2.getZ());

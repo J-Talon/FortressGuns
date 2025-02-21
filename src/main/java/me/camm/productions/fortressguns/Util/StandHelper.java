@@ -214,9 +214,14 @@ public class StandHelper
 
 
     //@author CAMM
+    /*
+    the feeling when you rediscover an answer to a problem that you wrote but completely forgot about
+    ... this is basically vec to euler but for my specific use case *facepalm*
+     */
     public static EulerAngle getLookatRotation(Vector direction) {
 
         //x,y,z should be the diff between the dest and source.
+        //all you gotta know is that euler angles are basically 3 degrees mashed together
         double x = direction.getX();
         double z = direction.getZ();
         double hypotenuseHorizontal = Math.sqrt(x * x + z * z);

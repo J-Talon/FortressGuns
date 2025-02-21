@@ -9,12 +9,10 @@ public class ValidatorLightFlak implements Validator<ConfigLightFlak> {
 
         long cool = in.getCooldown();
         double jam = in.getJamPercent(), health = in.getHealth(), overheat = in.getOverheat(), heatOut = in.getHeatDissipationRate();
-        int mag = in.getMagSize();
         long inactive = in.getInactiveHeatTicks();
 
-        return (cool > 0) && (jam >=0 && jam < 1) &&
+        return (cool > 0) && (jam >=0 && jam <= 1) &&
                 (health > 0) && (overheat >= 0 && overheat < 100) &&
-                (mag > 0) &&
                 (inactive >=0 ) &&
                 (heatOut >= 0 && heatOut <= 100);
 

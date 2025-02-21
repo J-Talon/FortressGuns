@@ -23,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile, ProjectileExplosive {
 
-
-    private Entity target;
     private final org.bukkit.World bukkitWorld;
     private int fueledFlightAge;
     private Vec3D direction;
@@ -38,7 +36,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
 
     private int readyTime;
     private static final int FUEL = 600;  //
-    private static final int PRIME = 10; //1/2 sec
+    private static final int PRIME = 5; //1/2 sec
 
     private final Vec3D initialVelocity;
     private boolean hadTarget;

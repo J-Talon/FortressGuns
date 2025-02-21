@@ -24,10 +24,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 
 /*
@@ -45,11 +42,13 @@ public abstract class RapidFire extends ArtilleryRideable {
 
     protected long lastInteractionTime;
 
-
+    protected static final String PROGRESS_BAR;
+    protected static final int BAR_LENGTH;
 
 
     static {
-
+        BAR_LENGTH = 50;
+        PROGRESS_BAR = "|".repeat(BAR_LENGTH);
         BARREL_ITEM = ArtilleryMaterial.STANDARD_BODY.asItem();
         MUZZLE_ITEM = ArtilleryMaterial.SMALL_BARREL.asItem();
         SEAT_ITEM = ArtilleryMaterial.SEAT.asItem();
@@ -69,7 +68,10 @@ public abstract class RapidFire extends ArtilleryRideable {
 
     protected FireTrigger triggerHandle;
 
+    protected static Map<Byte, net.md_5.bungee.api.ChatColor> heatColours;
+
     static {
+        heatColours = new HashMap<>();
         CASING = new ItemStack(Material.IRON_NUGGET);
         if (CASING.getItemMeta() != null) {
             ItemMeta meta = CASING.getItemMeta();
@@ -294,14 +296,15 @@ public abstract class RapidFire extends ArtilleryRideable {
     @Override
     public void rideTick(EntityHuman human) {
 
-        final int BAR_LENGTH = 50;
-        final int MAX_OCT = 255;
-        final String BAR = "|";
 
-        String progressBar = BAR.repeat(BAR_LENGTH);
+        final int MAX_OCT = 255;
+
         net.md_5.bungee.api.ChatColor ammoColor;
 
-        if (isJammed()) {
+        long modulus = System.currentTimeMillis() % 1000;
+        boolean changeColor = modulus > 500;
+
+        if (isJammed() && changeColor) {
             ammoColor = net.md_5.bungee.api.ChatColor.DARK_PURPLE;
         }
     else {
@@ -309,31 +312,28 @@ public abstract class RapidFire extends ArtilleryRideable {
         }
 
 
-
-
         pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
         Player player = (Player)human.getBukkitEntity();
 
         double heat = getBarrelHeat();
         float heatPercent = (float)heat / 100;   ///heat is from [0-100]
-        //System.out.println("barrelheat:"+heat);
-
-
-        int b = (int) ((1 - heatPercent) * MAX_OCT);    //blue
-        int g = (int) ((1 - 0.8 * heatPercent) * MAX_OCT);   //green
+        byte displayHeat = (byte)Math.round(heat);
 
         net.md_5.bungee.api.ChatColor tempColor;
-        if (heatPercent > 0.75) {
-            long modulus = System.currentTimeMillis() % 1000;
-            if (modulus > 500) {
-                tempColor = net.md_5.bungee.api.ChatColor.WHITE;
-            }
-            else {
-                tempColor = net.md_5.bungee.api.ChatColor.of(new Color(MAX_OCT, g, b));
-            }
+        if (heatPercent > 0.75 && changeColor) {
+            tempColor = net.md_5.bungee.api.ChatColor.WHITE;
         }
         else {
-            tempColor = net.md_5.bungee.api.ChatColor.of(new Color(MAX_OCT, g, b));
+            if (heatColours.containsKey(displayHeat)) {
+                tempColor = heatColours.get(displayHeat);
+            }
+            else {
+                tempColor = net.md_5.bungee.api.ChatColor.of(
+                        new Color(MAX_OCT,
+                                (int) ((1 - 0.8 * heatPercent) * MAX_OCT),  //blue
+                                (int) ((1 - heatPercent) * MAX_OCT)));   //green
+                heatColours.put(displayHeat, tempColor);
+            }
         }
 
 
@@ -342,19 +342,19 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
         /////left side
-        String displayTemp = ""+(int)Math.round(heat);
+        String displayTemp = ""+displayHeat;
         displayTemp = "[H:"+ ("0".repeat(3-displayTemp.length())) + displayTemp +"%]";
 
         componentLeft = new TextComponent(displayTemp);
         componentLeft.setColor(net.md_5.bungee.api.ChatColor.GOLD);
 
 
-        tempReference = new TextComponent(progressBar.substring(0, BAR_LENGTH - barTempAmount));
+        tempReference = new TextComponent(PROGRESS_BAR.substring(0, BAR_LENGTH - barTempAmount));
         tempReference.setColor(net.md_5.bungee.api.ChatColor.DARK_GRAY);
         componentLeft.addExtra(tempReference);
 
 
-        tempReference = new TextComponent(progressBar.substring(BAR_LENGTH - barTempAmount));
+        tempReference = new TextComponent(PROGRESS_BAR.substring(BAR_LENGTH - barTempAmount));
         tempReference.setColor(tempColor);
         componentLeft.addExtra(tempReference);
 
@@ -363,7 +363,7 @@ public abstract class RapidFire extends ArtilleryRideable {
         /////
         ///right side
         if (!requiresReloading()) {
-            componentRight =  new TextComponent(progressBar);
+            componentRight =  new TextComponent(PROGRESS_BAR);
             componentRight.setColor(ammoColor);
             tempReference = new TextComponent("[∞IFNTE]");
 
@@ -374,42 +374,30 @@ public abstract class RapidFire extends ArtilleryRideable {
             int currentAmmo = getAmmo();
 
             int ammoPercentLeft;
-            if (maxAmmo == 0) {
+            int left;
+
+            int max = Math.max(3 - ("" + currentAmmo).length(), 0);
+            if (maxAmmo < 0) {
                 ammoPercentLeft = Math.min(BAR_LENGTH, currentAmmo);
+                left = max;
+            }
+            else if (maxAmmo == 0){
+               ammoPercentLeft = 0;
+               left = 3;
             }
             else {
                 ammoPercentLeft = (int) (((float)currentAmmo / maxAmmo) * BAR_LENGTH);
+                left = max;
             }
 
-//
-//            boolean debug = true;
-//            if (debug) {
-//
-//                try {
-//                    progressBar.substring(0, ammoPercentLeft);
-//                }
-//                catch (Exception e) {
-//                    System.out.println("pb:"+progressBar +"| len: "+progressBar.length());
-//                    System.out.println("apl:"+ammoPercentLeft);
-//                    System.out.println("max ammo: "+maxAmmo);
-//                    System.out.println("current ammo:"+currentAmmo);
-//                }
-//
-//
-//                //[21:34:18] [Server thread/INFO]: pb:||||||||||||||||||||||||||||||||||||||||||||||||||| len: 50
-//                //[21:34:18] [Server thread/INFO]: apl:60
-//                return;
-//            }
-
-            componentRight = new TextComponent(progressBar.substring(0, ammoPercentLeft));
+            componentRight = new TextComponent(PROGRESS_BAR.substring(0, ammoPercentLeft));
             componentRight.setColor(ammoColor);
 
-            tempReference = new TextComponent(progressBar.substring(ammoPercentLeft));
+            tempReference = new TextComponent(PROGRESS_BAR.substring(ammoPercentLeft));
             tempReference.setColor(net.md_5.bungee.api.ChatColor.DARK_GRAY);
             componentRight.addExtra(tempReference);
 
-            int left = (""+maxAmmo).length() - (""+currentAmmo).length();
-            tempReference = new TextComponent("["+("0".repeat(left)) + Math.min(getAmmo(),999) + ":AML]");
+            tempReference = new TextComponent("["+("0".repeat(left)) + Math.min(getAmmo(),999) + ":LDA]");
         }
 
         tempReference.setColor(net.md_5.bungee.api.ChatColor.GRAY);

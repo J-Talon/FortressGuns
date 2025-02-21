@@ -174,6 +174,14 @@ public abstract class Artillery extends Construct {
         initInventories();
     }
 
+    protected synchronized void setCanFire(boolean canFire) {
+        this.canFire = canFire;
+    }
+
+    protected synchronized boolean getCanFire() {
+        return canFire;
+    }
+
     protected abstract void initInventories();
 
 
@@ -190,7 +198,21 @@ public abstract class Artillery extends Construct {
         double x = angle.getX();
         x = Math.max(getMaxVertAngle(), x);
         x = Math.min(getMinVertAngle(), x);
-        this.interpolatedAim = new EulerAngle(x, angle.getY(), 0);
+
+        final double TWO_PI = 2*Math.PI;
+        double y = angle.getY();
+
+        if (x > TWO_PI || x < -TWO_PI) {
+            x = x % TWO_PI;
+        }
+
+        final double NINETY_DEG = Math.PI / 2;
+        if (y > NINETY_DEG || y < -NINETY_DEG) {
+            y = y % NINETY_DEG;
+        }
+
+
+        this.interpolatedAim = new EulerAngle(x, y, 0);
     }
 
     public synchronized EulerAngle getInterpolatedAim() {
@@ -384,6 +406,11 @@ public abstract class Artillery extends Construct {
             vertAngle = Math.min(vertAngle, getMinVertAngle());
         }
 
+        final double TWO_PI = 2 * Math.PI;
+        if (horAngle > TWO_PI || horAngle < -TWO_PI) {
+            horAngle = horAngle % TWO_PI;
+        }
+
 
         if (currX == vertAngle && currY == horAngle && !lengthChanged)
             return;
@@ -393,7 +420,7 @@ public abstract class Artillery extends Construct {
         vertAngle = nextVerticalAngle(currX, vertAngle, vertRotSpeed);
 
 
-        //don't add PI to give an extra 180 * to the rotation (see Construct.getASFace(EntityHuman) )
+        //don't add PI to give an extra 180 * to the rotation (see StandHelper.getASFace(EntityHuman) )
         //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
         horAngle = nextHorizontalAngle(currY, horAngle, horRotSpeed);
 

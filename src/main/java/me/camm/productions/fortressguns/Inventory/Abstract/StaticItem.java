@@ -13,12 +13,16 @@ public enum StaticItem {
     ROTATE_VERTICAL(ChatColor.GOLD+"Rotate Turret Up/down", Material.YELLOW_TERRACOTTA),
     LOAD_UNLOAD(ChatColor.GOLD+"Left click: Load | Right click: Unload", Material.GREEN_TERRACOTTA),
     ROUND_SHOWCASE(ChatColor.GRAY+"", Material.RAIL),
+
+    JAMMED_ROUND(ChatColor.GRAY+"Round", Material.YELLOW_TERRACOTTA),
     RAMROD(ChatColor.WHITE + "Ramrod",Material.STICK),
     ROTATE_HORIZONTAL(ChatColor.GOLD+"Rotate Turret Left/right", Material.YELLOW_TERRACOTTA),
     FIRE(ChatColor.RED+"FIRE!", Material.RED_TERRACOTTA),
     DISASSEMBLE(ChatColor.BLUE+"Disassemble", Material.BLUE_TERRACOTTA),
     INFO(ChatColor.WHITE+"", Material.CYAN_TERRACOTTA),
     BORDER(ChatColor.BLACK+"", Material.BLACK_STAINED_GLASS_PANE),
+
+    CLEAR_JAM(ChatColor.GRAY+"Clear Jam", Material.GRAY_TERRACOTTA),
     RELOAD(ChatColor.GREEN+"Reload", Material.GREEN_TERRACOTTA);
 
     final String name;

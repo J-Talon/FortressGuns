@@ -121,6 +121,18 @@ public abstract class InventoryGroup {
         }
     }
 
+    public static class BulkPrecision extends InventoryGroup {
+       public BulkPrecision(Artillery owner) {
+           super(owner);
+       }
+
+        @Override
+        protected void init() {
+            addInventory(new BulkLoadingInventory((Artillery) owner, this));
+            addInventory(new PrecisionMenuInventory((Artillery)owner,this));
+        }
+    }
+
 
 
 

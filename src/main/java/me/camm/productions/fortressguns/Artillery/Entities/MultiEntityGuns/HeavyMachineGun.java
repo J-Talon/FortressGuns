@@ -109,7 +109,7 @@ public class HeavyMachineGun extends RapidFire {
         if (!canFire())
             return;
 
-        canFire = false;
+        setCanFire(false);
         while (iterations < shots) {
 
             if (!canFireSingle())
@@ -120,22 +120,18 @@ public class HeavyMachineGun extends RapidFire {
             new BukkitRunnable() {
                 public void run() {
 
+                    //this is because it starts later so while it may be true in the while,
+                    //it might not be here
+                    if (!canFireSingle()) {
+                        setCanFire(true);
+                        cancel();
+                        return;
+                    }
+
                     Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
                     fireSingleShot(muzzle);
-
-                    Vector origin = muzzle.toVector();
-                    Location pivLoc = pivot.getLocation(world);
-                    Item item = world.dropItem(pivLoc,CASING);
-                    Vector vel = origin.clone().normalize();
-                    double x = vel.getX();
-                    double z = vel.getZ();
-                    vel.setX(z);
-                    vel.setZ(x);
-
-                    item.setVelocity(vel);
-
                     if (reference >= shots)
-                        canFire = true;
+                        setCanFire(true);
 
                     cancel();
                 }
@@ -148,32 +144,35 @@ public class HeavyMachineGun extends RapidFire {
     public void rideTick(EntityHuman human) {
         super.rideTick(human);
 
-        if (canFire) {
+        long timeElapsed = System.currentTimeMillis() - lastFireTime;
+        if (timeElapsed < inactiveHeatTicks)
+            return;
 
-            long timeElapsed = System.currentTimeMillis() - lastFireTime;
-            if (timeElapsed < inactiveHeatTicks)
-                return;
+        setBarrelHeat(Math.max(0, getBarrelHeat() - heatDissipation));
 
-            setBarrelHeat(Math.max(0, getBarrelHeat() - heatDissipation));
-        }
 
     }
 
     private void fireSingleShot(Location muzzle) {
 
         List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
-        if (passengers.isEmpty())
+        if (passengers.isEmpty()) {
+            setCanFire(true);
             return;
+        }
 
         Entity possibleOperator = passengers.get(0);
         Player operator = possibleOperator instanceof Player ? (Player) possibleOperator : null;
-        if (operator == null)
+        if (operator == null) {
+            setCanFire(true);
             return;
+        }
 
         boolean jammed = random.nextDouble() < jamPercent;
         if (jammed || isJammed()) {
-            world.playSound(muzzle, Sound.ITEM_FLINTANDSTEEL_USE,SoundCategory.BLOCKS,1f,0f);
+            world.playSound(muzzle, Sound.ITEM_FLINTANDSTEEL_USE,SoundCategory.BLOCKS,1f,1f);
             operator.sendMessage(ChatColor.RED+"Gun is jammed!");
+            setCanFire(true);
             setJammed(true);
             return;
         }
@@ -199,7 +198,13 @@ public class HeavyMachineGun extends RapidFire {
         Vector addition = new Vector(random.nextDouble() - random.nextDouble(),
                 random.nextDouble() - random.nextDouble(),
                 random.nextDouble() - random.nextDouble());
-        addition.multiply(0.01);
+        addition.multiply(0.1);
+
+        if (direction.dot(addition) < 0) {
+            addition.multiply(-1);
+        }
+
+        direction.add(addition);
 
 
 
@@ -231,11 +236,11 @@ public class HeavyMachineGun extends RapidFire {
     //can fire single
     @Override
     public boolean canFire() {
-        return (ammo > 0 || !requiresReloading()) && !isInvalid() && canFire && !isJammed;
+        return (getAmmo() > 0 || !requiresReloading()) && !isInvalid() && getCanFire() && !isJammed();
     }
 
     private boolean canFireSingle() {
-        return (ammo > 0 ||!requiresReloading()) && !isJammed;
+        return (getAmmo() > 0 ||!requiresReloading()) && !isJammed();
     }
 
     @Override

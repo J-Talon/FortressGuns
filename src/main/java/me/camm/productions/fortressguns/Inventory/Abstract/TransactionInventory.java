@@ -162,7 +162,14 @@ return null? --> stacks cannot be merged
     protected int getAdditionDifference(ItemStack residing, ItemStack incoming) {
 
         Artillery body = (Artillery) owner;
-        int allowedTotal =  body.getMaxAmmo() - body.getAmmo();
+        int allowedTotal;
+
+        if (body.getMaxAmmo() < 0) {
+            allowedTotal = residing.getMaxStackSize();
+        }
+        else
+            allowedTotal = body.getMaxAmmo() - body.getAmmo();
+
         if (allowedTotal <= 0)
             return 0;
 
@@ -183,7 +190,7 @@ return null? --> stacks cannot be merged
      */
     protected int getAdditionDifference(ItemStack incoming) {
         Artillery body = (Artillery) owner;
-        int allowedTotal = body.getMaxAmmo() - body.getAmmo();
+        int allowedTotal = body.getMaxAmmo() < 0 ? incoming.getMaxStackSize() :body.getMaxAmmo() - body.getAmmo();
         return Math.min(incoming.getAmount(), allowedTotal);
     }
 

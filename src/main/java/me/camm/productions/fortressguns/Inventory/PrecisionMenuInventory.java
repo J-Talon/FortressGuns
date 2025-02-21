@@ -80,9 +80,6 @@ public class PrecisionMenuInventory extends MenuInventory {
     };
 
 
-
-
-
     public PrecisionMenuInventory(Artillery owner, InventoryGroup group) {
         super(owner, group);
         functions.put(StaticItem.ROTATE_HORIZONTAL.getName(), aimHorizontal);
@@ -91,15 +88,6 @@ public class PrecisionMenuInventory extends MenuInventory {
         functions.put(StaticItem.DISASSEMBLE.getName(), disassemble);
         functions.put(StaticItem.RELOAD.getName(), openReloading);
         init();
-    }
-
-    @Override
-    protected boolean isStaticItem(ItemStack current) {
-        for (StaticItem b: StaticItem.values()) {
-            if (ArtilleryItemHelper.matchesName(current, b.getName()))
-                return true;
-        }
-        return false;
     }
 
 

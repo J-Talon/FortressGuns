@@ -304,6 +304,11 @@ public class ArtilleryPart extends Component
             }
 
             if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
+
+                if (!body.requiresReloading()) {
+                    return;
+                }
+
                 menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
             } else {
                 menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);

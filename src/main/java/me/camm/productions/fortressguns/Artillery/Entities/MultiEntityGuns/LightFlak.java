@@ -155,7 +155,7 @@ public class LightFlak extends RapidFire {
 
         if (jammed || isJammed()) {
             operator.sendMessage(ChatColor.RED+"Gun is jammed!");
-            world.playSound(muzzle, Sound.ITEM_FLINTANDSTEEL_USE,SoundCategory.BLOCKS,1f,0f);
+            world.playSound(muzzle, Sound.ITEM_FLINTANDSTEEL_USE,SoundCategory.BLOCKS,1f,1f);
             setJammed(true);
             return;
         }
@@ -234,7 +234,6 @@ public class LightFlak extends RapidFire {
     public int getMaxAmmo() {
         return magSize;
     }
-
 
     @Override
     public boolean acceptsAmmo(AmmoItem item) {

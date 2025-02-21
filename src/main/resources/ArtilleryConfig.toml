@@ -31,7 +31,7 @@ health = 15
 cooldown = 500
 
 #ammo drum size of the light flak before needing reload
-#set to 0 to allow arbitrary length belt feeding
+#set to -1 to allow arbitrary length belt feeding
 magSize = 40
 
 #The percent chance for any one shot to jam the gun. float value, 0 to 1.
@@ -54,11 +54,11 @@ inactiveHeatTicks = 2000
 health = 15
 
 #ammo drum size of the machine gun before needing reload.
-#set to 0 to allow arbitrary length belt feeding
-magSize = 100
+#set to -1 to allow arbitrary length belt feeding
+magSize = -1
 
 #The percent chance for any one shot to jam the gun. float value, [0 - 1]
-jamPercent = 0
+jamPercent = 0.01
 
 #the amount of heat which should be incurred per shot.
 #float value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.

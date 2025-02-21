@@ -100,7 +100,12 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             if (loaded != null && loaded != input)
                 return;
 
-            int difference = Math.min(body.getMaxAmmo() - body.getAmmo(), residing.getAmount());
+            int difference;
+
+            if (body.getMaxAmmo() < 0) {
+                difference = residing.getAmount();
+            }
+            else difference = Math.min(body.getMaxAmmo() - body.getAmmo(), residing.getAmount());
 
             if (difference <= 0) {
                 return;
@@ -139,11 +144,11 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
         Artillery body = (Artillery)owner;
         ItemStack curr = currentLoaded();
         int i;
-        for (i = 3; i < Math.min(9, body.getAmmo()); i ++) {
+        for (i = 3; i < Math.min(9, 3 + body.getAmmo()); i ++) {
             gui.setItem(i, curr);
         }
 
-        for (;i < 9; i ++) {
+        for (;i < 9; ++i) {
             gui.setItem(i, BORDER);
         }
     }

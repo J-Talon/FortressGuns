@@ -34,7 +34,6 @@ public class MissileLauncher extends ArtilleryRideable {
 
     boolean fireRight;
     private Entity target;
-    private int rockets;
     private long lastFireTime;
 
 
@@ -69,17 +68,16 @@ public class MissileLauncher extends ArtilleryRideable {
     public MissileLauncher(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
         super(loc, world, loader, aim);
         barrel = new ArtilleryPart[6];   ///barrel MUST be a multiple of 2 since we are doing some stuff in spawnTurret() & pivot()
-        base = new ArtilleryPart[3][3];
+        base = new ArtilleryPart[4][3];
         stem = new ArtilleryPart[2];
         fireRight = true;
         this.target = null;
-        rockets = maxRockets;
         lastFireTime = System.currentTimeMillis();
     }
 
     @Override
     protected void initInventories() {
-        interactionInv = new InventoryGroup.StandardGroup(this);
+        interactionInv = new InventoryGroup.BulkPrecision(this);
     }
 
     public static void setMaxRockets(int maxRockets) {
@@ -110,13 +108,10 @@ public class MissileLauncher extends ArtilleryRideable {
         if (!canFire())
             return;
 
-        rockets --;
-        lastFireTime = System.currentTimeMillis();
-
         if (shooter != null) {
 
             List<ArtilleryPart> parts = getParts();
-            Entity target = InteractionHandler.getTarget(shooter.getUniqueId());
+            target = InteractionHandler.getTarget(shooter.getUniqueId());
             if (target != null) {
                 net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
                 if (nms instanceof ArtilleryPart && parts.contains(nms)) {
@@ -125,6 +120,9 @@ public class MissileLauncher extends ArtilleryRideable {
                 }
             }
             setTarget(target);
+        }
+        else {
+            setTarget(null);
         }
 
         //
@@ -143,12 +141,13 @@ public class MissileLauncher extends ArtilleryRideable {
         fireRight = !fireRight;
 
         Vector dir = eulerToVec(aim).normalize();
+        Vector backBlastDir = dir.clone().multiply(-1);
+
         Vector front = dir.clone().multiply(1.5);  //slightly in front of the thing
 
         Location spawn = shootingPart.getEyeLocation().add(front);
         Location back = backBlast.getEyeLocation().add(front.multiply(-1));
 
-        Vector backBlastDir = back.clone().subtract(spawn).toVector();
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
         Artillery construct = this;
@@ -158,12 +157,17 @@ public class MissileLauncher extends ArtilleryRideable {
             public void run() {
                 EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
 
-
                 SimpleMissile missile = new SimpleMissile(nmsWorld, spawn.getX(), spawn.getY(), spawn.getZ(), shooterNMS, construct);
                 missile.setTarget(target);
-                setAmmo(Math.max(0, getAmmo()-1));
-                setTarget(null);
 
+                int nextAmmo = getAmmo() - 1;
+                if (nextAmmo <= 0) {
+                    lastFireTime = System.currentTimeMillis();
+                    setAmmo(0);
+                }
+                else {
+                    setAmmo(nextAmmo);
+                }
 
                 double vecPow = getVectorPower();
 
@@ -175,14 +179,14 @@ public class MissileLauncher extends ArtilleryRideable {
                 int ITERS = 20;
 
                 final double HALF = 0.5;
-                final double MAG = 0.1;
+                final double MAG = 0.3;
                 do {
                     double x = (RANDOM.nextDouble() - HALF) * MAG, y = (RANDOM.nextDouble() - HALF) * MAG, z = (RANDOM.nextDouble() - HALF) * MAG;
                     x = backBlastDir.getX() + x;
                     y = backBlastDir.getY() + y;
                     z = backBlastDir.getZ() + z;
 
-                    world.spawnParticle(Particle.FLAME,back,0, x,y,z + z,0.1);
+                    world.spawnParticle(Particle.FLAME,back,0, x,y,z + z,0.4);
 
                     ITERS --;
                 }
@@ -193,7 +197,6 @@ public class MissileLauncher extends ArtilleryRideable {
             }
         }.runTask(plugin);
     }
-
 
     @Override
     protected boolean spawnParts() {
@@ -227,7 +230,7 @@ public class MissileLauncher extends ArtilleryRideable {
                 if (row[slot] == null)
                     return false;
             }
-            rads += 2 * Math.PI / 3;
+            rads += 2 * Math.PI / 4;
         }
         return true;
     }
@@ -403,7 +406,7 @@ public class MissileLauncher extends ArtilleryRideable {
     @Override
     public boolean canFire() {
 
-        if (rockets > 0 || (!requiresReloading()))
+        if (getAmmo() > 0 || (!requiresReloading()))
             return true;
         return System.currentTimeMillis() >= (lastFireTime + cooldown);
     }

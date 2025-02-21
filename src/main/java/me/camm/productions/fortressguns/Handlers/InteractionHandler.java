@@ -4,10 +4,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Tuneable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -185,6 +183,11 @@ public class InteractionHandler implements Listener
         ItemStack item = event.getItemInHand();
         if (ArtilleryItemHelper.isArtillery(item) != null) {
             event.getPlayer().sendMessage(ChatColor.RED+"[!] Right click the air if you're trying to assemble artillery.");
+            event.setCancelled(true);
+            return;
+        }
+
+        if (ArtilleryItemHelper.isAmmoItem(item) != null) {
             event.setCancelled(true);
         }
     }
