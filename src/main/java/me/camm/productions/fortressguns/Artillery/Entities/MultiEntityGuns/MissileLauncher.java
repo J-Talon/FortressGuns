@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
@@ -25,6 +26,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+
+import javax.xml.crypto.dsig.SignatureMethod;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -100,7 +103,13 @@ public class MissileLauncher extends ArtilleryRideable {
         this.target = target;
     }
 
-
+    @Override
+    protected @Nullable SimpleMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        SimpleMissile missile = (SimpleMissile) super.createProjectile(world, x, y, z, shooter, source);
+        if (missile != null)
+            missile.setTarget(target);
+        return missile;
+    }
 
     @Override
     public void fire(@Nullable Player shooter) {
@@ -152,13 +161,15 @@ public class MissileLauncher extends ArtilleryRideable {
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
         Artillery construct = this;
 
+        EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
+        SimpleMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
+        if (missile == null) {
+            plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
+            return;
+        }
 
         new BukkitRunnable() {
             public void run() {
-                EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-
-                SimpleMissile missile = new SimpleMissile(nmsWorld, spawn.getX(), spawn.getY(), spawn.getZ(), shooterNMS, construct);
-                missile.setTarget(target);
 
                 int nextAmmo = getAmmo() - 1;
                 if (nextAmmo <= 0) {
@@ -230,7 +241,7 @@ public class MissileLauncher extends ArtilleryRideable {
                 if (row[slot] == null)
                     return false;
             }
-            rads += 2 * Math.PI / 4;
+            rads += 2 * Math.PI / 4; //90* offsets
         }
         return true;
     }
@@ -305,6 +316,7 @@ public class MissileLauncher extends ArtilleryRideable {
         double yHeight = -LARGE_BLOCK_LENGTH * Math.sin(aim.getX());
         //90* offset
 
+        //yes I know sin(x+0.5pi) = cos(x)
         double horDist = LARGE_BLOCK_LENGTH * Math.cos(aim.getX());
 
         zStraight = horDist * Math.cos(aim.getY());

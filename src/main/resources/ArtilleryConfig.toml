@@ -115,8 +115,8 @@ standard = 4
 #light flak always explodes with an explosion power of 1
 #same with CRAM
 
-# If a shell hits the target directly, how much damage the target should receive
-# this damage is applied before explosion damage if the shell explodes
+# If a shell hits the target directly, how much damage the target should receive.
+# this damage is applied before explosion damage if the shell is explosive.
 # missiles do no contact damage
 heavyHighExplosiveDamage = 10
 heavyFlakDamage = 10
@@ -129,10 +129,12 @@ railgunDamage = 150
 
 
 #Whether the explosions from the artillery should be
-#vanilla explosions which call Spigot/Bukkit/Paper API events
+#vanilla explosions which call Spigot/Bukkit/Paper API events using world.createExplosion(...)
+#or a custom explosion which might not
 useVanillaExplosions = false
 
 #Whether artillery destroys blocks
+#this does not apply to falling blocks
 destructiveArtillery = true
 
 #whether artillery need to reload

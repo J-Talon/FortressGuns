@@ -2,13 +2,14 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Util.Explosions.ExplosionHelper;
+import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
 
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.entity.Player;
 
 
 import javax.annotation.Nullable;
@@ -82,11 +83,21 @@ public class FlakHeavyShell extends HeavyShell {
     }
 
 
+    @Override
     public void explode(@Nullable Vec3D hit) {
         this.die();
         if (hit == null)
-            ExplosionHelper.flakHeavyExplosion(getWorld(),this,locX(),locY(),locZ(), getExplosionPower(),this);
+            ExplosionFactory.flakHeavyExplosion(getWorld(),this,locX(),locY(),locZ(), getExplosionPower(),this);
         else
-            ExplosionHelper.flakHeavyExplosion(getWorld(),this,hit.getX(),hit.getY(),hit.getZ(), getExplosionPower(),this);
+            ExplosionFactory.flakHeavyExplosion(getWorld(),this,hit.getX(),hit.getY(),hit.getZ(), getExplosionPower(),this);
     }
+
+
+    @Override
+    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+        explode(exactHitPosition);
+        return true;
+    }
+
+
 }

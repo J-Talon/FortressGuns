@@ -1,12 +1,9 @@
-package me.camm.productions.fortressguns.Util.Explosions;
+package me.camm.productions.fortressguns.Explosions.Old;
 
-import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.WorldServer;
-import net.minecraft.sounds.SoundCategory;
-import net.minecraft.sounds.SoundEffects;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
@@ -27,7 +24,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParameters;
 import net.minecraft.world.phys.AxisAlignedBB;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
@@ -324,7 +320,7 @@ public class ShellExplosion extends Explosion {
         }
 
         this.brokenBlocks.addAll(brokenBlocks);
-        explosive.modifyExplosion(this);
+     //   explosive.modifyExplosion(this);
     }
 
 

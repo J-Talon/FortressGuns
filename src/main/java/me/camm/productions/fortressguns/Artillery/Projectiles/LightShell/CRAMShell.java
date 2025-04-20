@@ -1,18 +1,16 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.particles.Particles;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.ProjectileHelper;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.TileEntity;
 import net.minecraft.world.level.block.entity.TileEntityEndGateway;
 import net.minecraft.world.level.block.state.IBlockData;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
@@ -114,10 +112,6 @@ public class CRAMShell extends LightShell implements ProjectileExplosive {
         return 1;
     }
 
-    @Override
-    public void preHit(@Nullable MovingObjectPosition hitPosition) {
-
-    }
 
 
 }

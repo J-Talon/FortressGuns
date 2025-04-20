@@ -6,6 +6,8 @@ import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
+import net.minecraft.world.inventory.Container;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -47,6 +49,7 @@ public class StandardLoadingInventory extends TransactionReloadInventory {
 
     @Override
     public void init() {
+
         inLoadingAnimation = false;
         loaded = false;
         gui.clear();

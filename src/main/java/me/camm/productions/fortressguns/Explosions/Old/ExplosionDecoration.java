@@ -1,18 +1,16 @@
-package me.camm.productions.fortressguns.Util.Explosions;
+package me.camm.productions.fortressguns.Explosions.Old;
 
 
 import me.camm.productions.fortressguns.FortressGuns;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 
+
 import java.util.Collection;
-import java.util.List;
 
 @FunctionalInterface
 public interface ExplosionDecoration {
@@ -42,12 +40,12 @@ public interface ExplosionDecoration {
             world.playSound(loc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.BLOCKS,0.5f,0);
 
             world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc,50,0,0,0,0.5,null, true);
-            world.spawnParticle(Particle.SMOKE_LARGE,loc,100,0,0,0,0.3);
-            world.spawnParticle(Particle.SMOKE_LARGE,loc,100,1,1,1,0.2,null,true);
+            world.spawnParticle(Particle.SMOKE_LARGE,loc,60,0,0,0,0.3);
+            world.spawnParticle(Particle.SMOKE_LARGE,loc,60,1,1,1,0.2,null,true);
             world.spawnParticle(Particle.FLASH,loc,5,0,0,0,0,null,true);
 
             Particle.DustTransition transition = new Particle.DustTransition(LIGHT_GRAY,DARK_GRAY,30);
-            world.spawnParticle(Particle.REDSTONE,loc,100,1.7,2,1.7,1,transition);
+            world.spawnParticle(Particle.REDSTONE,loc,70,1.7,2,1.7,1,transition);
 
         }
 
@@ -55,17 +53,27 @@ public interface ExplosionDecoration {
         public void postExplosion(ShellExplosion explosion) {
             World bukkitWorld = explosion.getWorld().getWorld();
             BlockData LIGHT = Material.LIGHT.createBlockData();
+            BlockData AIR = Material.AIR.createBlockData();
             Collection<Player> players = bukkitWorld.getPlayers();
             Location loc = new Location(bukkitWorld,explosion.getLocX(),explosion.getLocY(),explosion.getLocZ());
 
-            players.forEach(player ->{player.sendBlockChange(loc,LIGHT);});
-            new BukkitRunnable(){
-                public void run() {
-                    players.forEach(player->{
-                        player.sendBlockChange(loc, loc.getBlock().getBlockData());
-                    });
 
-                }}.runTaskLater(FortressGuns.getInstance(),5);
+            bukkitWorld.setBlockData(loc, LIGHT);
+            new BukkitRunnable() {
+                public void run() {
+                    bukkitWorld.setBlockData(loc,AIR);
+                }
+            }.runTaskLater(FortressGuns.getInstance(), 5);
+
+//
+//            players.forEach(player ->{player.sendBlockChange(loc,LIGHT);});
+//            new BukkitRunnable(){
+//                public void run() {
+//                    players.forEach(player->{
+//                        player.sendBlockChange(loc, loc.getBlock().getBlockData());
+//                    });
+//
+//                }}.runTaskLater(FortressGuns.getInstance(),5);
 
         /*
         So the issue with this currently is the fact that we're trying to set
@@ -99,7 +107,7 @@ public interface ExplosionDecoration {
 
             Particle.DustTransition transition = new Particle.DustTransition(DARK_GRAY,BLACK,30);
 
-            world.spawnParticle(Particle.SQUID_INK,loc,50,0,0,0,0.4f);
+            world.spawnParticle(Particle.SQUID_INK,loc,30,0,0,0,0.4f);
             world.spawnParticle(Particle.SMOKE_LARGE,loc,30,0,0,0,0.1,null,true);
             world.spawnParticle(Particle.REDSTONE,loc,30,0.7,0.7,0.7,0,transition,true);
 
@@ -113,14 +121,6 @@ public interface ExplosionDecoration {
         }
     }
 
-
-    static class FueledExplosion implements ExplosionDecoration {
-
-        @Override
-        public void decorate(ShellExplosion explosion) {
-
-        }
-    }
 
 
 

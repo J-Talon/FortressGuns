@@ -4,13 +4,10 @@ package me.camm.productions.fortressguns;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import me.camm.productions.fortressguns.Handlers.ExplosionHandler;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.DataLoading.FileManager;
-import net.minecraft.world.entity.monster.EntityCreeper;
-import net.minecraft.world.entity.monster.EntitySkeleton;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,7 +30,6 @@ public final class FortressGuns extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-
       plugin = this;
       boolean success = FileManager.loadArtilleryConfig();
       if (!success) {
@@ -44,7 +40,6 @@ public final class FortressGuns extends JavaPlugin implements Listener {
 
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(new InteractionHandler(),this);
-      manager.registerEvents(new ExplosionHandler(),this);
       manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(this, this);
 

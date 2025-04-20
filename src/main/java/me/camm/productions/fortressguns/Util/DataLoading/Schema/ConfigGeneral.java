@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Util.DataLoading.Schema;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShellHE;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.StandardHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
@@ -11,7 +11,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLig
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorGeneral;
-import me.camm.productions.fortressguns.Util.Explosions.ExplosionHelper;
+import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
 
 @JsonTypeName("general")
 public class ConfigGeneral implements ConfigObject {
@@ -54,8 +54,8 @@ public class ConfigGeneral implements ConfigObject {
             return false;
         }
 
-        ExplosiveHeavyShell.setExplosionPower((float)heavyHighExplosive);
-        ExplosiveHeavyShell.setHitDamage((float)heavyHighExplosiveDamage);
+        HeavyShellHE.setExplosionPower((float)heavyHighExplosive);
+        HeavyShellHE.setHitDamage((float)heavyHighExplosiveDamage);
 
         FlakHeavyShell.setExplosionPower((float)heavyFlak);
         FlakHeavyShell.setHitDamage((float)heavyFlakDamage);
@@ -77,8 +77,8 @@ public class ConfigGeneral implements ConfigObject {
 
 
 
-        ExplosionHelper.setDestructiveExplosions(destructiveArtillery);
-        ExplosionHelper.setUseVanillaExplosions(useVanillaExplosions);
+        ExplosionFactory.setDestructiveExplosions(destructiveArtillery);
+        ExplosionFactory.setUseVanillaExplosions(useVanillaExplosions);
 
 
 

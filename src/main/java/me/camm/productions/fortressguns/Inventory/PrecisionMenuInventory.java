@@ -38,6 +38,7 @@ public class PrecisionMenuInventory extends MenuInventory {
             Artillery art = (Artillery) body;
             EulerAngle interpolated = art.getInterpolatedAim();
             interpolated = interpolated.setX(interpolated.getX() + targetVertical);
+
             art.setInterpolatedAim(interpolated);
             art.startPivotInterpolation();
         }
@@ -60,9 +61,11 @@ public class PrecisionMenuInventory extends MenuInventory {
             degrees = degrees.split(ChatColor.WHITE+"")[1].split(" ")[0];
             double targetHorizontal = Math.toRadians(convert(degrees));
 
+
             Artillery art = (Artillery) body;
             EulerAngle interpolated = art.getInterpolatedAim();
             interpolated = interpolated.setY(interpolated.getY() + targetHorizontal);
+
             art.setInterpolatedAim(interpolated);
             art.startPivotInterpolation();
         }

@@ -12,8 +12,6 @@ import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -59,113 +57,28 @@ This method is called in a loop. You can think of it as being called many times 
         aiming = false;
     }
 
-
-
-    public void fire(@Nullable Player shooter) {
-
-        if (isInvalid()) {
-            remove(false, true);
-            return;
-        }
-
-        final Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
-
-        if (target == null || target.isRemoved() || !target.isAlive()) {
-            target = null;
-            aiming = false;
-        }
-
-        //if it can fire, then fire, else return
-        if (canFire())
-            lastFireTime = System.currentTimeMillis();
-        else
-            return;
-
-        createFlash(muzzle);
-        createShotParticles(muzzle);
-        vibrateParticles();
-
-        //getting the values for the projectile velocity.
-        //tan and sine are (-) since MC's grid is inverted
-        double y = Math.tan(-aim.getX());
-        double z = Math.cos(aim.getY());
-        double x = -Math.sin(aim.getY());
-
-        Vector velocity = new Vector(x,y,z).normalize();
-
-        x = velocity.getX()*vectorPower;
-        y = velocity.getY()*vectorPower;
-        z = velocity.getZ()*vectorPower;
-        final Vec3D vector = new Vec3D(x,y,z);
-
-        setSmallDistance(0);
-
-        canFire = false;
-
-        final List<Player> vibratedFor = getVibratedPlayers();
-        Artillery source = this;
-
-        new BukkitRunnable()
-        {
-            boolean shot = false;
-            int ticks = 0;
-
-            @Override
-            public void run() {
-
-                if (!shot) {
-                    shot = true;
-                    EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-                    FlakHeavyShell shell = (FlakHeavyShell) createProjectile(((CraftWorld) world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
-
-                    if (shell == null) {
-                        plugin.getLogger().warning("Unable to create shell: "+getLoadedAmmoType());
-                        shot = true;
-                        return;
-                    }
-
-                    shell.setMot(vector);
-                    setAmmo(Math.max(0, getAmmo()-1));
-
-                    if (target == null && shooter != null) {
-                        double time = InteractionHandler.getTime(shooter.getUniqueId()).getA();
-                        shell.setExplodeTime(time);
-                    }
-                    else
-                        shell.setTerminus(target);
-                    ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
-
-                    ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
-                    if (inv != null) {
-                        inv.updateState();
-                    }
-
-                }
-
-                if (!hasRider) {
-                    pivot(aim.getX(), aim.getY());
-                }
-
-                vibrateAnimation(vibratedFor,ticks,5);
-
-                if (smallBlockDist < SMALL_BLOCK_LENGTH) {
-                    ticks ++;
-                    incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
-                    Location loc = barrel[barrel.length-1].getEyeLocation();
-
-                    int count = (int)(Math.ceil(10 - (smallBlockDist / SMALL_BLOCK_LENGTH) * 10));
-                    for (int spawned = 0; spawned < count; spawned ++)
-                        world.spawnParticle(Particle.SMOKE_NORMAL,loc.clone().add(0,SMALL_BLOCK_LENGTH / 2,0),0,0,0.1,0,0.3);
-                }
-                else
-                {
-                    setSmallDistance(SMALL_BLOCK_LENGTH);
-                    canFire = true;
-                    cancel();
-                }
-            }
-        }.runTaskTimer(FortressGuns.getInstance(), 3, recoilTime);
+    @Override
+    protected int getHeavyFireDelay() {
+        return 3;
     }
+
+
+    @Override
+    protected @Nullable HeavyShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        FlakHeavyShell shell = (FlakHeavyShell)super.createProjectile(world, x, y, z, shooter, source);
+        if (shell == null)
+            return null;
+
+        if (target == null && shooter != null) {
+            double time = InteractionHandler.getTime(shooter.getUniqueID()).getA();
+            shell.setExplodeTime(time);
+        }
+        else
+            shell.setTerminus(target);
+
+        return shell;
+    }
+
 
 
     @Override

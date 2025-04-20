@@ -4,6 +4,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
@@ -177,6 +179,13 @@ public class HeavyMachineGun extends RapidFire {
             return;
         }
 
+
+        EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
+        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
+        LightShell shell = createProjectile(nms, muzzle.getX(),muzzle.getY(), muzzle.getZ(),nmsOperator,this);
+        if (shell == null)
+            return;
+
         setBarrelHeat(Math.min(100, overheat + getBarrelHeat()));
 
         if (getBarrelHeat() >= 100) {
@@ -206,12 +215,6 @@ public class HeavyMachineGun extends RapidFire {
 
         direction.add(addition);
 
-
-
-        EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
-        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
-
-        StandardLightShell shell = new StandardLightShell(nms,muzzle.getX(), muzzle.getY(), muzzle.getZ(),nmsOperator,this);
         shell.setMot(direction.getX(), direction.getY(), direction.getZ());
         nms.addEntity(shell);
         lastFireTime = System.currentTimeMillis();

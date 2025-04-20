@@ -168,6 +168,14 @@ public class LightFlak extends RapidFire {
             world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
         }
 
+        net.minecraft.world.level.World nmsWorld = ((CraftWorld) world).getHandle();
+        EntityPlayer nmsOperator = ((CraftPlayer) operator).getHandle();
+        LightShell shell = createProjectile(nmsWorld,muzzle.getX(),muzzle.getY(),muzzle.getZ(),nmsOperator,this);
+
+        if (shell == null) {
+            return;
+        }
+
         createFlash(muzzle);
 
         if (requiresReloading())
@@ -197,12 +205,6 @@ public class LightFlak extends RapidFire {
         inaccuracy.multiply(INACURACY_FACTOR);
         projectileVelocity.multiply(getVectorPower());
         projectileVelocity.add(inaccuracy);
-
-        net.minecraft.world.level.World nmsWorld = ((CraftWorld) world).getHandle();
-
-
-        EntityPlayer nmsOperator = ((CraftPlayer) operator).getHandle();
-        LightShell shell = new FlakLightShell(nmsWorld, muzzle.getX(), muzzle.getY(), muzzle.getZ(), nmsOperator, this);
 
         shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
         nmsWorld.addEntity(shell);

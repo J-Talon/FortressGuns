@@ -5,23 +5,16 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.R
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.StandardHeavyShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.Explosions.Effect.EffectExplosionStandalone;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
-import me.camm.productions.fortressguns.Util.ExplosionEffect;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
@@ -98,10 +91,7 @@ public abstract class Artillery extends Construct {
     protected final static double [] offsetZ;
 
     protected double vibrationOffsetY;
-
     protected static boolean requiresReloading;
-
-
     protected final static Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> flags;
 
     static {
@@ -200,15 +190,17 @@ public abstract class Artillery extends Construct {
         x = Math.min(getMinVertAngle(), x);
 
         final double TWO_PI = 2*Math.PI;
+        final double NINETY_DEG = Math.PI / 2;
+
         double y = angle.getY();
 
-        if (x > TWO_PI || x < -TWO_PI) {
-            x = x % TWO_PI;
+        if (x > NINETY_DEG || x < -NINETY_DEG) {
+            x = x % NINETY_DEG;
         }
 
-        final double NINETY_DEG = Math.PI / 2;
-        if (y > NINETY_DEG || y < -NINETY_DEG) {
-            y = y % NINETY_DEG;
+
+        if (y > TWO_PI || y < -TWO_PI) {
+            y = y % TWO_PI;
         }
 
 
@@ -283,6 +275,7 @@ public abstract class Artillery extends Construct {
 
     public abstract double getVectorPower();
 
+
     public int getBaseLength() {
         if (baseLength <= 0 )
             baseLength = base[0].length;
@@ -325,6 +318,8 @@ public abstract class Artillery extends Construct {
             @Override
             public void run() {
 
+                System.out.println("ping");
+
                 if (isCameraLocked()) {
                     cancel();
                     return;
@@ -340,7 +335,7 @@ public abstract class Artillery extends Construct {
                 y = interpolatedAim.getY();
 
                 //
-                final double POINT_ONE_RAD = 0.0017;   ///0.1 degrees -> rads = ~0.0017
+                final double POINT_ZERO_RAD = 0.00017;   ///0.01 degrees -> rads = ~0.0017
 
 
                 double currX = aim.getX();
@@ -352,17 +347,15 @@ public abstract class Artillery extends Construct {
                 double diffY = Math.abs((y - aim.getY())) % TWO_PI;
                 double accY = 1 - Math.abs(y - aim.getY()) / TWO_PI;
 
-                boolean closeEnough = (diffX < POINT_ONE_RAD && diffY < POINT_ONE_RAD)
-                        || (accX < 0.1 && accY < 0.1);
+                boolean closeEnough = (diffX < POINT_ZERO_RAD && diffY < POINT_ZERO_RAD)
+                        || (accX < 0.01 && accY < 0.01);
 
                 if (closeEnough && !lengthChanged) {
                     setInterpolating(false);
                     cancel();
                     return;
                 }
-
                 pivot(x,y);
-
                 ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
                 if (inv != null)
                     inv.updateState();
@@ -565,15 +558,34 @@ public abstract class Artillery extends Construct {
         return vibrateFor;
     }
 
-    protected void vibrateAnimation(List<Player> vibrateFor, int ticks, double mult) {
-        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.12 * ticks + 1, 0) * mult;
+    protected void vibrateAnimation(List<Player> vibrateFor, int ticks) {
+
+        final double MULT = 5;
+        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.12 * ticks + 1, 0) * MULT;
         if (offset != 0) {
             setVibrationOffsetY(offset);
             for (Player observer : vibrateFor) {
 
                 if (observer.getVehicle() != null)
                     continue;
-                //0.017 ==> 1 rad
+
+                double magnitude = observer.getLocation().distanceSquared(getLoc());
+                double baseSquared = getBaseLength();
+                baseSquared *= baseSquared;
+                baseSquared *= 1.25;
+
+                magnitude = (1d/(baseSquared*baseSquared) * magnitude);
+                magnitude *= -magnitude;
+                magnitude += + 1;
+
+                magnitude = Math.max(0, magnitude);
+                if (magnitude == 0)
+                    continue;
+
+                offset *= magnitude;
+
+
+
                 EntityPlayer nms = ((CraftPlayer)observer).getHandle();
 
                 PacketPlayOutPosition packet = new PacketPlayOutPosition(0,0,0,
@@ -620,7 +632,7 @@ public abstract class Artillery extends Construct {
         else return;
 
         if (exploded) {
-            ExplosionEffect.explodeArtillery(loc, world);
+            EffectExplosionStandalone.explodeArtillery(loc, world);
         }
 
         if (dropItem) {
@@ -680,6 +692,10 @@ public abstract class Artillery extends Construct {
 
     public World getWorld(){
         return world;
+    }
+
+    public net.minecraft.world.level.World getNMSWorld() {
+        return ((CraftWorld)world).getHandle();
     }
 
     public final Set<Chunk> getOccupiedChunks(){
@@ -750,6 +766,7 @@ see: loadPieces()
             double z = totalDistance * Math.cos(rads);
             double x = -totalDistance * Math.sin(rads);
 
+            // >> 4 is essentially dividing by 16
             Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
             occupiedChunks.add(chunk);
         }
@@ -759,38 +776,9 @@ see: loadPieces()
     protected @Nullable ArtilleryProjectile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
         AmmoItem item = getLoadedAmmoType();
         if (item == null) {
-            System.out.println("loaded type is null");
             return null;
         }
-        ///well I don't really like making a switch for every single flipping thing cause I then gotta
-        // go back and change it everytime I make a new thing, but if it's faster than
-        //reflection okay sure (mainly cause we might be rapidly creating these things so...)
-        //I guess a better way could be to make the specific class determine what to make- especially if there's
-        // a lot of options...that might cut the time down
-        ArtilleryProjectile projectile;
-
-        switch (item) {
-            case STANDARD_HEAVY -> projectile = new StandardHeavyShell(world, x, y, z, shooter, source);
-            case EXPLOSIVE_HEAVY -> projectile = new ExplosiveHeavyShell(world, x, y, z, shooter, source);
-            case STANDARD_LIGHT -> projectile = new StandardLightShell(world, x, y, z, shooter, source);
-            case FLAK_LIGHT -> projectile = new FlakLightShell(world, x, y, z, shooter, source);
-            case MISSILE -> projectile = new SimpleMissile(world, x, y, z, shooter, source);
-            case FLAK_HEAVY -> projectile = new FlakHeavyShell(world, x, y, z, shooter, source);
-            case CRAM -> projectile = new CRAMShell(world, x, y, z, shooter, source);
-            default -> {
-                try {
-                    ///plan b
-                    projectile = item.getProjClass()
-                            .getConstructor(net.minecraft.world.level.World.class, Double.class, Double.class, Double.class, EntityPlayer.class, Artillery.class)
-                            .newInstance(world, x, y, z, shooter, source);
-                } catch (Exception e) {
-                    FortressGuns.getInstance().getLogger().warning("Could not create artillery projectile: "+item.getName());
-                    return null;
-                }
-            }
-        }
-        return projectile;
-
+        return item.create(world, x,y,z, shooter, source);
     }
 
 

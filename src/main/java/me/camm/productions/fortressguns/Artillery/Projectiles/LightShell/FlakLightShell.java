@@ -1,18 +1,17 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
-import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -25,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 public class FlakLightShell extends LightShell implements ProjectileExplosive
 {
 
-
     private static float hitDamage = 10;
 
 
@@ -35,25 +33,18 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
     }
 
 
-    public void preHit(MovingObjectPosition hit) {
-
-        CraftWorld bukkit = getWorld().getWorld();
-
-        if (hit == null) {
-            bukkit.spawnParticle(Particle.SQUID_INK,locX(), locY(), locZ(),20,0,0,0,0.2);
-            explode(null);
-        }else {
-
-            if (hit instanceof MovingObjectPositionBlock) {
-                bukkit.spawnParticle(Particle.SQUID_INK,locX(), locY(), locZ(),20,0,0,0,0.2);
-            }
-            else bukkit.spawnParticle(Particle.SQUID_INK,locX(), locY(), locZ(),20,0,0,0,0.2);
-
-            explode(hit.getPos());
-        }
-        this.die();
-
+    @Override
+    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+        explode(getPositionVector());
+        return true;
     }
+
+    @Override
+    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+        explode(exactHitPosition);
+        return true;
+    }
+
 
     @Override
     public float getHitDamage() {
@@ -72,7 +63,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
     @Override
     public void explode(@Nullable Vec3D hit) {
-        DamageSource source = GunSource.gunShot(gunOperator,this);
+        DamageSource source = GunSource.gunShot(shooter,this);
         World world = getWorld();
         world.createExplosion(this, source,null,locX(), locY(), locZ(),1,false, Explosion.Effect.a);
     }

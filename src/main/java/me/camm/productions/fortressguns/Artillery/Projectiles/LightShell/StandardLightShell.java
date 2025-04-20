@@ -2,6 +2,8 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.EntityHuman;
@@ -21,23 +23,15 @@ public class StandardLightShell extends LightShell {
     }
 
     @Override
-    public void preHit(MovingObjectPosition hit) {
+    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+        Vec3D motion = getMot().d().a(-0.1f);
+        hitEntity.i(motion.getX(), motion.getY(), motion.getZ());
+        return super.onEntityHit(hitEntity, entityPosition);
+    }
 
-        if (hit == null) {
-            return;
-        }
-
-        Vec3D motion = this.getMot();
-
-
-        if (hit instanceof MovingObjectPositionEntity) {
-            Entity hitEntity = ((MovingObjectPositionEntity) hit).getEntity();
-            motion = motion.d().a(-0.1f);  //mult -0.1 and normalize
-
-            hitEntity.setMot(motion);
-            hitEntity.C = true;
-        }
-        this.die();
+    @Override
+    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+        return super.onBlockHit(exactHitPosition, blockFace, hitBlock);
     }
 
 

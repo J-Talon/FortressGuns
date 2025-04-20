@@ -16,6 +16,14 @@ public class Component extends EntityArmorStand {
         this.body = body;
 
     }
+
+
+
+    public boolean validPosition(Location loc) {
+        return true;
+    }
+
+    @Override
     public EnumPistonReaction getPushReaction() {
         return EnumPistonReaction.d;
     }

@@ -4,6 +4,9 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
+import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
@@ -12,6 +15,7 @@ import me.camm.productions.fortressguns.Util.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.Vector3f;
+import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 
@@ -22,6 +26,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
 
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.*;
@@ -423,8 +428,6 @@ public abstract class RapidFire extends ArtilleryRideable {
 
         long diff = System.currentTimeMillis() - next - getInactiveHeatTicks();
 
-
-
         if (diff < 0)
             return;
 
@@ -434,5 +437,14 @@ public abstract class RapidFire extends ArtilleryRideable {
 
         setBarrelHeat(Math.max(0,getBarrelHeat() - (diff * getHeatDissipationRate())));
         lastInteractionTime = System.currentTimeMillis();
+    }
+
+
+    protected @Nullable LightShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        AmmoItem item = getLoadedAmmoType();
+        if (item == null) {
+            return null;
+        }
+        return (LightShell)item.create(world, x,y,z, shooter, source);
     }
 }

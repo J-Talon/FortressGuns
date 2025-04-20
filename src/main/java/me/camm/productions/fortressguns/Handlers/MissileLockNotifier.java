@@ -21,15 +21,17 @@ public class MissileLockNotifier implements Runnable {
     private static final Object lock = new Object();
     private static Thread thread;
     private final int MAX_SECONDS;
-    private boolean running;
+    private volatile boolean running;
     private final Plugin plugin;
+    private boolean showRed;
 
-    private MissileLockNotifier(Plugin p){
+    private MissileLockNotifier(Plugin p) {
         players = new ConcurrentHashMap<>();
         time = new ConcurrentHashMap<>();
         running = true;
         this.plugin = p;
         MAX_SECONDS = SimpleMissile.getFuelTicks() / 20;
+        showRed = true;
     }
 
     public static MissileLockNotifier get(Plugin p) {
@@ -104,44 +106,50 @@ public class MissileLockNotifier implements Runnable {
                     }
                 }
 
-                    Thread.sleep(1000);
+                Thread.sleep(1000);
+                showRed = !showRed;
 
-                    players.forEach((uuid, integer) -> {
-                        Player player = Bukkit.getPlayer(uuid);
+                players.forEach((uuid, integer) -> {
+                    Player player = Bukkit.getPlayer(uuid);
 
-                        if (player == null || !player.isOnline()) {
+                    if (player == null || !player.isOnline()) {
+                        players.remove(uuid);
+                    }
+                    else
+                    {
+                        int timeLeft = time.getOrDefault(uuid, -1);
+                        if (timeLeft == -1) {
                             players.remove(uuid);
                         }
                         else
                         {
-                            int timeLeft = time.getOrDefault(uuid, -1);
-                            if (timeLeft == -1) {
+                            if (timeLeft > MAX_SECONDS) {
                                 players.remove(uuid);
+                                time.remove(uuid);
                             }
-                            else
-                            {
-                                if (timeLeft > MAX_SECONDS) {
-                                    players.remove(uuid);
-                                    time.remove(uuid);
-                                }
-                                else {
-                                    timeLeft ++;
-                                    time.replace(uuid, timeLeft);
-                                }
-                            }
-
-                            if (player.isGliding()) {
-                                String out;
-                                if (integer == 1) {
-                                    out = "Missile Inbound";
-                                } else out = "Missiles Inbound";
-
-
-                                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "[WARNING] " + integer + " " + out + " [WARNING]"));
+                            else {
+                                timeLeft ++;
+                                time.replace(uuid, timeLeft);
                             }
                         }
 
-                    });
+                        if (player.isGliding()) {
+                            String out;
+                            if (integer == 1) {
+                                out = "Missile Inbound";
+                            } else out = "Missiles Inbound";
+
+                            ChatColor color;
+                            if (showRed) {
+                                color = ChatColor.RED;
+                            }
+                            else color = ChatColor.WHITE;
+
+                            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(color + "[WARNING] " + integer + " " + out + " [WARNING]"));
+                        }
+                    }
+
+                });
 
             }
             catch (InterruptedException e) {

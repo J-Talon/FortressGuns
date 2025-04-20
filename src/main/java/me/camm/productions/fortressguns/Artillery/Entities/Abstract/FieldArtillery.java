@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.ExplosiveHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -13,7 +12,6 @@ import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Util.StandHelper;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -24,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -48,8 +47,27 @@ public abstract class FieldArtillery extends ArtilleryRideable
     @Override
     protected void initInventories() {
         interactionInv = new InventoryGroup.StandardGroup(this);
-
     }
+
+
+    protected int getHeavyFireDelay() {
+     return 4;
+    }
+
+
+    @Override
+    protected @Nullable HeavyShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        HeavyShell shell = (HeavyShell)super.createProjectile(world, x, y, z, shooter, source);
+        if (shell == null)
+            return null;
+
+        Vector vec = eulerToVec(aim).normalize().multiply(getVectorPower());
+
+        final Vec3D vector = new Vec3D(vec.getX(), vec.getY(), vec.getZ());
+        shell.setMot(vector);
+        return shell;
+    }
+
 
     public synchronized void fire(@Nullable Player shooter)
     {
@@ -64,24 +82,28 @@ public abstract class FieldArtillery extends ArtilleryRideable
         else
             return;
 
-        //getting the location of the last armorstand in the barrel array
+        EntityPlayer player = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
         final Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
+        HeavyShell shell = createProjectile(getNMSWorld(),muzzle.getX(), muzzle.getY(), muzzle.getZ(),player, this);
+
+        //warning here cause canFire() should check whether the gun has ammo
+        if (shell == null) {
+            plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
+            return;
+        }
+
 
         //make a flash
         createFlash(muzzle);
         createShotParticles(muzzle);
         vibrateParticles();
 
-        Vector velocity = eulerToVec(aim).normalize().multiply(getVectorPower());
-        final Vec3D vector = new Vec3D(velocity.getX(),velocity.getY(), velocity.getZ());
-
         setSmallDistance(0);
+
 
         canFire = false;
 
         final List<Player> vibrateFor = getVibratedPlayers();
-        Artillery source = this;
-
         new BukkitRunnable()
         {
             boolean shot = false;
@@ -92,15 +114,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
                 if (!shot) {
                     shot = true;
-                    EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-                    HeavyShell shell = (HeavyShell)createProjectile(((CraftWorld)world).getHandle(),muzzle.getX(), muzzle.getY(), muzzle.getZ(), shooterNMS, source);
 
-                    if (shell == null) {
-                        FortressGuns.getInstance().getLogger().warning("Shell creation result returned null! "+getLoadedAmmoType());
-                        cancel();
-                        return;
-                    }
-                    shell.setMot(vector);
                     ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
                     setAmmo(Math.max(0, getAmmo() - 1));
 
@@ -110,14 +124,12 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     }
                 }
 
-
-
                 //pivot is already called if there is a rider so don't call pivot twice
                 if (!hasRider()) {
                     pivot(aim.getX(), aim.getY());
                 }
 
-                vibrateAnimation(vibrateFor,ticks, 5);
+                vibrateAnimation(vibrateFor,ticks);
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;
@@ -142,8 +154,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     cancel();
                 }
             }
-        }.runTaskTimer(FortressGuns.getInstance(), 4, recoilTime);
-
+        }.runTaskTimer(FortressGuns.getInstance(), getHeavyFireDelay(), recoilTime);
     }
 
 

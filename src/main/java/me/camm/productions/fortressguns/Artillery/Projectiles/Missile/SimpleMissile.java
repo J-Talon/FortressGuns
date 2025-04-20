@@ -2,19 +2,21 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ArtilleryProjectile;
-import me.camm.productions.fortressguns.Artillery.Projectiles.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
@@ -40,8 +42,6 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
 
     private final Vec3D initialVelocity;
     private boolean hadTarget;
-
-
     private final double sineOffset;
 
     private float initialXRot, initialYRot;
@@ -82,42 +82,52 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
         initialYRot = initialXRot = Float.NaN;
         notifier = MissileLockNotifier.get(FortressGuns.getInstance());
         //velocity is in blocks/tick
-
     }
-
-
 
     public static void setExplosionPower(float explosionPower) {
         SimpleMissile.explosionPower = explosionPower;
     }
 
+
+    @Override
+    public void inactiveTick() {
+        explode(null);
+        super.inactiveTick();
+    }
     @Override
     public float getExplosionPower() {
         return explosionPower;
     }
 
-    @Override
-    public void preHit(@Nullable MovingObjectPosition pos) {
-        //explode the thing here
-        if (pos == null) {
-            explode(null);
-            return;
-        }
 
-        if (pos instanceof MovingObjectPositionBlock) {
-            BlockPosition blockPos = ((MovingObjectPositionBlock) pos).getBlockPosition();
-            Block hitBlock = bukkitWorld.getBlockAt(blockPos.getX(), blockPos.getY(), blockPos.getZ());
-            if (hitBlock.getType().isAir())
-                return;
-        }
-        explode(pos.getPos());
+    @Override
+    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+        explode(getPositionVector());
+        return true;
+    }
+
+    @Override
+    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+        Block hit = bukkitWorld.getBlockAt(hitBlock.getX(), hitBlock.getY(), hitBlock.getZ());
+        if (hit.getType().isAir())
+            return false;
+
+        explode(exactHitPosition);
+        return true;
     }
 
 
+    @Override
     public float getHitDamage() {
         return 0;
     }
 
+
+    public static int getFuelTicks(){
+        return FUEL;
+    }
+
+    @Override
     public void explode(@Nullable Vec3D hit) {
 
         if (target != null && target instanceof Player) {
@@ -130,12 +140,11 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
         //change this to use our custom explosion stuff later
         if (hit == null) {
             explosionLoc = new Location(world, locX(), locY(), locZ());
-            world.createExplosion(explosionLoc, getExplosionPower());
+            ExplosionFactory.vanillaExplosion(getWorld(),this,locX(), locY(), locZ(),getExplosionPower());
         }
         else {
-            Player bukkit = shooter.getBukkitEntity();
             explosionLoc = new Location(world, hit.getX(), hit.getY(), hit.getZ());
-            world.createExplosion(explosionLoc, getExplosionPower(), false, true, bukkit);
+            ExplosionFactory.vanillaExplosion(getWorld(),this,hit.getX(), hit.getY(), hit.getZ(),getExplosionPower());
         }
         world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
 
@@ -145,9 +154,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
 
 
 
-
-
-    public void playEffects(Location loc) {
+    private void playEffects(Location loc) {
 
         Vec3D motion = getMot();
         motion = motion.e();  ///e() --> multiply(-1)
@@ -203,7 +210,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
     }
 
 
-
+    @Override
     public void tick() {
         super.tick();
 
@@ -252,7 +259,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
     }
 
 
-    public void flyNormally() {
+    private void flyNormally() {
         Vec3D motion = getMot();
         double magnitudeSquared = motion.g(); // length squared
         if (magnitudeSquared >= MAX_SPEED_SQUARED) {  //if >= than max speed
@@ -293,7 +300,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
     }
 
 
-    public void flyToTarget(Location missileLoc) {
+    private void flyToTarget(Location missileLoc) {
 
         if (target instanceof Player && (!(((Player) target).isGliding()))) {
             notifier.removeNotification(target.getUniqueId());
@@ -309,7 +316,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
         Location targetLoc = target.getLocation();
 
         if (targetLoc.distanceSquared(missileLoc) <= DIST_EXPLODE_SQUARED) {
-            preHit(null);
+            explode(null);
             return;
         }
 
@@ -453,12 +460,5 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
             return new Vector(0,0,0);
         else return new Vector(mult1, mult2, linComb / denom).normalize();
 
-    }
-
-
-
-
-    public static int getFuelTicks(){
-        return FUEL;
     }
 }
