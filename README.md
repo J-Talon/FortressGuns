@@ -38,12 +38,12 @@ Similar to the heavy machine gun, but fires bursts of projectiles which explode 
 
 Content to complete before first release
 ---
-- [X] Custom Explosion Configuration
+- [ ] Custom Explosions  <-- Current focus
 - [ ] Artillery saving and loading between world saves
+- [X] Artillery operation mechanics
 - [ ] Bugfixing and polishing for some specific mechanics
 - [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
 - [ ] Flares
-- [ ] Server commands for admins (?)
 
 Planned Content
 ---
@@ -51,12 +51,16 @@ Planned Content
 - Railgun (Probably a more Sci-fi version, cause real-world ones are basically just a heavier Field Heavy)
 - CRAM (+ Radar towers)
 - Laser machinegun (The type of stuff you see from Sci-fi films which fire a burst of lasers)
-- ICBMs and Nukes
+- ICBMs and Nukes <- We'll see how particles play out, otherwise this might be challenging
 
 
 Will I be updating to newer Minecraft versions?
 Probably not- With the limited time I already have to make content for this plugin, If I dedicate even more time to port it to newer versions, I won't have time to add all of the content I'd like to put in.
 That said, if anyone else wants to, be my guest!
+
+Why has implementation taken so long?
+This is a project which as I've mentioned above, has a low ranking on my priority list. First comes school and work and then other projects which have a set due date. I'm also the only
+person who is working on this project. 
 
 
 
