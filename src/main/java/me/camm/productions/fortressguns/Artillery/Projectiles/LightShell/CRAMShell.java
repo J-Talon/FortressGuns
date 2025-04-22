@@ -37,9 +37,13 @@ public class CRAMShell extends LightShell implements ProjectileExplosive {
 
     @Override
     public void explode(@Nullable Vec3D hit) {
-
+        this.die();
     }
 
+    @Override
+    public float getWeight() {
+        return 0.1F;
+    }
 
     public void tick() {
 

@@ -318,8 +318,6 @@ public abstract class Artillery extends Construct {
             @Override
             public void run() {
 
-                System.out.println("ping");
-
                 if (isCameraLocked()) {
                     cancel();
                     return;

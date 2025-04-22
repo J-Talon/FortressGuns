@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.ShellSource;
 import net.minecraft.core.BaseBlockPosition;
@@ -8,13 +9,18 @@ import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
+import net.minecraft.world.phys.MovingObjectPosition;
+import net.minecraft.world.phys.MovingObjectPositionBlock;
+import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -40,11 +46,7 @@ public class StandardHeavyShell extends HeavyShell {
         StandardHeavyShell.explosionPower = explosionPower;
     }
 
-    @Override
-    public  float getExplosionPower() {
-        double percent = getMot().f() / source.getVectorPower();
-        return (float)(explosionPower * percent);
-    }
+
 
     @Override
     public float getHitDamage() {
@@ -52,12 +54,8 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
 
-    public void explode(@javax.annotation.Nullable Vec3D hit) {
+    public void hitEffect(@javax.annotation.Nullable Vec3D hit) {
         this.die();
-        if (hit == null)
-            ExplosionFactory.solidShellExplosion(getWorld(),this,locX(),locY(),locZ(), getExplosionPower());
-        else
-            ExplosionFactory.solidShellExplosion(getWorld(),this,hit.getX(),hit.getY(),hit.getZ(), getExplosionPower());
     }
 
 
@@ -65,6 +63,12 @@ public class StandardHeavyShell extends HeavyShell {
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
         if (!super.onEntityHit(hitEntity, entityPosition)) {
             return false;
+        }
+
+        if (hitEntity instanceof ProjectileExplosive) {
+            ((ProjectileExplosive) hitEntity).explode(null);
+            this.remove();
+            return true;
         }
 
         float length = (float)getMot().f();
@@ -80,7 +84,7 @@ public class StandardHeavyShell extends HeavyShell {
             //if the damage would be blocked
             if (living.applyBlockingModifier(ShellSource.artilleryHit(shooter,this))) {
                 hitEntity.damageEntity(source, getHitDamage() * damageMultiplier * 5);
-                explode(this.getPositionVector());
+                hitEffect(this.getPositionVector());
                 return true;
             }
 
@@ -90,12 +94,15 @@ public class StandardHeavyShell extends HeavyShell {
         }
 
         hitEntity.damageEntity(source,getHitDamage() * damageMultiplier);
-        explode(this.getPositionVector());
+        hitEffect(this.getPositionVector());
         return true;
     }
 
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition block) {
+
+        // Vec3D exactHitPosition = hitBlock.getPos();
+
         Vec3D normalVector = getNormalVector(blockFace);
 
         Vec3D motion = getMot();
@@ -111,33 +118,31 @@ public class StandardHeavyShell extends HeavyShell {
         dotProduct = Math.abs(dotProduct);
 
         Block bukkitBlock = bukkitWorld.getBlockAt(block.getX(), block.getY(), block.getZ());
-        double angleReflection = Math.min(Math.max(0.03*bukkitBlock.getType().getHardness(),0),0.35);  //function
+
+        double hardness = bukkitBlock.getType().getHardness();
+        hardness = hardness > 0 ? hardness : Material.OBSIDIAN.getHardness();
+        double angleReflection = Math.min(Math.max(0.03*hardness,0),0.35);  //function
         boolean energyConserved = length > (0.1f * source.getVectorPower());
 
-        System.out.println("type:"+bukkitBlock.getType()+"hardness:"+bukkitBlock.getType().getHardness());
         if (dotProduct > angleReflection && energyConserved) {
-            System.out.println("exploding now: "+dotProduct +"||"+ angleReflection);
-            explode(exactHitPosition);
+            hitEffect(exactHitPosition);
+            return true;
         }
         else {
-            System.out.println("ricochet");
-            //ricochet
+
             Location loc = new Location(bukkitWorld, locX(), locY(), locZ());
-            bukkitWorld.playSound(loc, Sound.ITEM_TRIDENT_RETURN,2,2);
-            bukkitWorld.playSound(loc, Sound.BLOCK_ANVIL_PLACE,2,2);
-            bukkitWorld.playSound(loc, Sound.BLOCK_BELL_USE,2,2);
-            bukkitWorld.spawnParticle(Particle.END_ROD,loc,10,0,0,0,0.2d);
-            bukkitWorld.spawnParticle(Particle.BLOCK_CRACK,loc, 30, 0.1, 0.1, 0.1,1, bukkitBlock.getBlockData());
-
             if (energyConserved) {
-                System.out.println("ricochet success");
-                Vec3D reflectionVector = getReflectionVector(blockFace);
-                Vec3D result = new Vec3D(motion.getX() * reflectionVector.getX(), motion.getY() * reflectionVector.getY(), motion.getZ() * reflectionVector.getZ());
-                setPositionRaw(exactHitPosition.getX(), exactHitPosition.getY(), exactHitPosition.getZ());
-
-                setMot(result);
+                //ricochet
+                bukkitWorld.playSound(loc, Sound.ITEM_TRIDENT_RETURN,2,2);
+                bukkitWorld.playSound(loc, Sound.BLOCK_ANVIL_PLACE,2,2);
+                bukkitWorld.playSound(loc, Sound.BLOCK_BELL_USE,2,2);
+                bukkitWorld.spawnParticle(Particle.END_ROD,loc,10,0,0,0,0.2d);
+                bukkitWorld.spawnParticle(Particle.BLOCK_CRACK,loc, 30, 0.1, 0.1, 0.1,1, bukkitBlock.getBlockData());
+                Vec3D reflectionVector = getReflectionVector(blockFace, motion);
+                setMot(reflectionVector);
                 return false;
             }
+
 
             remove();
         }
@@ -145,20 +150,30 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
 
+
+
     public Vec3D getNormalVector(EnumDirection blockFace) {
         BaseBlockPosition pos = blockFace.p();
         return new Vec3D(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public Vec3D getReflectionVector(EnumDirection blockFace) {
+    public Vec3D getReflectionVector(EnumDirection blockFace, Vec3D in) {
         Vec3D vector = getNormalVector(blockFace);
         double x,y,z;
-        x = vector.getX();
-        y = vector.getY();
-        z = vector.getZ();
-
-        return new Vec3D(x == 0 ? 1 : x, y == 0 ? 1: y, z == 0 ? 1: z);
+        x = vector.getX() != 0 ? in.getX() * -1 : in.getX();
+        y = vector.getY() != 0 ? in.getY() * -1 : in.getY();
+        z = vector.getZ() != 0 ? in.getZ() * -1 : in.getZ();
+        return new Vec3D(x,y,z);
 
     }
+
+
+    @Override
+    public float getWeight() {
+        return 1.2F;
+    }
+
+
+
 
 }

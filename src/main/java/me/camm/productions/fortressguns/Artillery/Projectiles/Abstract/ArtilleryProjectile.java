@@ -14,10 +14,18 @@ import javax.annotation.Nullable;
 public interface ArtilleryProjectile {
 
      //@return: whether the collision terminated flight
+     //called after preOnHit
      public abstract boolean onEntityHit(Entity hitEntity, Vec3D entityPosition);
 
      //@return: whether the collision terminated flight
+     //called after preOnHit
      public abstract boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock);
+
+     //will add config for this later
+     public abstract float getWeight();
+
+
+
 
      public abstract void remove();
 

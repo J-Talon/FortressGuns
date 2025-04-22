@@ -9,21 +9,27 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.EntityEnderman;
+import net.minecraft.world.entity.projectile.EntityFireball;
+import net.minecraft.world.entity.projectile.IProjectile;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
-
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.Fireball;
 
 
 import javax.annotation.Nullable;
 
 
-public abstract class HeavyShell extends ProjectileArrowFG implements ProjectileExplosive {
+public abstract class HeavyShell extends ProjectileArrowFG  {
 
 
     protected Artillery source;
     public HeavyShell(World world, double locX, double locY, double locZ, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, locX, locY, locZ, shooter);
         this.source = source;
+        setCritical(true);
     }
 
 
@@ -34,8 +40,6 @@ public abstract class HeavyShell extends ProjectileArrowFG implements Projectile
         if (!entity.isSpectator() && entity.isAlive() && !(entity.getEntityType() == EntityTypes.w)) {
             Entity entity1 = shooter;
             return entity1 == null || !entity1.isSameVehicle(entity);
-            //so either the bullet has no shooter, and they're not stacked and not enderman
-            //removed the check isInteractable()
         } else {
             return false;
         }
@@ -47,8 +51,35 @@ public abstract class HeavyShell extends ProjectileArrowFG implements Projectile
             return false;
         }
 
-        if (hitEntity instanceof ArtilleryProjectile) {
-            ((ArtilleryProjectile) hitEntity).remove();
+        //deflect
+        if (hitEntity instanceof IProjectile && (! (this instanceof ProjectileExplosive))) {
+            Vec3D current = this.getPositionVector();
+            Vec3D other = hitEntity.getPositionVector();
+            float otherWeight = 0.05f;
+
+            Vec3D thisDeflection;
+            thisDeflection = other.a(current).d();  /// subtract, normalize
+
+            if (hitEntity instanceof ProjectileExplosive) {
+                ((ProjectileExplosive) hitEntity).explode(null);
+                return true;
+            }
+
+            if (hitEntity instanceof ArtilleryProjectile) {
+                otherWeight = ((ArtilleryProjectile) hitEntity).getWeight();
+            }
+
+            Location loc = new Location(bukkitWorld, current.getX(), current.getY(), current.getZ());
+            bukkitWorld.spawnParticle(Particle.ELECTRIC_SPARK,loc,5,0,0,0,1);
+            bukkitWorld.playSound(loc, Sound.BLOCK_BELL_USE,2,1);
+
+            Vec3D otherDeflection = thisDeflection.a(-1F);
+            otherDeflection = otherDeflection.a(getWeight());
+            hitEntity.setMot(hitEntity.getMot().add(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ()));
+
+            thisDeflection = thisDeflection.a(otherWeight);
+            setMot(getMot().add(thisDeflection.getX(), thisDeflection.getY(), thisDeflection.getZ()));
+            return false;
         }
 
         return true;
@@ -61,6 +92,14 @@ public abstract class HeavyShell extends ProjectileArrowFG implements Projectile
 
     @Override
     public void inactiveTick() {
-        explode(getPositionVector());
+        remove();
     }
+
+    @Override
+    public float getWeight() {
+        return 0.1F;
+    }
+
+
+
 }

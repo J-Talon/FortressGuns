@@ -12,8 +12,6 @@ import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
-import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -35,7 +33,6 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
     private static final double MAX_SPEED;
     private static final double ORBIT_DIST = 17;
     private static final int DIST_EXPLODE_SQUARED = 10;  //slightly more than 3b
-
     private int readyTime;
     private static final int FUEL = 600;  //
     private static final int PRIME = 5; //1/2 sec
@@ -205,8 +202,6 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
         bukkitWorld.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc,0,x, y, z,0.2,null,true);
         bukkitWorld.spawnParticle(Particle.FLAME,loc,0,x, y, z,0.2,null, true);
         bukkitWorld.playSound(loc, Sound.ITEM_ARMOR_EQUIP_LEATHER,SoundCategory.BLOCKS,3,0.1f);
-
-
     }
 
 
@@ -418,12 +413,6 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
     }
 
 
-
-
-
-
-
-
     private Vector getOrthogonal(Vector other) {
         double denom = Double.NaN;
         double linComb = Double.NaN;  ///linear combination method to get orthagonal
@@ -461,4 +450,11 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
         else return new Vector(mult1, mult2, linComb / denom).normalize();
 
     }
+
+
+    @Override
+    public float getWeight() {
+        return 0.9F;
+    }
+
 }

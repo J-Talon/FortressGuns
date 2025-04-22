@@ -8,11 +8,15 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,10 +56,7 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Artillery
 
     @Override
     public void inactiveTick() {
-        double motion = getMot().g(); //length Squared
-        if (motion < 10E-3 || this.b) {
-            remove();
-        }
+        remove();
     }
 
     @Override
@@ -73,9 +74,4 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Artillery
         BlockPosition blockPos = pos.getBlockPosition();
         onBlockHit(pos.getPos(), pos.getDirection(), blockPos);
     }
-
-
-
-
-
 }

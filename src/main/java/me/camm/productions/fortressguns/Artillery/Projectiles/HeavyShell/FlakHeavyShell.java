@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
@@ -14,7 +15,7 @@ import net.minecraft.world.phys.Vec3D;
 
 import javax.annotation.Nullable;
 
-public class FlakHeavyShell extends HeavyShell {
+public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
 
 
     private static float hitDamage = 10;
@@ -28,6 +29,11 @@ public class FlakHeavyShell extends HeavyShell {
         super(world, d0, d1, d2, shooter, source);
         flightTime = 0;
         explodeTime = 1;
+    }
+
+    @Override
+    public float getWeight() {
+        return 0.4F;
     }
 
 

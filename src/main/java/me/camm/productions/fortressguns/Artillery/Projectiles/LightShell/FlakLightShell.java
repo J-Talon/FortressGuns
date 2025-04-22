@@ -61,6 +61,13 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
         return 1;
     }
 
+
+    @Override
+    public float getWeight() {
+        return 0.2F;
+    }
+
+
     @Override
     public void explode(@Nullable Vec3D hit) {
         DamageSource source = GunSource.gunShot(shooter,this);
