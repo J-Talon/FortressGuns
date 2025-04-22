@@ -38,8 +38,10 @@ Similar to the heavy machine gun, but fires bursts of projectiles which explode 
 
 Content to complete before first release
 ---
-- [ ] Custom Explosions  <-- Current focus
-- [ ] Artillery saving and loading between world saves
+- [ ] Custom Explosions
+    - [X] Phase 1 - Planning and research
+    - [ ] Phase 2 - Projectile Overhaul  < Current focus
+    - [ ] Phase 3 - Explosion Overhaul
 - [X] Artillery operation mechanics
 - [ ] Bugfixing and polishing for some specific mechanics
 - [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
