@@ -4,14 +4,14 @@ import me.camm.productions.fortressguns.Explosions.Abstract.EffectContext;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionFG;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+
 
 public class EffectFlakLarge extends ExplosionEffect<Integer> {
 
     @Override
     public void preMutation(ExplosionFG explosion, EffectContext<Integer> context) {
 
-        CraftWorld world = explosion.getWorld().getWorld();
+        World world = explosion.getWorld();
         double x,y,z;
         x = explosion.getX();
         y = explosion.getY();

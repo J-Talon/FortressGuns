@@ -1,22 +1,21 @@
 package me.camm.productions.fortressguns.Explosions.AllocatorFunction.Entity;
 
 import me.camm.productions.fortressguns.Explosions.Abstract.Allocator;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
-import net.minecraft.world.phys.Vec3D;
+import me.camm.productions.fortressguns.Util.Tuple2;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public class AllocatorConeE extends Allocator<List<Tuple<Entity, Float>>,Tuple<Float, Vector>> {
+public class AllocatorConeE extends Allocator<List<Tuple2<Entity, Float>>,Tuple2<Float, Vector>> {
 
-    public AllocatorConeE(World nmsWorld, Vec3D position) {
-        super(nmsWorld, position);
+    public AllocatorConeE(World world, Vector position) {
+        super(world, position);
     }
 
     @Override
-    public List<Tuple<Entity,Float>> allocate(Tuple<Float, Vector> inputContext) {
+    public List<Tuple2<Entity,Float>> allocate(Tuple2<Float, Vector> inputContext) {
         return null;
     }
 }

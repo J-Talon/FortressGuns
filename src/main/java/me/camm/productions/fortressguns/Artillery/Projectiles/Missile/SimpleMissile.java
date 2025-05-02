@@ -137,11 +137,11 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
         //change this to use our custom explosion stuff later
         if (hit == null) {
             explosionLoc = new Location(world, locX(), locY(), locZ());
-            ExplosionFactory.vanillaExplosion(getWorld(),this,locX(), locY(), locZ(),getExplosionPower());
+            ExplosionFactory.vanillaExplosion(bukkitWorld,this.getBukkitEntity(),locX(), locY(), locZ(),getExplosionPower());
         }
         else {
             explosionLoc = new Location(world, hit.getX(), hit.getY(), hit.getZ());
-            ExplosionFactory.vanillaExplosion(getWorld(),this,hit.getX(), hit.getY(), hit.getZ(),getExplosionPower());
+            ExplosionFactory.vanillaExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(), hit.getY(), hit.getZ(),getExplosionPower());
         }
         world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
 

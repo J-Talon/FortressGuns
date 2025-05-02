@@ -54,7 +54,10 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
 
-    public void hitEffect(@javax.annotation.Nullable Vec3D hit) {
+    public void hitEffect(@Nullable Vec3D hit) {
+       // double penPower =
+
+
         this.die();
     }
 

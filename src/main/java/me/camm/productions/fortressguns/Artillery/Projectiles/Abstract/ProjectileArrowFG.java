@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +25,9 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Artillery
 
     protected EntityPlayer shooter;
     protected org.bukkit.World bukkitWorld;
+
+    protected boolean enteredWater = false;
+    protected boolean enteredLava = false;
 
 
 
@@ -57,6 +61,27 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Artillery
     @Override
     public void inactiveTick() {
         remove();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (isInWater() && !enteredWater) {
+            enteredWater = true;
+            onWaterEnter();
+        }
+        else {
+            enteredWater = false;
+        }
+
+
+        if (this.aX() && !enteredLava) {
+            enteredLava = true;
+            onLavaEnter();
+        }
+        else {
+            enteredLava = false;
+        }
     }
 
     @Override

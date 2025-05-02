@@ -68,10 +68,11 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
 
     @Override
     public void explode(@Nullable Vec3D hit) {
+
         if (hit == null)
-            ExplosionFactory.heavyShellExplosion(getWorld(),this, locX(), locY(), locZ(), getExplosionPower(), this);
+            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower(), this);
         else
-            ExplosionFactory.heavyShellExplosion(getWorld(),this, hit.getX(), hit.getY(), hit.getZ(), getExplosionPower(), this);
+            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower(), this);
     remove();
     }
 

@@ -1,29 +1,28 @@
 package me.camm.productions.fortressguns.Explosions.Abstract;
 
-import com.mojang.datafixers.util.Pair;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import net.minecraft.core.BlockPosition;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.entity.item.EntityItem;
 import net.minecraft.world.entity.item.EntityTNTPrimed;
-import net.minecraft.world.item.ItemStack;
+
 import net.minecraft.world.item.enchantment.EnchantmentProtection;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.RayTrace;
-import net.minecraft.world.level.World;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.TileEntity;
-import net.minecraft.world.level.block.state.IBlockData;
-import net.minecraft.world.level.storage.loot.LootTableInfo;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParameters;
-import net.minecraft.world.phys.AxisAlignedBB;
+
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 
 
 import java.util.*;
@@ -63,7 +62,8 @@ public abstract class ExplosionFG {
 
 
     protected float getSeenPercent(Entity entity) {
-        AxisAlignedBB axisalignedbb = entity.getBoundingBox();
+
+        BoundingBox box = entity.getBoundingBox();
         Vec3D vec3d = new Vec3D(x,y,z);
 
         /*
@@ -73,9 +73,9 @@ public abstract class ExplosionFG {
         f = max z  c = min z
 
          */
-        double ratioX = 1.0 / ((axisalignedbb.d - axisalignedbb.a) * 2.0 + 1.0);
-        double ratioY = 1.0 / ((axisalignedbb.e - axisalignedbb.b) * 2.0 + 1.0);
-        double ratioZ = 1.0 / ((axisalignedbb.f - axisalignedbb.c) * 2.0 + 1.0);
+        double ratioX = 1.0 / ((box.getMaxX() - box.getMinX()) * 2.0 + 1.0);
+        double ratioY = 1.0 / ((box.getMaxY() - box.getMinY()) * 2.0 + 1.0);
+        double ratioZ = 1.0 / ((box.getMaxZ() - box.getMinZ()) * 2.0 + 1.0);
 
         double d3 = (1.0 - Math.floor(1.0 / ratioX) * ratioX) / 2.0;
         double d4 = (1.0 - Math.floor(1.0 / ratioZ) * ratioZ) / 2.0;
@@ -83,6 +83,8 @@ public abstract class ExplosionFG {
         if (ratioX >= 0.0 && ratioY >= 0.0 && ratioZ >= 0.0) {
             int hits = 0;
             int total = 0;
+
+            net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
 
             ///okay I think what they're doing here is a series of raytraces
             //so basically doing scanning and determining the ratio of what
@@ -92,13 +94,12 @@ public abstract class ExplosionFG {
                     for(float f2 = 0.0F; f2 <= 1.0F; f2 = (float)((double)f2 + ratioZ)) {
 
                         //d = Math.lerp()
-                        double d5 = MathHelper.d(f, axisalignedbb.a, axisalignedbb.d);
-                        double d6 = MathHelper.d(f1, axisalignedbb.b, axisalignedbb.e);
-                        double d7 = MathHelper.d(f2, axisalignedbb.c, axisalignedbb.f);
-
+                        double d5 = linearInterpolate(f, box.getMinX(), box.getMaxX());
+                        double d6 = linearInterpolate(f1, box.getMinY(), box.getMaxY());
+                        double d7 = linearInterpolate(f2, box.getMinZ(), box.getMaxZ());
 
                         Vec3D vec3d1 = new Vec3D(d5 + d3, d6, d7 + d4);
-                        if (entity.t.rayTrace(new RayTrace(vec3d1, vec3d, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, entity)).getType() == MovingObjectPosition.EnumMovingObjectType.a) {
+                        if (nms.t.rayTrace(new RayTrace(vec3d1, vec3d, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, nms)).getType() == MovingObjectPosition.EnumMovingObjectType.a) {
                             ++hits;
                         }
 
@@ -114,20 +115,27 @@ public abstract class ExplosionFG {
     }
 
 
+    protected double linearInterpolate(double increment, double start, double end) {
+        return start + increment * (end - start);
+    }
+
     protected DamageSource getDamageSource() {
         return DamageSource.explosion(stupid);
     }
 
 
 
-
     protected void damageEntity(Entity affected) {
 
-        if (affected.cx()) {  //cx = boolean ignoreExplosion()
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)affected).getHandle();
+        net.minecraft.world.entity.Entity sourceNMS = ((CraftEntity)affected).getHandle();
+
+
+        if (nms.cx()) {  //cx = boolean ignoreExplosion()
             return;
         }
 
-        double distanceRatio = Math.sqrt(affected.e(source)) / (double) (radius * 2);
+        double distanceRatio = Math.sqrt(nms.e(sourceNMS)) / (double) (radius * 2);
         if (distanceRatio > 1)
             return;
 
@@ -142,9 +150,11 @@ public abstract class ExplosionFG {
         if (damage == 0)
             return;
 
-        double diffX = affected.locX() - x;
-        double diffY = (affected instanceof EntityTNTPrimed ? affected.locY() :  affected.getHeadY()) - y;
-        double diffZ = affected.locZ() - z;
+
+        Location loc = affected.getLocation();
+        double diffX = loc.getX() - x;
+        double diffY = (nms instanceof EntityTNTPrimed ? loc.getY() :  nms.getHeadY()) - y;
+        double diffZ = loc.getZ() - z;
 
         double distance = Math.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
         if (distance == 0.0) {
@@ -156,126 +166,111 @@ public abstract class ExplosionFG {
         diffY /= distance;
         diffZ /= distance;
 
-        CraftEventFactory.entityDamage = source;   ///j = the entity creating the explosion
-        affected.forceExplosionKnockback = false;
+        CraftEventFactory.entityDamage = sourceNMS;   ///j = the entity creating the explosion
+        nms.forceExplosionKnockback = false;
 
         //b = damage source
-        boolean wasDamaged = affected.damageEntity(getDamageSource(), damage);
+        boolean wasDamaged = nms.damageEntity(getDamageSource(), damage);
 
         CraftEventFactory.entityDamage = null;
 
         //this won't affect falling blocks or TNT
-        if (wasDamaged || affected.forceExplosionKnockback) {
+        if (wasDamaged || nms.forceExplosionKnockback) {
             double dampened = distExposure;
-            if (affected instanceof EntityLiving) {
+            if (nms instanceof EntityLiving) {
 
                 //a  = explosion knockback after dampening from protection
-                dampened = EnchantmentProtection.a((EntityLiving)  affected, distExposure);
+                dampened = EnchantmentProtection.a((EntityLiving)  nms, distExposure);
             }
 
-            affected.setMot((affected.getMot().add(diffX * dampened, diffY * dampened, diffZ * dampened)));
+            nms.setMot((nms.getMot().add(diffX * dampened, diffY * dampened, diffZ * dampened)));
             //wait why is there no motionChanged = true here...???
 
         }
     }
 
 
+    protected void processDrops(Collection<Block> blocks) {
 
-    public void processBlocks(Collection<BlockPosition> blocks) {
+        Iterator<Block> iterator = blocks.iterator();
 
-        Iterator<BlockPosition> iterator = blocks.iterator();
-        /*
-        So the thing about this list is that it seems like it's unused
-        but no, it does actually serve a purpose
-
-        the idea here is that when we're merging we want to ensure we're not doing any
-        unnecessary stuff, so by having a reference list, we can do that.
-         */
-        ObjectArrayList<Pair<ItemStack, BlockPosition>> tempBlockMergeReference = new ObjectArrayList<>();
-
+        Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems = new HashMap<>();
 
         while(iterator.hasNext()) {
-            BlockPosition position;
-            IBlockData data;
-            net.minecraft.world.level.block.Block nmsBlock;
+            Block next = iterator.next();
+            Material mat = next.getType();
 
-            do {
-                //get the next block which isn't air
-                position = iterator.next();
-                data = this.world.getType(position);
-                nmsBlock = data.getBlock();
-
-            } while(data.isAir() && iterator.hasNext());
-
-            calculateDrops(tempBlockMergeReference,position,data,nmsBlock,radius);
-        }
-
-        //adding entities to world
-        for (Pair<ItemStack, BlockPosition> pair: tempBlockMergeReference) {
-            net.minecraft.world.level.block.Block.a(world,pair.getSecond(),pair.getFirst());
-        }
-    }
-
-
-
-    protected void calculateDrops(ObjectArrayList<Pair<ItemStack, BlockPosition>> trackingList, BlockPosition blockPos, IBlockData data, net.minecraft.world.level.block.Block block, float yield) {
-
-        BlockPosition immutablePos = blockPos.immutableCopy();
-        //block a = drop from explosion
-        if (block.a(stupid) && this.world instanceof WorldServer) {
-            TileEntity tileentity = data.isTileEntity() ? this.world.getTileEntity(blockPos) : null;
-
-            LootTableInfo.Builder itemDropCalculator = (new LootTableInfo.Builder((WorldServer)this.world)).
-                    a(this.world.w).set(LootContextParameters.f, Vec3D.a(blockPos)).set(LootContextParameters.i, ItemStack.b).
-                    setOptional(LootContextParameters.h, tileentity).setOptional(LootContextParameters.a, source);
-
-            if (destroysBlocks || yield < 1.0F) {
-                itemDropCalculator.set(LootContextParameters.j, 1.0F / yield);
+            if (mat.isAir() || mat == Material.TNT) {
+                blockReaction(next);
+                continue;
             }
 
-            ///blockdata.a = get drops
-            data.a(itemDropCalculator).forEach((itemstack) -> {
-                mergeItems(trackingList, itemstack, immutablePos);
-            });
+            if (next.getBlockData() instanceof Container) {
+                next.breakNaturally();
+                continue;
+            }
+            mergeDrops(next, droppedItems);
         }
+        dropItems(droppedItems);
+    }
 
-        ///setTypeAndData = setBlock
-        this.world.setTypeAndData(blockPos, Blocks.a.getBlockData(), 3);
-
-        //block.wasExploded is basically the reaction for the exploded block
-        block.wasExploded(this.world, blockPos, stupid);
+    protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
+        for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
+            for (Tuple2<ItemStack, Block> items: positions) {
+                world.dropItem(items.getB().getLocation(), items.getA());
+            }
+        }
     }
 
 
 
-    protected void mergeItems(ObjectArrayList<Pair<ItemStack, BlockPosition>> items, ItemStack mergeWith, BlockPosition mergePos) {
+    protected void blockReaction(Block block) {
+        BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
+        net.minecraft.world.level.World worldNMS = ((CraftWorld)world).getHandle();
+        net.minecraft.world.level.block.Block blockNMS = worldNMS.getType(position).getBlock();
+        blockNMS.wasExploded(worldNMS, position, stupid);
+    }
 
+    protected void mergeDrops(Block block, Map<Material, List<Tuple2<ItemStack, Block>>> drops) {
+        final ItemStack MIDPOINT = new ItemStack(Material.IRON_PICKAXE);
         final int MAX_STACK = 16;
 
-        if (mergeWith.isEmpty()) {
-            return;
-        }
-
-        for(int slot = 0; slot < items.size(); ++slot) {
-            Pair<ItemStack, BlockPosition> pair = items.get(slot);
-            ItemStack current = pair.getFirst();
-
-            //a = can be merged
-            if (EntityItem.a(current, mergeWith)) {
-                //a  = merge
-                ItemStack mergeResult = EntityItem.a(current, mergeWith, MAX_STACK);
-
-                items.set(slot, Pair.of(mergeResult,pair.getSecond()));
-
-                //if all of the items from mergeWith fit into the resulting item, making mergeWith have size 0
-                if (mergeWith.isEmpty()) {
-                    return;
-                }
+        Collection<ItemStack> loot = block.getDrops(MIDPOINT);
+        for (ItemStack stack: loot) {
+            if (rand.nextFloat() > 0.25f) {
+                continue;
             }
+            List<Tuple2<ItemStack, Block>> current = drops.getOrDefault(stack.getType(), new ArrayList<>());
+
+            boolean added = false;
+            for (Tuple2<ItemStack, Block> tuple: current) {
+                ItemStack residing = tuple.getA();
+
+                if (stack.getAmount() == 0) {
+                    added = true;
+                    break;
+                }
+
+                if (!residing.isSimilar(stack))
+                    continue;
+
+                if (residing.getMaxStackSize() == residing.getAmount())
+                    continue;
+
+                int input = Math.min(MAX_STACK - residing.getAmount(), stack.getAmount());
+
+                if (input <= 0)
+                    continue;
+
+                stack.setAmount(stack.getAmount() - input);
+                residing.setAmount(residing.getAmount() + input);
+            }
+
+            if (!added) {
+                current.add(new Tuple2<>(stack, block));
+            }
+
         }
-
-        items.add(Pair.of(mergeWith, mergePos));
-
     }
 
 

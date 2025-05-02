@@ -93,9 +93,9 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
     public void explode(@Nullable Vec3D hit) {
         this.die();
         if (hit == null)
-            ExplosionFactory.flakHeavyExplosion(getWorld(),this,locX(),locY(),locZ(), getExplosionPower(),this);
+            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower(),this);
         else
-            ExplosionFactory.flakHeavyExplosion(getWorld(),this,hit.getX(),hit.getY(),hit.getZ(), getExplosionPower(),this);
+            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(),hit.getY(),hit.getZ(), getExplosionPower(),this);
     }
 
 

@@ -25,11 +25,18 @@ public interface ArtilleryProjectile {
      public abstract float getWeight();
 
 
-
-
      public abstract void remove();
 
      public abstract float getHitDamage();
+
+
+     public default void onWaterEnter() {
+
+     }
+
+     public default void onLavaEnter() {
+
+     }
 
 
 

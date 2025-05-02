@@ -17,7 +17,7 @@ public class EffectHE extends ExplosionEffect<Collection<Material>> {
     public void preMutation(ExplosionFG explosion, @Nullable EffectContext<Collection<Material>> context) {
 
 
-        CraftWorld world = explosion.getWorld().getWorld();
+        World world = explosion.getWorld();
         double x,y,z;
         x = explosion.getX();
         y = explosion.getY();
@@ -44,7 +44,7 @@ public class EffectHE extends ExplosionEffect<Collection<Material>> {
 
     @Override
     public void postMutation(ExplosionFG explosion, EffectContext<Collection<Material>> context) {
-        World bukkitWorld = explosion.getWorld().getWorld();
+        World bukkitWorld = explosion.getWorld();
         BlockData LIGHT = Material.LIGHT.createBlockData();
         BlockData AIR = Material.AIR.createBlockData();
         Location loc = new Location(bukkitWorld,explosion.getX(),explosion.getY(),explosion.getZ());

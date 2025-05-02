@@ -1,29 +1,31 @@
 package me.camm.productions.fortressguns.Explosions.AllocatorFunction.Block;
 
 import me.camm.productions.fortressguns.Explosions.Abstract.Allocator;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
-public class AllocatorVanillaB extends Allocator<List<BlockPosition>,Float> {
+public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
 
+    protected static Random rand = new Random();
 
-    public AllocatorVanillaB(World nmsWorld, Vec3D position) {
-        super(nmsWorld, position);
+    public AllocatorVanillaB(World world, Vector position) {
+        super(world, position);
     }
 
     //input context: the radius of the explosion
     @Override
-    public List<BlockPosition> allocate(Float inputContext) {
+    public List<Block> allocate(Float inputContext) {
 
-        List<BlockPosition> brokenBlocks = new ArrayList<>();
+        List<Block> brokenBlocks = new ArrayList<>();
 
         int wallX;
         int wallY;
@@ -62,7 +64,7 @@ public class AllocatorVanillaB extends Allocator<List<BlockPosition>,Float> {
                     bumpZ /= length;
 
                     //w = random
-                    float power = inputContext * (0.7F + nmsWorld.w.nextFloat() * 0.6F);
+                    float power = inputContext * (0.7F + rand.nextFloat() * 0.6F);
 
                     //direction of an explosion fragment
                     double vectorX = x;
@@ -73,25 +75,9 @@ public class AllocatorVanillaB extends Allocator<List<BlockPosition>,Float> {
                     final double AIR_RESIST = 0.22500001F;
 
                     while (power > 0) {
-                        BlockPosition block = new BlockPosition(vectorX, vectorY, vectorZ);
-
-                        //is in world bounds
-                        if (!nmsWorld.isValidLocation(block)) {
-                            break;
-                        }
-
-                        IBlockData iblockdata = nmsWorld.getType(block);
-                        Fluid fluid = nmsWorld.getFluid(block);
-
-                        //calculator.a = getBlockExplosionResistance
-                        Optional<Float> blockResistance = getBlockResistance(iblockdata, fluid);
-
-                        if (blockResistance.isPresent()) {
-                            ///this expansion factor is probably from
-                            //the game devs testing what value is the best for expansion without
-                            //accidently missing a block or checking a block more than once
-                            power -= (blockResistance.get() + 0.3F) * resolution;
-                        }
+                        Block block = world.getBlockAt((int)vectorX, (int)vectorY, (int)vectorZ);
+                        float blastResistance = block.getType().getBlastResistance();
+                        power -= (blastResistance + 0.3F) * resolution;
 
                         //a = shouldBlockExplode
                         if (power > 0.0F) {

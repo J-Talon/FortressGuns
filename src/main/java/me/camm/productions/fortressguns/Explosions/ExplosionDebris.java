@@ -3,15 +3,11 @@ package me.camm.productions.fortressguns.Explosions;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosions.AllocatorFunction.Block.AllocatorHalfSphereB;
 import me.camm.productions.fortressguns.Explosions.AllocatorFunction.Entity.AllocatorConeE;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
-import net.minecraft.world.level.block.state.IBlockData;
-import net.minecraft.world.phys.Vec3D;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
@@ -30,8 +26,7 @@ public class ExplosionDebris extends ExplosionFG {
         this.penPower = penPower;
 
         if (direction.lengthSquared() == 0) {
-            Vec3D lookDir = source.getLookDirection();
-            this.direction = new Vector(lookDir.getX(), lookDir.getY(), lookDir.getZ());
+            this.direction = source.getLocation().getDirection();
         }
         else
             this.direction = direction.clone().normalize();
@@ -43,12 +38,13 @@ public class ExplosionDebris extends ExplosionFG {
         final double resolution = 0.3;
         final double falloff = 0.2;
 
-        Vec3D position = new Vec3D(x,y,z);
+        Vector position = new Vector(x,y,z);
         //
         System.out.println(position);
 
-        BlockPosition blockPos = new BlockPosition(position);
-        IBlockData data = world.getType(blockPos);
+        Block block = world.getBlockAt((int)x, (int)y, (int)z);
+
+        Material blockMat = block.getType();
 
         double incX = direction.getX() * resolution;
         double incY = direction.getY() * resolution;
@@ -58,56 +54,43 @@ public class ExplosionDebris extends ExplosionFG {
 
         Material mat = Material.AIR;
 
-        int iters = 0;
-        while (!(data.isAir() && hasPenned) && penPower > 0) {
+        while (!(blockMat.isAir() && hasPenned) && penPower > 0) {
 
           //  System.out.println(""+hasPenned+"||"+data.isAir() +"||"+penPower);
 
-            iters ++;
-            BlockData bukkitData = CraftBlockData.fromData(data);
-            Material next = bukkitData.getMaterial();
+            position.add(new Vector(incX, incY, incZ));
+            Block nextBlock = world.getBlockAt((int)x, (int)y, (int)z);
 
-            Vec3D nextPos = position.add(incX, incY, incZ);
-            BlockPosition nextBlockPos = new BlockPosition(nextPos);
-
-            position = nextPos;
-
-            if (nextBlockPos.getX() == blockPos.getX() &&
-            nextBlockPos.getY() == blockPos.getY() &&
-            nextBlockPos.getZ() == blockPos.getZ()) {
+            if (nextBlock.getLocation().distanceSquared(block.getLocation()) == 0) {
                 penPower -= falloff;
                 continue;
             }
 
-            blockPos = nextBlockPos;
-            data = world.getType(blockPos);
+            block = nextBlock;
+            blockMat = nextBlock.getType();
 
-            double hardness = next.getHardness();
+            double hardness = block.getType().getHardness();
             hasPenned = true;
 
-            if (next == mat) {
+            if (blockMat == mat) {
                 penPower -= (2*hardness);
             }
             else penPower -= hardness;
-            mat = next;
+            mat = blockMat;
         }
-
-//        System.out.println("performed pen of: "+iters);
-//        System.out.println("pwr after pen: "+penPower);
 
         if (penPower <= 0)
             direction.multiply(-1);
 
         //pre-mutation
         AllocatorConeE cone = new AllocatorConeE(world, position);
-        List<Tuple<Entity, Float>> affectedEntities = cone.allocate(new Tuple<>(radius, direction));
+        List<Tuple2<Entity, Float>> affectedEntities = cone.allocate(new Tuple2<>(radius, direction));
         //damage entities
 
         if (destroysBlocks) {
-
             AllocatorHalfSphereB halfSphere = new AllocatorHalfSphereB(world, position);
-            Collection<BlockPosition> positions = halfSphere.allocate(new Tuple<>(radius, direction));
-            processBlocks(positions);
+            Collection<Block> positions = halfSphere.allocate(new Tuple2<>(radius, direction));
+            processDrops(positions);
             //destroy blocks
 
         }

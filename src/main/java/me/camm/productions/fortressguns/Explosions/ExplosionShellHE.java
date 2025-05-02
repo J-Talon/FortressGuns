@@ -1,19 +1,16 @@
 package me.camm.productions.fortressguns.Explosions;
 
-import me.camm.productions.fortressguns.Explosions.Abstract.EffectContext;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionShell;
 import me.camm.productions.fortressguns.Explosions.AllocatorFunction.Block.AllocatorVanillaB;
 import me.camm.productions.fortressguns.Explosions.AllocatorFunction.Entity.AllocatorVanillaE;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
-import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Material;
+import me.camm.productions.fortressguns.Util.Tuple2;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -28,10 +25,10 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
     @Override
     public void perform() {
 
-        Vec3D position = new Vec3D(x,y,z);
+        Vector position = new Vector(x,y,z);
       //  effect.preMutation(this, null);
         AllocatorVanillaE vanilla = new AllocatorVanillaE(world,position);
-        List<Entity> entities = vanilla.allocate(new Tuple<>(radius, source));
+        List<Entity> entities = vanilla.allocate(new Tuple2<>(radius, source));
         for (Entity e: entities) {
             damageEntity(e);
         }
@@ -42,7 +39,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
         if (destroysBlocks) {
             AllocatorVanillaB vanillaB = new AllocatorVanillaB(world, position);
-            List<BlockPosition> affectedBlocks;
+            List<Block> affectedBlocks;
 
             affectedBlocks = vanillaB.allocate(radius);
             Collections.shuffle(affectedBlocks, rand);
@@ -51,7 +48,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 //              //  samples.add(i, affectedBlocks.get(i));
 //            }
 
-            processBlocks(affectedBlocks);
+            processDrops(affectedBlocks);
         }
 
       //  effect.postMutation(this, new EffectContext<>(samples));

@@ -1,52 +1,52 @@
 package me.camm.productions.fortressguns.Explosions.Abstract;
 
-import net.minecraft.core.BlockPosition;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
+
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.Vec3D;
+
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.util.Vector;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-public abstract class Allocator<T, T1> {
+public abstract class Allocator<R, I> {
+    //return: R
+    //input: I
 
 
     protected double resolution;
-    protected World nmsWorld;
-    protected Vec3D position;
+    protected World world;
+    protected Vector position;
 
-    public Allocator(World nmsWorld, Vec3D position, double resolution) {
+    public Allocator(World nmsWorld, Vector position, double resolution) {
         this.resolution = resolution;
-        this.nmsWorld = nmsWorld;
+        this.world = nmsWorld;
         this.position = position;
     }
 
-    public Allocator(World nmsWorld, Vec3D position) {
+    public Allocator(World nmsWorld, Vector position) {
         this(nmsWorld, position, 0.3d);
     }
 
-    protected org.bukkit.World getBukkitWorld() {
-        return nmsWorld.getWorld();
+    protected World getBukkitWorld() {
+        return world;
     }
 
     protected Location getBukkitOrigin() {
      return new Location(getBukkitWorld(), position.getX(), position.getY(), position.getZ());
     }
 
-    public World getNmsWorld() {
-        return nmsWorld;
+    public World getWorld() {
+        return world;
     }
 
-    public Vec3D getPosition() {
+    public Vector getPosition() {
         return position;
     }
 
 
-    public abstract T allocate(T1 inputContext);
+    public abstract R allocate(I inputContext);
 
     public Optional<Float> getBlockResistance(IBlockData blockData, Fluid fluid) {
         return blockData.isAir() && fluid.isEmpty() ?
