@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import net.minecraft.util.Tuple;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -125,17 +125,17 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
             return;
 
 
-        Tuple<ItemStack, ItemStack> res = mergeAmmo(residing, input);
+        Tuple2<ItemStack, ItemStack> res = mergeAmmo(residing, input);
         if (res == null) {
             return;
         }
 
-        if (res.a().getType() == Material.AIR) {
+        if (res.getA().getType() == Material.AIR) {
             onAmmoFull(event);
         }
 
-        gui.setItem(getInputSlot(), res.a());
-        playerInv.setItem(hotbarButton,res.b());
+        gui.setItem(getInputSlot(), res.getA());
+        playerInv.setItem(hotbarButton,res.getB());
     }
 
 
@@ -183,19 +183,19 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
             return;
 
         residing = gui.getItem(getInputSlot());
-        Tuple<ItemStack, ItemStack> res = mergeAmmo(residing,input);
+        Tuple2<ItemStack, ItemStack> res = mergeAmmo(residing,input);
 
         if (res == null) {
             event.setCancelled(true);
             return;
         }
 
-        if (res.a().getType() == Material.AIR) {
+        if (res.getA().getType() == Material.AIR) {
             onAmmoFull(event);
         }
 
-        gui.setItem(getInputSlot(),res.a());
-        clicked.setItem(event.getSlot(),res.b());
+        gui.setItem(getInputSlot(),res.getA());
+        clicked.setItem(event.getSlot(),res.getB());
         event.setCancelled(true);
     }
 
@@ -240,19 +240,19 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         }
 
         ItemStack residing = event.getCurrentItem();
-        Tuple<ItemStack, ItemStack> res = mergeAmmo(residing,cursor);
+        Tuple2<ItemStack, ItemStack> res = mergeAmmo(residing,cursor);
 
         event.setCancelled(true);
 
         if (res == null)
             return;
 
-        inv.setItem(slot, res.a());
-        if (res.a().getType() == Material.AIR) {
+        inv.setItem(slot, res.getA());
+        if (res.getA().getType() == Material.AIR) {
             onAmmoFull(event);
         }
 
-        event.getWhoClicked().setItemOnCursor(res.b());
+        event.getWhoClicked().setItemOnCursor(res.getB());
 
     }
 

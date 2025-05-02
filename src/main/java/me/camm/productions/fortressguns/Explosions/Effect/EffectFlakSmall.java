@@ -4,7 +4,6 @@ import me.camm.productions.fortressguns.Explosions.Abstract.EffectContext;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosions.Abstract.ExplosionFG;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 
 public class EffectFlakSmall extends ExplosionEffect<Integer> {
 

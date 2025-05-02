@@ -5,17 +5,12 @@ import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
-import net.minecraft.world.inventory.Container;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Map;

@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import net.minecraft.util.Tuple;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -111,7 +111,7 @@ B is the remainder from the transaction
 
 return null? --> stacks cannot be merged
  */
-    protected @Nullable Tuple<ItemStack, ItemStack> mergeAmmo(@Nullable ItemStack residing, ItemStack input) {
+    protected @Nullable Tuple2<ItemStack, ItemStack> mergeAmmo(@Nullable ItemStack residing, ItemStack input) {
 
         AmmoItem resAmmo = ArtilleryItemHelper.isAmmoItem(residing);
         AmmoItem inputAmmo = ArtilleryItemHelper.isAmmoItem(input);
@@ -130,11 +130,11 @@ return null? --> stacks cannot be merged
 
             remaining = input.getAmount() - addition;
             if (remaining == 0) {
-                return new Tuple<>(placed, AIR);
+                return new Tuple2<>(placed, AIR);
             }
             else {
                 input.setAmount(remaining);
-                return new Tuple<>(placed, input);
+                return new Tuple2<>(placed, input);
             }
 
         }
@@ -152,7 +152,7 @@ return null? --> stacks cannot be merged
                 input.setAmount(input.getAmount() - addition);
 
         }
-        return new Tuple<>(residing, input);
+        return new Tuple2<>(residing, input);
     }
 
     /*
