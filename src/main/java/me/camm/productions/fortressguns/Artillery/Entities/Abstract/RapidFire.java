@@ -4,14 +4,13 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Util.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Util.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.ArtilleryMaterial;
+import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.Vector3f;

@@ -8,30 +8,20 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHea
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.Util.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.EntityHuman;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 
 public abstract class FlakArtillery extends HeavyArtillery implements Tuneable

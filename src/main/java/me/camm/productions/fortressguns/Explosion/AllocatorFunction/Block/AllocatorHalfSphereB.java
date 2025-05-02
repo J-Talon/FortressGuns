@@ -1,6 +1,6 @@
-package me.camm.productions.fortressguns.Explosions.AllocatorFunction.Block;
+package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block;
 
-import me.camm.productions.fortressguns.Explosions.Abstract.Allocator;
+import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.Location;
 import org.bukkit.Particle;

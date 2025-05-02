@@ -1,18 +1,19 @@
-package me.camm.productions.fortressguns.Explosions.AllocatorFunction.Entity;
+package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity;
 
-import me.camm.productions.fortressguns.Explosions.Abstract.Allocator;
+import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import net.minecraft.util.MathHelper;
-import net.minecraft.world.phys.AxisAlignedBB;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class AllocatorVanillaE extends Allocator<List<Entity>, Tuple2<Float, Entity>> {
+public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tuple2<Float, Entity>> {
 
 
     public AllocatorVanillaE(World world, Vector position) {
@@ -25,7 +26,7 @@ public class AllocatorVanillaE extends Allocator<List<Entity>, Tuple2<Float, Ent
     return: List<entity> affected entities
      */
     @Override
-    public List<Entity> allocate(Tuple2<Float, Entity> input) {
+    public List<Tuple2<Float, Entity>> allocate(Tuple2<Float, Entity> input) {
 
 
         double x,y,z;
@@ -58,8 +59,14 @@ public class AllocatorVanillaE extends Allocator<List<Entity>, Tuple2<Float, Ent
             }
         }
 
+        List<Tuple2<Float, Entity>> result = new ArrayList<>();
         ///min x,y,z max x,y,z
-        return (List<Entity>) world.getNearbyEntities(new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ), new BoxFilter(blacklist));
+        Collection<Entity> entities = world.getNearbyEntities(new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ), new BoxFilter(blacklist));
+        for (Entity e: entities) {
+            float exposure = getExposure(e,x,y,z);
+            result.add(new Tuple2<>(exposure, e));
+        }
+        return result;
 
     }
 

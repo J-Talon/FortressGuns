@@ -9,7 +9,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShe
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Util.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;

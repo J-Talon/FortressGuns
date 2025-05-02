@@ -1,8 +1,8 @@
-package me.camm.productions.fortressguns.Explosions.Old;
+package me.camm.productions.fortressguns.Explosion.Old;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosions.ExplosionDebris;
-import me.camm.productions.fortressguns.Explosions.ExplosionShellHE;
+import me.camm.productions.fortressguns.Explosion.ExplosionDebris;
+import me.camm.productions.fortressguns.Explosion.ExplosionShellHE;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -12,9 +12,6 @@ public class ExplosionFactory {
 
     private static boolean destructiveExplosions = true;
     private static boolean useVanillaExplosions = false;
-
-    //pen power of the solid shell
-    private static float solidPenPower = 4.5f;
 
     public static void setDestructiveExplosions(boolean destructive) {
         destructiveExplosions = destructive;
@@ -46,13 +43,13 @@ public class ExplosionFactory {
     }
 
 
-    public static void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius) {
+    public static void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius, Vector direction) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
-        Vector velocity = source.getVelocity();
-        ExplosionDebris debris = new ExplosionDebris(x,y,z,w,radius,source,destructiveExplosions, velocity, solidPenPower);
+
+        ExplosionDebris debris = new ExplosionDebris(x,y,z,w,radius,source,destructiveExplosions, direction);
         debris.perform();
 
     }

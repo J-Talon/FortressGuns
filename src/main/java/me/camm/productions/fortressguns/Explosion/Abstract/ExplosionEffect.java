@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosions.Abstract;
+package me.camm.productions.fortressguns.Explosion.Abstract;
 
 
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +22,8 @@ public abstract class ExplosionEffect<T> {
 
 
     //before the breaking of blocks and damaging entities
-    public abstract void preMutation(ExplosionFG explosion, @Nullable EffectContext<T> context);
+    public abstract void preMutation(ExplosionFG explosion, @Nullable T context);
 
     //after blocks are broken and entities are damaged
-    public abstract void postMutation(ExplosionFG explosion, @Nullable EffectContext<T> context);
+    public void postMutation(ExplosionFG explosion) {}
 }

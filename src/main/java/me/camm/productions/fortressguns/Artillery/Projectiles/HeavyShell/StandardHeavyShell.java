@@ -2,28 +2,27 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
+import me.camm.productions.fortressguns.Explosion.Old.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.ShellSource;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
-import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.MovingObjectPositionBlock;
-import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 public class StandardHeavyShell extends HeavyShell {
@@ -55,7 +54,43 @@ public class StandardHeavyShell extends HeavyShell {
 
 
     public void hitEffect(@Nullable Vec3D hit) {
-       // double penPower =
+        final float PEN_POWER = 4.5f;  // put into config
+
+        Vector direction = CraftVector.toBukkit(getMot());
+
+        double penPower = Math.min(source.getVectorPower(), direction.length() / source.getVectorPower()) * PEN_POWER;
+
+        direction.normalize();
+        Vector explosionDir = direction.clone();
+        direction.multiply(0.3); //resolution
+
+
+        Vector hitPos;
+        if (hit == null) {
+            hitPos = CraftVector.toBukkit(getPositionVector());
+        }
+        else hitPos = CraftVector.toBukkit(hit);
+
+        Block currentPen = bukkitWorld.getBlockAt(hitPos.getBlockX(), hitPos.getBlockY(), hitPos.getBlockZ());
+
+        boolean penned = false;
+        while (penPower > 0 && !penned && !currentPen.getType().isAir()) {
+            Material mat = currentPen.getType();
+            float hardness = mat.getHardness();
+
+            if (penPower >= hardness) {
+                currentPen.breakNaturally();
+                penned = true;
+            }
+            penPower -= hardness;
+            hitPos.add(direction);
+        }
+
+        if (!penned) {
+            explosionDir.multiply(-1);
+        }
+
+        ExplosionFactory.solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir);
 
 
         this.die();

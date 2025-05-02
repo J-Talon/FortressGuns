@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosions.Abstract;
+package me.camm.productions.fortressguns.Explosion.Abstract;
 
 
 public class EffectContext<T> {

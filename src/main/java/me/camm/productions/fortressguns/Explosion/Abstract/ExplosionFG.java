@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosions.Abstract;
+package me.camm.productions.fortressguns.Explosion.Abstract;
 
 import me.camm.productions.fortressguns.Util.Tuple2;
 import net.minecraft.core.BlockPosition;
@@ -26,6 +26,8 @@ import org.bukkit.util.BoundingBox;
 
 
 import java.util.*;
+
+import static me.camm.productions.fortressguns.Util.MathLib.linearInterpolate;
 
 public abstract class ExplosionFG {
 
@@ -60,76 +62,16 @@ public abstract class ExplosionFG {
     not be a mutating operation
      */
 
-
-    protected float getSeenPercent(Entity entity) {
-
-        BoundingBox box = entity.getBoundingBox();
-        Vec3D vec3d = new Vec3D(x,y,z);
-
-        /*
-        n2 - n1 is the length of a bounding box side
-        d = max x  a = min x
-        e = max y  b = min y
-        f = max z  c = min z
-
-         */
-        double ratioX = 1.0 / ((box.getMaxX() - box.getMinX()) * 2.0 + 1.0);
-        double ratioY = 1.0 / ((box.getMaxY() - box.getMinY()) * 2.0 + 1.0);
-        double ratioZ = 1.0 / ((box.getMaxZ() - box.getMinZ()) * 2.0 + 1.0);
-
-        double d3 = (1.0 - Math.floor(1.0 / ratioX) * ratioX) / 2.0;
-        double d4 = (1.0 - Math.floor(1.0 / ratioZ) * ratioZ) / 2.0;
-
-        if (ratioX >= 0.0 && ratioY >= 0.0 && ratioZ >= 0.0) {
-            int hits = 0;
-            int total = 0;
-
-            net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
-
-            ///okay I think what they're doing here is a series of raytraces
-            //so basically doing scanning and determining the ratio of what
-            //hits or not
-            for(float f = 0.0F; f <= 1.0F; f = (float)((double)f + ratioX)) {
-                for(float f1 = 0.0F; f1 <= 1.0F; f1 = (float)((double)f1 + ratioY)) {
-                    for(float f2 = 0.0F; f2 <= 1.0F; f2 = (float)((double)f2 + ratioZ)) {
-
-                        //d = Math.lerp()
-                        double d5 = linearInterpolate(f, box.getMinX(), box.getMaxX());
-                        double d6 = linearInterpolate(f1, box.getMinY(), box.getMaxY());
-                        double d7 = linearInterpolate(f2, box.getMinZ(), box.getMaxZ());
-
-                        Vec3D vec3d1 = new Vec3D(d5 + d3, d6, d7 + d4);
-                        if (nms.t.rayTrace(new RayTrace(vec3d1, vec3d, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, nms)).getType() == MovingObjectPosition.EnumMovingObjectType.a) {
-                            ++hits;
-                        }
-
-                        ++total;
-                    }
-                }
-            }
-
-            return (float)hits / (float)total;
-        } else {
-            return 0.0F;
-        }
-    }
-
-
-    protected double linearInterpolate(double increment, double start, double end) {
-        return start + increment * (end - start);
-    }
-
     protected DamageSource getDamageSource() {
         return DamageSource.explosion(stupid);
     }
 
 
 
-    protected void damageEntity(Entity affected) {
+    protected void damageEntity(Entity affected, double exposure) {
 
         net.minecraft.world.entity.Entity nms = ((CraftEntity)affected).getHandle();
         net.minecraft.world.entity.Entity sourceNMS = ((CraftEntity)affected).getHandle();
-
 
         if (nms.cx()) {  //cx = boolean ignoreExplosion()
             return;
@@ -139,11 +81,9 @@ public abstract class ExplosionFG {
         if (distanceRatio > 1)
             return;
 
-        double entityExposure = getSeenPercent(affected);
-
         // I think the logic here is that we want to multiply the exposure rate by the distance
         // cause then damage also scales with distance
-        double distExposure = (1.0 - distanceRatio) * entityExposure;
+        double distExposure = (1.0 - distanceRatio) * exposure;
 
         float damage = (float) ((int) ((distExposure * distExposure + distExposure) / 2.0 * 7.0 * radius + 1.0));
 

@@ -1,16 +1,12 @@
-package me.camm.productions.fortressguns.Explosions.AllocatorFunction.Block;
+package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block;
 
-import me.camm.productions.fortressguns.Explosions.Abstract.Allocator;
-import net.minecraft.world.level.block.state.IBlockData;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.Vec3D;
+import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 public class AllocatorVanillaB extends Allocator<List<Block>,Float> {

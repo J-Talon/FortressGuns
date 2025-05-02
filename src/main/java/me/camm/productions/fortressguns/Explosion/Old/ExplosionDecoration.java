@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosions.Old;
+package me.camm.productions.fortressguns.Explosion.Old;
 
 
 import me.camm.productions.fortressguns.FortressGuns;

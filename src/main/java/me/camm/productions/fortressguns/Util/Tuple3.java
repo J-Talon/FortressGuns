@@ -23,4 +23,16 @@ public class Tuple3<A,B,C> {
     public C getC() {
         return c;
     }
+
+    public void setA(A a) {
+        this.a = a;
+    }
+
+    public void setB(B b) {
+        this.b = b;
+    }
+
+    public void setC(C c) {
+        this.c = c;
+    }
 }

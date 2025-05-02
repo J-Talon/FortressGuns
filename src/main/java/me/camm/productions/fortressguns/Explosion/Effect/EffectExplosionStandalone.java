@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosions.Effect;
+package me.camm.productions.fortressguns.Explosion.Effect;
 
 import org.bukkit.*;
 

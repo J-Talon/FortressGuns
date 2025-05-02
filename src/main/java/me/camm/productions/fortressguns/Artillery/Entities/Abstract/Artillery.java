@@ -8,7 +8,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryT
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import me.camm.productions.fortressguns.Explosions.Effect.EffectExplosionStandalone;
+import me.camm.productions.fortressguns.Explosion.Effect.EffectExplosionStandalone;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;

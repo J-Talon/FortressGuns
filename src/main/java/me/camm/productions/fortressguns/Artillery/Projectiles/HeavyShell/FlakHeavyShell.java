@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosions.Old.ExplosionFactory;
+import me.camm.productions.fortressguns.Explosion.Old.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
