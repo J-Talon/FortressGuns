@@ -88,7 +88,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                         double dist = loc.toVector().distanceSquared(position);
 
                         double width = 0.24;
-                        double height = 2.3;
+                        double height = 1.2;
                         double expansion = 0.02;
 
                         double magnitude = height * Math.pow(1/(Math.sqrt(Math.PI * width * width)),-(expansion*dist/width));
@@ -97,7 +97,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                         if (magnitude == 0)
                             continue;
 
-                        direction.multiply(magnitude * 0.2);
+                        direction.multiply(Math.max(-magnitude + 0.5*height,0.2f));
                         direction.add(velocity.clone().multiply(magnitude + magnitudeVert));
 
 
