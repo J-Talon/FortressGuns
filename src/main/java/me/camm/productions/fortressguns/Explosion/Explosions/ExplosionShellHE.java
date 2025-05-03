@@ -25,7 +25,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
    // private static EffectHE effect = new EffectHE();
 
-    private List<Item> initialItems;
+    private final List<Item> initialItems;
 
     public ExplosionShellHE(double x, double y, double z, World world, float radius, @Nullable Entity source, boolean destructive) {
         super(x, y, z, world, radius, source, destructive);
@@ -94,7 +94,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                         block.setVelocity(result);
                     }
 
-
+                    //System.out.println("items size:"+initialItems.size());
                     for (Item item: initialItems) {
                         Location loc = item.getLocation();
                         Vector result = getThrowVector(loc.toVector());
@@ -106,7 +106,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                     cancel();
                 }
                 else {
-                    effect.preMutation(fg,null);
+                    effect.preMutation(fg,new Tuple2<>(1.0,source.getVelocity()));
                     iters ++;
                 }
             }
@@ -143,10 +143,10 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
     @Override
     protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
 
-
         for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
             for (Tuple2<ItemStack, Block> items: positions) {
                 Item item = world.dropItem(items.getB().getLocation(), items.getA());
+                System.out.println("dropping item");
                 initialItems.add(item);
             }
         }

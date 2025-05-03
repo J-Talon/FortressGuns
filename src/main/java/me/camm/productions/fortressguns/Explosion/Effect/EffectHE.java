@@ -2,14 +2,21 @@ package me.camm.productions.fortressguns.Explosion.Effect;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class EffectHE extends ExplosionEffect<Double> {
+
+public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {
+
+    private Location mutation;
+
+    //in: vector: direction of motion
     @Override
-    public void preMutation(ExplosionFG explosion, @Nullable Double context) {
+    public void preMutation(ExplosionFG explosion, @Nullable Tuple2<Double, Vector> context) {
 
 
         World world = explosion.getWorld();
@@ -20,7 +27,12 @@ public class EffectHE extends ExplosionEffect<Double> {
 
         Location loc = new Location(world, x,y,z );
 
-        double intensityPercent = context == null ? 1 : context;
+        double intensityPercent = context == null ? 1 : context.getA();
+        Vector step = context == null ? new Vector(0,0,0)  : context.getB().clone().normalize();
+        step.multiply(-1);
+        step.multiply(3);
+        loc.add(step);
+        mutation = loc;
 
         final Color LIGHT_GRAY = Color.fromRGB(120,120,120);
         final Color DARK_GRAY = Color.fromRGB(60,60,60);
@@ -40,6 +52,9 @@ public class EffectHE extends ExplosionEffect<Double> {
         World bukkitWorld = explosion.getWorld();
         BlockData LIGHT = Material.LIGHT.createBlockData();
 
+        if (!bukkitWorld.getBlockAt(mutation).getType().isAir())
+            return;
+
         for (Player player : bukkitWorld.getPlayers()) {
             player.sendBlockChange(loc, LIGHT);
         }
@@ -49,14 +64,9 @@ public class EffectHE extends ExplosionEffect<Double> {
     public void postMutation(ExplosionFG explosion) {
         World bukkitWorld = explosion.getWorld();
         BlockData AIR = Material.AIR.createBlockData();
-        Location loc = new Location(bukkitWorld,explosion.getX(),explosion.getY(),explosion.getZ());
-
-        if (!bukkitWorld.getBlockAt(loc).getType().isAir())
-            return;
-
 
         for (Player player: bukkitWorld.getPlayers()) {
-            player.sendBlockChange(loc,AIR);
+            player.sendBlockChange(mutation,AIR);
         }
     }
 }

@@ -44,26 +44,17 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
         int maxY = (int)(Math.floor(y + (double)explosionDiameter + 1.0));
 
         int minZ = (int)(Math.floor(z - (double)explosionDiameter - 1.0));
-        int maxZ = (int)(Math.floor(z - (double)explosionDiameter + 1.0));
-
-        class BoxFilter implements Predicate<Entity> {
-            private final Entity blacklist;
-            public BoxFilter(Entity blacklist) {
-                this.blacklist = blacklist;
-            }
-
-            @Override
-            public boolean test(Entity entity) {
-                return entity.equals(blacklist);
-            }
-        }
+        int maxZ = (int)(Math.floor(z + (double)explosionDiameter + 1.0));
 
         List<Tuple2<Float, Entity>> result = new ArrayList<>();
+        BoundingBox box = new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
         ///min x,y,z max x,y,z
-        Collection<Entity> entities = world.getNearbyEntities(new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ), new BoxFilter(blacklist));
+        Collection<Entity> entities = world.getNearbyEntities(box, null);
+
         for (Entity e: entities) {
             float exposure = getExposure(e,x,y,z);
             result.add(new Tuple2<>(exposure, e));
+          //  System.out.println("exposure:"+exposure);
         }
         return result;
 
