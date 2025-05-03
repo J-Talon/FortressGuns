@@ -40,8 +40,8 @@ Content to complete before first release
 ---
 - [ ] Custom Explosions
     - [X] Phase 1 - Planning and research
-    - [ ] Phase 2 - Projectile Overhaul  < Current focus
-    - [ ] Phase 3 - Explosion Overhaul
+    - [X] Phase 2 - Projectile Overhaul
+    - [ ] Phase 3 - Explosion Overhaul < Current focus
 - [X] Artillery operation mechanics
 - [ ] Bugfixing and polishing for some specific mechanics
 - [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
