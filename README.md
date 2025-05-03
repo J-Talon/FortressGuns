@@ -58,7 +58,8 @@ Planned Content
 
 Will I be updating to newer Minecraft versions?
 Probably not- With the limited time I already have to make content for this plugin, If I dedicate even more time to port it to newer versions, I won't have time to add all of the content I'd like to put in.
-That said, if anyone else wants to, be my guest!
+Although it is an intriguing prospect to consider... I might change my mind on this some time.
+
 
 Why has implementation taken so long?
 This is a project which as I've mentioned above, has a low ranking on my priority list. First comes school and work and then other projects which have a set due date. I'm also the only
