@@ -13,6 +13,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +25,11 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
    // private static EffectHE effect = new EffectHE();
 
+    private List<Item> initialItems;
+
     public ExplosionShellHE(double x, double y, double z, World world, float radius, @Nullable Entity source, boolean destructive) {
         super(x, y, z, world, radius, source, destructive);
+        initialItems = new ArrayList<>();
     }
 
     @Override
@@ -56,61 +61,47 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                     if (!destroysBlocks)
                         return;
 
-                  //  processDrops(affectedBlocks);
 
-//                    List<Integer> indices = new ArrayList<>();
-//                    List<Block> thrown = new ArrayList<>();
-//
-//                    for (int i = 0; i < affectedBlocks.size(); i ++) {
-//                        if (rand.nextFloat() <= 0.2f)
-//                            continue;
-//                        indices.add(i);
-//                    }
-//
-//                    if (indices.size() > 0) {
-//
-//                        for (int index: indices) {
-//                            thrown.add(affectedBlocks.get(index));
-//                        }
-//                        affectedBlocks.subList(0, indices.size()).clear();
-//                    }
-//                    processDrops(affectedBlocks);
-//
+                    List<Integer> indices = new ArrayList<>();
+                    List<Block> thrown = new ArrayList<>();
 
-                    Vector velocity = source.getVelocity().multiply(-1).normalize();
+                    for (int i = 0; i < affectedBlocks.size(); i ++) {
+                        if (rand.nextFloat() <= 0.2f)
+                            continue;
+                        indices.add(i);
+                    }
 
+                    if (indices.size() > 0) {
 
-                    int i = 0;
-                    for (Block next: affectedBlocks) {
+                        for (int index: indices) {
+                            thrown.add(affectedBlocks.get(index));
+                        }
+                        affectedBlocks.subList(0, indices.size()).clear();
+                    }
+
+                    processDrops(affectedBlocks);
+
+                    for (Block next: thrown) {
                         Location loc = next.getLocation().add(0.5, 0.5, 0.5);
-
-                        Vector direction = loc.toVector().subtract(position).normalize();
-                        double dist = loc.toVector().distanceSquared(position);
-
-                        double width = 0.24;
-                        double height = 1.2;
-                        double expansion = 0.02;
-
-                        double magnitude = height * Math.pow(1/(Math.sqrt(Math.PI * width * width)),-(expansion*dist/width));
-                        double magnitudeVert = Math.max(0,-0.5*dist + 0.5);
-
-                        if (magnitude == 0)
+                        Vector result = getThrowVector(loc.toVector());
+                        if (result == null)
                             continue;
 
-                        direction.multiply(Math.max(-magnitude + 0.5*height,0.2f));
-                        direction.add(velocity.clone().multiply(magnitude + magnitudeVert));
-
-
-                        System.out.println(i+"| dist: "+dist+"| direction:"+direction);
 
                         FallingBlock block = world.spawnFallingBlock(loc, next.getBlockData());
                         next.setType(Material.AIR);
                         block.setHurtEntities(true);
-
-                        block.setVelocity(direction);
-                        i++;
+                        block.setVelocity(result);
                     }
 
+
+                    for (Item item: initialItems) {
+                        Location loc = item.getLocation();
+                        Vector result = getThrowVector(loc.toVector());
+                        if (result == null)
+                            continue;
+                        item.setVelocity(result);
+                    }
 
                     cancel();
                 }
@@ -123,4 +114,42 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
         }.runTaskTimer(FortressGuns.getInstance(),0,5);
 
     }
+
+
+    protected @Nullable Vector getThrowVector(Vector loc) {
+        final double width = 0.17;
+        final double height = 1.3;
+        final double expansion = 0.02;
+
+        Vector position = new Vector(x,y,z);
+
+        Vector velocity = source.getVelocity().multiply(-1).normalize();
+
+        double dist = loc.distanceSquared(position);
+        Vector direction = loc.clone().subtract(position).normalize();
+
+        double magnitude = height * Math.pow(1/(Math.sqrt(Math.PI * width * width)),-(expansion*dist/width));
+        double magnitudeVert = Math.max(0,-0.5*dist + 0.5);
+        if (magnitude == 0)
+            return null;
+
+        direction.multiply(Math.max(-magnitude + 0.3*height,0.2f));
+        direction.add(velocity.clone().multiply(magnitude + magnitudeVert));
+
+        return direction;
+    }
+
+
+    @Override
+    protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
+
+
+        for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
+            for (Tuple2<ItemStack, Block> items: positions) {
+                Item item = world.dropItem(items.getB().getLocation(), items.getA());
+                initialItems.add(item);
+            }
+        }
+    }
+
 }

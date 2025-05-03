@@ -44,7 +44,7 @@ public class AllocatorConeE extends Allocator<List<Tuple2<Entity, Float>>,Tuple3
             }
             @Override
             public boolean test(Entity entity) {
-                return !(entity.equals(blacklist));
+                return (entity.equals(blacklist));
             }
         }
 

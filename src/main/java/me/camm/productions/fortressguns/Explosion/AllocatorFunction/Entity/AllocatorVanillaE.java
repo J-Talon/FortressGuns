@@ -54,7 +54,7 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
 
             @Override
             public boolean test(Entity entity) {
-                return !entity.equals(blacklist);
+                return entity.equals(blacklist);
             }
         }
 

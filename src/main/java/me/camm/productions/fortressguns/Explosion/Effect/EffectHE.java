@@ -2,15 +2,10 @@ package me.camm.productions.fortressguns.Explosion.Effect;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
-import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-import java.util.Collection;
 
 public class EffectHE extends ExplosionEffect<Double> {
     @Override
@@ -25,14 +20,13 @@ public class EffectHE extends ExplosionEffect<Double> {
 
         Location loc = new Location(world, x,y,z );
 
-
         double intensityPercent = context == null ? 1 : context;
 
         final Color LIGHT_GRAY = Color.fromRGB(120,120,120);
         final Color DARK_GRAY = Color.fromRGB(60,60,60);
 
-        world.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS,4,0.2f);
-        world.playSound(loc, Sound.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.BLOCKS,4,0.2f);
+        world.playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.BLOCKS,2,0);
+        world.playSound(loc, Sound.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.BLOCKS,2,0);
         world.playSound(loc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.BLOCKS,0.5f,0);
 
         world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc,(int)(50 * intensityPercent),0,0,0,0.5,null, true);
@@ -42,35 +36,27 @@ public class EffectHE extends ExplosionEffect<Double> {
 
         Particle.DustTransition transition = new Particle.DustTransition(LIGHT_GRAY,DARK_GRAY,30);
         world.spawnParticle(Particle.REDSTONE,loc,(int)(70 * intensityPercent),1.7,2,1.7,1,transition);
+
+        World bukkitWorld = explosion.getWorld();
+        BlockData LIGHT = Material.LIGHT.createBlockData();
+
+        for (Player player : bukkitWorld.getPlayers()) {
+            player.sendBlockChange(loc, LIGHT);
+        }
     }
 
     @Override
     public void postMutation(ExplosionFG explosion) {
         World bukkitWorld = explosion.getWorld();
-        BlockData LIGHT = Material.LIGHT.createBlockData();
         BlockData AIR = Material.AIR.createBlockData();
         Location loc = new Location(bukkitWorld,explosion.getX(),explosion.getY(),explosion.getZ());
 
         if (!bukkitWorld.getBlockAt(loc).getType().isAir())
             return;
 
-        new BukkitRunnable() {
-            int iters = 0;
-            public void run() {
 
-                if (iters > 0) {
-                    for (Player player: bukkitWorld.getPlayers()) {
-                        player.sendBlockChange(loc,AIR);
-                    }
-                    cancel();
-                }
-                else {
-                    iters ++;
-                    for (Player player : bukkitWorld.getPlayers()) {
-                        player.sendBlockChange(loc, LIGHT);
-                    }
-                }
-            }
-        }.runTaskTimer(FortressGuns.getInstance(), 0,1);
+        for (Player player: bukkitWorld.getPlayers()) {
+            player.sendBlockChange(loc,AIR);
+        }
     }
 }

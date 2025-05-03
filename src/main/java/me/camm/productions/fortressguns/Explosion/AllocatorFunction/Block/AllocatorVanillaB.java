@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
@@ -30,8 +31,9 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
         y = position.getY();
         z = position.getZ();
 
-        float radMin = inputContext - 1;
+
         float radSquared = inputContext * inputContext;
+        float radMin = radSquared - 1;
 
         //create a hollow cube
         for(int wallZ = 0; wallZ < radSquared; ++wallZ) {
