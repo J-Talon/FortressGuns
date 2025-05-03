@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosion.Old.ExplosionFactory;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.ShellSource;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.BlockPosition;

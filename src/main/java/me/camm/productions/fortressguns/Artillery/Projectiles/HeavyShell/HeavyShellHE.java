@@ -4,7 +4,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosion.Old.ExplosionFactory;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
@@ -70,9 +70,9 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
     public void explode(@Nullable Vec3D hit) {
 
         if (hit == null)
-            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower(), this);
+            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower());
         else
-            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower(), this);
+            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower());
     remove();
     }
 
@@ -85,7 +85,7 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
 
     @Override
     public void remove() {
-        explode(getPositionVector());
+        this.die();
     }
 
 

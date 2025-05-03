@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosion;
+package me.camm.productions.fortressguns.Explosion.Explosions;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;

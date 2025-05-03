@@ -1,8 +1,9 @@
-package me.camm.productions.fortressguns.Explosion.Old;
+package me.camm.productions.fortressguns.Explosion;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosion.ExplosionDebris;
-import me.camm.productions.fortressguns.Explosion.ExplosionShellHE;
+import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionDebris;
+import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionFlakLarge;
+import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionShellHE;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -33,7 +34,7 @@ public class ExplosionFactory {
     }
 
 
-    public static void heavyShellExplosion(World w, Entity source, double x, double y, double z, float radius, ProjectileExplosive explosive) {
+    public static void heavyShellExplosion(World w, Entity source, double x, double y, double z, float radius) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
@@ -57,14 +58,22 @@ public class ExplosionFactory {
     }
 
 
-    public static void flakHeavyExplosion(World w, Entity source, double x, double y, double z, float radius, ProjectileExplosive explosive) {
+    public static void flakHeavyExplosion(World w, Entity source, double x, double y, double z, float radius) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
 
-//        ShellExplosion e = new ShellExplosion(w,source, x,y,z,radius,new ExplosionDecoration.LargeFlakDecoration(), explosive, destructiveExplosions);
-//        e.playExplosion();
+        ExplosionFlakLarge explosion = new ExplosionFlakLarge(x,y,z,w,radius,source);
+        explosion.perform();
+    }
+
+    public static void flakLightExplosion(World w, Entity source, double x, double y, double z, float radius) {
+        if (useVanillaExplosions) {
+            vanillaExplosion(w,source,x,y,z,radius);
+            return;
+        }
+
 
     }
 

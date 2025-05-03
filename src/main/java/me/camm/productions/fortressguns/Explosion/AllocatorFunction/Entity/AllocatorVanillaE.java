@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
 import me.camm.productions.fortressguns.Util.Tuple2;
-import net.minecraft.util.MathHelper;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BoundingBox;
@@ -38,14 +37,14 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
         Entity blacklist = input.getB();
 
         float explosionDiameter = radius * 2.0F;
-        int minX = MathHelper.floor(x - (double)explosionDiameter - 1.0);
-        int maxX = MathHelper.floor(x + (double)explosionDiameter + 1.0);
+        int minX = (int)(Math.floor(x - (double)explosionDiameter - 1.0));
+        int maxX = (int)(Math.floor(x + (double)explosionDiameter + 1.0));
 
-        int minY = MathHelper.floor(y - (double)explosionDiameter - 1.0);
-        int maxY = MathHelper.floor(y + (double)explosionDiameter + 1.0);
+        int minY = (int)(Math.floor(y - (double)explosionDiameter - 1.0));
+        int maxY = (int)(Math.floor(y + (double)explosionDiameter + 1.0));
 
-        int minZ = MathHelper.floor(z - (double)explosionDiameter - 1.0);
-        int maxZ = MathHelper.floor(z + (double)explosionDiameter + 1.0);
+        int minZ = (int)(Math.floor(z - (double)explosionDiameter - 1.0));
+        int maxZ = (int)(Math.floor(z - (double)explosionDiameter + 1.0));
 
         class BoxFilter implements Predicate<Entity> {
             private final Entity blacklist;

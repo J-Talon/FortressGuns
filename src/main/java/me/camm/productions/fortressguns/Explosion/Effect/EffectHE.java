@@ -6,13 +6,15 @@ import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
-public class EffectHE extends ExplosionEffect<Tuple2<Collection<Material>, Double>> {
+public class EffectHE extends ExplosionEffect<Double> {
     @Override
-    public void preMutation(ExplosionFG explosion, @Nullable Tuple2<Collection<Material>, Double> context) {
+    public void preMutation(ExplosionFG explosion, @Nullable Double context) {
 
 
         World world = explosion.getWorld();
@@ -24,7 +26,7 @@ public class EffectHE extends ExplosionEffect<Tuple2<Collection<Material>, Doubl
         Location loc = new Location(world, x,y,z );
 
 
-        double intensityPercent = context == null ? 1 : context.getB();
+        double intensityPercent = context == null ? 1 : context;
 
         final Color LIGHT_GRAY = Color.fromRGB(120,120,120);
         final Color DARK_GRAY = Color.fromRGB(60,60,60);
@@ -52,12 +54,23 @@ public class EffectHE extends ExplosionEffect<Tuple2<Collection<Material>, Doubl
         if (!bukkitWorld.getBlockAt(loc).getType().isAir())
             return;
 
-        bukkitWorld.setBlockData(loc, LIGHT);
-
         new BukkitRunnable() {
+            int iters = 0;
             public void run() {
-                bukkitWorld.setBlockData(loc,AIR);
+
+                if (iters > 0) {
+                    for (Player player: bukkitWorld.getPlayers()) {
+                        player.sendBlockChange(loc,AIR);
+                    }
+                    cancel();
+                }
+                else {
+                    iters ++;
+                    for (Player player : bukkitWorld.getPlayers()) {
+                        player.sendBlockChange(loc, LIGHT);
+                    }
+                }
             }
-        }.runTaskLater(FortressGuns.getInstance(), 5);
+        }.runTaskTimer(FortressGuns.getInstance(), 0,1);
     }
 }

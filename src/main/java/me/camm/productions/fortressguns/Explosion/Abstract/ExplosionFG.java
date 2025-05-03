@@ -150,6 +150,7 @@ public abstract class ExplosionFG {
                 continue;
             }
             mergeDrops(next, droppedItems);
+            next.setType(Material.AIR);
         }
         dropItems(droppedItems);
     }

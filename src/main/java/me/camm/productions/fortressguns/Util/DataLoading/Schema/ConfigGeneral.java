@@ -11,7 +11,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLig
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorGeneral;
-import me.camm.productions.fortressguns.Explosion.Old.ExplosionFactory;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 
 @JsonTypeName("general")
 public class ConfigGeneral implements ConfigObject {

@@ -1,13 +1,12 @@
 package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
 
@@ -21,7 +20,7 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
     @Override
     public List<Block> allocate(Float inputContext) {
 
-        List<Block> brokenBlocks = new ArrayList<>();
+        Set<Block> brokenBlocks = new HashSet<>();
 
         int wallX;
         int wallY;
@@ -32,11 +31,12 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
         z = position.getZ();
 
         float radMin = inputContext - 1;
+        float radSquared = inputContext * inputContext;
 
         //create a hollow cube
-        for(int wallZ = 0; wallZ < inputContext; ++wallZ) {
-            for(wallX = 0; wallX < inputContext; ++wallX) {
-                for(wallY = 0; wallY < inputContext; ++wallY) {
+        for(int wallZ = 0; wallZ < radSquared; ++wallZ) {
+            for(wallX = 0; wallX < radSquared; ++wallX) {
+                for(wallY = 0; wallY < radSquared; ++wallY) {
 
                     if (!(wallZ == 0 || wallZ == radMin || wallX == 0 || wallX == radMin || wallY == 0 || wallY == radMin)) {
                         continue;
@@ -72,13 +72,18 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
 
                     while (power > 0) {
                         Block block = world.getBlockAt((int)vectorX, (int)vectorY, (int)vectorZ);
+
                         float blastResistance = block.getType().getBlastResistance();
+
+
                         power -= (blastResistance + 0.3F) * resolution;
 
                         //a = shouldBlockExplode
-                        if (power > 0.0F) {
+                        Material type = block.getType();
+                        if (power > 0.0F && !type.isAir() && !block.isLiquid()) {
                             brokenBlocks.add(block);
                         }
+
 
                         //expanding the vectors of the bump
                         vectorX += bumpX * resolution;
@@ -89,7 +94,6 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
                 }
             }
         }
-
-        return brokenBlocks;
+        return new ArrayList<>(brokenBlocks);
     }
 }

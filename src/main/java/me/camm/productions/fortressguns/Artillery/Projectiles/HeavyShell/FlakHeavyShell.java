@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Explosion.Old.ExplosionFactory;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
@@ -93,9 +93,9 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
     public void explode(@Nullable Vec3D hit) {
         this.die();
         if (hit == null)
-            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower(),this);
+            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower());
         else
-            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(),hit.getY(),hit.getZ(), getExplosionPower(),this);
+            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(),hit.getY(),hit.getZ(), getExplosionPower());
     }
 
 
