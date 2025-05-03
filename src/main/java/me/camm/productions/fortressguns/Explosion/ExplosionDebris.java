@@ -2,14 +2,15 @@ package me.camm.productions.fortressguns.Explosion;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
-import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block.AllocatorHalfSphereB;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorConeE;
+import me.camm.productions.fortressguns.Explosion.Effect.EffectDebris;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import me.camm.productions.fortressguns.Util.Tuple3;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,11 +19,13 @@ public class ExplosionDebris extends ExplosionFG {
 
 
     private final Vector direction;
+    private final Block context;
 
 
-    public ExplosionDebris(double x, double y, double z, World world, float radius, Entity source, boolean destructive, Vector direction) {
+    public ExplosionDebris(double x, double y, double z, World world, float radius, Entity source, boolean destructive, Vector direction, @Nullable Block context) {
         super(x, y, z, world, radius, source, destructive);
-        System.out.println("Start pos: "+x+" "+y +" "+z);
+        this.context = context;
+
         if (direction.lengthSquared() == 0) {
             this.direction = source.getLocation().getDirection();
         }
@@ -33,11 +36,11 @@ public class ExplosionDebris extends ExplosionFG {
     @Override
     public void perform() {
 
-        ExplosionEffect effect;
+
         Vector position = new Vector(x,y,z);
-        final float SUBTRACTION = 0.2f;  //put in config
+        final float ANGLE_SUBTRACTION = 0f;  //put in config
         //pre-mutation
-        AllocatorConeE cone = new AllocatorConeE(world, position, SUBTRACTION);
+        AllocatorConeE cone = new AllocatorConeE(world, position, ANGLE_SUBTRACTION);
         List<Tuple2<Entity, Float>> affectedEntities = cone.allocate(new Tuple3<>(radius, direction, source));
         //damage entities
 
@@ -45,13 +48,8 @@ public class ExplosionDebris extends ExplosionFG {
             damageEntity(tup.getA(), tup.getB());
         }
 
-        if (destroysBlocks) {
-            AllocatorHalfSphereB halfSphere = new AllocatorHalfSphereB(world, position);
-            Collection<Block> positions = halfSphere.allocate(new Tuple2<>(radius, direction));
-            processDrops(positions);
-            //destroy blocks
-        }
-
+        EffectDebris debris = new EffectDebris();
+        debris.preMutation(this, new Tuple2<>(1.0, context));
         //post mutation
     }
 }

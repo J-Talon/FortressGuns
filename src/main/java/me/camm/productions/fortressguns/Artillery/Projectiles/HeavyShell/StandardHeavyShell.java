@@ -20,10 +20,12 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StandardHeavyShell extends HeavyShell {
 
@@ -53,7 +55,7 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
 
-    public void hitEffect(@Nullable Vec3D hit) {
+    protected void hitEffectBlock(@Nullable Vec3D hit) {
         final float PEN_POWER = 4.5f;  // put into config
 
         Vector direction = CraftVector.toBukkit(getMot());
@@ -74,26 +76,48 @@ public class StandardHeavyShell extends HeavyShell {
         Block currentPen = bukkitWorld.getBlockAt(hitPos.getBlockX(), hitPos.getBlockY(), hitPos.getBlockZ());
 
         boolean penned = false;
-        while (penPower > 0 && !penned && !currentPen.getType().isAir()) {
+        List<Block> penBlocks = new ArrayList<>();
+        Block context = null;
+
+        do {
             Material mat = currentPen.getType();
             float hardness = mat.getHardness();
+            context = currentPen;
 
             if (penPower >= hardness) {
-                currentPen.breakNaturally();
+                penBlocks.add(currentPen);
                 penned = true;
             }
+
             penPower -= hardness;
+
             hitPos.add(direction);
-        }
+            currentPen = bukkitWorld.getBlockAt(hitPos.getBlockX(), hitPos.getBlockY(), hitPos.getBlockZ());
+            if (currentPen.getType().isAir())
+                break;
+
+        } while (penPower > 0);
 
         if (!penned) {
             explosionDir.multiply(-1);
         }
+        else {
+            hitPos.add(direction);
+        }
 
-        ExplosionFactory.solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir);
+        ExplosionFactory.solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir, context);
 
+        if (ExplosionFactory.allowDestructiveExplosions()) {
+            for (Block block : penBlocks) {
+                block.breakNaturally();
+            }
+        }
 
-        this.die();
+        if (penPower <= 0)
+            this.die();
+
+        setMot(getMot().a(penPower / PEN_POWER));
+
     }
 
 
@@ -113,7 +137,7 @@ public class StandardHeavyShell extends HeavyShell {
         final float MULTIPLIER = 1.7f;
 
         float damageMultiplier = (float) (length / source.getVectorPower());
-
+        float damage = getHitDamage();
         Vec3D velocity = getMot().d().a(MULTIPLIER);  //d() => norm,  a() => mult
         hitEntity.i(velocity.getX() * MULTIPLIER, velocity.getY() * MULTIPLIER,velocity.getZ() * MULTIPLIER);  //i => push()
 
@@ -121,8 +145,8 @@ public class StandardHeavyShell extends HeavyShell {
         if (hitEntity instanceof EntityLiving living) {
             //if the damage would be blocked
             if (living.applyBlockingModifier(ShellSource.artilleryHit(shooter,this))) {
-                hitEntity.damageEntity(source, getHitDamage() * damageMultiplier * 5);
-                hitEffect(this.getPositionVector());
+                hitEntity.damageEntity(source, damage * damageMultiplier * 5);
+                hitEffectBlock(this.getPositionVector());
                 return true;
             }
 
@@ -131,8 +155,11 @@ public class StandardHeavyShell extends HeavyShell {
             }
         }
 
-        hitEntity.damageEntity(source,getHitDamage() * damageMultiplier);
-        hitEffect(this.getPositionVector());
+
+        hitEntity.damageEntity(source,damage * damageMultiplier);
+        Location loc = CraftVector.toBukkit(getPositionVector()).toLocation(bukkitWorld);
+        bukkitWorld.playSound(loc,Sound.ITEM_TRIDENT_HIT,1,0);
+        bukkitWorld.spawnParticle(Particle.END_ROD,loc,10,0,0,0,0.1f);
         return true;
     }
 
@@ -163,7 +190,7 @@ public class StandardHeavyShell extends HeavyShell {
         boolean energyConserved = length > (0.1f * source.getVectorPower());
 
         if (dotProduct > angleReflection && energyConserved) {
-            hitEffect(exactHitPosition);
+            hitEffectBlock(exactHitPosition);
             return true;
         }
         else {

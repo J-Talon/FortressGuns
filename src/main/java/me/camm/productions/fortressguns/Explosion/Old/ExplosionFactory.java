@@ -4,9 +4,11 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Explosion.ExplosionDebris;
 import me.camm.productions.fortressguns.Explosion.ExplosionShellHE;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ExplosionFactory {
 
@@ -43,13 +45,13 @@ public class ExplosionFactory {
     }
 
 
-    public static void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius, Vector direction) {
+    public static void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius, Vector direction, @Nullable Block context) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
 
-        ExplosionDebris debris = new ExplosionDebris(x,y,z,w,radius,source,destructiveExplosions, direction);
+        ExplosionDebris debris = new ExplosionDebris(x,y,z,w,radius,source,destructiveExplosions, direction, context);
         debris.perform();
 
     }

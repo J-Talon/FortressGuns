@@ -120,7 +120,7 @@ standard = 4
 # missiles do no contact damage
 heavyHighExplosiveDamage = 10
 heavyFlakDamage = 10
-standardDamage = 10
+standardDamage = 25
 
 lightStandardDamage = 5
 lightFlakDamage = 5
