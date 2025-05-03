@@ -56,7 +56,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                     if (!destroysBlocks)
                         return;
 
-                    processDrops(affectedBlocks);
+                  //  processDrops(affectedBlocks);
 
 //                    List<Integer> indices = new ArrayList<>();
 //                    List<Block> thrown = new ArrayList<>();
@@ -77,27 +77,39 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 //                    processDrops(affectedBlocks);
 //
 
-//
-//                    int i = 0;
-//                    for (Block next: affectedBlocks) {
-//                        Location loc = next.getLocation().add(0.5, 0.5, 0.5);
-//
-//                        Vector direction = loc.toVector().subtract(position).normalize();
-//                        double dist = loc.toVector().distanceSquared(position);
-//                        double magnitude = Math.max(0, -0.1*dist + 3);
-//                        if (magnitude == 0)
-//                            continue;
-//
-//                        direction.multiply(magnitude);
-//                        System.out.println(i+"| dist: "+dist+"| direction:"+direction);
-//
-//                        FallingBlock block = world.spawnFallingBlock(loc, next.getBlockData());
-//                        next.setType(Material.AIR);
-//                        block.setHurtEntities(true);
-//
-//                        block.setVelocity(direction);
-//                        i++;
-//                    }
+                    Vector velocity = source.getVelocity().multiply(-1).normalize();
+
+
+                    int i = 0;
+                    for (Block next: affectedBlocks) {
+                        Location loc = next.getLocation().add(0.5, 0.5, 0.5);
+
+                        Vector direction = loc.toVector().subtract(position).normalize();
+                        double dist = loc.toVector().distanceSquared(position);
+
+                        double width = 0.24;
+                        double height = 2.3;
+                        double expansion = 0.02;
+
+                        double magnitude = height * Math.pow(1/(Math.sqrt(Math.PI * width * width)),-(expansion*dist/width));
+                        double magnitudeVert = Math.max(0,-0.5*dist + 0.5);
+
+                        if (magnitude == 0)
+                            continue;
+
+                        direction.multiply(magnitude * 0.2);
+                        direction.add(velocity.clone().multiply(magnitude + magnitudeVert));
+
+
+                        System.out.println(i+"| dist: "+dist+"| direction:"+direction);
+
+                        FallingBlock block = world.spawnFallingBlock(loc, next.getBlockData());
+                        next.setType(Material.AIR);
+                        block.setHurtEntities(true);
+
+                        block.setVelocity(direction);
+                        i++;
+                    }
 
 
                     cancel();
