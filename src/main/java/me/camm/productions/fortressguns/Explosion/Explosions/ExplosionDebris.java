@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Explosion.Explosions;
 
-import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorConeE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectDebris;
@@ -11,8 +10,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 import java.util.List;
 
 public class ExplosionDebris extends ExplosionFG {
@@ -51,5 +48,17 @@ public class ExplosionDebris extends ExplosionFG {
         EffectDebris debris = new EffectDebris();
         debris.preMutation(this, new Tuple2<>(1.0, context));
         //post mutation
+    }
+
+
+    @Override
+    public float getMaxDamage() {
+        return 10f;
+    }
+
+
+    @Override
+    public double getFalloff(double distanceSquared) {
+        return distanceSquared == 0 ? 1 : (1 / distanceSquared);
     }
 }

@@ -47,12 +47,17 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        if (hitEntity.getEntityType() == EntityTypes.w) {
+        if (hitEntity.getEntityType() == EntityTypes.w) {   //enderman
             return false;
         }
 
+        if (hitEntity instanceof ProjectileExplosive) {
+            ((ProjectileExplosive) hitEntity).explode(null);
+            return true;
+        }
+
         //deflect
-        if (hitEntity instanceof IProjectile && (! (this instanceof ProjectileExplosive))) {
+        if (hitEntity instanceof IProjectile) {
             Vec3D current = this.getPositionVector();
             Vec3D other = hitEntity.getPositionVector();
             float otherWeight = 0.05f;
@@ -60,10 +65,6 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
             Vec3D thisDeflection;
             thisDeflection = other.a(current).d();  /// subtract, normalize
 
-            if (hitEntity instanceof ProjectileExplosive) {
-                ((ProjectileExplosive) hitEntity).explode(null);
-                return true;
-            }
 
             if (hitEntity instanceof ArtilleryProjectile) {
                 otherWeight = ((ArtilleryProjectile) hitEntity).getWeight();
@@ -82,7 +83,7 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
             return false;
         }
 
-        return true;
+        return false;
     }
 
     @Override

@@ -27,7 +27,7 @@ public enum StaticItem {
 
     final String name;
     final Material mat;
-    private StaticItem(String name, Material mat) {
+    StaticItem(String name, Material mat) {
         this.name = name;
         this.mat = mat;
     }

@@ -31,7 +31,7 @@ public class FileManager {
         //doing optional resource pack models
         CONFIG("ArtilleryConfig.toml"),
         SAVES("SavedArtillery.toml");
-        private Resource(String file) {
+        Resource(String file) {
             this.file = file;
         }
 

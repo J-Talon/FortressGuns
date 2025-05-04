@@ -121,10 +121,13 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
 
+    //deflections should only happen if both projectiles are non explosive
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        if (!super.onEntityHit(hitEntity, entityPosition)) {
-            return false;
+
+        if (super.onEntityHit(hitEntity, entityPosition)) {
+            this.remove();
+            return true;
         }
 
         if (hitEntity instanceof ProjectileExplosive) {
@@ -132,6 +135,7 @@ public class StandardHeavyShell extends HeavyShell {
             this.remove();
             return true;
         }
+
 
         float length = (float)getMot().f();
         final float MULTIPLIER = 1.7f;

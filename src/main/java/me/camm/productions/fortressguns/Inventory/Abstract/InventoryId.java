@@ -13,7 +13,7 @@ public enum InventoryId {
     private final String name;
     private final Class<? extends ConstructInventory> inv;
 
-    private InventoryId(String name, Class<? extends ConstructInventory> inv) {
+    InventoryId(String name, Class<? extends ConstructInventory> inv) {
         this.name = name;
         this.inv = inv;
     }

@@ -20,7 +20,7 @@ public interface ExplosionDecoration {
 
     }
 
-    static class StandardDecoration implements ExplosionDecoration {
+    class StandardDecoration implements ExplosionDecoration {
         @Override
         public void decorate(ShellExplosion explosion) {
             CraftWorld world = explosion.getWorld().getWorld();
@@ -91,7 +91,7 @@ public interface ExplosionDecoration {
     }
 
 
-    static class LargeFlakDecoration implements ExplosionDecoration {
+    class LargeFlakDecoration implements ExplosionDecoration {
 
         @Override
         public void decorate(ShellExplosion explosion) {
@@ -124,7 +124,7 @@ public interface ExplosionDecoration {
 
 
 
-    static class SmallFlakExplosion implements ExplosionDecoration {
+    class SmallFlakExplosion implements ExplosionDecoration {
         @Override
         public void decorate(ShellExplosion explosion) {
             CraftWorld world = explosion.getWorld().getWorld();

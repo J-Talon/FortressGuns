@@ -118,7 +118,7 @@ public class CRAM extends Artillery implements AutoTracking {
         Vector tp = targetPos.clone().subtract(shooterPos);
 
         System.out.println("tp: "+tp);
-        System.out.println("raw tv: "+mot.toString());
+        System.out.println("raw tv: "+ mot);
         System.out.println("tv: "+tv);
         System.out.println("sp: "+shooterPos);
 
@@ -160,7 +160,7 @@ public class CRAM extends Artillery implements AutoTracking {
         direction.normalize();
         direction.multiply(bs);
 
-        System.out.println("direction: "+direction.toString());
+        System.out.println("direction: "+ direction);
 
         net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
         CRAMShell shell = new CRAMShell(nms,shooterPos.getX(), shooterPos.getY(), shooterPos.getZ(),null,this);

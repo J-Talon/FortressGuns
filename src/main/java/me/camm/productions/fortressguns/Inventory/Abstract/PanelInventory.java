@@ -104,7 +104,7 @@ public abstract class PanelInventory extends TransactionInventory {
 
     @FunctionalInterface
     public interface MenuFunction {
-        public void onEvent(InventoryClickEvent event, Construct body);
+        void onEvent(InventoryClickEvent event, Construct body);
 
 
         default boolean preconditions(@Nullable ItemStack stack) {

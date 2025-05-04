@@ -22,8 +22,8 @@ public class ArtilleryItemHelper
     private static final Material CHEST =  Material.CHEST;
     private static final String VALUE = ChatColor.GOLD+"Value: ";
 
-    private static Map<String, Class<? extends Artillery>> artilleryNames;
-    private static Map<String, AmmoItem> itemNames;
+    private static final Map<String, Class<? extends Artillery>> artilleryNames;
+    private static final Map<String, AmmoItem> itemNames;
 
 
     private static ItemStack stick = null;

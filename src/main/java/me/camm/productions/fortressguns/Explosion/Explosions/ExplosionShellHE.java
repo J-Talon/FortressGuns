@@ -37,6 +37,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
         EffectHE effect = new EffectHE();
         Vector position = new Vector(x,y,z);
+        System.out.println("explosion position: "+position);
 
         AllocatorVanillaB vanillaB = new AllocatorVanillaB(world, position);
         List<Block> affectedBlocks;
@@ -146,10 +147,20 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
         for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
             for (Tuple2<ItemStack, Block> items: positions) {
                 Item item = world.dropItem(items.getB().getLocation(), items.getA());
-                System.out.println("dropping item");
                 initialItems.add(item);
             }
         }
+    }
+
+    @Override
+    public float getMaxDamage() {
+        return 30f;
+    }
+
+
+    @Override
+    public double getFalloff(double distanceSquared) {
+        return distanceSquared == 0 ? 1 : Math.pow((1/Math.sqrt(distanceSquared * Math.PI)), distanceSquared * 0.009);
     }
 
 }

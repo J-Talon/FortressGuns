@@ -52,10 +52,7 @@ public abstract class ProjectileSnowballFG extends EntitySnowball implements Art
     //This was code in the superclass which basically showed snowball particles
     //we don't want snowball particles so this goes blank
     @Override
-    public void a(byte var0) {};
-
-
-
+    public void a(byte var0) {}
 
 
 }

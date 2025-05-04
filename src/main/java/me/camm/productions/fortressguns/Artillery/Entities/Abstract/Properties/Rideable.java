@@ -5,18 +5,18 @@ import net.minecraft.world.entity.player.EntityHuman;
 
 public interface Rideable {
 
-    abstract Component getSeat();
-    abstract void positionSeat();
+    Component getSeat();
+    void positionSeat();
 
-    abstract boolean hasRider();
+    boolean hasRider();
 
-    abstract void rideTick(EntityHuman human);
+    void rideTick(EntityHuman human);
 
-    abstract void setHasRider(boolean hasRider);
+    void setHasRider(boolean hasRider);
 
-    abstract void onDismount();
+    void onDismount();
 
-    abstract void onMount();
+    void onMount();
 
     default void updateOnInteraction() {
 

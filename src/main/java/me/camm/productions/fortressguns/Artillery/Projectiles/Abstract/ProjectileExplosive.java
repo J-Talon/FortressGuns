@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ProjectileExplosive {
 
-    public void explode(@Nullable Vec3D hit);
+    void explode(@Nullable Vec3D hit);
 
-    abstract float getExplosionPower();
+    float getExplosionPower();
 
 }

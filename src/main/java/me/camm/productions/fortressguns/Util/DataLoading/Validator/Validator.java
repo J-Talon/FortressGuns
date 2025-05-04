@@ -5,5 +5,5 @@ import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface Validator<T> {
-    public boolean validate(@NotNull T in);
+    boolean validate(@NotNull T in);
 }

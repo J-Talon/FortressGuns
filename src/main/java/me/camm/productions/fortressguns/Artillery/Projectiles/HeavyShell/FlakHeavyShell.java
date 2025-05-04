@@ -106,4 +106,17 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
     }
 
 
+    @Override
+    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+
+        if (super.onEntityHit(hitEntity, entityPosition)) {
+            return true;
+        }
+
+        explode(getPositionVector());
+        return true;
+    }
+
+
+
 }

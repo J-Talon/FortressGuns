@@ -58,6 +58,8 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+        super.onEntityHit(hitEntity, entityPosition);
+
         if (hitEntity instanceof ArtilleryProjectile) {
             ((ArtilleryProjectile) hitEntity).remove();
         }
@@ -87,104 +89,4 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
     public void remove() {
         this.die();
     }
-
-
-    //    public void preHit(@Nullable MovingObjectPosition pos) {
-//
-//        if (pos == null) {
-//            super.preHit((MovingObjectPosition) null);
-//            return;
-//        }
-//
-//        Vec3D backstep = stepBack(pos,this);
-//
-//        Vec3D currentPos = this.getPositionVector();
-//
-//        Vec3D blastDir = currentPos.a(backstep);  ///currentPos - hitLoc
-//        blastDir = blastDir.d().e();
-//
-//
-//        RayTraceResult centerPoint = bukkitWorld.rayTraceBlocks(
-//                new Location(bukkitWorld, currentPos.getX(), currentPos.getY(), currentPos.getZ())
-//                , new Vector(blastDir.getX(), blastDir.getY(), blastDir.getZ()),
-//                10,
-//                FluidCollisionMode.NEVER);
-//
-//        if (centerPoint == null) {
-//            super.preHit(pos);
-//            return;
-//        }
-//
-//        Block bukkitBlock = centerPoint.getHitBlock();
-//        BlockFace face = centerPoint.getHitBlockFace();
-//
-//        if (bukkitBlock == null || face == null) {
-//            super.preHit(pos);
-//            return;
-//        }
-//
-//        spewDir = face.getDirection();
-//        center = centerPoint.getHitPosition().add(spewDir.clone().multiply(-3)).toLocation(bukkitWorld);
-//        super.preHit(pos);
-//    }
-
-
-//    public void modifyExplosion(ShellExplosion explosion) {
-//
-//        if (spewDir == null) {
-//            return;
-//        }
-//
-//        double SQRT_PI = Math.sqrt(Math.PI);
-//
-//        List<Block> blocks = explosion.getBukkitBlocksBroken();
-//
-//        for (Block bukkitBlock: blocks) {
-//
-//            Location loc = bukkitBlock.getLocation();
-//            double xSquared = loc.distanceSquared(center);
-//            double magnitude = (1 / 1.3 * SQRT_PI) * Math.pow(Math.E,-0.2f * xSquared) - (0.003 * xSquared) + 0.3;
-//            if (magnitude <= 0.1f) {
-//                continue;
-//            }
-//
-//            if (bukkitBlock.getState() instanceof Container) {
-//                continue;
-//            }
-//
-//            Collection<ItemStack> drops = bukkitBlock.getDrops();
-//            if (drops.isEmpty())
-//                continue;
-//
-//            IBlockData res = null;
-//            boolean dropsItems = false;
-//
-//            for (ItemStack stack: drops) {
-//                Material next = stack.getType();
-//                if (next.isBlock() && !next.isAir() && next.getBlastResistance() > 0) {
-//                    net.minecraft.world.level.block.Block nms = CraftMagicNumbers.getBlock(next);
-//                    res = nms.getBlockData();
-//                    break;
-//                }
-//                else if (next.isItem()) {
-//                    dropsItems = true;
-//                }
-//            }
-//
-//            if (dropsItems || res == null)
-//                continue;
-//
-//
-//            Vector direction = loc.clone().subtract(center).toVector();
-//            Vector velocity = direction.add(spewDir).normalize();
-//            velocity.multiply(magnitude);
-//
-//            EntityFallingBlock entity = new EntityFallingBlock(getWorld(),loc.getX(), loc.getY(),loc.getZ(),res);
-//            entity.b = 1;
-//            getWorld().addEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM);
-//            entity.setMot(CraftVector.toNMS(velocity));
-//
-//
-//        }
-//    }
 }

@@ -3,26 +3,17 @@ package me.camm.productions.fortressguns.Explosion.Abstract;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.entity.item.EntityTNTPrimed;
-
-import net.minecraft.world.item.enchantment.EnchantmentProtection;
 import net.minecraft.world.level.Explosion;
-import net.minecraft.world.level.RayTrace;
 
-import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 
 import java.util.*;
@@ -70,63 +61,26 @@ public abstract class ExplosionFG {
 
     protected void damageEntity(Entity affected, double exposure) {
 
+        if (affected.isInvulnerable()) {
+            return;
+        }
+
+        Vector position = new Vector(x,y,z);
+        float maxDamage = getMaxDamage();
+        double distanceSquared = affected.getLocation().toVector().distanceSquared(position);
+
+        double falloff = getFalloff(distanceSquared);
+        falloff *= exposure;
+
+        maxDamage *= falloff;
+
         net.minecraft.world.entity.Entity nms = ((CraftEntity)affected).getHandle();
-        net.minecraft.world.entity.Entity sourceNMS = ((CraftEntity)affected).getHandle();
+        nms.damageEntity(getDamageSource(), maxDamage);
 
-        if (nms.cx()) {  //cx = boolean ignoreExplosion()
-            return;
-        }
-
-        double distanceRatio = Math.sqrt(nms.e(sourceNMS)) / (double) (radius * 2);
-        if (distanceRatio > 1)
-            return;
-
-        // I think the logic here is that we want to multiply the exposure rate by the distance
-        // cause then damage also scales with distance
-        double distExposure = (1.0 - distanceRatio) * exposure;
-
-        float damage = (float) ((int) ((distExposure * distExposure + distExposure) / 2.0 * 7.0 * radius + 1.0));
-
-        if (damage == 0)
-            return;
-
-
-        Location loc = affected.getLocation();
-        double diffX = loc.getX() - x;
-        double diffY = (nms instanceof EntityTNTPrimed ? loc.getY() :  nms.getHeadY()) - y;
-        double diffZ = loc.getZ() - z;
-
-        double distance = Math.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
-        if (distance == 0.0) {
-            return;
-        }
-
-        //normalizing the direction
-        diffX /= distance;
-        diffY /= distance;
-        diffZ /= distance;
-
-        CraftEventFactory.entityDamage = sourceNMS;   ///j = the entity creating the explosion
-        nms.forceExplosionKnockback = false;
-
-        //b = damage source
-        boolean wasDamaged = nms.damageEntity(getDamageSource(), damage);
-
-        CraftEventFactory.entityDamage = null;
-
-        //this won't affect falling blocks or TNT
-        if (wasDamaged || nms.forceExplosionKnockback) {
-            double dampened = distExposure;
-            if (nms instanceof EntityLiving) {
-
-                //a  = explosion knockback after dampening from protection
-                dampened = EnchantmentProtection.a((EntityLiving)  nms, distExposure);
-            }
-
-            nms.setMot((nms.getMot().add(diffX * dampened, diffY * dampened, diffZ * dampened)));
-            //wait why is there no motionChanged = true here...???
-
-        }
+        Vector knockback = affected.getLocation().toVector().subtract(position);
+        knockback.normalize();
+        knockback.multiply(falloff).multiply(1.5f);
+        System.out.println("type: "+affected.getType() +"|exposure: "+exposure+"|falloff:"+falloff+"|damaged: "+maxDamage);
     }
 
 
@@ -217,6 +171,10 @@ public abstract class ExplosionFG {
 
 
     public abstract void perform();
+
+    public abstract float getMaxDamage();
+
+    public abstract double getFalloff(double distanceSquared);
 
     public double getX() {
         return x;

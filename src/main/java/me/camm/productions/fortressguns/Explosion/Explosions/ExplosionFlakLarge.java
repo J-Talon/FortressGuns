@@ -28,7 +28,16 @@ public class ExplosionFlakLarge extends ExplosionFG {
         for (Tuple2<Float, Entity> tup: entities) {
             damageEntity(tup.getB(), tup.getA());
         }
-
-
     }
+
+    @Override
+    public float getMaxDamage() {
+        return 20f;
+    }
+
+    @Override
+    public double getFalloff(double distanceSquared) {
+        return distanceSquared == 0 ? 1 : -(0.0025  * distanceSquared) + 1;
+    }
+
 }

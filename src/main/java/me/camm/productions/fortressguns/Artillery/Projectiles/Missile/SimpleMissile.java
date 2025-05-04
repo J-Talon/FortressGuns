@@ -38,7 +38,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
     private static final int PRIME = 5; //1/2 sec
 
     private final Vec3D initialVelocity;
-    private boolean hadTarget;
+    private final boolean hadTarget;
     private final double sineOffset;
 
     private float initialXRot, initialYRot;
@@ -48,7 +48,7 @@ public class SimpleMissile extends AbstractRocket implements ArtilleryProjectile
 
 
     private static float explosionPower; //4
-    private static int difficulty;
+    private static final int difficulty;
 
 
     private Vec3D terminalVel = null;

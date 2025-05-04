@@ -20,7 +20,7 @@ public enum AmmoItem {
     CRAM(Material.RAIL, ChatColor.GRAY+"CRAM Explosive Rounds", new ProjectileFactory.FactoryCRAM());
 
 
-    private AmmoItem(Material mat, String name, ProjectileFactory<? extends ArtilleryProjectile> factory) {
+    AmmoItem(Material mat, String name, ProjectileFactory<? extends ArtilleryProjectile> factory) {
         this.mat = mat;
         this.name = name;
         this.factory = factory;

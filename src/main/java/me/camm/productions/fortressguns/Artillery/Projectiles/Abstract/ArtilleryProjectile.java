@@ -15,26 +15,26 @@ public interface ArtilleryProjectile {
 
      //@return: whether the collision terminated flight
      //called after preOnHit
-     public abstract boolean onEntityHit(Entity hitEntity, Vec3D entityPosition);
+     boolean onEntityHit(Entity hitEntity, Vec3D entityPosition);
 
      //@return: whether the collision terminated flight
      //called after preOnHit
-     public abstract boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock);
+     boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock);
 
      //will add config for this later
-     public abstract float getWeight();
+     float getWeight();
 
 
-     public abstract void remove();
+     void remove();
 
-     public abstract float getHitDamage();
+     float getHitDamage();
 
 
-     public default void onWaterEnter() {
+     default void onWaterEnter() {
 
      }
 
-     public default void onLavaEnter() {
+     default void onLavaEnter() {
 
      }
 

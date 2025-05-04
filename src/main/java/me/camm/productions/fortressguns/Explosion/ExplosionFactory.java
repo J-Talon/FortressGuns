@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Explosion;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionDebris;
 import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionFlakLarge;
 import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionShellHE;
@@ -71,7 +70,6 @@ public class ExplosionFactory {
     public static void flakLightExplosion(World w, Entity source, double x, double y, double z, float radius) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
-            return;
         }
 
 
