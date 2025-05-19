@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Explosion.Effect;
 
-import me.camm.productions.fortressguns.Explosion.Abstract.EffectContext;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import org.bukkit.*;

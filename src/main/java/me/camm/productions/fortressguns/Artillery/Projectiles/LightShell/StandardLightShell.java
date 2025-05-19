@@ -4,6 +4,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
@@ -11,12 +12,9 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
-import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.entity.projectile.IProjectile;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.MovingObjectPositionEntity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.entity.Explosive;
@@ -98,6 +96,12 @@ public class StandardLightShell extends LightShell {
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
         return super.onBlockHit(exactHitPosition, blockFace, hitBlock);
+    }
+
+
+    @Override
+    public void onWaterEnter() {
+        ExplosionFactory.smallSplashExplosion(bukkitWorld(),locX(), locY(), locZ());
     }
 
     @Override

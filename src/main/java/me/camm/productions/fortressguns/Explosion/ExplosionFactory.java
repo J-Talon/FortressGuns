@@ -1,8 +1,10 @@
 package me.camm.productions.fortressguns.Explosion;
 
-import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionDebris;
-import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionFlakLarge;
-import me.camm.productions.fortressguns.Explosion.Explosions.ExplosionShellHE;
+import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplash;
+import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplashLarge;
+import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionDebris;
+import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionFlakLarge;
+import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionShellHE;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -71,7 +73,18 @@ public class ExplosionFactory {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
         }
+    }
 
+
+    public static void smallSplashExplosion(World w, double x, double y, double z) {
+        ExplosionSplash splash = new ExplosionSplash(x,y,z, w);
+        splash.perform();
+    }
+
+
+    public static void largeSplashExplosion(World w, double x, double y, double z) {
+        ExplosionSplashLarge splash = new ExplosionSplashLarge(x,y,z,w);
+        splash.perform();
 
     }
 

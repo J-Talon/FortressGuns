@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosion.Explosions;
+package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
@@ -37,7 +37,13 @@ public class ExplosionFlakLarge extends ExplosionFG {
 
     @Override
     public double getFalloff(double distanceSquared) {
-        return distanceSquared == 0 ? 1 : -(0.0025  * distanceSquared) + 1;
+        double max = getMaxDamage();
+        if (max == 0)
+            return 0;
+
+        double scale = Math.pow(getRadius(),2) / max;
+        return Math.max(0, (-1/scale * distanceSquared) + max);
+
     }
 
 }

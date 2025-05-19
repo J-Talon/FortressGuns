@@ -17,10 +17,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Explosive;
@@ -36,6 +33,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Artille
     private static final ItemStack SPRITE = new ItemStack(Items.pD);
 
     protected Artillery source;
+
 
 
     //world may be null
@@ -149,7 +147,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Artille
         }
 
         if (!ExplosionFactory.allowDestructiveExplosions()) {
-            bukkit.playSound(effectLoc,block.getBlockData().getSoundGroup().getHitSound(), SoundCategory.BLOCKS,1,0);
+            bukkit.playSound(effectLoc, Sound.BLOCK_WET_GRASS_BREAK,1,0);
             return true;
         }
 
@@ -167,8 +165,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Artille
             }
         }
 
-        bukkit.playSound(effectLoc,block.getBlockData().getSoundGroup().getHitSound(), SoundCategory.BLOCKS,1,0);
-
+        bukkit.playSound(effectLoc, Sound.BLOCK_WET_GRASS_BREAK,1,0);
         return true;
 
     }

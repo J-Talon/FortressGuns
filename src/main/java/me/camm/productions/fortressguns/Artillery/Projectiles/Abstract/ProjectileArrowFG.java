@@ -65,12 +65,11 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Artillery
 
     @Override
     public void tick() {
-        super.tick();
         if (isInWater() && !enteredWater) {
             enteredWater = true;
             onWaterEnter();
         }
-        else {
+        else if (!isInWater()) {
             enteredWater = false;
         }
 
@@ -79,9 +78,10 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Artillery
             enteredLava = true;
             onLavaEnter();
         }
-        else {
+        else if (!this.aX()) {
             enteredLava = false;
         }
+        super.tick();
     }
 
     @Override

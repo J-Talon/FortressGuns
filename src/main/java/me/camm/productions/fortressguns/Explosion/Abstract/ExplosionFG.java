@@ -80,7 +80,6 @@ public abstract class ExplosionFG {
         Vector knockback = affected.getLocation().toVector().subtract(position);
         knockback.normalize();
         knockback.multiply(falloff).multiply(1.5f);
-        System.out.println("type: "+affected.getType() +"|exposure: "+exposure+"|falloff:"+falloff+"|damaged: "+maxDamage);
     }
 
 
@@ -174,6 +173,8 @@ public abstract class ExplosionFG {
 
     public abstract float getMaxDamage();
 
+
+    //returns the damage as a function of distance [0-maxDamage]
     public abstract double getFalloff(double distanceSquared);
 
     public double getX() {

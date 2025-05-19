@@ -31,11 +31,9 @@ public interface ArtilleryProjectile {
 
 
      default void onWaterEnter() {
-
      }
 
      default void onLavaEnter() {
-
      }
 
 

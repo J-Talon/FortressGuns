@@ -1,13 +1,24 @@
 package me.camm.productions.fortressguns.Explosion.Abstract;
 
+import me.camm.productions.fortressguns.FortressGuns;
+import net.minecraft.world.level.RayTrace;
+import net.minecraft.world.phys.MovingObjectPosition;
+import net.minecraft.world.phys.Vec3D;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static me.camm.productions.fortressguns.Util.MathLib.linearInterpolate;
 
@@ -85,24 +96,29 @@ public abstract class Allocator<R, I> {
                         double initialZ = linearInterpolate(zMin, box.getMinZ(), box.getMaxZ());
 
                         Vector hitBox = new Vector(initialX + offsetX, initialY, initialZ + offsetZ);
-                        Vector direction = hitBox.clone().subtract(vecStart).normalize();
-                        double distance = hitBox.distance(vecStart);
+//
+//                        Vector direction = hitBox.clone().subtract(vecStart.clone()).normalize();
+//                        list.add(direction);
 
-                        RayTraceResult result = world.rayTraceBlocks(start,direction,distance, FluidCollisionMode.ALWAYS);
-                        if (result == null || result.getHitBlock() == null) {
-                            continue;
-                        }
-
-                        hits ++;
+                        if (performTrace(vecStart, hitBox,entity))
+                            hits ++;
                     }
                 }
             }
-
             return (float)hits / (float)total;
         } else {
             return 0f;
         }
     }
+    public boolean performTrace(Vector start, Vector direction, Entity e) {
 
+        Vec3D startVec = new Vec3D(start.getX(), start.getY(), start.getZ());
+        Vec3D directionVec = new Vec3D(direction.getX(), direction.getY(), direction.getZ());
+
+        net.minecraft.world.level.World worldNMS = ((CraftWorld)world).getHandle();
+        net.minecraft.world.entity.Entity entityNMS = ((CraftEntity)e).getHandle();
+        MovingObjectPosition pos = worldNMS.rayTrace(new RayTrace(startVec, directionVec, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, entityNMS));
+        return pos.getType() == MovingObjectPosition.EnumMovingObjectType.a;
+    }
 
 }

@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Explosion.Explosions;
+package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorConeE;
@@ -59,6 +59,15 @@ public class ExplosionDebris extends ExplosionFG {
 
     @Override
     public double getFalloff(double distanceSquared) {
-        return distanceSquared == 0 ? 1 : (1 / distanceSquared);
+
+        if (distanceSquared == 0)
+            return getMaxDamage();
+
+        final double THRESHOLD = 0.01;
+        double scale = Math.pow(getRadius(),2) * THRESHOLD;
+        double falloff = Math.min(scale * (1/distanceSquared),getMaxDamage());
+        if ( falloff > THRESHOLD)
+            return falloff;
+        else return 0;
     }
 }

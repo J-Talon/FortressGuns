@@ -15,10 +15,18 @@ public abstract class ProjectileSnowballFG extends EntitySnowball implements Art
 
 
     protected EntityPlayer shooter;
+    protected boolean enteredWater;
+    protected boolean enteredLava;
 
     public ProjectileSnowballFG(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human) {
         super(world,x,y,z);
         this.shooter = human;
+        enteredLava = false;
+        enteredWater = false;
+    }
+
+    public org.bukkit.World bukkitWorld() {
+        return getWorld().getWorld();
     }
 
     @Override
@@ -40,6 +48,27 @@ public abstract class ProjectileSnowballFG extends EntitySnowball implements Art
 
         if (pos instanceof MovingObjectPositionEntity entity) {
             this.a(entity);
+        }
+    }
+
+    @Override
+    public void tick(){
+        super.tick();
+        if (isInWater() && !enteredWater) {
+            enteredWater = true;
+            onWaterEnter();
+        }
+        else if (!isInWater()) {
+            enteredWater = false;
+        }
+
+
+        if (this.aX() && !enteredLava) {
+            enteredLava = true;
+            onLavaEnter();
+        }
+        else if (!this.aX()) {
+            enteredLava = false;
         }
     }
 

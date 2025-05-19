@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
@@ -84,6 +85,14 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
         }
 
         return false;
+    }
+
+
+    @Override
+    public void onWaterEnter() {
+        Vec3D motion = getMot();
+        ExplosionFactory.largeSplashExplosion(bukkitWorld,locX()-(0.25* motion.getX()), locY()-(0.25*motion.getY()), locZ()-(0.25*motion.getZ()));
+        remove();
     }
 
     @Override
