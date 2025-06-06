@@ -71,6 +71,9 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
     @Override
     public void explode(@Nullable Vec3D hit) {
 
+        //we'll worry about this in the future but
+        //for a better explosion use a penetration value.
+        //so if you trace and you find air, then go forwards. else go backwards.
         if (hit == null)
             ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower());
         else

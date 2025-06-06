@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
@@ -37,7 +38,6 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
         EffectHE effect = new EffectHE();
         Vector position = new Vector(x,y,z);
-        System.out.println("explosion position: "+position);
 
         AllocatorVanillaB vanillaB = new AllocatorVanillaB(world, position);
         List<Block> affectedBlocks;
@@ -63,24 +63,14 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                         return;
 
 
-                    List<Integer> indices = new ArrayList<>();
+                    List<Block> dropped = new ArrayList<>();
                     List<Block> thrown = new ArrayList<>();
 
-                    for (int i = 0; i < affectedBlocks.size(); i ++) {
-                        if (rand.nextFloat() <= 0.2f)
-                            continue;
-                        indices.add(i);
+                    for (Block block: affectedBlocks) {
+                      dropped.add(block);
                     }
 
-                    if (indices.size() > 0) {
-
-                        for (int index: indices) {
-                            thrown.add(affectedBlocks.get(index));
-                        }
-                        affectedBlocks.subList(0, indices.size()).clear();
-                    }
-
-                    processDrops(affectedBlocks);
+                    processDrops(dropped);
 
                     for (Block next: thrown) {
                         Location loc = next.getLocation().add(0.5, 0.5, 0.5);
@@ -95,7 +85,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                         block.setVelocity(result);
                     }
 
-                    //System.out.println("items size:"+initialItems.size());
+                    System.out.println("items size:"+initialItems.size());
                     for (Item item: initialItems) {
                         Location loc = item.getLocation();
                         Vector result = getThrowVector(loc.toVector());
@@ -124,7 +114,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
         Vector position = new Vector(x,y,z);
 
-        Vector velocity = source.getVelocity().multiply(-1).normalize();
+        Vector velocity = source.getVelocity().normalize().multiply(-1);
 
         double dist = loc.distanceSquared(position);
         Vector direction = loc.clone().subtract(position).normalize();
@@ -144,13 +134,28 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
     @Override
     protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
 
+        System.out.println("dropped items size: "+droppedItems);
         for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
             for (Tuple2<ItemStack, Block> items: positions) {
+
+                Material stackType = items.getA().getType();
+                System.out.println("stacktype:"+stackType);
+
+                //soooooooo
+                //we have an issue with dropping air even though it's dirt
+                if (!stackType.isItem() || !stackType.isBlock() || stackType.isAir())
+                    continue;
+
+                if (items.getA().getAmount() == 0) {
+                    continue;
+                }
+
                 Item item = world.dropItem(items.getB().getLocation(), items.getA());
                 initialItems.add(item);
             }
         }
     }
+
 
     @Override
     public float getMaxDamage() {

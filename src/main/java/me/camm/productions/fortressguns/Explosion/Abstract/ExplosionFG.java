@@ -131,6 +131,12 @@ public abstract class ExplosionFG {
 
         Collection<ItemStack> loot = block.getDrops(MIDPOINT);
         for (ItemStack stack: loot) {
+
+            Material type = stack.getType();
+            if (!type.isItem() || !type.isBlock()) {
+                continue;
+            }
+
             if (rand.nextFloat() > 0.25f) {
                 continue;
             }
@@ -162,6 +168,7 @@ public abstract class ExplosionFG {
 
             if (!added) {
                 current.add(new Tuple2<>(stack, block));
+                drops.put(stack.getType(),current);
             }
 
         }

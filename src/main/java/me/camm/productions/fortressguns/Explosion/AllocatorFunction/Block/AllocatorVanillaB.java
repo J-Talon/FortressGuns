@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
@@ -30,6 +31,8 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
         x = position.getX();
         y = position.getY();
         z = position.getZ();
+
+        Vector emptyCollisions = new Vector(0,0,0);
 
 
         float radSquared = inputContext * inputContext;
@@ -84,6 +87,18 @@ public class AllocatorVanillaB extends Allocator<List<Block>,Float> {
                         Material type = block.getType();
                         if (power > 0.0F && !type.isAir() && !block.isLiquid()) {
                             brokenBlocks.add(block);
+                        }
+
+                        if (type.isAir()) {
+                            double diffX = vectorX - x;
+                            double diffY = vectorY - y;
+                            double diffZ = vectorZ - z;
+
+                            Vector next = new Vector(diffX,diffY, diffZ);
+                            if (next.lengthSquared() != 0) {
+                                next.normalize().multiply(power);
+                                emptyCollisions.add(next);
+                            }
                         }
 
 
