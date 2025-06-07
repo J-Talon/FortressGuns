@@ -1,7 +1,6 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
-import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionShell;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block.AllocatorVanillaB;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectHE;
@@ -11,7 +10,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
@@ -22,15 +20,48 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
+public class ExplosionShellHE extends ExplosionFG {
 
    // private static EffectHE effect = new EffectHE();
 
     private final List<Item> initialItems;
+    private boolean fullPen;
 
     public ExplosionShellHE(double x, double y, double z, World world, float radius, @Nullable Entity source, boolean destructive) {
         super(x, y, z, world, radius, source, destructive);
         initialItems = new ArrayList<>();
+    }
+
+
+    private void getPenetrationExtent(Vector position) {
+        double penPower = radius;
+        boolean hasPenned = false;
+
+        Vector direction = source.getVelocity().normalize().multiply(0.3);
+        Vector lastPosition = position.clone();
+        while (penPower > 0) {
+            Vector current = lastPosition.clone().add(direction);
+            int x,y,z;
+            x = current.getBlockX();
+            y = current.getBlockY();
+            z = current.getBlockZ();
+
+            Block block = world.getBlockAt(x,y,z);
+            Material mat = block.getType();
+            if (mat.isSolid()) {
+                hasPenned = true;
+                penPower -= (mat.getBlastResistance() + 0.3F) * 0.3;
+            }
+            else if (hasPenned) {
+                fullPen = true;
+                return;
+            }
+
+            lastPosition = current;
+
+        }
+        fullPen = false;
+
     }
 
     @Override
@@ -38,6 +69,7 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
         EffectHE effect = new EffectHE();
         Vector position = new Vector(x,y,z);
+        getPenetrationExtent(position.clone());
 
         AllocatorVanillaB vanillaB = new AllocatorVanillaB(world, position);
         List<Block> affectedBlocks;
@@ -66,11 +98,14 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
                     List<Block> dropped = new ArrayList<>();
                     List<Block> thrown = new ArrayList<>();
 
+
+                    //todo
+                    /////debugging////
                     for (Block block: affectedBlocks) {
-                      dropped.add(block);
+                      thrown.add(block);
                     }
 
-                    processDrops(dropped);
+                    //processDrops(dropped);
 
                     for (Block next: thrown) {
                         Location loc = next.getLocation().add(0.5, 0.5, 0.5);
@@ -114,7 +149,10 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
 
         Vector position = new Vector(x,y,z);
 
-        Vector velocity = source.getVelocity().normalize().multiply(-1);
+        Vector velocity = source.getVelocity().normalize();
+        if (!fullPen) {
+            velocity.multiply(-1);
+        }
 
         double dist = loc.distanceSquared(position);
         Vector direction = loc.clone().subtract(position).normalize();
@@ -134,12 +172,9 @@ public class ExplosionShellHE extends ExplosionFG implements ExplosionShell {
     @Override
     protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
 
-        System.out.println("dropped items size: "+droppedItems);
         for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
             for (Tuple2<ItemStack, Block> items: positions) {
-
                 Material stackType = items.getA().getType();
-                System.out.println("stacktype:"+stackType);
 
                 //soooooooo
                 //we have an issue with dropping air even though it's dirt
