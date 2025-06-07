@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
+import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.DataLoading.FileManager;
 import org.bukkit.Bukkit;
@@ -42,6 +43,7 @@ public final class FortressGuns extends JavaPlugin implements Listener {
       manager.registerEvents(new InteractionHandler(),this);
       manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(this, this);
+      manager.registerEvents(ItemMergeHandler.getInstance(),this);
 
     }
 
