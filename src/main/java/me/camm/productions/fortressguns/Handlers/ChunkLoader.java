@@ -4,7 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import org.bukkit.Chunk;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
@@ -182,8 +182,8 @@ public class ChunkLoader implements Listener
                 ((ProjectileExplosive)nms).explode(null);
             }
 
-            if (nms instanceof ArtilleryProjectile) {
-                ((ArtilleryProjectile)nms).remove();
+            if (nms instanceof ProjectileFG) {
+                ((ProjectileFG)nms).remove();
             }
         }
 

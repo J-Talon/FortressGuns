@@ -2,22 +2,19 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.monster.EntityEnderman;
-import net.minecraft.world.entity.projectile.EntityFireball;
 import net.minecraft.world.entity.projectile.IProjectile;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.entity.Fireball;
 
 
 import javax.annotation.Nullable;
@@ -67,8 +64,8 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
             thisDeflection = other.a(current).d();  /// subtract, normalize
 
 
-            if (hitEntity instanceof ArtilleryProjectile) {
-                otherWeight = ((ArtilleryProjectile) hitEntity).getWeight();
+            if (hitEntity instanceof ProjectileFG) {
+                otherWeight = ((ProjectileFG) hitEntity).getWeight();
             }
 
             Location loc = new Location(bukkitWorld, current.getX(), current.getY(), current.getZ());

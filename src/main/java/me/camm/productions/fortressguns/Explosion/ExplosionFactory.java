@@ -4,10 +4,12 @@ import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSp
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplashLarge;
 import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionDebris;
 import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionFlakLarge;
+import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionFlakSmall;
 import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionShellHE;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,10 +71,13 @@ public class ExplosionFactory {
         explosion.perform();
     }
 
-    public static void flakLightExplosion(World w, Entity source, double x, double y, double z, float radius) {
+    public static void flakLightExplosion(World w, Entity source, Player shooter, double x, double y, double z) {
         if (useVanillaExplosions) {
-            vanillaExplosion(w,source,x,y,z,radius);
+            vanillaExplosion(w,source,x,y,z,1);
         }
+
+        ExplosionFlakSmall small = new ExplosionFlakSmall(x,y,z,w,1, source, shooter);
+        small.perform();
     }
 
 

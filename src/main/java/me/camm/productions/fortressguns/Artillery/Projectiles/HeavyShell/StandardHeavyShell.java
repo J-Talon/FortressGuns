@@ -82,14 +82,19 @@ public class StandardHeavyShell extends HeavyShell {
         do {
             Material mat = currentPen.getType();
             float hardness = mat.getHardness();
+
+            if (hardness < 0) {
+                penPower = 0;
+            }
+
             context = currentPen;
 
-            if (penPower >= hardness) {
+            if (penPower >= hardness && hardness >= 0) {
                 penBlocks.add(currentPen);
                 penned = true;
             }
 
-            penPower -= hardness;
+            penPower -= Math.abs(hardness);
 
             hitPos.add(direction);
             currentPen = bukkitWorld.getBlockAt(hitPos.getBlockX(), hitPos.getBlockY(), hitPos.getBlockZ());

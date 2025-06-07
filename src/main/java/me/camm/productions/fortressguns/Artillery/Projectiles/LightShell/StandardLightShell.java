@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
@@ -54,8 +54,8 @@ public class StandardLightShell extends LightShell {
             return true;
         }
 
-        if (hitEntity instanceof ArtilleryProjectile || hitEntity instanceof IProjectile) {
-            float otherWeight = (hitEntity instanceof ArtilleryProjectile) ? ((ArtilleryProjectile) hitEntity).getWeight() : 0.1f;
+        if (hitEntity instanceof ProjectileFG || hitEntity instanceof IProjectile) {
+            float otherWeight = (hitEntity instanceof ProjectileFG) ? ((ProjectileFG) hitEntity).getWeight() : 0.1f;
             Vec3D thisDeflection = hitEntity.getPositionVector().a(getPositionVector()).d();  /// subtract
             Vec3D otherDeflection = thisDeflection.a(-1F);
             otherDeflection = otherDeflection.a(getWeight());

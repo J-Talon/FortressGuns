@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.ArtilleryItems;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFactory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
@@ -20,7 +20,7 @@ public enum AmmoItem {
     CRAM(Material.RAIL, ChatColor.GRAY+"CRAM Explosive Rounds", new ProjectileFactory.FactoryCRAM());
 
 
-    AmmoItem(Material mat, String name, ProjectileFactory<? extends ArtilleryProjectile> factory) {
+    AmmoItem(Material mat, String name, ProjectileFactory<? extends ProjectileFG> factory) {
         this.mat = mat;
         this.name = name;
         this.factory = factory;
@@ -28,7 +28,7 @@ public enum AmmoItem {
 
     private final Material mat;
     private final  String name;
-    private final ProjectileFactory<? extends ArtilleryProjectile> factory;
+    private final ProjectileFactory<? extends ProjectileFG> factory;
 
     public Material getMat() {
         return mat;
@@ -38,7 +38,7 @@ public enum AmmoItem {
         return name;
     }
 
-    public ArtilleryProjectile create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public ProjectileFG create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         return factory.create(world, x,y,z, shooter, source);
     }
 

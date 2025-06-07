@@ -47,6 +47,7 @@ public class ExplosionDebris extends ExplosionFG {
 
         EffectDebris debris = new EffectDebris();
         debris.preMutation(this, new Tuple2<>(1.0, context));
+        debris.preMutation(this, new Tuple2<>(1.0, world.getBlockAt((int)x,(int)y,(int)z)));
         //post mutation
     }
 

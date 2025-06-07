@@ -1,27 +1,19 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class ProjectileArrowFG extends EntityArrow implements ArtilleryProjectile {
+public abstract class ProjectileArrowFG extends EntityArrow implements ProjectileFG {
 
     protected EntityPlayer shooter;
     protected org.bukkit.World bukkitWorld;

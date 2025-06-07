@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
@@ -70,8 +71,20 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
     @Override
     public void explode(@Nullable Vec3D hit) {
-        DamageSource source = GunSource.gunShot(shooter,this);
-        World world = getWorld();
-        world.createExplosion(this, source,null,locX(), locY(), locZ(),1,false, Explosion.Effect.a);
+
+        double x,y,z;
+        if (hit == null) {
+            Vec3D pos = getPositionVector();
+            x = pos.getX();
+            y = pos.getY();
+            z = pos.getZ();
+        }
+        else {
+            x = hit.getX();
+            y = hit.getY();
+            z = hit.getZ();
+        }
+
+        ExplosionFactory.flakLightExplosion(bukkitWorld(),getBukkitEntity(), shooter.getBukkitEntity(),x,y,z);
     }
 }

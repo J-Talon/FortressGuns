@@ -13,7 +13,7 @@ public class EffectFlakSmall extends ExplosionEffect<Double> {
         Location loc = new Location(world, explosion.getX(), explosion.getY(), explosion.getZ());
         world.playSound(loc, Sound.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.BLOCKS,1,0);
 
-        int intensity = context == null ? 1 : (int)(10 * context);
+        int intensity = context == null ? 10 : (int)(10 * context);
         world.spawnParticle(Particle.SMOKE_LARGE,loc,intensity,0.1,0.1,0.1,0,null,true);
     }
 }

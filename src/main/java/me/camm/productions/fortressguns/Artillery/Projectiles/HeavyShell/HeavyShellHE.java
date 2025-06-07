@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
@@ -60,8 +60,8 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
         super.onEntityHit(hitEntity, entityPosition);
 
-        if (hitEntity instanceof ArtilleryProjectile) {
-            ((ArtilleryProjectile) hitEntity).remove();
+        if (hitEntity instanceof ProjectileFG) {
+            ((ProjectileFG) hitEntity).remove();
         }
 
         explode(getPositionVector());

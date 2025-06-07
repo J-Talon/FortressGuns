@@ -1,6 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
-
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+package me.camm.productions.fortressguns.Artillery.Projectiles.Abstract;
 
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.projectile.EntitySnowball;
@@ -11,7 +9,7 @@ import net.minecraft.world.phys.MovingObjectPositionEntity;
 
 import org.jetbrains.annotations.Nullable;
 
-public abstract class ProjectileSnowballFG extends EntitySnowball implements ArtilleryProjectile {
+public abstract class ProjectileSnowballFG extends EntitySnowball implements ProjectileFG {
 
 
     protected EntityPlayer shooter;

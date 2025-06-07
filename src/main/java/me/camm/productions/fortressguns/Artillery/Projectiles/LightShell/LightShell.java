@@ -1,8 +1,9 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ArtilleryProjectile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSnowballFG;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.BlockPosition;
@@ -28,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 
-public abstract class LightShell extends ProjectileSnowballFG implements ArtilleryProjectile {
+public abstract class LightShell extends ProjectileSnowballFG implements ProjectileFG {
 
     private static final ItemStack SPRITE = new ItemStack(Items.pD);
 

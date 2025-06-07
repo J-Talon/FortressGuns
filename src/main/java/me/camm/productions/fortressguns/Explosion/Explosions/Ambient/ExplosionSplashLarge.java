@@ -18,10 +18,7 @@ public class ExplosionSplashLarge extends ExplosionFG {
     @Override
     public void perform() {
         ExplosionEffect<Double> effect = new EffectSplashLarge();
-        //AllocatorVanillaE allocator = new AllocatorVanillaE(world, new Vector(x,y,z));
         effect.preMutation(this, 1d);
-
-        ///maybe i'll make this do damage.
     }
 
     @Override

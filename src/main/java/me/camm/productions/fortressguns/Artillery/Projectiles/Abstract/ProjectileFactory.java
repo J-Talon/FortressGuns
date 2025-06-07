@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 @FunctionalInterface
-public interface ProjectileFactory<T extends ArtilleryProjectile> {
+public interface ProjectileFactory<T extends ProjectileFG> {
 
     T create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source);
 
