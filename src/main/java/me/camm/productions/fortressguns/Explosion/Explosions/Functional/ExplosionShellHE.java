@@ -118,7 +118,7 @@ public class ExplosionShellHE extends ExplosionFG {
                         }
 
                         double res = rand.nextDouble();
-                        if (res >= 0d) {  //debug
+                        if (res >= 0.5d) {  //debug
                             t ++;
                             thrown.add(block);
                         }
@@ -183,6 +183,10 @@ public class ExplosionShellHE extends ExplosionFG {
         direction.multiply(Math.max(-magnitude + 0.3*height,0.2f));
         direction.add(velocity.clone().multiply(magnitude + magnitudeVert));
 
+        Vector random = new Vector(rand.nextDouble() * 0.5 - 0.5, rand.nextDouble() * 0.5 - 0.5, rand.nextDouble() * 0.5 - 0.5);
+        random.multiply(0.5);
+        direction.add(random);
+
         return direction;
     }
 
@@ -200,6 +204,7 @@ public class ExplosionShellHE extends ExplosionFG {
 
             if (next.getState() instanceof Container cont) {
                 Inventory inv = cont.getInventory();
+                System.out.println("inv is empty? "+inv.isEmpty());
                 for (ItemStack stack : inv.getContents()) {
                     insert(explosionDrops, stack, next);
                 }
@@ -222,11 +227,13 @@ public class ExplosionShellHE extends ExplosionFG {
 
         Material mat = stack.getType();
 
-        if (mat.isAir() || !mat.isSolid())
+        if (mat.isAir() || !mat.isItem())
             return;
 
         if (stack.getAmount() <= 0)
             return;
+
+        System.out.println("inserting: "+mat);
 
         Tuple2<ItemStack, Block> tup = new Tuple2<>(stack, block);
         List<Tuple2<ItemStack, Block>> list = map.getOrDefault(mat, null);
@@ -265,7 +272,7 @@ public class ExplosionShellHE extends ExplosionFG {
 
                 Vector vel = getThrowVector(loc.toVector());
                 if (vel != null) {
-                    item.setVelocity(vel.multiply(5));
+                    item.setVelocity(vel.multiply(3));
                     thrownItems.add(item);
                 }
             }
@@ -273,7 +280,7 @@ public class ExplosionShellHE extends ExplosionFG {
 
         System.out.println("dropped "+dropped+" items");
 
-        explosionDrops.clear(); //?
+       // explosionDrops.clear(); //?
 
         new BukkitRunnable() {
             final int MAX_ITERS = 60; //magic ooooohhhh
