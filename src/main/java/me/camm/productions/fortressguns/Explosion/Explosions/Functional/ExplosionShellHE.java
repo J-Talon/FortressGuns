@@ -5,7 +5,6 @@ import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block.Alloca
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectHE;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Handlers.MergeHandler;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,14 +30,11 @@ public class ExplosionShellHE extends ExplosionFG {
     private final Map<Material, List<Tuple2<ItemStack, Block>>> explosionDrops;
     private boolean fullPen;
 
-    private final UUID id;
+
 
     public ExplosionShellHE(double x, double y, double z, World world, float radius, @Nullable Entity source, boolean destructive) {
         super(x, y, z, world, radius, source, destructive);
         explosionDrops = new HashMap<>();
-        id = UUID.randomUUID();
-
-        MergeHandler.getInstance().addTicket(id);
     }
 
 
@@ -109,14 +105,30 @@ public class ExplosionShellHE extends ExplosionFG {
 
                     //todo
                     /////debugging////
+                    System.out.println("total:"+affectedBlocks.size());
+                    int t = 0;
+                    int d = 0;
                     for (Block block: affectedBlocks) {
+
+                        if (block.getState() instanceof Container) {
+                            System.out.println("instance of container");
+                            dropped.add(block);
+                            d ++;
+                            continue;
+                        }
+
                         double res = rand.nextDouble();
-                        System.out.println(res);
-                        if (res >= 0.95d) {
+                        if (res >= 0d) {  //debug
+                            t ++;
                             thrown.add(block);
                         }
-                        else dropped.add(block);
+                        else {
+                            d ++;
+                            dropped.add(block);
+                        }
                     }
+
+                    System.out.println("d: "+d+" | t:"+t);
 
                     processDrops(dropped);
 
@@ -133,7 +145,6 @@ public class ExplosionShellHE extends ExplosionFG {
                         block.setVelocity(result);
                     }
 
-                    System.out.println("items size:"+explosionDrops.size());
                     dropItems(explosionDrops);
 
                     cancel();
@@ -187,7 +198,7 @@ public class ExplosionShellHE extends ExplosionFG {
                 continue;
             }
 
-            if (next.getBlockData() instanceof Container cont) {
+            if (next.getState() instanceof Container cont) {
                 Inventory inv = cont.getInventory();
                 for (ItemStack stack : inv.getContents()) {
                     insert(explosionDrops, stack, next);
@@ -205,6 +216,9 @@ public class ExplosionShellHE extends ExplosionFG {
 
 
     private void insert(Map<Material, List<Tuple2<ItemStack, Block>>> map, ItemStack stack, Block block) {
+
+        if (stack == null)
+            return;
 
         Material mat = stack.getType();
 
@@ -230,6 +244,7 @@ public class ExplosionShellHE extends ExplosionFG {
     @Override
     protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
 
+        int dropped = 0;
         final List<Item> thrownItems = new ArrayList<>();
         for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
             for (Tuple2<ItemStack, Block> items: positions) {
@@ -246,19 +261,22 @@ public class ExplosionShellHE extends ExplosionFG {
 
                 Location loc = items.getB().getLocation();
                 Item item = world.dropItem(loc, items.getA());
+                dropped ++;
 
                 Vector vel = getThrowVector(loc.toVector());
                 if (vel != null) {
-                    item.setVelocity(vel.multiply(3));
+                    item.setVelocity(vel.multiply(5));
                     thrownItems.add(item);
                 }
             }
         }
 
+        System.out.println("dropped "+dropped+" items");
+
         explosionDrops.clear(); //?
 
         new BukkitRunnable() {
-            final int MAX_ITERS = 20; //magic ooooohhhh
+            final int MAX_ITERS = 60; //magic ooooohhhh
             int iters = 0;
             @Override
             public void run() {
@@ -280,11 +298,10 @@ public class ExplosionShellHE extends ExplosionFG {
 
             @Override
             public synchronized void cancel() {
-                MergeHandler.getInstance().removeTicket(id);
                 super.cancel();
             }
 
-        }.runTaskTimer(FortressGuns.getInstance(),0,3);
+        }.runTaskTimer(FortressGuns.getInstance(),0,1);
     }
 
 

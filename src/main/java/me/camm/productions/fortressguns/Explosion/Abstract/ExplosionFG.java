@@ -98,7 +98,7 @@ public abstract class ExplosionFG {
                 continue;
             }
 
-            if (next.getBlockData() instanceof Container) {
+            if (next.getState() instanceof Container) {
                 next.breakNaturally();
                 continue;
             }
