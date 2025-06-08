@@ -97,8 +97,10 @@ public class ExplosionShellHE extends ExplosionFG {
                         damageEntity(tup.getB(), tup.getA());
                     }
 
-                    if (!destroysBlocks)
+                    if (!destroysBlocks) {
+                        cancel();
                         return;
+                    }
 
 
                     List<Block> dropped = new ArrayList<>();
@@ -267,8 +269,6 @@ public class ExplosionShellHE extends ExplosionFG {
                 }
             }
         }
-
-        explosionDrops.clear(); //?
 
         new BukkitRunnable() {
             final int MAX_ITERS = 60; //magic ooooohhhh

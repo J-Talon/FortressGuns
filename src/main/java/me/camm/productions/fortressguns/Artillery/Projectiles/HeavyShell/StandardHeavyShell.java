@@ -118,8 +118,10 @@ public class StandardHeavyShell extends HeavyShell {
             }
         }
 
-        if (penPower <= 0)
+        if (penPower <= 0) {
             this.die();
+            return;
+        }
 
         setMot(getMot().a(penPower / PEN_POWER));
 

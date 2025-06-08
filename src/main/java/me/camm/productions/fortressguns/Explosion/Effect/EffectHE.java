@@ -9,12 +9,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
+import static me.camm.productions.fortressguns.Util.MathLib.getOrthogonal;
+
 
 public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {
 
     private Location mutation;
 
     //in: vector: direction of motion
+    //in: double: effect intensity
     @Override
     public void preMutation(ExplosionFG explosion, @Nullable Tuple2<Double, Vector> context) {
 
@@ -26,9 +29,23 @@ public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {
         z = explosion.getZ();
 
         Location loc = new Location(world, x,y,z );
+        Location ground = loc.clone();
 
         double intensityPercent = context == null ? 1 : context.getA();
-        Vector step = context == null ? new Vector(0,0,0)  : context.getB().clone().normalize();
+        Vector step;
+        Vector direction;
+
+        if (context == null) {
+            step = new Vector(0,0,0);
+            direction = new Vector(0,1,0);
+            ground.add(0,0.25,0);
+        }
+        else {
+            step = context.getB().clone().normalize();
+            direction = step.clone();
+            ground.add(direction.clone().multiply(-0.5));
+        }
+
         step.multiply(-1);
         step.multiply(3);
         loc.add(step);
@@ -48,6 +65,13 @@ public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {
 
         Particle.DustTransition transition = new Particle.DustTransition(LIGHT_GRAY,DARK_GRAY,30);
         world.spawnParticle(Particle.REDSTONE,loc,(int)(70 * intensityPercent),1.7,2,1.7,1,transition);
+
+        Vector orthogonal = getOrthogonal(direction);
+        final double ANGLE_INC = 10;
+        for (double current = 0; current < 360; current += ANGLE_INC) {
+            orthogonal.rotateAroundNonUnitAxis(direction,current);
+            world.spawnParticle(Particle.CLOUD,ground,0,orthogonal.getX(), orthogonal.getY(), orthogonal.getZ(),1);
+        }
 
         World bukkitWorld = explosion.getWorld();
         BlockData LIGHT = Material.LIGHT.createBlockData();
