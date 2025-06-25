@@ -13,16 +13,20 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ExplosionFlakSmall extends ExplosionFG {
 
     private final Player shooter;
+    private final Entity ignore;
 
-    public ExplosionFlakSmall(double x, double y, double z, World world, float radius, Entity source, Player shooter) {
+    public ExplosionFlakSmall(double x, double y, double z, World world, float radius, Entity source, Player shooter, @Nullable Entity ignore) {
         super(x, y, z, world, radius, source, false);
         this.shooter = shooter;
+        this.ignore = ignore;
     }
 
     @Override
@@ -30,8 +34,24 @@ public class ExplosionFlakSmall extends ExplosionFG {
         //allocate entities
         AllocatorVanillaE allocator = new AllocatorVanillaE(getWorld(),new Vector(x,y,z));
         List<Tuple2<Float,Entity>> affected = allocator.allocate(new Tuple2<>(radius, source));
-        for (Tuple2<Float, Entity> tup: affected) {
-            damageEntity(tup.getB(),tup.getA());
+
+        if (ignore == null) {
+            for (Tuple2<Float, Entity> tup: affected) {
+                damageEntity(tup.getB(),tup.getA());
+            }
+        }
+        else {
+            UUID ignoreId = ignore.getUniqueId();
+            for (Tuple2<Float, Entity> tup: affected) {
+                Entity ent = tup.getB();
+                UUID id = tup.getB().getUniqueId();
+
+                if (ignore.equals(ent) || id.equals(ignoreId)) {
+                    continue;
+                }
+
+                damageEntity(ent,tup.getA());
+            }
         }
 
         EffectFlakSmall effect = new EffectFlakSmall();

@@ -29,7 +29,7 @@ public abstract class ExplosionFG {
     protected Entity source;
     protected static Random rand = new Random();
     protected boolean destroysBlocks;
-    protected static Explosion stupid = new Explosion(null, null,0,0,0,0);
+    protected Explosion stupid;
 
     public ExplosionFG(double x, double y, double z, World world, float radius, Entity source, boolean destructive) {
         this.x = x;
@@ -39,6 +39,7 @@ public abstract class ExplosionFG {
         this.radius = radius;
         this.source = source;
         this.destroysBlocks = destructive;
+        stupid = new Explosion(null, ((CraftEntity)source).getHandle(),0,0,0,0);;
     }
     /*
     Ideally this should be the sequence of events:
@@ -78,8 +79,19 @@ public abstract class ExplosionFG {
         nms.damageEntity(getDamageSource(), maxDamage);
 
         Vector knockback = affected.getLocation().toVector().subtract(position);
+        if (knockback.lengthSquared() == 0)
+            return;
+
         knockback.normalize();
         knockback.multiply(falloff).multiply(1.5f);
+
+        System.out.println("knockback:"+knockback);
+        System.out.println("affected vel before:"+affected.getVelocity());
+        System.out.println("falloff:"+falloff);
+
+        Vector velocity = affected.getVelocity().add(knockback);
+
+        affected.setVelocity(velocity);
     }
 
 
@@ -111,7 +123,12 @@ public abstract class ExplosionFG {
     protected void dropItems(Map<Material, List<Tuple2<ItemStack, Block>>> droppedItems) {
         for (List<Tuple2<ItemStack, Block>> positions: droppedItems.values()) {
             for (Tuple2<ItemStack, Block> items: positions) {
-                world.dropItem(items.getB().getLocation(), items.getA());
+
+                ItemStack stack = items.getA();
+                if (stack.getAmount() <= 0 || stack.getType().isAir())
+                    continue;
+
+                world.dropItem(items.getB().getLocation(),stack);
             }
         }
     }

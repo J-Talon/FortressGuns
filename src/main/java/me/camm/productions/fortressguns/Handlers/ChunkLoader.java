@@ -35,15 +35,14 @@ public class ChunkLoader implements Listener
       pieces = HashBasedTable.create();
     }
 
-
-
     @EventHandler
     public void onEntityPortal(EntityPortalEvent event) {
         net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
-        if (nms instanceof Component) {
+        if (nms instanceof Component || nms instanceof ProjectileFG) {
             event.setCancelled(true);
         }
     }
+
 
 
     @EventHandler

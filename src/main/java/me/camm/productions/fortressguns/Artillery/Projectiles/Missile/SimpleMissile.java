@@ -137,15 +137,10 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
         //this.getWorld().createExplosion(this, locX(), locY(), locZ(), getDamageStrength(), false, Explosion.Effect.c);
         //change this to use our custom explosion stuff later
-        if (hit == null) {
-            explosionLoc = new Location(world, locX(), locY(), locZ());
-            ExplosionFactory.vanillaExplosion(bukkitWorld,this.getBukkitEntity(),locX(), locY(), locZ(),getExplosionPower());
-        }
-        else {
-            explosionLoc = new Location(world, hit.getX(), hit.getY(), hit.getZ());
-            ExplosionFactory.vanillaExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(), hit.getY(), hit.getZ(),getExplosionPower());
-        }
-        world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
+
+        ExplosionFactory.missileExplosion(world, shooter.getBukkitEntity(),locX(), locY(),locZ(),4);
+
+       // world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
 
         this.die();
     }

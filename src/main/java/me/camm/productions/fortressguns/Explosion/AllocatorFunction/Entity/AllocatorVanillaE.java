@@ -20,9 +20,9 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
     }
 
 
-    /*
-    input:  float - radius,  entity: blacklist
-    return: List<entity> affected entities
+    /**
+    input:  Float: radius of the explosion,  Entity: blacklist to not observe in calculations
+    return: List<Tuple2<Float, Entity>> affected entities and their exposure
      */
     @Override
     public List<Tuple2<Float, Entity>> allocate(Tuple2<Float, Entity> input) {
@@ -52,6 +52,10 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
         Collection<Entity> entities = world.getNearbyEntities(box, null);
 
         for (Entity e: entities) {
+
+            if (blacklist != null && (e.getUniqueId().equals(blacklist.getUniqueId())))
+                continue;
+
             float exposure = getExposure(e,x,y,z);
             result.add(new Tuple2<>(exposure, e));
           //  System.out.println("exposure:"+exposure);

@@ -2,10 +2,7 @@ package me.camm.productions.fortressguns.Explosion;
 
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplash;
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplashLarge;
-import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionDebris;
-import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionFlakLarge;
-import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionFlakSmall;
-import me.camm.productions.fortressguns.Explosion.Explosions.Functional.ExplosionShellHE;
+import me.camm.productions.fortressguns.Explosion.Explosions.Functional.*;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -71,13 +68,25 @@ public class ExplosionFactory {
         explosion.perform();
     }
 
-    public static void flakLightExplosion(World w, Entity source, Player shooter, double x, double y, double z) {
+    public static void flakLightExplosion(World w, Entity source, Player shooter, double x, double y, double z, @Nullable Entity ignore) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,1);
+            return;
         }
 
-        ExplosionFlakSmall small = new ExplosionFlakSmall(x,y,z,w,1, source, shooter);
+        ExplosionFlakSmall small = new ExplosionFlakSmall(x,y,z,w,1, source, shooter, ignore);
         small.perform();
+    }
+
+
+    public static void missileExplosion(World w, Entity source, double x, double y, double z, float radius) {
+        if (useVanillaExplosions) {
+            vanillaExplosion(w,source,x,y,z,radius);
+            return;
+        }
+
+        ExplosionFuel fuel = new ExplosionFuel(x,y,z,w,radius, source, allowDestructiveExplosions());
+        fuel.perform();
     }
 
 

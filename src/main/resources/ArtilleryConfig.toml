@@ -101,6 +101,30 @@ cooldown = 500
 
 #==============================
 #General options
+[projectiles]
+solidShellWeight = 1.2
+solidShellDamage = 10
+
+heShellWeight = 1
+heShellDamage = 10
+
+flakHeavyShellWeight = 0.4
+flakHeavyShellDamage = 10
+
+flakLightShellWeight = 0.1
+flakLightShellDamage = 5
+
+cramShellWeight = 0.1
+cramShellDamage = 5
+
+solidLightShellWeight = 0.1
+solidLightShellDamage = 5
+
+basicMissileWeight = 0.1
+basicMissileDamage = 5
+
+
+
 
 [general]
 #Explosion power of the ammo (How big and how much damage the shell should do)
@@ -145,6 +169,13 @@ missileDifficulty = 100
 
 #whether flares should be enabled to help players survive barrages of missiles
 enableFlares = true
+
+
+
+
+
+
+
 
 
 

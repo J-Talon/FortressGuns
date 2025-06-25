@@ -9,13 +9,8 @@ import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
-import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Particle;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -26,16 +21,35 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 {
 
     private static float hitDamage = 10;
+    private org.bukkit.entity.Entity ignore;
 
 
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
     public FlakLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
         super(world,x,y,z, human, source);
+        ignore = null;
     }
 
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+        ignore = hitEntity.getBukkitEntity();
+
+        DamageSource source = GunSource.gunShot(shooter, this);
+        hitEntity.damageEntity(source,getHitDamage());
+
+        double length = this.getMot().f();
+        final double FACTOR = 1.5;
+
+        if (length == 0) {
+            explode(getPositionVector());
+            return true;
+        }
+        Vec3D motion = this.getMot();
+        motion = motion.a(FACTOR/length);
+
+        Vec3D velocity = hitEntity.getMot().e(motion);
+        hitEntity.setMot(velocity);
         explode(getPositionVector());
         return true;
     }
@@ -65,7 +79,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
     @Override
     public float getWeight() {
-        return 0.2F;
+        return 0.015F;
     }
 
 
@@ -85,6 +99,6 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
             z = hit.getZ();
         }
 
-        ExplosionFactory.flakLightExplosion(bukkitWorld(),getBukkitEntity(), shooter.getBukkitEntity(),x,y,z);
+        ExplosionFactory.flakLightExplosion(bukkitWorld(),getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
     }
 }

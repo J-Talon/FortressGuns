@@ -13,6 +13,11 @@ public class MathLib {
     }
 
 
+    public static double randomDouble() {
+        return rand.nextDouble();
+    }
+
+
     public static Vector getOrthogonal(Vector other) {
         double denom = Double.NaN;
         double linComb = Double.NaN;  ///linear combination method to get orthagonal
