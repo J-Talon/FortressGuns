@@ -27,6 +27,7 @@ Media:
 ![til](./showcase/mg-intercept.gif)
 ![til](./showcase/missile-sequence.gif)
 
+Complementary shaders - Reimagined and the Replay mod were used to make the above media.
 
 
 
