@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
+import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFunctional;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectFlakLarge;
 import me.camm.productions.fortressguns.Util.Tuple2;
@@ -10,11 +11,11 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public class ExplosionFlakLarge extends ExplosionFG {
+public class ExplosionFlakLarge extends ExplosionFunctional {
 
 
     public ExplosionFlakLarge(double x, double y, double z, World world, float radius, Entity source) {
-        super(x, y, z, world, radius, source, false);
+        super(x, y, z, world,radius, false, source);
     }
 
     @Override
@@ -36,7 +37,7 @@ public class ExplosionFlakLarge extends ExplosionFG {
     }
 
     @Override
-    public double getFalloff(double distanceSquared) {
+    public double damageFalloff(double distanceSquared) {
         double max = getMaxDamage();
         if (max == 0)
             return 0;

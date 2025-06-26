@@ -132,7 +132,6 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
         if (target != null && target instanceof Player) {
             notifier.exitNotification(target.getUniqueId());
         }
-        Location explosionLoc;
         org.bukkit.World world = getWorld().getWorld();
 
         //this.getWorld().createExplosion(this, locX(), locY(), locZ(), getDamageStrength(), false, Explosion.Effect.c);

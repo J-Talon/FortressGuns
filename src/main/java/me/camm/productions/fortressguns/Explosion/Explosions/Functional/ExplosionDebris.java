@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
+import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFunctional;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorConeE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectDebris;
 import me.camm.productions.fortressguns.Util.Tuple2;
@@ -12,15 +13,15 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
-public class ExplosionDebris extends ExplosionFG {
+public class ExplosionDebris extends ExplosionFunctional {
 
 
     private final Vector direction;
     private final Block context;
 
 
-    public ExplosionDebris(double x, double y, double z, World world, float radius, Entity source, boolean destructive, Vector direction, @Nullable Block context) {
-        super(x, y, z, world, radius, source, destructive);
+    public ExplosionDebris(double x, double y, double z, World world, float radius, Entity source, Vector direction, @Nullable Block context) {
+        super(x, y, z, world, radius,false, source);
         this.context = context;
 
         if (direction.lengthSquared() == 0) {
@@ -59,7 +60,7 @@ public class ExplosionDebris extends ExplosionFG {
 
 
     @Override
-    public double getFalloff(double distanceSquared) {
+    public double damageFalloff(double distanceSquared) {
 
         if (distanceSquared == 0)
             return getMaxDamage();

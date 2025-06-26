@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
+import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFunctional;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectFlakSmall;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
@@ -18,13 +19,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class ExplosionFlakSmall extends ExplosionFG {
+public class ExplosionFlakSmall extends ExplosionFunctional {
 
     private final Player shooter;
     private final Entity ignore;
 
     public ExplosionFlakSmall(double x, double y, double z, World world, float radius, Entity source, Player shooter, @Nullable Entity ignore) {
-        super(x, y, z, world, radius, source, false);
+        super(x, y, z, world,radius, false, source);
         this.shooter = shooter;
         this.ignore = ignore;
     }
@@ -73,7 +74,7 @@ public class ExplosionFlakSmall extends ExplosionFG {
     }
 
     @Override
-    public double getFalloff(double distanceSquared) {
+    public double damageFalloff(double distanceSquared) {
         double max = getMaxDamage();
         if (max == 0)
             return 0;

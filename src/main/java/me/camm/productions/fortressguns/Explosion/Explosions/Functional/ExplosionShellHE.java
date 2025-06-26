@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
+import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFunctional;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block.AllocatorVanillaB;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectHE;
@@ -20,11 +21,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ExplosionShellHE extends ExplosionFG {
+public class ExplosionShellHE extends ExplosionFunctional {
 
    // private static EffectHE effect = new EffectHE();
 
@@ -33,8 +35,8 @@ public class ExplosionShellHE extends ExplosionFG {
 
 
 
-    public ExplosionShellHE(double x, double y, double z, World world, float radius, @Nullable Entity source, boolean destructive) {
-        super(x, y, z, world, radius, source, destructive);
+    public ExplosionShellHE(double x, double y, double z, World world, float radius, @NotNull Entity source, boolean destructive) {
+        super(x, y, z, world, radius,destructive, source);
         explosionDrops = new HashMap<>();
     }
 
@@ -97,7 +99,7 @@ public class ExplosionShellHE extends ExplosionFG {
                         damageEntity(tup.getB(), tup.getA());
                     }
 
-                    if (!destroysBlocks) {
+                    if (!destructive) {
                         cancel();
                         return;
                     }
@@ -311,7 +313,7 @@ public class ExplosionShellHE extends ExplosionFG {
 
 
     @Override
-    public double getFalloff(double distanceSquared) {
+    public double damageFalloff(double distanceSquared) {
         double max = getMaxDamage();
         if (max == 0)
             return 0;

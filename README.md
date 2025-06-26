@@ -5,12 +5,25 @@ This is a passion project of mine which I have been working on when my time perm
 Basically this means that I'm working on it occasionally; This project has a lower priority than my schoolwork and other things I gotta attend, so don't expect a set date for when there may be a release.
 **For the gun enthusiasts: No, I'm not a gun expert, but I know enough to make some neat mechanics.**
 
+![til](./showcase/turrets.png)
 
 This is an artillery plugin for Minecraft Version 1.17.1 which adds a variety of artillery to the game. We currently have 6 guns implemented with several more incoming, most likely after the first release.
 Each gun is placed into the world, can be operated, reloaded, and shot. Custom entities are used to model the guns, which use procedural animation to revolve around and fire. They also have their own health pool, 
 damage resistances and vulnerabilities, and fire projectiles which produce custom death messages for players. 
 
+
 The plugin is completely configurable down to each gun, as well as general options available.
+
+Media:
+---
+![til](./showcase/advanced-bullets.gif)
+![til](./showcase/gun-setting.gif)
+![til](./showcase/mg-intercept.gif)
+![til](./showcase/missile-sequence.gif)
+
+
+
+
 
 Current Artillery Implemented:
 ---

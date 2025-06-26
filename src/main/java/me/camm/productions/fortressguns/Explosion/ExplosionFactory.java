@@ -47,12 +47,13 @@ public class ExplosionFactory {
 
 
     public static void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius, Vector direction, @Nullable Block context) {
+
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
 
-        ExplosionDebris debris = new ExplosionDebris(x,y,z,w,radius,source,destructiveExplosions, direction, context);
+        ExplosionDebris debris = new ExplosionDebris(x,y,z,w,radius,source, direction, context);
         debris.perform();
 
     }

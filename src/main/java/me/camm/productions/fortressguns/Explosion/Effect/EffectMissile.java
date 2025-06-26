@@ -16,68 +16,70 @@ import org.jetbrains.annotations.Nullable;
 public class EffectMissile extends ExplosionEffect<Double> {
 
     @FunctionalInterface
-   private interface ParticleGroup {
+   private interface EffectGroup {
         void perform (World world, double x, double y, double z, double percent);
 
 
-        class TickSpark implements ParticleGroup {
+        class TickSpark implements EffectGroup {
             @Override
             public void perform(World world, double x, double y, double z, double percent) {
                 Location loc = new Location(world,x,y,z);
-                world.spawnParticle(Particle.ELECTRIC_SPARK,loc,(int)(percent * 20), 0,0,0,1,null,true);
+                world.spawnParticle(Particle.ELECTRIC_SPARK,loc,(int)(percent * 20), 0,0,0,1,null,false);
                 world.spawnParticle(Particle.END_ROD,loc,(int)(percent * 20), 0,0,0,1, null, true);
-                world.spawnParticle(Particle.FLASH, loc, (int)(percent * 10), 0,0,0,0.3, null, true);
+                world.spawnParticle(Particle.FLASH, loc, (int)(percent * 5), 0,0,0,0.3, null, true);
+                //world.playSound(loc, Sound.ENTITY_BLAZE_SHOOT, 1,2);
             }
         }
 
-        class TickExpansion implements ParticleGroup {
+        class TickExpansion implements EffectGroup {
 
             @Override
             public void perform(World world, double x, double y, double z, double percent) {
                 Location loc = new Location(world,x,y,z);
-                world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc, (int) (percent * 20),0.1, 0.1, 0.1, 0.1, null, true);
-                world.spawnParticle(Particle.SMOKE_LARGE,loc, (int) (percent * 50),0.1, 0.1, 0.1, 0.3, null, true);
-                world.spawnParticle(Particle.SMOKE_NORMAL, loc, (int) (percent * 20), 0.1,0.1,0.1,0.5, null, true);
+                world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc, (int) (percent * 15),0.1, 0.1, 0.1, 0.1, null, false);
+                world.spawnParticle(Particle.SMOKE_LARGE,loc, (int) (percent * 40),0.1, 0.1, 0.1, 0.3, null, true);
+                world.spawnParticle(Particle.SMOKE_NORMAL, loc, (int) (percent * 10), 0.1,0.1,0.1,0.5, null, false);
 
                 Particle.DustTransition dustTransition = new Particle.DustTransition(Color.fromRGB(255, 137, 25), Color.fromRGB(0,0,0), 30.0F);
                 world.spawnParticle(Particle.DUST_COLOR_TRANSITION,loc,(int) (percent * 20),0.5, 0.5, 0.5,0.3,dustTransition,true);
+                world.playSound(loc,Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR,3,0);
             }
         }
 
 
-        class TickSmoke implements ParticleGroup {
+        class TickSmoke implements EffectGroup {
 
             @Override
             public void perform(World world, double x, double y, double z, double percent) {
                 Location loc = new Location(world, x,y,z);
-                world.spawnParticle(Particle.SMOKE_LARGE, loc,(int) (percent * 60),0,0,0,0.3,null,true);
+                world.spawnParticle(Particle.SMOKE_LARGE, loc,(int) (percent * 45),0,0,0,0.3,null,false);
 
                 Particle.DustTransition dustTransition = new Particle.DustTransition(Color.fromRGB(255, 209, 25), Color.fromRGB(0,0,0), 30.0F);
                 world.spawnParticle(Particle.DUST_COLOR_TRANSITION,loc,(int) (percent * 50),1.2, 1.2, 1.2,0.3,dustTransition,true);
             }
         }
 
-        class TickRecession implements ParticleGroup {
+        class TickRecession implements EffectGroup {
 
             @Override
             public void perform(World world, double x, double y, double z, double percent) {
                 Location loc = new Location(world, x,y,z);
                 Particle.DustOptions options = new Particle.DustOptions(Color.fromRGB(25,25,25),30f);
                 world.spawnParticle(Particle.REDSTONE,loc,(int) (percent * 20), 1,1,1,1,options, true);
-                world.spawnParticle(Particle.SMOKE_LARGE,loc, (int) (percent * 80), 0,0,0,0.3,null, true);
+                world.spawnParticle(Particle.SMOKE_LARGE,loc, (int) (percent * 50), 0,0,0,0.3,null, false);
             }
         }
 
     }
 
-    private static final ParticleGroup[] tickParams;
+    private static final EffectGroup[] tickParams;
 
     static {
-        tickParams = new ParticleGroup[]{
-                new ParticleGroup.TickSpark(),
-                new ParticleGroup.TickExpansion(),
-                new ParticleGroup.TickSmoke(),
-                new ParticleGroup.TickRecession()
+        tickParams = new EffectGroup[]{
+                new EffectGroup.TickSpark(),
+                new EffectGroup.TickExpansion(),
+                new EffectGroup.TickSmoke(),
+                new EffectGroup.TickRecession()
         };
     }
 
@@ -107,8 +109,6 @@ public class EffectMissile extends ExplosionEffect<Double> {
 
             trails[i] = new Vector(vX, (vY + 0.75), vZ).multiply(1.25);  //magic numbers due to artistic choice
 
-
-
         }
 
         Color from = Color.fromRGB(255, 137, 25);
@@ -129,7 +129,7 @@ public class EffectMissile extends ExplosionEffect<Double> {
 
                 Particle.DustTransition dustTransition = new Particle.DustTransition(from, to, (size - (dec * tick)));
                 if (tick < tickParams.length) {
-                    ParticleGroup group = tickParams[tick];
+                    EffectGroup group = tickParams[tick];
                     group.perform(world, x,y,z,percent);
                 }
 
