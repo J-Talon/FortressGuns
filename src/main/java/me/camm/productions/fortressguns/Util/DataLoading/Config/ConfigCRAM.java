@@ -1,6 +1,7 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.jetbrains.annotations.NotNull;
 
 @JsonTypeName("cram")
 public class ConfigCRAM implements ConfigObject {
@@ -27,6 +28,15 @@ public class ConfigCRAM implements ConfigObject {
 
     @Override
     public boolean apply() {
-        return true;
+        return new ValidatorCRAM().validate(this);
     }
+
+
+    static class ValidatorCRAM implements Validator<ConfigCRAM> {
+        @Override
+        public boolean validate(@NotNull ConfigCRAM in) {
+            return true;
+        }
+    }
+
 }

@@ -24,6 +24,7 @@ import org.bukkit.entity.Projectile;
 public class StandardLightShell extends LightShell {
 
     private static float hitDamage = 5;
+    private static float weight = 0.1f;
 
 
     public StandardLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
@@ -55,9 +56,9 @@ public class StandardLightShell extends LightShell {
         }
 
         if (hitEntity instanceof ProjectileFG || hitEntity instanceof IProjectile) {
-            float otherWeight = (hitEntity instanceof ProjectileFG) ? ((ProjectileFG) hitEntity).getWeight() : 0.1f;
-            Vec3D thisDeflection = hitEntity.getPositionVector().a(getPositionVector()).d();  /// subtract
-            Vec3D otherDeflection = thisDeflection.a(-1F);
+            float otherWeight = (hitEntity instanceof ProjectileFG) ? ((ProjectileFG) hitEntity).getWeight() : 0;
+            Vec3D thisDeflection = hitEntity.getPositionVector().a(getPositionVector()).d();  // subtract
+            Vec3D otherDeflection = thisDeflection.a(-1F); //mult
             otherDeflection = otherDeflection.a(getWeight());
             hitEntity.setMot(hitEntity.getMot().add(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ()));
 
@@ -106,13 +107,15 @@ public class StandardLightShell extends LightShell {
 
     @Override
     public float getWeight() {
-        return 0.005F;
+        return weight;
     }
-
-
 
     public static void setHitDamage(float hitDamage) {
         StandardLightShell.hitDamage = hitDamage;
+    }
+
+    public static void setWeight(float weight) {
+        StandardLightShell.weight = weight;
     }
 
 

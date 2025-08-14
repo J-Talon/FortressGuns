@@ -1,8 +1,8 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
-import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorMissileLauncher;
+import org.jetbrains.annotations.NotNull;
 
 @JsonTypeName("missileLauncher")
 public class ConfigMissileLauncher implements ConfigObject {
@@ -46,5 +46,13 @@ public class ConfigMissileLauncher implements ConfigObject {
         MissileLauncher.setMaxRockets(missiles);
         return true;
 
+    }
+
+    static class ValidatorMissileLauncher implements Validator<ConfigMissileLauncher> {
+
+        @Override
+        public boolean validate(@NotNull ConfigMissileLauncher in) {
+            return in.getMissiles() > 0 && in.getHealth() > 0 && in.getCooldown() > 0;
+        }
     }
 }

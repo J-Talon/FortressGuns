@@ -6,8 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConfigGeneral;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.ConfigObject;
+import me.camm.productions.fortressguns.Util.DataLoading.Config.*;
 import org.bukkit.plugin.Plugin;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
@@ -40,6 +39,23 @@ public class FileManager {
         }
 
         private final String file;
+    }
+
+
+
+    enum IndependentConfig {
+        CONTACT("contact", ConfigArtilleryContact.class),
+        EXPLOSION("explosions", ConfigArtilleryExplosions.class),
+        PROJECTILE("projectiles", ConfigArtilleryProjectiles.class),
+        GENERAL("general", ConfigGeneral.class);
+
+        private IndependentConfig(String id, Class<?> clazz) {
+            this.id = id;
+            this.clazz = clazz;
+        }
+
+        private String id;
+        private Class<?> clazz;
     }
 
     static {

@@ -32,7 +32,7 @@ public class StandardHeavyShell extends HeavyShell {
 
     private static float hitDamage = 10;
     private static float explosionPower = 4;
-
+    private static float weight = 1;
 
     public StandardHeavyShell(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
@@ -45,6 +45,10 @@ public class StandardHeavyShell extends HeavyShell {
 
     public static void setExplosionPower(float explosionPower) {
         StandardHeavyShell.explosionPower = explosionPower;
+    }
+
+    public static void setWeight(float w) {
+        weight = w;
     }
 
 
@@ -145,12 +149,11 @@ public class StandardHeavyShell extends HeavyShell {
 
 
         float length = (float)getMot().f();
-        final float MULTIPLIER = 1.7f;
-
         float damageMultiplier = (float) (length / source.getVectorPower());
         float damage = getHitDamage();
-        Vec3D velocity = getMot().d().a(MULTIPLIER);  //d() => norm,  a() => mult
-        hitEntity.i(velocity.getX() * MULTIPLIER, velocity.getY() * MULTIPLIER,velocity.getZ() * MULTIPLIER);  //i => push()
+
+        Vec3D velocity = getMot().d().a(weight);  //d() => norm,  a() => mult
+        hitEntity.i(velocity.getX() * weight, velocity.getY() * weight,velocity.getZ() * weight);  //i => push()
 
         EntityDamageSource source = ShellSource.artilleryHit(shooter, this);
         if (hitEntity instanceof EntityLiving living) {
@@ -246,7 +249,7 @@ public class StandardHeavyShell extends HeavyShell {
 
     @Override
     public float getWeight() {
-        return 1.2F;
+        return weight;
     }
 
 

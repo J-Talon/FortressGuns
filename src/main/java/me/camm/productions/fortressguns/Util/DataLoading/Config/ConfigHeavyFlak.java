@@ -1,11 +1,11 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyFlak;
 
 @JsonTypeName("heavyFlak")
-public class ConfigHeavyFlak extends ConfigArtilleryGeneral {
+public class ConfigHeavyFlak extends ConfigArtilleryCommon {
 
     @Override
     public boolean apply() {

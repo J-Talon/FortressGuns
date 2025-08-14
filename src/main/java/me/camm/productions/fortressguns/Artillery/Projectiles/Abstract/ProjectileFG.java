@@ -16,8 +16,9 @@ public interface ProjectileFG {
      boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock);
 
      //will add config for this later
-     float getWeight();
-
+     default float getWeight() {
+          return 0;
+     }
 
      void remove();
 

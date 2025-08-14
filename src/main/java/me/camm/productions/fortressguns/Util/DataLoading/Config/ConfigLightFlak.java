@@ -1,8 +1,8 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.LightFlak;
-import me.camm.productions.fortressguns.Util.DataLoading.Validator.ValidatorLightFlak;
+import org.jetbrains.annotations.NotNull;
 
 @JsonTypeName("lightFlak")
 public class ConfigLightFlak implements ConfigObject {
@@ -86,5 +86,21 @@ public class ConfigLightFlak implements ConfigObject {
         LightFlak.setMaxHealth(health);
         return true;
 
+    }
+
+    static class ValidatorLightFlak implements Validator<ConfigLightFlak> {
+        @Override
+        public boolean validate(@NotNull ConfigLightFlak in) {
+
+            long cool = in.getCooldown();
+            double jam = in.getJamPercent(), health = in.getHealth(), overheat = in.getOverheat(), heatOut = in.getHeatDissipationRate();
+            long inactive = in.getInactiveHeatTicks();
+
+            return (cool > 0) && (jam >= 0 && jam <= 1) &&
+                    (health > 0) && (overheat >= 0 && overheat < 100) &&
+                    (inactive >= 0) &&
+                    (heatOut >= 0 && heatOut <= 100);
+
+        }
     }
 }

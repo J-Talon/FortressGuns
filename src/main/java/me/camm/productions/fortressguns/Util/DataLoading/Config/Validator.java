@@ -1,7 +1,6 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Validator;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface Validator<T> {

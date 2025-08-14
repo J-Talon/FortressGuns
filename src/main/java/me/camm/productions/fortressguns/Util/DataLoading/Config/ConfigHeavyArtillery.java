@@ -1,10 +1,10 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 
 @JsonTypeName("fieldHeavy")
-public class ConfigHeavyArtillery extends ConfigArtilleryGeneral {
+public class ConfigHeavyArtillery extends ConfigArtilleryCommon {
 
     @Override
     public boolean apply() {

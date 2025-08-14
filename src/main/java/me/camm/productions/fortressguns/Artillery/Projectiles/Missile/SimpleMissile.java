@@ -50,7 +50,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
 
     private static float explosionPower; //4
-    private static final int difficulty;
+    private static float difficulty;
 
 
     private Vec3D terminalVel = null;
@@ -85,6 +85,9 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
     public static void setExplosionPower(float explosionPower) {
         SimpleMissile.explosionPower = explosionPower;
+    }
+    public static void setDifficulty(float difficulty) {
+        SimpleMissile.difficulty = difficulty;
     }
 
 

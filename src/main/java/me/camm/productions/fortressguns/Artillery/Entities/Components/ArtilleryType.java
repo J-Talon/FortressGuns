@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.*;
-import me.camm.productions.fortressguns.Util.DataLoading.Schema.*;
+import me.camm.productions.fortressguns.Util.DataLoading.Config.*;
 import org.bukkit.ChatColor;
 
 public enum ArtilleryType {

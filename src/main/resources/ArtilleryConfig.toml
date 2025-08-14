@@ -7,7 +7,7 @@
 health = 20
 #The cooldown time to wait until the artillery can fire again, if reloading is disabled
 #if cooldown is disabled the firing speed is still gated by the time required to play out
-#the current animation and current shot being fired.
+#the current animation and current shot being fired. Time in milliseconds.
 cooldown = 3000
 
 
@@ -42,7 +42,7 @@ jamPercent = 0
 overheat = 1
 
 
-#the rate at which the gun cools down. [0-100]
+#the rate at which the gun cools down. float [0-100]
 heatDissipationRate = 1
 
 #The amount of time in ticks after shooting to wait before the gun starts cooling down
@@ -57,17 +57,17 @@ health = 15
 #set to -1 to allow arbitrary length belt feeding
 magSize = -1
 
-#The percent chance for any one shot to jam the gun. float value, [0 - 1]
+#The percent chance for any one shot to jam the gun. float value, [0-1]
 jamPercent = 0.01
 
 #the amount of heat which should be incurred per shot.
 #float value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
 overheat = 0.8
 
-#the rate at which the gun cools down. [0-100]
+#the rate at which the gun cools down. float [0-100]
 heatDissipationRate = 1
 
-#The amount of time in ticks after shooting to wait before the gun starts cooling down
+#The amount of time in milliseconds after shooting to wait before the gun starts cooling down
 inactiveHeatTicks = 2000
 
 
@@ -83,16 +83,15 @@ missiles = 6
 [railGun]
 health = 50
 
-#The cooldown for the railgun works a bit differently.
-#This is the time required until the next shot is fully charged
+
 cooldown = 1000
+
+chargeTime = 1000
 
 #max range of the railgun
 range = 500
 
-
-# damage on a fully charged shot. Lower power shots will deal a percentage of this number.
-maxdamage = 150
+penetration = 0
 #==============================
 
 [cram]
@@ -103,30 +102,11 @@ cooldown = 500
 #General options
 [projectiles]
 solidShellWeight = 1.2
-solidShellDamage = 10
-
-heShellWeight = 1
-heShellDamage = 10
-
-flakHeavyShellWeight = 0.4
-flakHeavyShellDamage = 10
-
-flakLightShellWeight = 0.1
-flakLightShellDamage = 5
-
-cramShellWeight = 0.1
-cramShellDamage = 5
-
 solidLightShellWeight = 0.1
-solidLightShellDamage = 5
-
-basicMissileWeight = 0.1
-basicMissileDamage = 5
 
 
 
-
-[general]
+[explosions]
 #Explosion power of the ammo (How big and how much damage the shell should do)
 #Because of vanilla limitations with particles, explosion power above the recommended may result in
 #custom explosions looking undersized
@@ -141,15 +121,27 @@ standard = 4
 
 # If a shell hits the target directly, how much damage the target should receive.
 # this damage is applied before explosion damage if the shell is explosive.
-# missiles do no contact damage
-heavyHighExplosiveDamage = 10
-heavyFlakDamage = 10
-standardDamage = 25
+[contactDamage]
+heavyHighExplosive = 10
+heavyFlak = 10
+solid = 25
+lightSolid = 5
+lightFlak = 5
+cram = 10
+railgun = 150
 
-lightStandardDamage = 5
-lightFlakDamage = 5
-cramDamage = 10
-railgunDamage = 150
+
+
+
+[general]
+#whether artillery need to reload
+requireReloading = true
+
+#difficulty to dodge missiles. float value from [0-100]
+missileDifficulty = 100
+
+#whether flares should be enabled to help players survive barrages of missiles
+enableFlares = true
 
 
 #Whether the explosions from the artillery should be
@@ -159,16 +151,7 @@ useVanillaExplosions = false
 
 #Whether artillery destroys blocks
 #this does not apply to falling blocks
-destructiveArtillery = true
-
-#whether artillery need to reload
-requireReloading = true
-
-#difficulty to dodge missiles. Decimal value from [0-100]
-missileDifficulty = 100
-
-#whether flares should be enabled to help players survive barrages of missiles
-enableFlares = true
+destructiveExplosions = true
 
 
 

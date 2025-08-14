@@ -1,6 +1,7 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Schema;
+package me.camm.productions.fortressguns.Util.DataLoading.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import org.jetbrains.annotations.NotNull;
 
 @JsonTypeName("railGun")
 public class ConfigRailgun implements ConfigObject {
@@ -44,5 +45,13 @@ public class ConfigRailgun implements ConfigObject {
     @Override
     public boolean apply() {
         return true;
+    }
+
+    static class ValidatorRailgun implements Validator<ConfigRailgun> {
+
+        @Override
+        public boolean validate(@NotNull ConfigRailgun in) {
+            return true;
+        }
     }
 }
