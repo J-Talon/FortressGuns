@@ -11,6 +11,8 @@ This is an artillery plugin for Minecraft Version 1.17.1 which adds a variety of
 Each gun is placed into the world, can be operated, reloaded, and shot. Custom entities are used to model the guns, which use procedural animation to revolve around and fire. They also have their own health pool, 
 damage resistances and vulnerabilities, and fire projectiles which produce custom death messages for players. 
 
+The plugin is completely configurable down to each gun, as well as general options available.
+
 Soooo where's the resourcepack?
 ---
 I've decided to challenge myself by not using a resourcepack for the plugin. This limits me to using 
@@ -18,7 +20,6 @@ procedural animation and NMS tricks to make things look better. I'll probably ad
 in the future.
 
 
-The plugin is completely configurable down to each gun, as well as general options available.
 
 Media:
 ---
@@ -58,14 +59,14 @@ Similar to the heavy machine gun, but fires bursts of projectiles which explode 
 
 Content to complete before first release
 ---
-- [ ] Custom Explosions
+- [X] Custom Explosions
     - [X] Phase 1 - Planning and research
     - [X] Phase 2 - Projectile Overhaul
-    - [ ] Phase 3 - Explosion Overhaul < Current focus
+    - [X] Phase 3 - Explosion Overhaul
 - [X] Artillery operation mechanics
-- [ ] Bugfixing and polishing for some specific mechanics
+- [ ] Bugfixing and polishing for some specific mechanics < Current Focus
 - [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
-- [ ] Flares
+- [ ] Flares?
 
 Planned Content
 ---
