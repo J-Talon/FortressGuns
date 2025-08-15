@@ -1,37 +1,35 @@
 package me.camm.productions.fortressguns.ArtilleryItems;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ArtilleryItemHelper
+public class ConstructItemHelper
 {
     private static final String CRATE = "Crate";
     private static final Material CHEST =  Material.CHEST;
     private static final String VALUE = ChatColor.GOLD+"Value: ";
 
-    private static final Map<String, Class<? extends Artillery>> artilleryNames;
+    private static final Map<String, ConstructType> constructs;
     private static final Map<String, AmmoItem> itemNames;
 
 
     private static ItemStack stick = null;
 
     static {
-        artilleryNames = new HashMap<>();
-        for (ArtilleryType type: ArtilleryType.values()) {
-            artilleryNames.put(type.getName(), type.getClazz());
+        constructs = new HashMap<>();
+        for (ConstructType type: ConstructType.values()) {
+            constructs.put(type.getName(), type);
         }
 
 
@@ -54,7 +52,7 @@ public class ArtilleryItemHelper
     }
 
 
-    public static @Nullable Class<? extends Artillery> isArtillery(ItemStack stack) {
+    public static @Nullable ConstructType holdsConstruct(ItemStack stack) {
 
         if (stack == null)
             return null;
@@ -66,7 +64,7 @@ public class ArtilleryItemHelper
         if (meta == null)
             return null;
 
-        return artilleryNames.getOrDefault(meta.getDisplayName(), null);
+        return constructs.getOrDefault(meta.getDisplayName(), null);
 
     }
 
@@ -142,7 +140,7 @@ public class ArtilleryItemHelper
 
 
 
-    public static ItemStack createArtilleryItem(ArtilleryType type) throws IllegalStateException {
+    public static ItemStack createArtilleryItem(ConstructType type) throws IllegalStateException {
         ItemStack stack = new ItemStack(CHEST);
         ItemMeta meta = stack.getItemMeta();
 

@@ -9,8 +9,8 @@ import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Artillery.Entities.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.Vector3f;
@@ -87,8 +87,8 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
 
-    public RapidFire(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public RapidFire(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
         barrel = new ArtilleryPart[4];
         base = new ArtilleryPart[1][1];
         barrelHeat = 0;
@@ -162,7 +162,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
     @Override
-    protected boolean spawnParts(){
+    protected boolean instantiateParts(){
 
         pivot = StandHelper.createCore(loc, BARREL_ITEM,aim,world, this);
         if (pivot == null)

@@ -1,8 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import org.bukkit.Chunk;
 
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -26,8 +26,31 @@ public abstract class Construct {
 
     public abstract Set<Chunk> getOccupiedChunks();
 
-   public abstract void unload(boolean drop, boolean explode);
+   public abstract void destroy(boolean drop, boolean explode);
+    /*
+ In unloaded state, only core should remain with the PDC
+ When construct is loaded from unloaded state, remove the old core.
+
+ [1]
+ if required chunks are loaded, spawn, else add a chunk ticket to handler
+ which spawns when all chunks loaded.
+
+ then add artillery core to shutdown manager.
+
+ on chunk unload/plugin shutdown
+  - add PDC, unload artillery if it is loaded
+
+  on chunk load/entity load
+  - see [1]
+
+
+ the load function is basically the spawn() function
+  */
+   public abstract void unload();
+
    public abstract boolean isInvalid();
+
+   public abstract ConstructType getType();
 
 
 

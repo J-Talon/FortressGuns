@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties;
+package me.camm.productions.fortressguns.Artillery.Entities.Property;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import net.minecraft.world.entity.player.EntityHuman;

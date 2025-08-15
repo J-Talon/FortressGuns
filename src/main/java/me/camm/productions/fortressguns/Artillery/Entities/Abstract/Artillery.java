@@ -1,20 +1,21 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectExplosionStandalone;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Util.DataLoading.NBTSerializable;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
@@ -29,6 +30,8 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
@@ -42,7 +45,7 @@ import java.util.*;
 Abstract class for the artillery pieces
 Superclass for all complex entities which are artillery pieces
  */
-public abstract class Artillery extends Construct {
+public abstract class Artillery extends Construct implements NBTSerializable<Integer[]> {
 
 
     protected int baseLength;
@@ -61,9 +64,6 @@ public abstract class Artillery extends Construct {
     protected volatile EulerAngle interpolatedAim;
     protected volatile boolean cameraLocked;
     protected volatile boolean interpolating;
-
-
-    protected final ChunkLoader handler;
 
     protected volatile double health;//--
     private final Set<Chunk> occupiedChunks;//
@@ -137,13 +137,13 @@ public abstract class Artillery extends Construct {
     }
 
 
-    public Artillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
+    public Artillery(Location loc, World world, EulerAngle aim) {
 
         this.plugin = FortressGuns.getInstance();
         this.loc = loc;
         this.world = world;
         this.lastFireTime = System.currentTimeMillis();
-        this.handler = loader;
+
 
 
         this.occupiedChunks = new HashSet<>();
@@ -163,6 +163,33 @@ public abstract class Artillery extends Construct {
 
         initInventories();
     }
+
+    @Override
+    public Integer[] serializeData() {
+        Integer[] rotation = ConstructFactory.serializeRotation(getAim());
+        int ammoType = ConstructFactory.serializeAmmo(getLoadedAmmoType());
+        int type = ConstructFactory.serializeType(this);
+        return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo()};
+    }
+
+
+    @Override
+    public void unload() {
+        List<ArtilleryPart> parts = getParts();
+        parts.remove(pivot);
+        parts.forEach(ArtilleryPart::die);
+        Integer[] data = serializeData();
+        int[] translation = new int[data.length];
+        for (int index = 0; index < data.length; index ++) {
+            translation[index] = data[index];
+        }
+
+        PersistentDataContainer container = pivot.getBukkitEntity().getPersistentDataContainer();
+        container.set(new NamespacedKey(plugin, ConstructFactory.getKey()), PersistentDataType.INTEGER_ARRAY,translation);
+        setChunkLoaded(false);
+    }
+
+
 
     protected synchronized void setCanFire(boolean canFire) {
         this.canFire = canFire;
@@ -210,7 +237,6 @@ public abstract class Artillery extends Construct {
     public synchronized EulerAngle getInterpolatedAim() {
         return interpolatedAim;
     }
-
 
     public synchronized boolean isCameraLocked() {
         return cameraLocked;
@@ -501,9 +527,9 @@ public abstract class Artillery extends Construct {
         dead = false;
         loaded = true;
 
-        boolean spawned = spawnParts();
-        if (spawned)
-            loadPieces();
+        boolean spawnedSuccess = instantiateParts();
+        if (spawnedSuccess)
+            spawnPieces();
 
         //see entity.inBlock()
         /*
@@ -520,10 +546,9 @@ public abstract class Artillery extends Construct {
     }
          */
 
-        return spawned;
+        return spawnedSuccess;
     }
 
-    public abstract ArtilleryType getType();
     public abstract boolean canFire();
     public abstract double getMaxHealth();
 
@@ -600,7 +625,7 @@ public abstract class Artillery extends Construct {
     }
 
 
-    protected void loadPieces() {
+    protected void spawnPieces() {
         List<ArtilleryPart> parts = getParts();
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
@@ -613,7 +638,7 @@ public abstract class Artillery extends Construct {
         return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
     }
 
-    public final synchronized void unload(boolean dropItem, boolean exploded) throws IllegalStateException {
+    public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
 
 
         List<ArtilleryPart> components = getParts();
@@ -634,7 +659,7 @@ public abstract class Artillery extends Construct {
         }
 
         if (dropItem) {
-            ArtilleryItemHelper.packageArtillery(this);
+            ConstructItemHelper.packageArtillery(this);
         }
 
     }
@@ -642,7 +667,7 @@ public abstract class Artillery extends Construct {
     public final synchronized void remove(boolean dropItem, boolean exploded) throws IllegalStateException
     {
         handler.remove(occupiedChunks, this);
-        unload(dropItem, exploded);
+        destroy(dropItem, exploded);
     }
 
 
@@ -742,20 +767,22 @@ public abstract class Artillery extends Construct {
 These methods create the artillery components but don't spawn them.
 see: loadPieces()
  */
-    protected abstract boolean spawnParts();
+    protected abstract boolean instantiateParts();
     protected abstract boolean spawnBaseParts();
     protected abstract boolean spawnTurretParts();
 
 
+    //this should only be necessary when updating where we are on file write/read.
+    //basically this is only required when unloading / loading
     protected final void calculateLoadedChunks(){
         double totalDistanceBarrel = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (barrel.length * SMALL_BLOCK_LENGTH);
-        double totalDistanceBase = 0;
+        double totalDistanceBase = getBaseLength();
 
-        for (EntityArmorStand[] array: base)
-            if (array.length > totalDistanceBase)
-                totalDistanceBase = array.length;
 
-        double totalDistance = Math.max(totalDistanceBarrel,(LARGE_BLOCK_LENGTH*totalDistanceBase));
+        // + 1 for padding, ensures we're not off by like 0.1
+        double totalDistance = Math.max(totalDistanceBarrel,(LARGE_BLOCK_LENGTH*totalDistanceBase)) + 1;
+
+
         double circle = Math.PI * 2;
         Location loc = pivot.getLocation(world).clone();
 

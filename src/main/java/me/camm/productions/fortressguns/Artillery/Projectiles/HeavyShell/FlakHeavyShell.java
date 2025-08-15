@@ -33,7 +33,7 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
 
     @Override
     public float getWeight() {
-        return 0.4F;
+        return 0;
     }
 
 

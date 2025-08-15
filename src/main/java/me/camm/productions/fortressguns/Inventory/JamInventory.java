@@ -1,17 +1,14 @@
 package me.camm.productions.fortressguns.Inventory;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Inventory.Abstract.PanelInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.StaticItem;
-import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -105,7 +102,7 @@ public class JamInventory extends PanelInventory {
 
                     if (body.requiresReloading()) {
                         body.setAmmo(Math.max(0, body.getAmmo() - 1));
-                        ItemStack ammoDrop = ArtilleryItemHelper.createAmmoItem(body.getLoadedAmmoType());
+                        ItemStack ammoDrop = ConstructItemHelper.createAmmoItem(body.getLoadedAmmoType());
                         world.dropItem(body.getLoc(), ammoDrop);
                     }
 

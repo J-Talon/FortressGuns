@@ -1,15 +1,15 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
@@ -69,7 +69,7 @@ public class CRAM extends Artillery implements AutoTracking {
 
 
     @Override
-    protected boolean spawnParts() {
+    protected boolean instantiateParts() {
         pivot = StandHelper.createCore(loc,new ItemStack(Material.STONE),aim,world,this);
         return true;
     }
@@ -175,8 +175,8 @@ public class CRAM extends Artillery implements AutoTracking {
     }
 
     @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.CRAM;
+    public ConstructType getType() {
+        return ConstructType.CRAM;
     }
 
     @Override

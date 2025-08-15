@@ -4,14 +4,14 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Artillery.Entities.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -66,8 +66,8 @@ public class MissileLauncher extends ArtilleryRideable {
 
     private final ArtilleryPart[] stem;
 
-    public MissileLauncher(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public MissileLauncher(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
         barrel = new ArtilleryPart[6];   ///barrel MUST be a multiple of 2 since we are doing some stuff in spawnTurret() & pivot()
         base = new ArtilleryPart[4][3];
         stem = new ArtilleryPart[2];
@@ -208,7 +208,7 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     @Override
-    protected boolean spawnParts() {
+    protected boolean instantiateParts() {
         pivot = StandHelper.createCore(loc.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
@@ -408,8 +408,8 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.MISSILE_LAUNCHER;
+    public ConstructType getType() {
+        return ConstructType.MISSILE_LAUNCHER;
     }
 
 

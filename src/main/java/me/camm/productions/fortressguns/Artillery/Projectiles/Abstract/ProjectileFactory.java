@@ -18,6 +18,31 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
     T create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source);
 
+    /*
+
+
+    Factory (not lambda) <-- put into enum
+        inner factory (lambda)
+            -> create proj
+
+
+    Version v;
+
+    class ... implements <> {
+
+        2 ways:
+         -- many if statements < try to avoid
+         -- some way to do with setting it specifically < lambdas
+
+
+        Lambda l;
+        setVersion(Version v) {
+            return <.. some lambda corresponding to version ..>
+        }
+
+    }
+
+     */
 
 
     class FactoryStandardHeavy implements ProjectileFactory<StandardHeavyShell> {

@@ -1,9 +1,9 @@
 package me.camm.productions.fortressguns;
 
 
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
@@ -53,17 +53,17 @@ public final class FortressGuns extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
         Inventory inv = player.getInventory();
 
-        for (ArtilleryType type: ArtilleryType.values()) {
-            ItemStack created = ArtilleryItemHelper.createArtilleryItem(type);
+        for (ConstructType type: ConstructType.values()) {
+            ItemStack created = ConstructItemHelper.createArtilleryItem(type);
             inv.addItem(created);
         }
 
         for (AmmoItem item: AmmoItem.values()) {
-            ItemStack ammo = ArtilleryItemHelper.createAmmoItem(item);
+            ItemStack ammo = ConstructItemHelper.createAmmoItem(item);
             inv.addItem(ammo);
         }
 
-        inv.addItem(ArtilleryItemHelper.getStick());
+        inv.addItem(ConstructItemHelper.getStick());
     }
 
     @Override

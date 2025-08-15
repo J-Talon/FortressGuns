@@ -64,7 +64,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
         bukkitVer.setItemMeta(meta);
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
         explosionPower = 4;
-        difficulty = 5;
+        difficulty = 100;
     }
 
     public SimpleMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {

@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Tuneable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Tuneable;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import org.bukkit.Location;
 import org.bukkit.World;

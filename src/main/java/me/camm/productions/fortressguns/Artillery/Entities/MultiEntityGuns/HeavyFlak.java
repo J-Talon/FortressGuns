@@ -1,17 +1,15 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FlakArtillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
-import org.jetbrains.annotations.NotNull;
 
 
 public class HeavyFlak extends FlakArtillery implements AutoTracking {
@@ -21,8 +19,8 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking {
     private static long fireCooldown;
 
 
-    public HeavyFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world,loader,aim);
+    public HeavyFlak(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
         barrel = new ArtilleryPart[12];
         base = new ArtilleryPart[4][4];
 
@@ -79,8 +77,8 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking {
     }
 
     @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.FLAK_HEAVY;
+    public ConstructType getType() {
+        return ConstructType.FLAK_HEAVY;
     }
 
     @Override

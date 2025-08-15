@@ -9,8 +9,8 @@ import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Artillery.Entities.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -39,8 +39,8 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
 
-    public FieldArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public FieldArtillery(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
     }
 
 
@@ -203,7 +203,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    protected boolean spawnParts()
+    protected boolean instantiateParts()
     {
 
         pivot = StandHelper.createCore(loc, BODY, aim, world, this);

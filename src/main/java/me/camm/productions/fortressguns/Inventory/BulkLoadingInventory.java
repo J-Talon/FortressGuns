@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -10,7 +10,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
 
         ItemStack residing = gui.getItem(getInputSlot());
         Artillery body = (Artillery)getOwner();
-        AmmoItem input = ArtilleryItemHelper.isAmmoItem(residing);
+        AmmoItem input = ConstructItemHelper.isAmmoItem(residing);
 
         player.playSound(player.getLocation(),Sound.BLOCK_PISTON_CONTRACT,SoundCategory.BLOCKS,1,1);
 
@@ -64,7 +63,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             ///input == null || input is the same
             int exchange;
             if (input == null) {
-                ItemStack ammoOut = ArtilleryItemHelper.createAmmoItem(body.getLoadedAmmoType());
+                ItemStack ammoOut = ConstructItemHelper.createAmmoItem(body.getLoadedAmmoType());
                 exchange = Math.min(Math.max(body.getAmmo(),body.getAmmo() - ammoOut.getMaxStackSize()), ammoOut.getMaxStackSize());
 
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.DataLoading.Config.*;
 import org.bukkit.plugin.Plugin;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 public class FileManager {
 
-    static Map<String, ArtilleryType> types = new HashMap<>();
+    static Map<String, ConstructType> types = new HashMap<>();
 
 
     enum Resource {
@@ -49,17 +49,25 @@ public class FileManager {
         PROJECTILE("projectiles", ConfigArtilleryProjectiles.class),
         GENERAL("general", ConfigGeneral.class);
 
-        private IndependentConfig(String id, Class<?> clazz) {
+        private IndependentConfig(String id, Class<? extends ConfigObject> clazz) {
             this.id = id;
             this.clazz = clazz;
         }
 
         private String id;
-        private Class<?> clazz;
+        private Class<? extends ConfigObject> clazz;
+
+        public String getId() {
+            return id;
+        }
+
+        public Class<? extends ConfigObject> getClazz() {
+            return clazz;
+        }
     }
 
     static {
-        for (ArtilleryType t : ArtilleryType.values()) {
+        for (ConstructType t : ConstructType.values()) {
             types.put(t.getId(),t);
         }
     }
@@ -126,7 +134,7 @@ public class FileManager {
 
 
 
-            for (ArtilleryType type: ArtilleryType.values()) {
+            for (ConstructType type: ConstructType.values()) {
                 mapper.registerSubtypes(new NamedType(type.getAdapter(), type.getId()));
                 try {
                     ConfigObject co = mapper.treeToValue(node.get(type.getId()),type.getAdapter());
@@ -142,21 +150,18 @@ public class FileManager {
             }
 
 
-
-            try {
-                String genId = "general";
-                Class<? extends ConfigObject> genClass = ConfigGeneral.class;
-                mapper.registerSubtypes(new NamedType(genClass, genId));
-                ConfigObject genCo = mapper.treeToValue(node.get(genId),genClass);
-
-                if (!genCo.apply()) {
-                    throw new IllegalArgumentException("Invalid general config value");
+            for (IndependentConfig config: IndependentConfig.values()) {
+                mapper.registerSubtypes(new NamedType(config.getClazz(), config.getId()));
+                try {
+                    ConfigObject co = mapper.treeToValue(node.get(config.getId()), config.getClazz());
+                    if (!co.apply()) {
+                        throw new IllegalArgumentException("Invalid config value");
+                    }
+                    logger.info("Loaded independent section: "+config.getId());
                 }
-
-                logger.info("Loaded general options");
-              }
-            catch (JsonProcessingException e) {
-                logger.warning("Failed to load general options. Using defaults.");
+                catch (JsonProcessingException | IllegalArgumentException e) {
+                    logger.warning("Failed to load "+ config.getId() +" due to: "+e.getMessage() +" Using defaults.");
+                }
             }
 
 

@@ -1,7 +1,7 @@
-package me.camm.productions.fortressguns.Artillery.Entities;
+package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;

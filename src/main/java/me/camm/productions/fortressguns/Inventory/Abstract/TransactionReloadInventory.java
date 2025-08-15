@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Inventory.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -104,8 +104,8 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         }
 
 
-        AmmoItem inputAmmo = ArtilleryItemHelper.isAmmoItem(input);
-        AmmoItem residingAmmo = ArtilleryItemHelper.isAmmoItem(residing);
+        AmmoItem inputAmmo = ConstructItemHelper.isAmmoItem(input);
+        AmmoItem residingAmmo = ConstructItemHelper.isAmmoItem(residing);
 
 
         if (residingAmmo != null && (residingAmmo != inputAmmo)) {
@@ -167,7 +167,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         //whatever they're shifting isn't ammo
         //this means they're either trying to put some junk into the loading inv
         //or they're trying to take the buttons and stuff from the loading inv
-        AmmoItem currAmmo = ArtilleryItemHelper.isAmmoItem(current);
+        AmmoItem currAmmo = ConstructItemHelper.isAmmoItem(current);
         if (currAmmo == null) {
             event.setCancelled(true);
             return;
@@ -233,7 +233,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         }
 
         ItemStack cursor = event.getCursor();
-        AmmoItem cursorAmmo = ArtilleryItemHelper.isAmmoItem(cursor);
+        AmmoItem cursorAmmo = ConstructItemHelper.isAmmoItem(cursor);
         if (cursorAmmo == null || !((Artillery)owner).acceptsAmmo(cursorAmmo)) {
             event.setCancelled(true);
             return;

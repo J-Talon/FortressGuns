@@ -2,8 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
@@ -11,18 +10,15 @@ import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -44,8 +40,8 @@ public class LightFlak extends RapidFire {
 
 
 
-    public LightFlak(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public LightFlak(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
     }
 
     static {
@@ -92,8 +88,8 @@ public class LightFlak extends RapidFire {
     }
 
     @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.FLAK_LIGHT;
+    public ConstructType getType() {
+        return ConstructType.FLAK_LIGHT;
     }
 
 

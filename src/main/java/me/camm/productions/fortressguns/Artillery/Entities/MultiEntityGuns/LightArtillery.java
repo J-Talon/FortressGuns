@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import org.bukkit.Location;
@@ -22,8 +22,8 @@ public class LightArtillery extends FieldArtillery
     private static long fireCooldown;
 
 
-    public LightArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world,loader,aim);
+    public LightArtillery(Location loc, World world, EulerAngle aim) {
+        super(loc, world,aim);
         barrel = new ArtilleryPart[5];
         base = new ArtilleryPart[3][3];
     }
@@ -50,8 +50,8 @@ public class LightArtillery extends FieldArtillery
     }
 
     @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.FIELD_LIGHT;
+    public ConstructType getType() {
+        return ConstructType.FIELD_LIGHT;
     }
 
     @Override

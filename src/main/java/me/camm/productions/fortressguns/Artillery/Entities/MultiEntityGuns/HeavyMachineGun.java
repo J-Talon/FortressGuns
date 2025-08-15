@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
@@ -50,8 +50,8 @@ public class HeavyMachineGun extends RapidFire {
 
     }
 
-    public HeavyMachineGun(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public HeavyMachineGun(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
     }
     public static void setMaxHealth(double max) {
         maxHealth = max;
@@ -224,8 +224,8 @@ public class HeavyMachineGun extends RapidFire {
 
 
     @Override
-    public ArtilleryType getType() {
-        return ArtilleryType.HEAVY_MACHINE;
+    public ConstructType getType() {
+        return ConstructType.HEAVY_MACHINE;
     }
 
 

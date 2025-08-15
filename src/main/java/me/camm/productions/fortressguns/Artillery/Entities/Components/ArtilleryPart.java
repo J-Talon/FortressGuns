@@ -1,9 +1,9 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
@@ -82,7 +82,7 @@ public class ArtilleryPart extends Component
             ItemStack holding = human.getItemInMainHand();
 
             org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
-            org.bukkit.inventory.ItemStack pointer = ArtilleryItemHelper.getStick();
+            org.bukkit.inventory.ItemStack pointer = ConstructItemHelper.getStick();
 
                 //if they punch the thing with a stick, fire the cannon instead.
 
@@ -270,7 +270,7 @@ public class ArtilleryPart extends Component
 
 
         org.bukkit.inventory.ItemStack stackBukkit = CraftItemStack.asBukkitCopy(stack);
-        org.bukkit.inventory.ItemStack pointer = ArtilleryItemHelper.getStick();
+        org.bukkit.inventory.ItemStack pointer = ConstructItemHelper.getStick();
 
         if ((!pointer.isSimilar(stackBukkit))) {
 
@@ -303,7 +303,7 @@ public class ArtilleryPart extends Component
                 break FIND_INV;
             }
 
-            if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
+            if (ConstructItemHelper.isAmmoItem(stack) != null) {
 
                 if (!body.requiresReloading()) {
                     return;

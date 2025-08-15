@@ -25,6 +25,26 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 
+   /*
+   In unloaded state, only core should remain with the PDC
+   When construct is loaded from unloaded state, remove the old core.
+
+   [1]
+   if required chunks are loaded, spawn, else add a chunk ticket to handler
+   which spawns when all chunks loaded.
+
+   then add artillery core to shutdown manager.
+
+   on chunk unload/plugin shutdown
+    - add PDC, unload artillery if it is loaded
+
+    on chunk load/entity load
+    - see [1]
+
+
+   the load function is basically the spawn() function
+    */
+
 
 //consider also doing the portal events here to prevent portals causing dislocation
 public class ChunkLoader implements Listener
@@ -206,7 +226,7 @@ public class ChunkLoader implements Listener
                 continue;
             }
 
-            next.unload(false, false);
+            next.destroy(false, false);
             next.setChunkLoaded(false);
         }
     }

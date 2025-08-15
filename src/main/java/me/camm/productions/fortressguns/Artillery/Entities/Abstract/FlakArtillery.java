@@ -1,17 +1,16 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Tuneable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Tuneable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.Artillery.Entities.StandHelper;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
@@ -41,8 +40,8 @@ This method is called in a loop. You can think of it as being called many times 
    /*
    Constructor.
     */
-    public FlakArtillery(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world,loader, aim);
+    public FlakArtillery(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
         this.target = null;
         aiming = false;
     }
@@ -89,7 +88,7 @@ This method is called in a loop. You can think of it as being called many times 
         ItemStack offhand = player.getInventory().getItemInOffHand();
 
         ChatColor color = canFire() ? ChatColor.GREEN: ChatColor.RED;
-        if (ArtilleryItemHelper.getStick().isSimilar(offhand)) {
+        if (ConstructItemHelper.getStick().isSimilar(offhand)) {
             int time = InteractionHandler.getTime(player.getUniqueId()).getA();
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(color+"Shell Fuse: ["+time+"/"+InteractionHandler.getSettingMax()+"] (Ticks)"));
         }
@@ -99,9 +98,6 @@ This method is called in a loop. You can think of it as being called many times 
     }
 
 
-    public double getMinVertAngle() {
-        return 0;
-    }
     public void aimStatic() {
 
         //once again clone shouldn't be needed cause it's a new object each time
@@ -150,6 +146,10 @@ This method is called in a loop. You can think of it as being called many times 
         return true;
     }
 
+    @Override
+    public double getMinVertAngle() {
+        return 0;
+    }
 
 
 }

@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import org.bukkit.*;
@@ -89,7 +89,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
         //they're in the transaction inv trying to take ammo from it
         //allowed if not loading
-        if (ArtilleryItemHelper.isAmmoItem(current) != null)  {
+        if (ConstructItemHelper.isAmmoItem(current) != null)  {
             return;
         }
 
@@ -127,7 +127,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                             player.playSound(player.getLocation(), Sound.BLOCK_PISTON_EXTEND, 0.5f, 1);
 
                             if (type == null) {
-                                type = ArtilleryItemHelper.isAmmoItem(shell);
+                                type = ConstructItemHelper.isAmmoItem(shell);
 
                                 if (type != null)
                                     loading = shell;
@@ -181,7 +181,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                     return;
                 }
 
-                ItemStack ammo = ArtilleryItemHelper.createAmmoItem(loaded);
+                ItemStack ammo = ConstructItemHelper.createAmmoItem(loaded);
                 ItemStack residing = gui.getItem(0);
 
                 if (residing == null || residing.getType().isAir()) {

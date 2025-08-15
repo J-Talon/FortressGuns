@@ -3,11 +3,13 @@ package me.camm.productions.fortressguns.Handlers;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
@@ -15,7 +17,6 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.IProjectile;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
@@ -24,7 +25,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -95,7 +95,7 @@ public class InteractionHandler implements Listener
 
         Player player = event.getPlayer();
         ItemStack stack = player.getInventory().getItemInOffHand();
-        ItemStack pointer = ArtilleryItemHelper.getStick();
+        ItemStack pointer = ConstructItemHelper.getStick();
 
         if (!(pointer.isSimilar(stack))) {
             return;
@@ -183,13 +183,13 @@ public class InteractionHandler implements Listener
     public void onBlockPlace(BlockPlaceEvent event) {
 
         ItemStack item = event.getItemInHand();
-        if (ArtilleryItemHelper.isArtillery(item) != null) {
+        if (ConstructItemHelper.holdsConstruct(item) != null) {
             event.getPlayer().sendMessage(ChatColor.RED+"[!] Right click the air if you're trying to assemble artillery.");
             event.setCancelled(true);
             return;
         }
 
-        if (ArtilleryItemHelper.isAmmoItem(item) != null) {
+        if (ConstructItemHelper.isAmmoItem(item) != null) {
             event.setCancelled(true);
         }
     }
@@ -226,7 +226,7 @@ public class InteractionHandler implements Listener
     public void onPlayerInteract(PlayerInteractEvent event) {
 
         ItemStack stack = event.getItem();
-        if (ArtilleryItemHelper.isAmmoItem(stack) != null) {
+        if (ConstructItemHelper.isAmmoItem(stack) != null) {
             Player player = event.getPlayer();
 
             org.bukkit.entity.Entity ride = player.getVehicle();
@@ -340,9 +340,9 @@ public class InteractionHandler implements Listener
 
 
         ItemStack item = event.getItem();
-            Class<? extends Artillery> artClass = ArtilleryItemHelper.isArtillery(item);
+        ConstructType type = ConstructItemHelper.holdsConstruct(item);
 
-            if (artClass == null)
+            if (type == null)
                 return;
 
         if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
@@ -350,55 +350,24 @@ public class InteractionHandler implements Listener
             return;
         }
 
-        EulerAngle aim = new EulerAngle(Math.toRadians(nms.getXRot()),Math.toRadians(nms.getHeadRotation()),0);
+        int x = (int)(Math.toRadians(nms.getXRot()) * 100);
+        int z = (int)(Math.toRadians(nms.getHeadRotation()) * 100);
 
-        try {
+        ConstructFactory<? extends Construct> factory = type.getFactory();
+        Construct cons = factory.create(player.getLocation().add(0,-0.6,0), x,z, 0);
 
-
-               Class<?> value = artClass.getSuperclass();
-               boolean isDirectional = false;
-              while (value != null) {
-
-                  if (value.equals(RapidFire.class)) {
-                      isDirectional = true;
-                      break;
-                  }
-
-                  value = value.getSuperclass();
-              }
-
-              if (!isDirectional) {
-                 aim = aim.setX(Math.min(aim.getX(), 0));
-              }
-
-                World world = player.getWorld();
-                Location loc = player.getLocation().add(0,-0.6,0);
-                // -0.6 so it's on the ground
-                //no clone needed cause it's a new object each time
-
-              Artillery artillery = artClass
-                      .getConstructor(Location.class, World.class, ChunkLoader.class, EulerAngle.class)
-                      .newInstance(loc,world,handler,aim);
-
-               boolean spawned = artillery.spawn();
-
-               if (!spawned) {
-                   player.sendMessage(ChatColor.RED + "[!] There is not enough space here to build an artillery piece!");
-                   return;
-               }
-
-              world.playSound(loc,Sound.BLOCK_ANVIL_DESTROY,0.5f,1);
-
-              Set<Chunk> chunks = artillery.getOccupiedChunks();
-              for (Chunk c: chunks) {
-                  handler.add(c, artillery);
-              }
-
-
+        if (cons != null) {
+            boolean success = cons.spawn();
+            if (!success) {
+                player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this artillery.");
             }
-            catch (Exception e) {
-                e.printStackTrace();
+            else {
+                player.playSound(player.getLocation(),Sound.BLOCK_ANVIL_PLACE,1,1);
             }
+        }
+
+
+
 
 
             event.setCancelled(true);

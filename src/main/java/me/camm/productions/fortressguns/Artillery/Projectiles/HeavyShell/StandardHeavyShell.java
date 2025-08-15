@@ -32,7 +32,7 @@ public class StandardHeavyShell extends HeavyShell {
 
     private static float hitDamage = 10;
     private static float explosionPower = 4;
-    private static float weight = 1;
+    private static float weight = 1.2F;
 
     public StandardHeavyShell(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, x, y, z, shooter, source);

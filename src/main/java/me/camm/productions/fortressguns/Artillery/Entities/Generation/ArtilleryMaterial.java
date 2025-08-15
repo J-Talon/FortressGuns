@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Artillery.Entities;
+package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

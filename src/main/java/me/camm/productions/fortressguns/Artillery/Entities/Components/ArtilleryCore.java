@@ -1,15 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
-import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
 
 import net.minecraft.sounds.SoundEffect;
@@ -84,7 +80,7 @@ public class ArtilleryCore extends ArtilleryPart {
 
 
         org.bukkit.inventory.ItemStack stack = CraftItemStack.asBukkitCopy(item);
-        org.bukkit.inventory.ItemStack pointer = ArtilleryItemHelper.getStick();
+        org.bukkit.inventory.ItemStack pointer = ConstructItemHelper.getStick();
 
         if ((!pointer.isSimilar(stack))) {
 

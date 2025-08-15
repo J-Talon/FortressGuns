@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.ArtilleryItems.ArtilleryItemHelper;
 import me.camm.productions.fortressguns.Inventory.Abstract.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;

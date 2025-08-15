@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Properties.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
@@ -16,8 +16,8 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
 
 
-    public ArtilleryRideable(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
         this.hasRider = false;
     }
 
