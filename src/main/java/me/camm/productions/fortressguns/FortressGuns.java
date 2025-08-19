@@ -32,12 +32,7 @@ public final class FortressGuns extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
       plugin = this;
-      boolean success = FileManager.loadArtilleryConfig();
-      if (!success) {
-          getLogger().warning("All Config failed to load. Shutting down.");
-          Bukkit.getPluginManager().disablePlugin(this);
-          return;
-      }
+      FileManager.loadArtilleryConfig();
 
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(new InteractionHandler(),this);

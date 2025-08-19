@@ -24,9 +24,9 @@ public class FileManager {
     static Map<String, ConstructType> types = new HashMap<>();
 
 
-    enum Resource {
+    public enum Resource {
 
-        ///we're not gonna do skins cause I'm planning on
+        //we're not gonna do skins cause I'm planning on
         //doing optional resource pack models
         CONFIG("ArtilleryConfig.toml"),
         SAVES("SavedArtillery.toml");
@@ -43,7 +43,7 @@ public class FileManager {
 
 
 
-    enum IndependentConfig {
+    public enum IndependentConfig {
         CONTACT("contactDamage", ConfigArtilleryContact.class),
         EXPLOSION("explosions", ConfigArtilleryExplosions.class),
         PROJECTILE("projectiles", ConfigArtilleryProjectiles.class),
@@ -54,8 +54,8 @@ public class FileManager {
             this.clazz = clazz;
         }
 
-        private String id;
-        private Class<? extends ConfigObject> clazz;
+        private final String id;
+        private final Class<? extends ConfigObject> clazz;
 
         public String getId() {
             return id;
@@ -112,7 +112,7 @@ public class FileManager {
 
 
 
-    public static boolean loadArtilleryConfig() {
+    public static void loadArtilleryConfig() {
 
         Plugin plugin = FortressGuns.getInstance();
         Logger logger = plugin.getLogger();
@@ -125,7 +125,7 @@ public class FileManager {
 
             if (res.hasErrors()) {
                 logger.warning("Artillery config failed to load due to TOML errors in the file, using defaults...");
-                return true;
+                return;
             }
 
             String json = res.toJson();
@@ -156,16 +156,16 @@ public class FileManager {
                     ConfigObject co = mapper.treeToValue(node.get(config.getId()), config.getClazz());
 
                     if (co == null) {
-                        throw new IllegalArgumentException("config section for "+config.getId()+" is null: doesn't contain a loadable class");
+                        throw new IllegalArgumentException("config section for "+config.getId()+" doesn't contain a loadable class");
                     }
 
                     if (!co.apply()) {
                         throw new IllegalArgumentException("Invalid config value");
                     }
-                    logger.info("Loaded independent section: "+config.getId());
+                    logger.info("Successfully loaded independent section: "+config.getId());
                 }
                 catch (JsonProcessingException | IllegalArgumentException e) {
-                    logger.warning("Failed to load "+ config.getId() +" due to: "+e.getMessage() +" Using defaults.");
+                    logger.warning("Failed to load "+ config.getId() +" due to: "+e.getMessage() +" | Using defaults.");
                 }
             }
 
@@ -175,7 +175,6 @@ public class FileManager {
             logger.warning("Could not load config due to IO error:"+e.getMessage()+"...Using default config.");
         }
 
-       return true;
     }
 
 }
