@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChunkTicket {
 
-    private Construct construct;
+    private final Construct construct;
     Set<Tuple2<Integer, Integer>> chunks;
     final World world;
 
@@ -39,7 +39,7 @@ public class ChunkTicket {
     }
 
     public synchronized boolean allUnloaded() {
-        return currentLoaded.get() <= 0;
+        return currentLoaded.get() >= numChunks;
     }
 
 

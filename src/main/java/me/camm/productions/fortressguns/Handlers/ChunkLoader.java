@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Tuple2;
@@ -83,11 +84,11 @@ public class ChunkLoader implements Listener
         updateWorldEntries(worldName);
 
         List<Entity> entities = event.getEntities();
-        NamespacedKey key = new NamespacedKey(FortressGuns.getInstance(), ConstructFactory.getKey());
+        NamespacedKey key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
         for (Entity entity: entities) {
             PersistentDataContainer pdc = entity.getPersistentDataContainer();
             Construct struct = deserializeConstruct(entity.getLocation(),pdc, key);
-            if (struct == null)
+            if (struct == null) //
                 continue;
 
             Set<Chunk> requiredChunks = struct.getOccupiedChunks();
@@ -153,11 +154,10 @@ public class ChunkLoader implements Listener
             //well this isn't enough - what if not ALL of the required chunks unload?
             //then this really should be added to the tickets instead huh?
             int currentLoaded = (int)struct.getOccupiedChunks().stream().filter(Chunk::isLoaded).count();
-            if (currentLoaded == 0)
-                struct.unload();
-            else {
+            struct.unload();
+
+            if (currentLoaded > 0)
                 addLoadingTicket(ticket, world);
-            }
         }
 
         /*
@@ -205,7 +205,7 @@ public class ChunkLoader implements Listener
         int[] copy = new int[data.length-1];
         System.arraycopy(data,1,copy,0,copy.length);
 
-        ConstructType type = ConstructFactory.deserializeType(data[0]);
+        ConstructType type = FactorySerialization.deserializeType(data[0]);
         if (type == null)
             return null;
 

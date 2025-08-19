@@ -21,8 +21,6 @@ public enum ConstructType {
 
     private final Class<? extends ConfigObject> adapter;
 
-
-
     ConstructType(String name, ConstructFactory<? extends Construct> factory, String id, Class<? extends ConfigObject> o){
         this.name = name;
         this.instantiator = factory;

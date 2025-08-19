@@ -44,7 +44,7 @@ public class FileManager {
 
 
     enum IndependentConfig {
-        CONTACT("contact", ConfigArtilleryContact.class),
+        CONTACT("contactDamage", ConfigArtilleryContact.class),
         EXPLOSION("explosions", ConfigArtilleryExplosions.class),
         PROJECTILE("projectiles", ConfigArtilleryProjectiles.class),
         GENERAL("general", ConfigGeneral.class);
@@ -142,10 +142,10 @@ public class FileManager {
                     if (!result)
                         throw new IllegalArgumentException("Invalid config value");
 
-                    logger.info("Loaded config for: "+type.getId());
+                    logger.info("Successfully loaded config for: "+type.getId());
                 }
                 catch (JsonProcessingException | IllegalArgumentException e) {
-                    logger.warning("Failed to load "+ type.getId() +" due to: "+e.getMessage() +" Using defaults.");
+                    logger.warning("Failed to load "+ type.getId() +": "+e.getMessage() +" | Will attempt to use defaults.");
                 }
             }
 
@@ -154,6 +154,11 @@ public class FileManager {
                 mapper.registerSubtypes(new NamedType(config.getClazz(), config.getId()));
                 try {
                     ConfigObject co = mapper.treeToValue(node.get(config.getId()), config.getClazz());
+
+                    if (co == null) {
+                        throw new IllegalArgumentException("config section for "+config.getId()+" is null: doesn't contain a loadable class");
+                    }
+
                     if (!co.apply()) {
                         throw new IllegalArgumentException("Invalid config value");
                     }

@@ -82,12 +82,8 @@ missiles = 6
 #Railgun
 [railGun]
 health = 50
-
-
 cooldown = 1000
-
 chargeTime = 1000
-
 #max range of the railgun
 range = 500
 
@@ -99,7 +95,7 @@ health = 30
 cooldown = 500
 
 #==============================
-#General options
+
 [projectiles]
 solidShellWeight = 1.2
 solidLightShellWeight = 0.1

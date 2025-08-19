@@ -21,6 +21,45 @@ public class ConfigGeneral implements ConfigObject {
 
     boolean destructiveExplosions = true;
 
+    public boolean isRequireReloading() {
+        return requireReloading;
+    }
+
+    public void setRequireReloading(boolean requireReloading) {
+        this.requireReloading = requireReloading;
+    }
+
+    public float getMissileDifficulty() {
+        return missileDifficulty;
+    }
+
+    public void setMissileDifficulty(float missileDifficulty) {
+        this.missileDifficulty = missileDifficulty;
+    }
+
+    public boolean isEnableFlares() {
+        return enableFlares;
+    }
+
+    public void setEnableFlares(boolean enableFlares) {
+        this.enableFlares = enableFlares;
+    }
+
+    public boolean isUseVanillaExplosions() {
+        return useVanillaExplosions;
+    }
+
+    public void setUseVanillaExplosions(boolean useVanillaExplosions) {
+        this.useVanillaExplosions = useVanillaExplosions;
+    }
+
+    public boolean isDestructiveExplosions() {
+        return destructiveExplosions;
+    }
+
+    public void setDestructiveExplosions(boolean destructiveExplosions) {
+        this.destructiveExplosions = destructiveExplosions;
+    }
 
     @Override
     public boolean apply() {

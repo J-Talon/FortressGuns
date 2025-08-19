@@ -9,6 +9,24 @@ public class ConfigRailgun implements ConfigObject {
     private long cooldown;
     private int range;
     private double maxdamage;
+    private long chargeTime;
+    private float penetration;
+
+    public float getPenetration() {
+        return penetration;
+    }
+
+    public void setPenetration(float penetration) {
+        this.penetration = penetration;
+    }
+
+    public long getChargeTime() {
+        return chargeTime;
+    }
+
+    public void setChargeTime(long chargeTime) {
+        this.chargeTime = chargeTime;
+    }
 
     public double getHealth() {
         return health;

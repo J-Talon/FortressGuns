@@ -33,4 +33,21 @@ public class ConfigArtilleryProjectiles implements ConfigObject {
                     in.solidShellWeight >= 0;
         }
     }
+
+
+    public float getSolidShellWeight() {
+        return solidShellWeight;
+    }
+
+    public void setSolidShellWeight(float solidShellWeight) {
+        this.solidShellWeight = solidShellWeight;
+    }
+
+    public float getSolidLightShellWeight() {
+        return solidLightShellWeight;
+    }
+
+    public void setSolidLightShellWeight(float solidLightShellWeight) {
+        this.solidLightShellWeight = solidLightShellWeight;
+    }
 }

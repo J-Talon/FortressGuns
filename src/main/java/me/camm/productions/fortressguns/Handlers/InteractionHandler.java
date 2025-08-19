@@ -13,6 +13,7 @@ import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.Util.Tuple3;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
@@ -30,14 +31,14 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.EulerAngle;
+
 import org.bukkit.util.RayTraceResult;
 import org.spigotmc.event.entity.EntityDismountEvent;
-import oshi.util.tuples.Triplet;
+
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -48,7 +49,7 @@ import java.util.function.Predicate;
 public class InteractionHandler implements Listener
 {
     private final static Map<UUID, org.bukkit.entity.Entity> targets = new HashMap<>();
-    private final static Map<UUID, Triplet<Integer, Integer, Long>> artSetting = new HashMap<>();
+    private final static Map<UUID, Tuple3<Integer, Integer, Long>> artSetting = new HashMap<>();
 
     private final ChunkLoader handler;
 
@@ -81,8 +82,8 @@ public class InteractionHandler implements Listener
     }
 
 
-    public static Triplet<Integer, Integer,Long> getTime(UUID id) {
-        return artSetting.getOrDefault(id,new Triplet<Integer, Integer,Long>((MAX - MIN) / 2,0,System.currentTimeMillis()));
+    public static Tuple3<Integer, Integer,Long> getTime(UUID id) {
+        return artSetting.getOrDefault(id,new Tuple3<Integer, Integer,Long>((MAX - MIN) / 2,0,System.currentTimeMillis()));
     }
 
 
@@ -106,7 +107,7 @@ public class InteractionHandler implements Listener
 
 
         UUID id = player.getUniqueId();
-        Triplet<Integer, Integer,Long> trip = getTime(id);
+        Tuple3<Integer, Integer,Long> trip = getTime(id);
         int time = trip.getA();
         int dir = trip.getB();
         long lastAction = trip.getC();
@@ -169,7 +170,7 @@ public class InteractionHandler implements Listener
         time = Math.max(MIN,time);
         time = Math.min(MAX,time);
 
-        artSetting.put(id, new Triplet<>(time, dir, System.currentTimeMillis()));
+        artSetting.put(id, new Tuple3<>(time, dir, System.currentTimeMillis()));
         return time;
     }
 

@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
@@ -164,9 +165,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     @Override
     public Integer[] serializeData() {
-        Integer[] rotation = ConstructFactory.serializeRotation(getAim());
-        int ammoType = ConstructFactory.serializeAmmo(getLoadedAmmoType());
-        int type = ConstructFactory.serializeType(this);
+        Integer[] rotation = FactorySerialization.serializeRotation(getAim());
+        int ammoType = FactorySerialization.serializeAmmo(getLoadedAmmoType());
+        int type = FactorySerialization.serializeType(this);
         return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo()};
     }
 
@@ -183,7 +184,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         }
 
         PersistentDataContainer container = pivot.getBukkitEntity().getPersistentDataContainer();
-        container.set(new NamespacedKey(plugin, ConstructFactory.getKey()), PersistentDataType.INTEGER_ARRAY,translation);
+        container.set(new NamespacedKey(plugin, FactorySerialization.getKey()), PersistentDataType.INTEGER_ARRAY,translation);
         setChunkLoaded(false);
     }
 
@@ -597,7 +598,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
                 magnitude = (1d/(baseSquared*baseSquared) * magnitude);
                 magnitude *= -magnitude;
-                magnitude += + 1;
+                magnitude += 1;
 
                 magnitude = Math.max(0, magnitude);
                 if (magnitude == 0)
