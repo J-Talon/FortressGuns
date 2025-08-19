@@ -30,8 +30,8 @@ public class CRAM extends Artillery implements AutoTracking {
     private static double maxHealth;
     private Entity target;
 
-    public CRAM(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public CRAM(Location loc, World world, EulerAngle aim) {
+        super(loc, world,aim);
         aiming = false;
         this.target = null;
 

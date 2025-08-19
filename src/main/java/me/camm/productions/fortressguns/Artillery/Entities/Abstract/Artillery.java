@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
@@ -22,7 +21,6 @@ import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
@@ -310,7 +308,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
 
-    ///called every tick when the player is riding
+    //called every tick when the player is riding
     public void rideTick(EntityHuman human) {
         pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
         double x, y;
@@ -401,7 +399,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             return;
 
         if (isInvalid()) {
-            remove(false, true);
+            destroy(false, true);
             dead = true;
             return;
         }
@@ -640,7 +638,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
 
-
+        dead = true;
         List<ArtilleryPart> components = getParts();
         try {
             components.forEach(Entity::die);
@@ -661,15 +659,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         if (dropItem) {
             ConstructItemHelper.packageArtillery(this);
         }
-
     }
-
-    public final synchronized void remove(boolean dropItem, boolean exploded) throws IllegalStateException
-    {
-        handler.remove(occupiedChunks, this);
-        destroy(dropItem, exploded);
-    }
-
 
     public ArtilleryCore getPivot(){
         return pivot;
@@ -744,7 +734,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
         setHealth(this.health - damage);
         if (health <= 0) {
-            remove(false, true);
+            destroy(false, true);
             return false;
         }
         return true;

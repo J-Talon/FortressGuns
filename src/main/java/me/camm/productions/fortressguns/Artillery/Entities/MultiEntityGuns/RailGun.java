@@ -7,7 +7,7 @@ import org.bukkit.World;
 import org.bukkit.util.EulerAngle;
 
 public class RailGun extends HeavyArtillery implements Tuneable {
-    public RailGun(Location loc, World world, ChunkLoader loader, EulerAngle aim) {
-        super(loc, world, loader, aim);
+    public RailGun(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
     }
 }

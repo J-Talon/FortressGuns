@@ -226,7 +226,7 @@ public abstract class RapidFire extends ArtilleryRideable {
             return;
 
         if (isInvalid()) {
-            remove(false, true);
+            destroy(false, true);
             dead = true;
             return;
         }

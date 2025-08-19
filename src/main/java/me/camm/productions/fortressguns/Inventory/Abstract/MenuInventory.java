@@ -34,7 +34,7 @@ public abstract class MenuInventory extends PanelInventory {
    protected static MenuFunction disassemble = new MenuFunction() {
         @Override
         public void onEvent(InventoryClickEvent event, Construct body) {
-            ((Artillery)body).remove(true,false);
+            ((Artillery)body).destroy(true,false);
             event.getWhoClicked().closeInventory();
         }
     };

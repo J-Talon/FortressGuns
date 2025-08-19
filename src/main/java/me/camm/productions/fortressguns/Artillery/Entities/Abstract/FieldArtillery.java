@@ -72,7 +72,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
     public synchronized void fire(@Nullable Player shooter)
     {
         if (isInvalid()) {
-            remove(false, true);
+            destroy(false, true);
             return;
         }
 
