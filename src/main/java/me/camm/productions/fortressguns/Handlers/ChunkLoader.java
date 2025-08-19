@@ -121,8 +121,17 @@ public class ChunkLoader implements Listener
         updateWorldEntries(name);
 
         Set<ChunkTicket> tickets = pieces.get(world.getName()).update(chunk.getX(), chunk.getZ(),true);
-        if (tickets == null)
+        if (tickets == null) {
+
+            //todo
+            ///////
+        //the seagull
+            if (chunk.getX() == 12 && chunk.getZ() == 57) {
+                System.out.println("chunk was null");
+            }
+
             return;
+        }
 
         for (ChunkTicket ticket: tickets) {
             Construct struct = ticket.getConstruct();
@@ -147,7 +156,8 @@ public class ChunkLoader implements Listener
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        pieces.get(worldName).update(x, z,false);
+        //remove fully unloaded
+       //pieces.get(worldName).update(x, z,false); < hold off on this
 
 
         Set<ChunkTicket> tickets = activeConstructs.get(worldName).unloadReturnIntermediate(x,z);
@@ -214,16 +224,13 @@ public class ChunkLoader implements Listener
         if (data == null || data.length == 0)
             return null;
 
-        int[] copy = new int[data.length-1];
-        System.arraycopy(data,1,copy,0,copy.length);
-
         ConstructType type = FactorySerialization.deserializeType(data[0]);
         if (type == null)
             return null;
 
         ConstructFactory<?> factory = type.getFactory();
         System.out.println("Deserializing cons");
-        return factory.create(loc,copy);
+        return factory.create(loc,data);
 
     }
 

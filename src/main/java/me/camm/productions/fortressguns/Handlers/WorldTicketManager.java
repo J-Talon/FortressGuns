@@ -105,11 +105,10 @@ public class WorldTicketManager {
             return null;
 
         Set<ChunkTicket> thresholdChunks = new HashSet<>();
-        System.out.println("imm - "+ticketSet.size());
 
         Iterator<ChunkTicket> iter = ticketSet.iterator();
 
-
+        System.out.println("Unload immed chunk: "+x+" "+z);
         while (iter.hasNext()) {
             ChunkTicket ticket = iter.next();
 

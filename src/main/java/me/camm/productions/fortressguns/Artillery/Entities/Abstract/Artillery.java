@@ -167,6 +167,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         Integer[] rotation = FactorySerialization.serializeRotation(getAim());
         int ammoType = FactorySerialization.serializeAmmo(getLoadedAmmoType());
         int type = FactorySerialization.serializeType(this);
+        System.out.println("serialized rotation: "+rotation[0]+" "+rotation[1] +" "+rotation[2]);
         return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo()};
     }
 
@@ -523,6 +524,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     // is actually created when the spawnParts method is called, and loaded into the world (drawn) when loadPieces() is called
     public final boolean spawn() {
         dead = false;
+
+        System.out.println("rotation: "+aim.getX()+" "+aim.getY()+" "+aim.getZ());
 
         boolean spawnedSuccess = instantiateParts();
         if (spawnedSuccess) {
