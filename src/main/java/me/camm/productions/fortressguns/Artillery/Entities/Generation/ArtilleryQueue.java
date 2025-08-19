@@ -38,14 +38,14 @@ public class ArtilleryQueue {
 
             if (!a.chunkLoaded()) {
                 artillery[index] = null;
-                caller.sendMessage("The artillery at "+a.getLoc().toString()+" " +
+                caller.sendMessage("The artillery at "+a.getInitialLocation().toString()+" " +
                         "is unloaded and cannot perform that action.");
                 continue;
             }
 
             if (a instanceof Rideable && ((Rideable) a).hasRider()) {
                 artillery[index] = null;
-                caller.sendMessage("The artillery at "+a.getLoc().toString()+" " +
+                caller.sendMessage("The artillery at "+a.getInitialLocation().toString()+" " +
                         "has an operator and cannot perform that action.");
                 continue;
             }

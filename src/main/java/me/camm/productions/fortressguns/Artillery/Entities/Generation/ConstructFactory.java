@@ -31,12 +31,13 @@ public abstract class ConstructFactory<T extends Construct> {
 
     public abstract @Nullable T create(Location loc, int ... params);
 
+    static final int ROTATION_MIN = 3;
 
     static class FactoryHeavyArtillery extends ConstructFactory<HeavyArtillery> {
 
         public HeavyArtillery create(Location loc, int... params) {
 
-            if (params.length < 4)
+            if (params.length < ROTATION_MIN)
                 return null;
 
             HeavyArtillery artillery = new HeavyArtillery(loc, loc.getWorld(),deserializeRotation(params));
@@ -49,7 +50,7 @@ public abstract class ConstructFactory<T extends Construct> {
     static class FactoryHeavyFlak extends ConstructFactory<HeavyFlak> {
 
         public HeavyFlak create(Location loc, int... params) {
-            if (params.length < 4)
+            if (params.length < ROTATION_MIN)
                 return null;
 
             HeavyFlak artillery = new HeavyFlak(loc, loc.getWorld(), deserializeRotation(params));
@@ -60,7 +61,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
     static class FactoryHMG extends ConstructFactory<HeavyMachineGun> {
         public HeavyMachineGun create(Location loc, int... params) {
-            if (params.length < 4) {
+            if (params.length < ROTATION_MIN) {
                 return null;
             }
 
@@ -72,7 +73,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
     static class FactoryLightFlak extends ConstructFactory<LightFlak> {
         public LightFlak create(Location loc, int... params) {
-            if (params.length < 4) {
+            if (params.length < ROTATION_MIN) {
                 return null;
             }
 
@@ -84,7 +85,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
     static class FactoryMissileLauncher extends ConstructFactory<MissileLauncher> {
         public MissileLauncher create(Location loc, int... params) {
-            if (params.length < 4) {
+            if (params.length < ROTATION_MIN) {
                 return null;
             }
 
@@ -96,7 +97,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
     static class FactoryLightArtillery extends ConstructFactory<LightArtillery> {
         public LightArtillery create(Location loc, int... params) {
-            if (params.length < 4) {
+            if (params.length < ROTATION_MIN) {
                 return null;
             }
 

@@ -51,6 +51,11 @@ public class ChunkTicket {
         return construct;
     }
 
-
-
+    public String chunkString() {
+        String values = "";
+        for (Tuple2<Integer, Integer> tup: chunks) {
+            values += "("+tup.getA()+", "+tup.getB()+")";
+        }
+        return values;
+    }
 }

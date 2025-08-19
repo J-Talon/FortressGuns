@@ -7,7 +7,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
@@ -209,7 +208,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
     @Override
     protected boolean instantiateParts() {
-        pivot = StandHelper.createCore(loc.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
+        pivot = StandHelper.createCore(initialLocation.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
@@ -217,7 +216,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         if (health <= 0)
             setHealth(maxHealth);
-        calculateLoadedChunks();
+        calculateOccupiedChunks();
 
         return true;
     }
@@ -251,7 +250,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         Location nextStemLoc;
         for (int slot = 0; slot < stem.length; slot ++) {
-            nextStemLoc = loc.clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
+            nextStemLoc = initialLocation.clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
             stem[slot] = StandHelper.createInvisiblePart(nextStemLoc, BODY, horizontal,world, this);
 
             if (stem[slot] == null)

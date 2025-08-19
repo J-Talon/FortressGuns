@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
@@ -354,17 +355,23 @@ public class InteractionHandler implements Listener
         int x = (int)(Math.toRadians(nms.getXRot()) * 100);
         int z = (int)(Math.toRadians(nms.getHeadRotation()) * 100);
 
+        //temporary
         ConstructFactory<? extends Construct> factory = type.getFactory();
-        Construct cons = factory.create(player.getLocation().add(0,-0.6,0), x,z, 0);
+        Construct cons = factory.create(player.getLocation().add(0,-0.6,0), type.ordinal(),x,z, 0);
 
         if (cons != null) {
             boolean success = cons.spawn();
+            System.out.println("construct chunk size: "+cons.getOccupiedChunks().size());
             if (!success) {
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this artillery.");
             }
             else {
+                handler.addActiveTicket(handler.createTicket(cons.getOccupiedChunks(),cons,player.getWorld()),player.getWorld());
                 player.playSound(player.getLocation(),Sound.BLOCK_ANVIL_PLACE,1,1);
             }
+        }
+        else {
+            player.sendMessage(ChatColor.RED+"[!] Unable to create artillery. This is probably a bug.");
         }
 
 

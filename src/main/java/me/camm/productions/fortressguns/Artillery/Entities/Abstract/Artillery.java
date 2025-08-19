@@ -1,7 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
@@ -67,7 +66,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected volatile double health;//--
     private final Set<Chunk> occupiedChunks;//
 
-    protected Location loc; //
+    protected Location initialLocation; //
     protected World world;//
 
     protected boolean dead;//
@@ -139,7 +138,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     public Artillery(Location loc, World world, EulerAngle aim) {
 
         this.plugin = FortressGuns.getInstance();
-        this.loc = loc;
+        this.initialLocation = loc;
         this.world = world;
         this.lastFireTime = System.currentTimeMillis();
 
@@ -284,8 +283,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return aim;
     }
 
-    public Location getLoc(){
-        return loc;
+    public Location getInitialLocation(){
+        return initialLocation;
     }
 
     public ArtilleryPart[][] getBase() {
@@ -524,11 +523,12 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     // is actually created when the spawnParts method is called, and loaded into the world (drawn) when loadPieces() is called
     public final boolean spawn() {
         dead = false;
-        loaded = true;
 
         boolean spawnedSuccess = instantiateParts();
-        if (spawnedSuccess)
+        if (spawnedSuccess) {
+            setChunkLoaded(true);
             spawnPieces();
+        }
 
         //see entity.inBlock()
         /*
@@ -591,7 +591,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                 if (observer.getVehicle() != null)
                     continue;
 
-                double magnitude = observer.getLocation().distanceSquared(getLoc());
+                double magnitude = observer.getLocation().distanceSquared(getInitialLocation());
                 double baseSquared = getBaseLength();
                 baseSquared *= baseSquared;
                 baseSquared *= 1.25;
@@ -765,7 +765,7 @@ see: loadPieces()
 
     //this should only be necessary when updating where we are on file write/read.
     //basically this is only required when unloading / loading
-    protected final void calculateLoadedChunks(){
+    public void calculateOccupiedChunks(){
         double totalDistanceBarrel = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (barrel.length * SMALL_BLOCK_LENGTH);
         double totalDistanceBase = getBaseLength();
 
@@ -775,7 +775,7 @@ see: loadPieces()
 
 
         double circle = Math.PI * 2;
-        Location loc = pivot.getLocation(world).clone();
+        Location loc = getInitialLocation();
 
         for (double rads=0;rads < circle;rads+= Math.PI/4) {
 

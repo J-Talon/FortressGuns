@@ -7,7 +7,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.world.entity.Entity;
@@ -70,7 +69,7 @@ public class CRAM extends Artillery implements AutoTracking {
 
     @Override
     protected boolean instantiateParts() {
-        pivot = StandHelper.createCore(loc,new ItemStack(Material.STONE),aim,world,this);
+        pivot = StandHelper.createCore(initialLocation,new ItemStack(Material.STONE),aim,world,this);
         return true;
     }
 

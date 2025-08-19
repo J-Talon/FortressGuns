@@ -67,6 +67,9 @@ public class FactorySerialization {
         return new Integer[]{serializeRotation(angle.getX()),serializeRotation(angle.getY()),serializeRotation(angle.getZ())};
     }
 
+
+    //below functions assume that params is everything from the type to ammo and beyond.
+    //[type, rotation x, rotation z, rotation y, ammotype, ammo,...]
     public static EulerAngle deserializeRotation(int...params) {
         return new EulerAngle(deserializeRotation(params[1]),deserializeRotation(params[2]),deserializeRotation(params[3]));
     }

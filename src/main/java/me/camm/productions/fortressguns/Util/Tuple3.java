@@ -24,6 +24,10 @@ public class Tuple3<A,B,C> {
         return c;
     }
 
+
+    //yes I know technically tuples aren't supposed to have a set function
+    //cause they're supposed to be final... so really this should be called a
+    //triplet or something. I'm bad at names so I just call it a tuple.
     public void setA(A a) {
         this.a = a;
     }

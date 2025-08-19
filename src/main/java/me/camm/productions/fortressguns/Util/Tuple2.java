@@ -10,6 +10,9 @@ public class Tuple2<A,B> {
         this.b = b;
     }
 
+    //yes I know technically tuples aren't supposed to have a set function
+    //cause they're supposed to be final... so really this should be called a
+    //duet or something. I'm bad at names so I just call it a tuple.
     public A getA() {
         return a;
     }

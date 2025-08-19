@@ -8,13 +8,20 @@ import java.util.*;
 public class WorldTicketManager {
 
     private final Map<Integer, Map<Integer, Set<ChunkTicket>>> tickets;
+    static int id = 0;
+    String name;
 
-    public WorldTicketManager() {
+    public WorldTicketManager(String name) {
         tickets = new HashMap<>();
+        id ++;
+        this.name = name;
     }
 
 
+
+
     public synchronized void addTicket(ChunkTicket ticket) {
+
         Set<Tuple2<Integer, Integer>> chunks = ticket.getChunks();
         for (Tuple2<Integer, Integer> current: chunks) {
 
@@ -58,6 +65,7 @@ public class WorldTicketManager {
 
         Set<ChunkTicket> thresholdChunks = new HashSet<>();
         Iterator<ChunkTicket> iter = ticketSet.iterator();
+        System.out.println("Updating chunk: "+x+" "+z+" | onload: "+onLoad);
         while (iter.hasNext()) {
             ChunkTicket ticket = iter.next();
 
@@ -97,6 +105,8 @@ public class WorldTicketManager {
             return null;
 
         Set<ChunkTicket> thresholdChunks = new HashSet<>();
+        System.out.println("imm - "+ticketSet.size());
+
         Iterator<ChunkTicket> iter = ticketSet.iterator();
 
 

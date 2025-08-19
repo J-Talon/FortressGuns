@@ -24,7 +24,11 @@ public abstract class Construct {
 
     public abstract void setChunkLoaded(boolean loaded);
 
+    public abstract boolean chunkLoaded();
+
     public abstract Set<Chunk> getOccupiedChunks();
+
+    public abstract void calculateOccupiedChunks();
 
    public abstract void destroy(boolean drop, boolean explode);
     /*

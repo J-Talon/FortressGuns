@@ -6,7 +6,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
@@ -164,7 +163,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     @Override
     protected boolean instantiateParts(){
 
-        pivot = StandHelper.createCore(loc, BARREL_ITEM,aim,world, this);
+        pivot = StandHelper.createCore(initialLocation, BARREL_ITEM,aim,world, this);
         if (pivot == null)
             return false;
 
@@ -187,7 +186,7 @@ public abstract class RapidFire extends ArtilleryRideable {
             return false;
 
 
-        calculateLoadedChunks();
+        calculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
 
@@ -200,7 +199,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     protected boolean spawnBaseParts() {
         ArtilleryPart support;
 
-        support = StandHelper.createVisiblePart(loc.clone().subtract(0,0.5,0),null,new EulerAngle(0,0,0), world,this);
+        support = StandHelper.createVisiblePart(initialLocation.clone().subtract(0,0.5,0),null,new EulerAngle(0,0,0), world,this);
 
         if (support == null)
             return false;

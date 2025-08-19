@@ -91,15 +91,21 @@ public class ChunkLoader implements Listener
             if (struct == null) //
                 continue;
 
+            struct.calculateOccupiedChunks();
             Set<Chunk> requiredChunks = struct.getOccupiedChunks();
 
             int loaded = (int)requiredChunks.stream().filter(Chunk::isLoaded).count();
             if (loaded == requiredChunks.size()) {
-                activeConstructs.get(worldName).addTicket(createTicket(requiredChunks,struct, event.getWorld()));
+                ChunkTicket ticket = createTicket(requiredChunks,struct, event.getWorld());
+                System.out.println("1 - ticket add - AC - "+ticket.chunkString());
+                activeConstructs.get(worldName).addTicket(ticket);
+                entity.remove();
                 struct.spawn();
             }
             else {
-                addLoadingTicket(requiredChunks,event.getWorld(),struct);
+                ChunkTicket ticket = createTicket(requiredChunks,struct,event.getWorld());
+                System.out.println("1 - ticket add - LD - "+ticket.chunkString());
+                addLoadingTicket(ticket, event.getWorld());
             }
         }
     }
@@ -122,6 +128,7 @@ public class ChunkLoader implements Listener
             Construct struct = ticket.getConstruct();
 
             if (struct.getOccupiedChunks().stream().allMatch(Chunk::isLoaded)) {
+                System.out.println("2 - ticket add - AC - "+ticket.chunkString());
                 activeConstructs.get(name).addTicket(ticket);
                 struct.spawn();
             }
@@ -151,13 +158,18 @@ public class ChunkLoader implements Listener
         for (ChunkTicket ticket: tickets) {
             Construct struct = ticket.getConstruct();
 
+            if (!struct.chunkLoaded())
+                continue;
+
             //well this isn't enough - what if not ALL of the required chunks unload?
             //then this really should be added to the tickets instead huh?
             int currentLoaded = (int)struct.getOccupiedChunks().stream().filter(Chunk::isLoaded).count();
             struct.unload();
 
-            if (currentLoaded > 0)
+            if (currentLoaded > 0) {
+                System.out.println("3 - ticket add - LD - "+ticket.chunkString());
                 addLoadingTicket(ticket, world);
+            }
         }
 
         /*
@@ -210,15 +222,9 @@ public class ChunkLoader implements Listener
             return null;
 
         ConstructFactory<?> factory = type.getFactory();
+        System.out.println("Deserializing cons");
         return factory.create(loc,copy);
 
-    }
-
-    //ticket for partially loaded constructs
-    public void addLoadingTicket(Set<Chunk> chunks, World world, Construct struct) {
-        ChunkTicket ticket = createTicket(chunks, struct, world);
-        WorldTicketManager manager = pieces.get(world.getName());
-        manager.addTicket(ticket);
     }
 
     //ticket for partially loaded constructs
@@ -227,14 +233,19 @@ public class ChunkLoader implements Listener
         manager.addTicket(ticket);
     }
 
+    public void addActiveTicket(ChunkTicket ticket, World world) {
+        WorldTicketManager manager = activeConstructs.get(world.getName());
+        manager.addTicket(ticket);
+    }
+
 
     public void updateWorldEntries(String worldName) {
         if (!pieces.containsKey(worldName)) {
-            pieces.put(worldName, new WorldTicketManager());
+            pieces.put(worldName, new WorldTicketManager(worldName));
         }
 
         if (!activeConstructs.containsKey(worldName)) {
-            activeConstructs.put(worldName, new WorldTicketManager());
+            activeConstructs.put(worldName, new WorldTicketManager(worldName));
         }
 
     }
