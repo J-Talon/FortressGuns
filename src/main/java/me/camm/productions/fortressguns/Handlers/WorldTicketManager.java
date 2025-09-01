@@ -78,9 +78,6 @@ public class WorldTicketManager {
 
 
     //returns constructs which are fully loaded or unloaded after updating them
-    /*
-    I think the issue resides here somewhere...
-     */
     public synchronized Set<ChunkTicket> update(int x, int z, boolean onLoad) {
 
         Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.getOrDefault(x, null);
@@ -112,31 +109,6 @@ public class WorldTicketManager {
         return thresholdChunks;
     }
 
-
-    public synchronized Set<ChunkTicket> unloadReturnIntermediate(int x, int z) {
-        Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.getOrDefault(x, null);
-        if (innerMap == null)
-            return null;
-
-        Map<UUID,ChunkTicket> ticketSet = innerMap.getOrDefault(z, null);
-        if (ticketSet == null)
-            return null;
-
-        Set<ChunkTicket> thresholdChunks = new HashSet<>();
-
-        for (ChunkTicket ticket : ticketSet.values()) {
-            //if some or all of the chunks are unloaded
-            if (ticket.onUnload() || ticket.allUnloaded()) {
-                thresholdChunks.add(ticket);
-            }
-        }
-
-        for (ChunkTicket ticket : thresholdChunks) {
-            removeTicket(ticket);
-        }
-
-        return thresholdChunks;
-    }
 
 
     public synchronized Set<ChunkTicket> getActiveTickets() {

@@ -94,7 +94,7 @@ public class ChunkLoader implements Listener
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
         if (tickets != null) {
             for (ChunkTicket ticket : tickets) {
-                System.out.println("update finalize load: " + ticket.chunkString());
+                //System.out.println("update finalize load: " + ticket.chunkString());
                 ticket.onFinalizeLoad();
             }
         }
@@ -119,7 +119,7 @@ public class ChunkLoader implements Listener
 
             int loaded = (int)loadedChunks.stream().filter(Chunk::isLoaded).count();
             if (loaded == loadedChunks.size()) {
-                System.out.println("discover: spawn "+x+" "+z);
+               // System.out.println("discover: spawn "+x+" "+z);
                 struct.spawn();
                 entity.remove();
             }
@@ -127,7 +127,7 @@ public class ChunkLoader implements Listener
                 //0 because the chunk is already loaded
              ChunkTicket ticket = createTicket(loadedChunks,struct,world,entity,0);
              addLoadingTicket(ticket, world);
-             System.out.println("discover - add ticket: "+ticket.chunkString());
+            // System.out.println("discover - add ticket: "+ticket.chunkString());
             }
         }
     }
@@ -145,12 +145,12 @@ public class ChunkLoader implements Listener
         int z = chunk.getZ();
 
 
-        Set<ChunkTicket> tickets = managerUpdate(world.getName(), x, z, false);
-        if (tickets != null) {
-            for (ChunkTicket ticket : tickets) {
-                System.out.println("unload update: " + ticket.chunkString());
-            }
-        }
+       managerUpdate(world.getName(), x, z, false);
+//        if (tickets != null) {
+//            for (ChunkTicket ticket : tickets) {
+//                System.out.println("unload update: " + ticket.chunkString());
+//            }
+//        }
 
         NamespacedKey key = new NamespacedKey(FortressGuns.getInstance(),FactorySerialization.getKey());
 
@@ -170,7 +170,7 @@ public class ChunkLoader implements Listener
             Construct struct = component.getBody();
             struct.recalculateOccupiedChunks();
             Set<Chunk> chunks = struct.getOccupiedChunks();
-            System.out.println("chunk size: "+chunks.size());
+            //System.out.println("chunk size: "+chunks.size());
 
             Entity pivot = struct.getCoreEntity();
 
@@ -183,7 +183,7 @@ public class ChunkLoader implements Listener
             //-1 because this chunk will be unloaded.
             ChunkTicket ticket = createTicket(chunks, struct, world, pivot, -1);
 
-            System.out.println("adding loading ticket for: "+ticket.chunkString());
+           // System.out.println("adding loading ticket for: "+ticket.chunkString());
             addLoadingTicket(ticket,world);
         }
 
@@ -225,7 +225,7 @@ public class ChunkLoader implements Listener
             return null;
 
         ConstructFactory<?> factory = type.getFactory();
-        System.out.println("Deserializing cons");
+        //System.out.println("Deserializing cons");
         return factory.create(loc,data);
 
     }
