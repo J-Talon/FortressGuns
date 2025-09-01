@@ -28,9 +28,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class ArtilleryPart extends Component
+public class ArtilleryPart extends ComponentAS
 {
     protected Artillery body;
     public ArtilleryPart(World world, Artillery body, double d0, double d1, double d2) {
@@ -63,17 +64,20 @@ public class ArtilleryPart extends Component
             }
 
             EntityHuman human = ((EntityHuman)entity);
-            List<Entity> riders;
+            List<org.bukkit.entity.Entity> riders = new ArrayList<>();
 
 
-            if (body instanceof Rideable) {
-                riders = ((Rideable) body).getSeat().getPassengers();
+            if (body instanceof Rideable rideable) {
+                List<Entity> nmsRiders = rideable.getSeat().getPassengers();
+                for (Entity nms: nmsRiders) {
+                    riders.add(nms.getBukkitEntity());
+                }
             }
-            else riders = body.getPivot().getPassengers();
+            else riders = body.getCoreEntity().getPassengers();
 
 
             if (!riders.isEmpty()) {
-                Entity e = riders.get(0);
+                org.bukkit.entity.Entity e = riders.get(0);
                 if (human.equals(e))
                     return false;
             }
@@ -148,7 +152,7 @@ public class ArtilleryPart extends Component
             return;
         }
 
-        Component seat = rideable.getSeat();
+        ComponentAS seat = rideable.getSeat();
         Player bukkit = (CraftPlayer)human.getBukkitEntity();
 
         if (seat == null) {
@@ -231,7 +235,7 @@ public class ArtilleryPart extends Component
                     return EnumInteractionResult.b;
                 }
 
-                Component seat = ((Rideable) body).getSeat();
+                ComponentAS seat = ((Rideable) body).getSeat();
 
                 List<Entity> pass = seat.getPassengers();
                 if (pass.isEmpty())
@@ -256,7 +260,7 @@ public class ArtilleryPart extends Component
 
         //basically if they are riding then don't try to seat them again
         if (arty instanceof Rideable ride) {
-            Component seat = ride.getSeat();
+            ComponentAS seat = ride.getSeat();
             List<Entity> riders = seat.getPassengers();
 
             if (!riders.isEmpty() && riders.get(0).equals(human)) {

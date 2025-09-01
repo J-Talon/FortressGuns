@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -176,7 +176,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
     }
 
     @Override
-    public Component getSeat() {
+    public ComponentAS getSeat() {
         return rotatingSeat;
     }
 
@@ -219,7 +219,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         }
 
         //for the base of the artillery
-        calculateOccupiedChunks();
+        recalculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
 

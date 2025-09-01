@@ -1,11 +1,15 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Property;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import net.minecraft.world.entity.player.EntityHuman;
+import org.bukkit.entity.Entity;
+
+import java.util.List;
 
 public interface Rideable {
 
-    Component getSeat();
+    ComponentAS getSeat();
+
     void positionSeat();
 
     boolean hasRider();

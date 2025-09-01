@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import org.bukkit.Chunk;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -28,9 +29,14 @@ public abstract class Construct {
 
     public abstract Set<Chunk> getOccupiedChunks();
 
-    public abstract void calculateOccupiedChunks();
+    public abstract Chunk getInitialChunk();
+
+    public abstract void recalculateOccupiedChunks();
+
+    public abstract Entity getCoreEntity();
 
    public abstract void destroy(boolean drop, boolean explode);
+
     /*
  In unloaded state, only core should remain with the PDC
  When construct is loaded from unloaded state, remove the old core.

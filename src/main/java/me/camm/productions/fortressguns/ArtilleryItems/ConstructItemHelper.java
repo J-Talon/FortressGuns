@@ -8,6 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
@@ -159,7 +161,7 @@ public class ConstructItemHelper
 
     public static void packageArtillery(Artillery artillery) throws IllegalStateException {
 
-        ArtilleryCore pivot = artillery.getPivot();
+        ArmorStand pivot = (ArmorStand)artillery.getCoreEntity();
         Location loc = pivot.getEyeLocation();
 
         World bukkit = artillery.getWorld();

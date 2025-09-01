@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
@@ -186,7 +186,7 @@ public abstract class RapidFire extends ArtilleryRideable {
             return false;
 
 
-        calculateOccupiedChunks();
+        recalculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
 
@@ -211,7 +211,7 @@ public abstract class RapidFire extends ArtilleryRideable {
         return true;
     }
 
-    public Component getSeat(){
+    public ComponentAS getSeat(){
         return rotatingSeat;
     }
 

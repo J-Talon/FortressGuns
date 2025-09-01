@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
+
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
@@ -26,6 +27,7 @@ import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -167,7 +169,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         Integer[] rotation = FactorySerialization.serializeRotation(getAim());
         int ammoType = FactorySerialization.serializeAmmo(getLoadedAmmoType());
         int type = FactorySerialization.serializeType(this);
-        System.out.println("serialized rotation: "+rotation[0]+" "+rotation[1] +" "+rotation[2]);
         return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo()};
     }
 
@@ -558,7 +559,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
     protected void vibrateParticles() {
-        ArtilleryCore core = this.getPivot();
+        ArmorStand core = (ArmorStand) this.getCoreEntity();
         Location loc = core.getEyeLocation();
         Location initial = loc.clone().add(0,-LARGE_BLOCK_LENGTH,0);
 
@@ -665,10 +666,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         }
     }
 
-    public ArtilleryCore getPivot(){
-        return pivot;
+    public org.bukkit.entity.Entity getCoreEntity(){
+        return pivot.getBukkitEntity();
     }
-
 
 
     public final void createFlash(Location origin) {
@@ -719,22 +719,23 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return occupiedChunks;
     }
 
+
     public boolean damage(DamageSource source, float damage){
 
         if (source.isExplosion()) {
-            damage *= DamageMultiplier.EXPLOSION.multiplier;
+            damage *= (float) DamageMultiplier.EXPLOSION.multiplier;
         }
         else if (source.isFire()) {
-            damage *= DamageMultiplier.FIRE.multiplier;
+            damage *= (float) DamageMultiplier.FIRE.multiplier;
         }
         else if (source instanceof GunSource) {
-            damage *= DamageMultiplier.GUN.multiplier;
+            damage *= (float) DamageMultiplier.GUN.multiplier;
         }
         else if (source.isMagic()) {
-            damage *= DamageMultiplier.MAGIC.multiplier;
+            damage *= (float) DamageMultiplier.MAGIC.multiplier;
         }
         else
-             damage *= DamageMultiplier.DEFAULT.multiplier;
+             damage *= (float) DamageMultiplier.DEFAULT.multiplier;
 
         setHealth(this.health - damage);
         if (health <= 0) {
@@ -768,7 +769,9 @@ see: loadPieces()
 
     //this should only be necessary when updating where we are on file write/read.
     //basically this is only required when unloading / loading
-    public void calculateOccupiedChunks(){
+    @Override
+    public void recalculateOccupiedChunks(){
+        occupiedChunks.clear();
         double totalDistanceBarrel = (LARGE_BLOCK_LENGTH * 0.75 + 0.5 * SMALL_BLOCK_LENGTH) + (barrel.length * SMALL_BLOCK_LENGTH);
         double totalDistanceBase = getBaseLength();
 
@@ -789,6 +792,11 @@ see: loadPieces()
             Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
             occupiedChunks.add(chunk);
         }
+    }
+
+    @Override
+    public Chunk getInitialChunk() {
+        return world.getChunkAt(initialLocation.getBlockX() >> 4, initialLocation.getBlockZ() >> 4);
     }
 
 

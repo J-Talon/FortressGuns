@@ -2,8 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.EulerAngle;
@@ -32,7 +31,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
 
     @Override
-    public Component getSeat() {
+    public ComponentAS getSeat() {
         return rotatingSeat;
     }
 
@@ -49,7 +48,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     }
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
-    protected void posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
+    protected void posSeatAbsoluteHorizon(ComponentAS seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
 
 
         EulerAngle aim = this.getAim();
@@ -71,7 +70,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
         double seatAngle = angle + getAim().getY(); //get 90* offset
         double seatDistance = getBaseLength()*0.25;  //0.25 is for distance. arbitrary
 
-        Location center = getPivot().getLocation(getWorld());
+        Location center = getCoreEntity().getLocation();
 
         double seatZ = seatDistance*Math.cos(seatAngle);
         double seatX = -seatDistance*Math.sin(seatAngle);

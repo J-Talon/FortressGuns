@@ -5,11 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
@@ -147,7 +146,7 @@ public class InteractionHandler implements Listener
 
         Entity nms = ((CraftEntity)vehicle).getHandle();
 
-        if (!(nms instanceof Component)) {
+        if (!(nms instanceof ComponentAS)) {
             time = updateSetting(time, dir, id);
             notifySettingChange(time, player);
             return;
@@ -209,10 +208,10 @@ public class InteractionHandler implements Listener
         //so we dismount them first.
        Entity nms = ((CraftEntity)riding).getHandle();
        EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-       if (nms instanceof Component) {
+       if (nms instanceof ComponentAS) {
            nmsPlayer.stopRiding();
 
-           Construct cons = ((Component) nms).getBody();
+           Construct cons = ((ComponentAS) nms).getBody();
 
            if (cons instanceof Rideable) {
                ((Rideable) cons).onDismount();
@@ -238,11 +237,11 @@ public class InteractionHandler implements Listener
             Entity nms = ((CraftEntity)ride).getHandle();
 
 
-            if (!(nms instanceof Component)) {
+            if (!(nms instanceof ComponentAS)) {
                 return;
             }
 
-            Construct cons = ((Component) nms).getBody();
+            Construct cons = ((ComponentAS) nms).getBody();
 
             if (!(cons instanceof ArtilleryRideable rideable)) {
                 return;
@@ -366,7 +365,6 @@ public class InteractionHandler implements Listener
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this artillery.");
             }
             else {
-                handler.addActiveTicket(handler.createTicket(cons.getOccupiedChunks(),cons,player.getWorld()),player.getWorld());
                 player.playSound(player.getLocation(),Sound.BLOCK_ANVIL_PLACE,1,1);
             }
         }
@@ -389,11 +387,11 @@ public class InteractionHandler implements Listener
         org.bukkit.entity.Entity mount = event.getDismounted();
         Entity nms  = ((CraftEntity)mount).getHandle();
 
-        if (!(nms instanceof Component)) {
+        if (!(nms instanceof ComponentAS)) {
             return;
         }
 
-        Construct cons = ((Component) nms).getBody();
+        Construct cons = ((ComponentAS) nms).getBody();
 
         if (cons instanceof Rideable) {
             ((Rideable) cons).onDismount();

@@ -111,7 +111,7 @@ This method is called in a loop. You can think of it as being called many times 
 
        Location target = this.target.getBukkitEntity().getBoundingBox().getCenter().toLocation(world);
 
-        Location piv = getPivot().getLocation(world);
+        Location piv = getCoreEntity().getLocation();
 
         if (!world.equals(target.getWorld())) {
             aiming = false;

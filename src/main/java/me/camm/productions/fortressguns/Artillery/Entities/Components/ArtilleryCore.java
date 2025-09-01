@@ -66,7 +66,7 @@ public class ArtilleryCore extends ArtilleryPart {
 
         Artillery arty = getBody();
         if (arty instanceof Rideable ride) {
-            Component seat = ride.getSeat();
+            ComponentAS seat = ride.getSeat();
             List<Entity> riders = seat.getPassengers();
 
             if (!riders.isEmpty() && riders.get(0).equals(human)) {

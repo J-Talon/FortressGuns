@@ -216,7 +216,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         if (health <= 0)
             setHealth(maxHealth);
-        calculateOccupiedChunks();
+        recalculateOccupiedChunks();
 
         return true;
     }
