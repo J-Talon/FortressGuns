@@ -237,7 +237,7 @@ public class HeavyMachineGun extends RapidFire {
     }
 
     private boolean canFireSingle() {
-        return (getAmmo() > 0 ||!requiresReloading()) && !isJammed();
+        return (getAmmo() > 0 ||!requiresReloading()) && loadedAmmoType != null && !isJammed();
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class FortressGuns extends JavaPlugin implements Listener {
 
     private static FortressGuns plugin;
+    private InteractionHandler interactionHandler;
 
     public static Plugin getInstance(){
       return plugin;
@@ -33,13 +34,13 @@ public final class FortressGuns extends JavaPlugin implements Listener {
     public void onEnable() {
       plugin = this;
       FileManager.loadArtilleryConfig();
+      interactionHandler = new InteractionHandler();
 
       PluginManager manager = getServer().getPluginManager();
-      manager.registerEvents(new InteractionHandler(),this);
+      manager.registerEvents(interactionHandler,this);
       manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(this, this);
       manager.registerEvents(ItemMergeHandler.getInstance(),this);
-
     }
 
     ///temporary
@@ -64,6 +65,7 @@ public final class FortressGuns extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         MissileLockNotifier.get(this).stop();
+        interactionHandler.onShutdown();
     }
 
 

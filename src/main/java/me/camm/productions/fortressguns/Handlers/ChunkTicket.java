@@ -13,9 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChunkTicket {
 
     private final Construct construct;
-    Set<Tuple2<Integer, Integer>> chunks;
-    final World world;
-    final Chunk coreChunk;
+    private final Set<Tuple2<Integer, Integer>> chunks;
+    private final Chunk coreChunk;
     private final Entity pdc;
 
 
@@ -23,38 +22,37 @@ public class ChunkTicket {
     AtomicInteger currentLoaded;
 
 
-    public ChunkTicket(Set<Tuple2<Integer, Integer>> chunks, int loaded, World world, Construct construct, Entity pdc) {
+    public ChunkTicket(Set<Tuple2<Integer, Integer>> chunks, int loaded, Construct construct, Entity pdc) {
         this.construct = construct;
         this.chunks = chunks;
-        this.world = world;
         numChunks = chunks.size();
         currentLoaded = new AtomicInteger(loaded);
         coreChunk = construct.getInitialChunk();
         this.pdc = pdc;
     }
-
+/// //todo
     //return: true -> spawn construct
     //        false -> do not spawn yet
     public synchronized boolean onLoad() {
+        return currentLoaded.updateAndGet((value) -> {
+            return Math.min(value + 1, numChunks);
+        }) > numChunks;
 
-        currentLoaded.updateAndGet((value) -> {
-            return Math.min(value, numChunks);
-        });
-        return currentLoaded.incrementAndGet() >= numChunks;
     }
 
 
     //return: true -> keep ticket active
     //        false -> remove ticket
     public synchronized boolean onUnload() {
+
+        int val = currentLoaded.updateAndGet((value) -> {
+            return Math.max(0, value - 1);
+        });
+
         if (!coreChunk.isLoaded()) {
-            currentLoaded.updateAndGet((value) -> {
-                return Math.max(0, value - 1);
-            });
             return false;
         }
-        else
-            return currentLoaded.decrementAndGet() > 0;
+        return val > 0;
     }
 
     public synchronized boolean allUnloaded() {
@@ -76,6 +74,14 @@ public class ChunkTicket {
         return construct;
     }
 
+    public UUID getUUID() {
+        return construct.getUUID();
+    }
+
+    public int getCurrentValue() {
+        return currentLoaded.get();
+    }
+
     public String chunkString() {
         String values = "|";
         for (Tuple2<Integer, Integer> tup: chunks) {
@@ -85,7 +91,12 @@ public class ChunkTicket {
         return values;
     }
 
-    public UUID getUUID() {
-        return pdc.getUniqueId();
+    private void update(int src) {
+        System.out.println("=>=");
+        System.out.println("src: "+src);
+        System.out.println("chunk ticket update: "+pdc.getUniqueId() +" "+pdc.getLocation());
+        System.out.println("coords:"+chunkString());
+        System.out.println("val: "+getCurrentValue());
+        System.out.println("=<=");
     }
 }

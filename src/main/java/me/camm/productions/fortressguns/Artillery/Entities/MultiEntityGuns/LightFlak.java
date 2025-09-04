@@ -244,7 +244,7 @@ public class LightFlak extends RapidFire {
     }
 
     public boolean canFireSingle() {
-        return (ammo > 0 || !requiresReloading()) && !isJammed;
+        return (ammo > 0 || !requiresReloading()) && loadedAmmoType != null && !isJammed;
     }
 
     @Override

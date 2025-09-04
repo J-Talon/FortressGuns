@@ -131,7 +131,7 @@ railgun = 150
 
 [general]
 #whether artillery need to reload
-requireReloading = true
+requireReloading = false
 
 #difficulty to dodge missiles. float value from [0-100]
 missileDifficulty = 100

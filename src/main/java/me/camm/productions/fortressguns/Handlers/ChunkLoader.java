@@ -19,6 +19,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
@@ -28,42 +30,19 @@ import java.util.*;
 
 /**
  * @author CAMM
+ *
  */
 
-
-   /*
-   In unloaded state, only core should remain with the PDC
-   When construct is loaded from unloaded state, remove the old core.
-
-   [1]
-   if required chunks are loaded, spawn, else add a chunk ticket to handler
-   which spawns when all chunks loaded.
-
-   then add artillery core to shutdown manager.
-
-   on chunk unload/plugin shutdown
-    - add PDC, unload artillery if it is loaded
-
-    on chunk load/entity load
-    - see [1]
-
-
-   the load function is basically the spawn() function
-
-   handler.addAll(calculatedChunks)
-
-
-    */
-
-
-//consider also doing the portal events here to prevent portals causing dislocation
 public class ChunkLoader implements Listener
 {
     private final static Map<String, WorldTicketManager> pieces;
+    private final static Set<Construct> activePieces;
 
+    private static ChunkLoader loader = null;
 
     static {
       pieces = new HashMap<>();
+      activePieces = new HashSet<>();
     }
 
     @EventHandler
@@ -75,11 +54,19 @@ public class ChunkLoader implements Listener
     }
 
 
+    private ChunkLoader() {}
+
+    public static ChunkLoader getInstance() {
+        if (loader == null)
+            loader = new ChunkLoader();
+        return loader;
+    }
+
 
     //entities loaded = false
     //chunk loaded = true
     @EventHandler
-    public synchronized void onChunkLoad(ChunkLoadEvent event) {
+    public synchronized void onChunkLoad(EntitiesLoadEvent event) {
         World world = event.getWorld();
         Chunk chunk = event.getChunk();
         String name = world.getName();
@@ -87,15 +74,14 @@ public class ChunkLoader implements Listener
         int x = chunk.getX();
         int z = chunk.getZ();
 
-
         updateWorldEntries(name);
-
 
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
         if (tickets != null) {
             for (ChunkTicket ticket : tickets) {
-                //System.out.println("update finalize load: " + ticket.chunkString());
+                System.out.println("update finalize load: " +ticket.getUUID()+ " "+ ticket.chunkString());
                 ticket.onFinalizeLoad();
+                activePieces.add(ticket.getConstruct());
             }
         }
 
@@ -119,15 +105,18 @@ public class ChunkLoader implements Listener
 
             int loaded = (int)loadedChunks.stream().filter(Chunk::isLoaded).count();
             if (loaded == loadedChunks.size()) {
-               // System.out.println("discover: spawn "+x+" "+z);
+                System.out.println("discover: spawn "+x+" "+z +" "+struct.getType());
                 struct.spawn();
                 entity.remove();
+                activePieces.add(struct);
             }
             else {
                 //0 because the chunk is already loaded
-             ChunkTicket ticket = createTicket(loadedChunks,struct,world,entity,0);
+             ChunkTicket ticket = createTicket(loadedChunks,struct,entity,0);
              addLoadingTicket(ticket, world);
-            // System.out.println("discover - add ticket: "+ticket.chunkString());
+
+             System.out.println("discover - add ticket: "+ticket.chunkString()+" "+ticket.getUUID()+" "+ticket.getConstruct().getType());
+
             }
         }
     }
@@ -136,7 +125,7 @@ public class ChunkLoader implements Listener
     //entities loaded = true
     //chunk loaded = true
     @EventHandler
-    public synchronized void onChunkUnload(ChunkUnloadEvent event) {
+    public synchronized void onChunkUnload(EntitiesUnloadEvent event) {
 
         Chunk chunk = event.getChunk();
         World world = event.getWorld();
@@ -146,11 +135,7 @@ public class ChunkLoader implements Listener
 
 
        managerUpdate(world.getName(), x, z, false);
-//        if (tickets != null) {
-//            for (ChunkTicket ticket : tickets) {
-//                System.out.println("unload update: " + ticket.chunkString());
-//            }
-//        }
+
 
         NamespacedKey key = new NamespacedKey(FortressGuns.getInstance(),FactorySerialization.getKey());
 
@@ -168,29 +153,35 @@ public class ChunkLoader implements Listener
             }
 
             Construct struct = component.getBody();
+
+            if (!struct.chunkLoaded())
+                continue;
+
             struct.recalculateOccupiedChunks();
             Set<Chunk> chunks = struct.getOccupiedChunks();
-            //System.out.println("chunk size: "+chunks.size());
 
             Entity pivot = struct.getCoreEntity();
 
+
             struct.unload();
 
-            if (chunks.size() == 1) {
+
+            activePieces.remove(struct);
+
+            if (chunks.stream().filter(Chunk::isLoaded).count() - 1 <= 0)
                 continue;
-            }
 
             //-1 because this chunk will be unloaded.
-            ChunkTicket ticket = createTicket(chunks, struct, world, pivot, -1);
+            ChunkTicket ticket = createTicket(chunks, struct, pivot, -1);
 
-           // System.out.println("adding loading ticket for: "+ticket.chunkString());
+            System.out.println("adding loading ticket for: "+ticket.getUUID()+" "+ticket.chunkString()+" "+ticket.getConstruct().getType());
             addLoadingTicket(ticket,world);
         }
 
     }
 
 
-    public ChunkTicket createTicket(Set<Chunk> chunks, Construct construct, World world, Entity pdc, int offset) {
+    public ChunkTicket createTicket(Set<Chunk> chunks, Construct construct, Entity pdc, int offset) {
         Set<Tuple2<Integer, Integer>> coords = new HashSet<>();
         int loaded = 0;
         for (Chunk chunk: chunks) {
@@ -201,7 +192,7 @@ public class ChunkLoader implements Listener
         }
         loaded += offset;
 
-        return new ChunkTicket(coords,loaded,world,construct, pdc);
+        return new ChunkTicket(coords,loaded,construct, pdc);
     }
 
     public synchronized @Nullable Set<ChunkTicket> managerUpdate(String worldName, int x, int z, boolean onload) {
@@ -225,7 +216,7 @@ public class ChunkLoader implements Listener
             return null;
 
         ConstructFactory<?> factory = type.getFactory();
-        //System.out.println("Deserializing cons");
+        System.out.println("Deserializing cons");
         return factory.create(loc,data);
 
     }
@@ -244,4 +235,16 @@ public class ChunkLoader implements Listener
         }
     }
 
+
+    public static Set<Construct> getActivePieces() {
+        return activePieces;
+    }
+
+    public static void addActivePiece(Construct struct) {
+        activePieces.add(struct);
+    }
+
+    public static void removeActivePiece(Construct struct) {
+        activePieces.remove(struct);
+    }
 }

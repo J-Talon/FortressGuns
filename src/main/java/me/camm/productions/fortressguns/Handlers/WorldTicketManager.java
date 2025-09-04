@@ -1,20 +1,17 @@
 package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Util.Tuple2;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class WorldTicketManager {
 
     private final Map<Integer, Map<Integer, Map<UUID, ChunkTicket>>> tickets;
-    static int id = 0;
-    String name;
+    String worldName;
 
     public WorldTicketManager(String name) {
         tickets = new HashMap<>();
-        id++;
-        this.name = name;
+        this.worldName = name;
     }
 
 
@@ -54,9 +51,12 @@ public class WorldTicketManager {
             int x = chunk.getA();
             int z = chunk.getB();
 
+
+            //outer map
             if (!tickets.containsKey(x)) {
                 continue;
             }
+
             Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.get(x);
             if (!innerMap.containsKey(z)) {
                 continue;
@@ -92,13 +92,12 @@ public class WorldTicketManager {
 
         for (ChunkTicket ticket : ticketSet.values()) {
             if (onLoad) {
-                if (ticket.onLoad()) {
+                if (ticket.onLoad())
                     thresholdChunks.add(ticket);
-                }
+
             } else {
-                if (!ticket.onUnload()) {
+                if (!ticket.onUnload())
                     thresholdChunks.add(ticket);
-                }
             }
         }
 

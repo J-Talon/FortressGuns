@@ -154,7 +154,6 @@ public class MissileLauncher extends ArtilleryRideable {
         Location spawn = shootingPart.getEyeLocation().add(front);
         Location back = backBlast.getEyeLocation().add(front.multiply(-1));
 
-
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
         Artillery construct = this;
 
@@ -415,7 +414,7 @@ public class MissileLauncher extends ArtilleryRideable {
     @Override
     public boolean canFire() {
 
-        if (getAmmo() > 0 || (!requiresReloading()))
+        if (getAmmo() > 0 || (!requiresReloading()) && loadedAmmoType != null)
             return true;
         return System.currentTimeMillis() >= (lastFireTime + cooldown);
     }

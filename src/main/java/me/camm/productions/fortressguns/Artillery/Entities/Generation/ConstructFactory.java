@@ -11,8 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization.deserializeRotation;
-import static me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization.deserializeSetAmmo;
+import static me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization.*;
 
 public abstract class ConstructFactory<T extends Construct> {
 
@@ -20,8 +19,8 @@ public abstract class ConstructFactory<T extends Construct> {
 
     /*
     if you do make this version independent you have 2 choices:
-    - either make a factory for each version or << preferable
-    - make each function work out the version and return the correct version type
+    - either make a factory for each version or
+    - make each function work out the version and return the correct version type < this will probably the thing we do
      */
 
 
@@ -42,6 +41,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
             HeavyArtillery artillery = new HeavyArtillery(loc, loc.getWorld(),deserializeRotation(params));
             deserializeSetAmmo(artillery, params);
+            deserializeSetHealth(artillery,params);
             return artillery;
         }
     }
@@ -55,6 +55,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
             HeavyFlak artillery = new HeavyFlak(loc, loc.getWorld(), deserializeRotation(params));
             deserializeSetAmmo(artillery, params);
+            deserializeSetHealth(artillery,params);
             return artillery;
         }
     }
@@ -67,6 +68,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
             HeavyMachineGun artillery = new HeavyMachineGun(loc, loc.getWorld(), deserializeRotation(params));
             deserializeSetAmmo(artillery, params);
+            deserializeSetHealth(artillery,params);
             return artillery;
         }
     }
@@ -79,6 +81,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
             LightFlak artillery = new LightFlak(loc, loc.getWorld(), deserializeRotation(params));
             deserializeSetAmmo(artillery, params);
+            deserializeSetHealth(artillery,params);
             return artillery;
         }
     }
@@ -91,6 +94,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
             MissileLauncher artillery = new MissileLauncher(loc, loc.getWorld(), deserializeRotation(params));
             deserializeSetAmmo(artillery, params);
+            deserializeSetHealth(artillery,params);
             return artillery;
         }
     }
@@ -103,6 +107,7 @@ public abstract class ConstructFactory<T extends Construct> {
 
             LightArtillery artillery = new LightArtillery(loc, loc.getWorld(), deserializeRotation(params));
             deserializeSetAmmo(artillery, params);
+            deserializeSetHealth(artillery,params);
             return artillery;
         }
     }

@@ -23,6 +23,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
         BORDER = StaticItem.BORDER.toItemRaw();
         LOAD = StaticItem.LOAD_UNLOAD.toItemRaw();
 
+
     }
 
     public BulkLoadingInventory(Artillery owner, InventoryGroup group) {
@@ -60,7 +61,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
                 return;
             }
 
-            ///input == null || input is the same
+            //input == null || input is the same
             int exchange;
             if (input == null) {
                 ItemStack ammoOut = ConstructItemHelper.createAmmoItem(body.getLoadedAmmoType());
@@ -179,7 +180,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             lore = ChatColor.RED+"None";
         }
         else
-            lore = ChatColor.GOLD + ""+item.getName();
+            lore = ChatColor.GOLD+""+item.getName();
 
         return StaticItem.ROUND_SHOWCASE.toItem(ChatColor.WHITE+"Loaded Ammo: "+lore);
     }

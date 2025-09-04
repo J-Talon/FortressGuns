@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import org.bukkit.Chunk;
 
 import org.bukkit.entity.Entity;
@@ -9,17 +10,27 @@ import org.bukkit.util.Vector;
 
 
 import java.util.Set;
+import java.util.UUID;
 
 public abstract class Construct {
 
     protected final static double LARGE_BLOCK_LENGTH = 0.6;
     protected final static double SMALL_BLOCK_LENGTH = 0.4;
 
+    private final UUID id;
+
+    public Construct() {
+        this.id = UUID.randomUUID();
+    }
+
 
 
 
     private static final double RAD = 0.017;
     private static final double FULL_CIRCLE_DEG = 360;
+
+
+
 
     public abstract boolean spawn();
 
@@ -35,7 +46,13 @@ public abstract class Construct {
 
     public abstract Entity getCoreEntity();
 
-   public abstract void destroy(boolean drop, boolean explode);
+   public void destroy(boolean drop, boolean explode) {
+       ChunkLoader.removeActivePiece(this);
+   }
+
+    public abstract double getHealth();
+
+    public abstract void setHealth(double health);
 
     /*
  In unloaded state, only core should remain with the PDC
@@ -62,6 +79,10 @@ public abstract class Construct {
 
    public abstract ConstructType getType();
 
+
+   public UUID getUUID() {
+       return id;
+   }
 
 
     /*
@@ -176,4 +197,7 @@ public abstract class Construct {
         double x = -Math.asin(vec2.getY());
         return new EulerAngle(x, y, 0);
     }
+
+
+
 }

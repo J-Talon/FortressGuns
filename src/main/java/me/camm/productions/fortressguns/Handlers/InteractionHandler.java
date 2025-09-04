@@ -59,9 +59,16 @@ public class InteractionHandler implements Listener
 
 
     public InteractionHandler(){
-        handler = new ChunkLoader();
+        handler = ChunkLoader.getInstance();
         Plugin plugin = FortressGuns.getInstance();
         plugin.getServer().getPluginManager().registerEvents(handler, plugin);
+    }
+
+    public void onShutdown() {
+        ChunkLoader.getActivePieces().forEach(construct -> {
+            if (!construct.isInvalid())
+                construct.unload();
+        });
     }
 
 
@@ -360,7 +367,7 @@ public class InteractionHandler implements Listener
 
         if (cons != null) {
             boolean success = cons.spawn();
-            System.out.println("construct chunk size: "+cons.getOccupiedChunks().size());
+            ChunkLoader.addActivePiece(cons);
             if (!success) {
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this artillery.");
             }

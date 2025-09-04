@@ -169,12 +169,16 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         Integer[] rotation = FactorySerialization.serializeRotation(getAim());
         int ammoType = FactorySerialization.serializeAmmo(getLoadedAmmoType());
         int type = FactorySerialization.serializeType(this);
-        return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo()};
+        int health = FactorySerialization.serializeHealth(getHealth());
+        return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo(), health};
     }
 
 
     @Override
     public void unload() {
+        if (!chunkLoaded())
+            return;
+
         List<ArtilleryPart> parts = getParts();
         parts.remove(pivot);
         parts.forEach(ArtilleryPart::die);
@@ -333,13 +337,22 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         this.interpolating = interpolating;
     }
 
+    public synchronized boolean isInterpolating() {
+        return this.interpolating;
+    }
+
     public void startPivotInterpolation() {
 
         if (interpolating) {
             return;
         }
 
-        interpolating = true;
+        setInterpolating(true);
+
+        ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
+        if (inv != null)
+            inv.updateState();
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -380,10 +393,14 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                     return;
                 }
                 pivot(x,y);
-                ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
+
+            }
+
+            @Override
+            public synchronized void cancel() throws IllegalStateException {
                 if (inv != null)
                     inv.updateState();
-
+                super.cancel();
             }
         }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
 
@@ -664,6 +681,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         if (dropItem) {
             ConstructItemHelper.packageArtillery(this);
         }
+
+        super.destroy(dropItem, exploded);
     }
 
     public org.bukkit.entity.Entity getCoreEntity(){
@@ -749,11 +768,11 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
        world.playSound(part.getLocation(world),part.getSoundHurt(), SoundCategory.BLOCKS,1,1);
     }
 
-     public double getHealth(){
+    public double getHealth(){
         return health;
-     }
+    }
 
-    public final synchronized void setHealth(double health){
+    public synchronized void setHealth(double health){
         this.health = health;
     }
 

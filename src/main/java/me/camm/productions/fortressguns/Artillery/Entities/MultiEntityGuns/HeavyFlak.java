@@ -44,7 +44,7 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking {
 
     @Override
     public boolean canFire(){
-        return (getAmmo() > 0 || !requiresReloading()) && canFire && System.currentTimeMillis() - lastFireTime >= fireCooldown;
+        return (getAmmo() > 0 || !requiresReloading()) && loadedAmmoType != null && canFire && System.currentTimeMillis() - lastFireTime >= fireCooldown;
     }
 
 

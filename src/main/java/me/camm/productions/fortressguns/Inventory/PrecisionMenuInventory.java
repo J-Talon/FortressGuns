@@ -155,8 +155,14 @@ public class PrecisionMenuInventory extends MenuInventory {
         y = Math.round((y * 10)) / 10.0;
 
         String rotation = ChatColor.RED + "["+y +" | "+ x +"]";
-        String loaded = ChatColor.BLUE +""+ art.getAmmo();
-        rotation = rotation +" "+ loaded;
+
+        if (art.isInterpolating()) {
+            ItemStack rotationInfo = StaticItem.INFO.toItem(ChatColor.GRAY+"Rotating to "+rotation);
+            for (int i = 0; i < 6; i ++) {
+                gui.setItem(9 * i + 3, rotationInfo);
+            }
+            return;
+        }
 
         ItemStack rotationInfo = StaticItem.INFO.toItem(rotation);
         for (int i = 0; i < 6; i ++) {

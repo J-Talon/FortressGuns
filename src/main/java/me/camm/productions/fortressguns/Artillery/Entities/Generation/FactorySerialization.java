@@ -59,6 +59,14 @@ public class FactorySerialization {
         return ((double)value) / 100;
     }
 
+    public static int serializeHealth(double health) {
+        return (int)(health * 1000);
+    }
+
+    public static double deserializeHealth(int health) {
+        return health / 1000d;
+    }
+
     public static int serializeRotation(double value) {
         return (int)(value * 100);
     }
@@ -68,6 +76,7 @@ public class FactorySerialization {
     }
 
 
+
     //below functions assume that params is everything from the type to ammo and beyond.
     //[type, rotation x, rotation z, rotation y, ammotype, ammo,...]
     public static EulerAngle deserializeRotation(int...params) {
@@ -75,7 +84,7 @@ public class FactorySerialization {
     }
 
 
-    protected static void deserializeSetAmmo(Construct construct, int ... params){
+    public static void deserializeSetAmmo(Construct construct, int ... params){
         if (!(construct instanceof Artillery artillery))
             throw new IllegalArgumentException("deserializing construct must be subclass of artillery:"+construct.getClass());
 
@@ -86,6 +95,17 @@ public class FactorySerialization {
             artillery.setLoadedAmmoType(item);
         }
     }
+
+    public static void deserializeSetHealth(Construct struct, int...params) {
+        if (params.length >= 7) {
+            double health = deserializeHealth(params[6]);
+            struct.setHealth(health);
+        }
+        else {
+            struct.setHealth(0);
+        }
+    }
+
 
     public static String getKey() {
         return KEY;
