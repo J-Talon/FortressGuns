@@ -21,7 +21,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import static me.camm.productions.fortressguns.Util.MathLib.getOrthogonal;
+import static me.camm.productions.fortressguns.Util.MathFG.getOrthogonal;
 
 public class SimpleMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
 

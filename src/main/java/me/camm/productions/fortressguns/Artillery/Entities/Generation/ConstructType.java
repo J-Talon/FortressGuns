@@ -11,8 +11,10 @@ public enum ConstructType {
     RAIL_GUN(ChatColor.GRAY+"Rail Gun"+ChatColor.DARK_PURPLE,null,"railGun", ConfigRailgun.class),
     MISSILE_LAUNCHER(ChatColor.GRAY+"Missile Launcher"+ChatColor.BLUE, new ConstructFactory.FactoryMissileLauncher(), "missileLauncher", ConfigMissileLauncher.class),
     HEAVY_MACHINE(ChatColor.GRAY+"Heavy Machine Gun", new ConstructFactory.FactoryHMG(), "heavyMachineGun", ConfigHeavyMach.class),
-
     CRAM(ChatColor.GRAY+"CRAM", null, "cram", ConfigCRAM.class),
+
+    DEBUG(ChatColor.GRAY+"test gun", new ConstructFactory.FactoryTest(), "debug", null),
+
     FLAK_LIGHT(ChatColor.GRAY+"Light Flak"+ChatColor.YELLOW, new ConstructFactory.FactoryLightFlak(),"lightFlak", ConfigLightFlak.class);
 
     private final String name;

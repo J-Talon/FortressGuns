@@ -114,6 +114,7 @@ public class HeavyMachineGun extends RapidFire {
             iterations ++;
             final int reference = iterations;
             new BukkitRunnable() {
+
                 public void run() {
 
                     //this is because it starts later so while it may be true in the while,

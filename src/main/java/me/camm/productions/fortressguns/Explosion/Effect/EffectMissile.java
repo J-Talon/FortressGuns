@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Explosion.Effect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.MathLib;
+import me.camm.productions.fortressguns.Util.MathFG;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
@@ -88,7 +88,7 @@ public class EffectMissile extends ExplosionEffect<Double> {
     @Override
     public void preMutation(ExplosionFG explosion, @Nullable Double context) {
 
-        int numTrails = (int)( MathLib.randomDouble() * 8) + 6;
+        int numTrails = (int)( MathFG.randomDouble() * 8) + 6;
 
 
         Vector[] trails = new Vector[numTrails];
@@ -102,9 +102,9 @@ public class EffectMissile extends ExplosionEffect<Double> {
         double percent = (context == null ? 1 : context);
 
         for (int i = 0; i < numTrails; i ++) {
-            double vX = MathLib.randomDouble() - MathLib.randomDouble();
-            double vY = MathLib.randomDouble() - MathLib.randomDouble();
-            double vZ = MathLib.randomDouble() - MathLib.randomDouble();
+            double vX = MathFG.randomDouble() - MathFG.randomDouble();
+            double vY = MathFG.randomDouble() - MathFG.randomDouble();
+            double vZ = MathFG.randomDouble() - MathFG.randomDouble();
 
 
             trails[i] = new Vector(vX, (vY + 0.75), vZ).multiply(1.25);  //magic numbers due to artistic choice

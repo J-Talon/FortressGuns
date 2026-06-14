@@ -4,7 +4,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Random;
 
-public class MathLib {
+public class MathFG {
 
     static Random rand = new Random();
 

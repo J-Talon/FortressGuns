@@ -113,5 +113,13 @@ public abstract class ConstructFactory<T extends Construct> {
     }
 
 
+    static class FactoryTest extends ConstructFactory<TestGun> {
+
+        public TestGun create(Location loc, int ... params) {
+            return new TestGun(loc, loc.getWorld(), new EulerAngle(0,0,0));
+        }
+    }
+
+
 
 }

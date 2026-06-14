@@ -1,26 +1,17 @@
 package me.camm.productions.fortressguns.Explosion.Abstract;
 
-import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.world.level.RayTrace;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static me.camm.productions.fortressguns.Util.MathLib.linearInterpolate;
+import static me.camm.productions.fortressguns.Util.MathFG.linearInterpolate;
 
 
 public abstract class Allocator<R, I> {

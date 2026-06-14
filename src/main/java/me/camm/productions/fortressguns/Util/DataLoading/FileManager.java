@@ -24,13 +24,13 @@ public class FileManager {
     static Map<String, ConstructType> types = new HashMap<>();
 
 
-    public enum Resource {
+    public enum ResourceFile {
 
         //we're not gonna do skins cause I'm planning on
         //doing optional resource pack models
         CONFIG("ArtilleryConfig.toml"),
         SAVES("SavedArtillery.toml");
-        Resource(String file) {
+        ResourceFile(String file) {
             this.file = file;
         }
 
@@ -73,25 +73,32 @@ public class FileManager {
     }
 
     public static String getFilePath(){
-        return getFolderPath() +"\\";
+        return getFolderPath() + File.separator;
     }
+
 
     public static String getFolderPath(){
         Plugin plugin = FortressGuns.getInstance();
-        return plugin.getDataFolder().getParentFile().getAbsolutePath()+ "\\FortressGuns";
+        return plugin.getDataFolder().getParentFile().getAbsolutePath() + File.separator + plugin.getName();
     }
 
 
-    public static File initResource(Resource res) throws IOException {
+    public static File initResource(ResourceFile res) throws IOException {
 
         String name = res.get();
         InputStream stream = FortressGuns.getInstance().getResource(name);
 
         File folder = new File(getFolderPath());
+        Path path = Paths.get(getFolderPath());
+
+        Files.createDirectories(path);
+
+
         boolean made = true;
 
         if (!folder.exists()) {
             made = folder.mkdir();
+
             made = made && folder.createNewFile();
         }
 
@@ -112,6 +119,8 @@ public class FileManager {
 
 
 
+
+
     public static void loadArtilleryConfig() {
 
         Plugin plugin = FortressGuns.getInstance();
@@ -119,9 +128,11 @@ public class FileManager {
 
 
         try {
-            File file = initResource(Resource.CONFIG);
+            File file = initResource(ResourceFile.CONFIG);
             Path path = Paths.get(file.getPath());
             TomlParseResult res = Toml.parse(path);
+
+
 
             if (res.hasErrors()) {
                 logger.warning("Artillery config failed to load due to TOML errors in the file, using defaults...");
@@ -135,9 +146,18 @@ public class FileManager {
 
 
             for (ConstructType type: ConstructType.values()) {
+
+                Class<? extends ConfigObject> adaptor = type.getAdapter();
+                if (adaptor == null) {
+                    logger.info("Skipping config for "+type.getId()+": no config found");
+                    continue;
+                }
+
+
                 mapper.registerSubtypes(new NamedType(type.getAdapter(), type.getId()));
                 try {
                     ConfigObject co = mapper.treeToValue(node.get(type.getId()),type.getAdapter());
+
                     boolean result = co.apply();
                     if (!result)
                         throw new IllegalArgumentException("Invalid config value");
@@ -172,7 +192,8 @@ public class FileManager {
 
         }
         catch (IOException e) {
-            logger.warning("Could not load config due to IO error:"+e.getMessage()+"...Using default config.");
+            logger.warning("Could not load config due to IO error: "+e.getMessage()+"...Using default config.");
+
         }
 
     }
