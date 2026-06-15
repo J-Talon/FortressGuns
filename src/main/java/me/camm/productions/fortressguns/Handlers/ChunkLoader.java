@@ -119,6 +119,11 @@ public class ChunkLoader implements Listener {
                 // I really frickin hate this
                 // there's gotta be a better way
                 // cause this is stupid as crap
+
+                //I'm guessing that the reason why it's
+                //acting like this is because of different load states for chunks
+                //which unfortunately I CANNOT DO ANYTHING ABOUT AT THE MOMENT CAUSE IT'S 1.17.1
+
                 new BukkitRunnable() {
 
                     public void run() {
@@ -134,8 +139,6 @@ public class ChunkLoader implements Listener {
                 //0 because the chunk is already loaded
              ChunkTicket ticket = createTicket(loadedChunks,struct,entity,0);
              addLoadingTicket(ticket, world);
-
-   //          System.out.println("discover - add ticket: "+ticket.chunkString()+" "+ticket.getUUID()+" "+ticket.getConstruct().getType());
 
             }
         }

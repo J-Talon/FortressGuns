@@ -291,11 +291,12 @@ public class ArtilleryPart extends ComponentAS
     protected void openMenu(EntityHuman human) {
 
         if (human.getVehicle() != null) {
-            return;
+         return;
         }
 
-        if (!human.isCrouching())
+        if (!human.isCrouching()) {
             return;
+        }
 
         Player player = (Player)human.getBukkitEntity();
         ConstructInventory menu;
@@ -303,16 +304,14 @@ public class ArtilleryPart extends ComponentAS
 
         FIND_INV:
         {
+
+
             if (body instanceof RapidFire rapid && rapid.isJammed()) {
                 menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.JAM_CLEAR);
                 break FIND_INV;
             }
 
             if (ConstructItemHelper.isAmmoItem(stack) != null) {
-
-                if (!body.requiresReloading()) {
-                    return;
-                }
 
                 menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
             } else {

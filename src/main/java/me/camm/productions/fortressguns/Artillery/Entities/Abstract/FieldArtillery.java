@@ -115,7 +115,9 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     shot = true;
 
                     ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
-                    setAmmo(Math.max(0, getAmmo() - 1));
+
+                    if (requiresReloading())
+                        setAmmo(Math.max(0, getAmmo() - 1));
 
                     ConstructInventory inv = getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
                     if (inv != null) {

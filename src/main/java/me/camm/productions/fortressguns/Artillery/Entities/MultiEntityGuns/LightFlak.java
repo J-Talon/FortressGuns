@@ -115,7 +115,9 @@ public class LightFlak extends RapidFire {
 
                     lastFireTime = System.currentTimeMillis();
                     fireOneShot();
-                    setAmmo(Math.max(0,getAmmo()-1));
+
+                    if (requiresReloading())
+                         setAmmo(Math.max(0,getAmmo()-1));
 
                     fired ++;
                     if (fired >= shots) {
