@@ -56,6 +56,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+        super.onBlockHit(exactHitPosition, blockFace, hitBlock);
         explode(exactHitPosition);
         return true;
     }

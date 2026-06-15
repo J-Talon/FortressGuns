@@ -202,7 +202,7 @@ public class HeavyMachineGun extends RapidFire {
         Vector addition = new Vector(random.nextDouble() - random.nextDouble(),
                 random.nextDouble() - random.nextDouble(),
                 random.nextDouble() - random.nextDouble());
-        addition.multiply(0.1);
+        addition.multiply(0.15);
 
         if (direction.dot(addition) < 0) {
             addition.multiply(-1);

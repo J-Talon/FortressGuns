@@ -120,9 +120,9 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
                 gui.setItem(getInputSlot(), residing);
             }
 
-            body.setLoadedAmmoType(input);
             body.setAmmo(body.getAmmo() + difference);
-            updateState();
+            body.setLoadedAmmoType(input);
+
         }
     }
 

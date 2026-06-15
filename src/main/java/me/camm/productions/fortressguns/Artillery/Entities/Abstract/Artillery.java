@@ -286,6 +286,12 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public void setLoadedAmmoType(AmmoItem loadedAmmoType) {
         this.loadedAmmoType = loadedAmmoType;
+
+        ConstructInventory inv = this.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
+        if (inv == null)
+            return;
+
+        inv.updateState();
     }
 
     public EulerAngle getAim(){

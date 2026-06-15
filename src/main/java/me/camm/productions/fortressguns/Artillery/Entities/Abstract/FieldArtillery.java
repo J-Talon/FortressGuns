@@ -1,7 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -175,11 +174,6 @@ public abstract class FieldArtillery extends ArtilleryRideable
     @Override
     public boolean acceptsAmmo(AmmoItem item) {
         return AmmoItem.EXPLOSIVE_HEAVY == item || AmmoItem.STANDARD_HEAVY == item;
-    }
-
-    @Override
-    public ComponentAS getSeat() {
-        return rotatingSeat;
     }
 
     protected synchronized void incrementSmallDistance(double increment){

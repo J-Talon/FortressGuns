@@ -82,21 +82,4 @@ public class ChunkTicket {
         return currentLoaded.get();
     }
 
-    public String chunkString() {
-        String values = "|";
-        for (Tuple2<Integer, Integer> tup: chunks) {
-            values += "("+tup.getA()+", "+tup.getB()+")";
-        }
-        values += "|";
-        return values;
-    }
-
-    private void update(int src) {
-        System.out.println("=>=");
-        System.out.println("src: "+src);
-        System.out.println("chunk ticket update: "+pdc.getUniqueId() +" "+pdc.getLocation());
-        System.out.println("coords:"+chunkString());
-        System.out.println("val: "+getCurrentValue());
-        System.out.println("=<=");
-    }
 }

@@ -37,6 +37,7 @@ public class AllocatorConeE extends Allocator<List<Tuple2<Entity, Float>>,Tuple3
         //min xyz, max xyz
         BoundingBox box = new BoundingBox(x - radius, y - radius, z - radius, x + radius, y + radius, z + radius);
 
+
         class PredicateBox implements Predicate<Entity> {
             private final Entity blacklist;
             public PredicateBox(Entity blacklist) {
@@ -44,13 +45,17 @@ public class AllocatorConeE extends Allocator<List<Tuple2<Entity, Float>>,Tuple3
             }
             @Override
             public boolean test(Entity entity) {
-                return (entity.equals(blacklist));
+                return (!entity.equals(blacklist));
             }
         }
 
         Vector direction = inputContext.getB();
         Collection<Entity> entities = world.getNearbyEntities(box, new PredicateBox(inputContext.getC()));
+
+
+
         List<Tuple2<Entity, Float>> exposures = new ArrayList<>();
+
 
         for (Entity entity: entities) {
             double exposure = getExposure(entity, x,y,z);

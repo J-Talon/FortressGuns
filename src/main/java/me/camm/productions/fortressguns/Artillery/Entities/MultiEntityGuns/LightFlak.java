@@ -138,7 +138,7 @@ public class LightFlak extends RapidFire {
 
 
         Player operator = null;
-        if (passengers.size() == 0)
+        if (passengers.isEmpty())
             return;
 
         Entity e = passengers.get(0);

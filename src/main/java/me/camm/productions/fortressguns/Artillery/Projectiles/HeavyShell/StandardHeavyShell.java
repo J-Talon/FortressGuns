@@ -31,7 +31,7 @@ public class StandardHeavyShell extends HeavyShell {
 
 
     private static float hitDamage = 10;
-    private static float explosionPower = 4;
+    private static float explosionPower = 2;
     private static float weight = 1.2F;
 
     public StandardHeavyShell(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
@@ -60,7 +60,7 @@ public class StandardHeavyShell extends HeavyShell {
 
 
     protected void hitEffectBlock(@Nullable Vec3D hit) {
-        final float PEN_POWER = 4.5f;  // put into config
+        final float PEN_POWER = 6f;  // put into config
 
         Vector direction = CraftVector.toBukkit(getMot());
 
@@ -200,7 +200,7 @@ public class StandardHeavyShell extends HeavyShell {
 
         double hardness = bukkitBlock.getType().getHardness();
         hardness = hardness > 0 ? hardness : Material.OBSIDIAN.getHardness();
-        double angleReflection = Math.min(Math.max(0.03*hardness,0),0.35);  //function
+        double angleReflection = Math.min(Math.max(0.07*hardness,0),0.35);  //function
         boolean energyConserved = length > (0.1f * source.getVectorPower());
 
         if (dotProduct > angleReflection && energyConserved) {
