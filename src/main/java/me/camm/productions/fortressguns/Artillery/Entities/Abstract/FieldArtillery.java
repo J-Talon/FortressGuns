@@ -95,14 +95,14 @@ public abstract class FieldArtillery extends ArtilleryRideable
         //make a flash
         createFlash(muzzle);
         createShotParticles(muzzle);
-        vibrateParticles();
+        shockwaveParticles();
 
         setSmallDistance(0);
 
 
         canFire = false;
 
-        final List<Player> vibrateFor = getVibratedPlayers();
+        final List<Player> vibrateFor = getShakenPlayers();
         new BukkitRunnable()
         {
             boolean shot = false;
@@ -128,7 +128,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     pivot(aim.getX(), aim.getY());
                 }
 
-                vibrateAnimation(vibrateFor,ticks);
+                shakeAnimation(vibrateFor,ticks);
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;

@@ -176,12 +176,15 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     @Override
     public void unload() {
+
         if (!chunkLoaded())
             return;
 
         List<ArtilleryPart> parts = getParts();
         parts.remove(pivot);
+
         parts.forEach(ArtilleryPart::die);
+
         Integer[] data = serializeData();
         int[] translation = new int[data.length];
         for (int index = 0; index < data.length; index ++) {
@@ -543,7 +546,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     public final boolean spawn() {
         dead = false;
 
-        System.out.println("rotation: "+aim.getX()+" "+aim.getY()+" "+aim.getZ());
+     //   System.out.println("Spawning: "+this.getUUID());
 
         boolean spawnedSuccess = instantiateParts();
         if (spawnedSuccess) {
@@ -575,7 +578,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     public abstract boolean acceptsAmmo(AmmoItem item);
 
 
-    protected void vibrateParticles() {
+    protected void shockwaveParticles() {
         ArmorStand core = (ArmorStand) this.getCoreEntity();
         Location loc = core.getEyeLocation();
         Location initial = loc.clone().add(0,-LARGE_BLOCK_LENGTH,0);
@@ -586,7 +589,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         }
     }
 
-    protected List<Player> getVibratedPlayers() {
+    protected List<Player> getShakenPlayers() {
         Set<Chunk> occupied = getOccupiedChunks();
 
         final List<Player> vibrateFor = new LinkedList<>();
@@ -601,7 +604,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return vibrateFor;
     }
 
-    protected void vibrateAnimation(List<Player> vibrateFor, int ticks) {
+    protected void shakeAnimation(List<Player> vibrateFor, int ticks) {
 
         final double MULT = 5;
         double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.12 * ticks + 1, 0) * MULT;
@@ -650,11 +653,11 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
         net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
         for (ArtilleryPart part: parts) {
-            nmsWorld.addEntity(part, CreatureSpawnEvent.SpawnReason.CUSTOM);
+          nmsWorld.addEntity(part, CreatureSpawnEvent.SpawnReason.CUSTOM);
         }
     }
 
-    public final boolean isInvalid(){
+    public final boolean isInvalid() {
         return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
     }
 

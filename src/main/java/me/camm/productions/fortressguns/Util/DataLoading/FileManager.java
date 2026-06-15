@@ -26,10 +26,8 @@ public class FileManager {
 
     public enum ResourceFile {
 
-        //we're not gonna do skins cause I'm planning on
-        //doing optional resource pack models
-        CONFIG("ArtilleryConfig.toml"),
-        SAVES("SavedArtillery.toml");
+
+        CONFIG("ArtilleryConfig.toml");
         ResourceFile(String file) {
             this.file = file;
         }

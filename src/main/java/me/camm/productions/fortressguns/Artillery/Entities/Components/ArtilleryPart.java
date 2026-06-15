@@ -160,7 +160,7 @@ public class ArtilleryPart extends ComponentAS
             return;
         }
 
-        if (seat.getPassengers().size() > 0) {
+        if (!seat.getPassengers().isEmpty()) {
             bukkit.sendMessage(ChatColor.RED+"[!] Someone else is using this!");
             return;
         }
@@ -172,20 +172,21 @@ public class ArtilleryPart extends ComponentAS
             }
         }
 
-        bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName()+"");
+        bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName());
         bukkit.playSound(bukkit.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,1,1);
 
 
-        ((Rideable)body).onMount();
-        ((Rideable) body).updateOnInteraction();
+        rideable.onMount();
+        rideable.updateOnInteraction();
         human.startRiding(seat);
+
 
         new BukkitRunnable(){
 
             public void run()
             {
                 if (body.isInvalid()) {
-                    ((Rideable) body).onDismount();
+                    rideable.onDismount();
                     human.stopRiding();
                     cancel();
                 }
@@ -195,7 +196,7 @@ public class ArtilleryPart extends ComponentAS
                     body.rideTick(human);
                 }
                 else {
-                    ((Rideable) body).onDismount();
+                    rideable.onDismount();
                     cancel();
                 }
             }

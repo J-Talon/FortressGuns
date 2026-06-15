@@ -25,6 +25,7 @@ import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -69,7 +70,7 @@ public class ChunkLoader implements Listener {
     //entities loaded = false
     //chunk loaded = true
     @EventHandler
-    public synchronized void onChunkLoad(EntitiesLoadEvent event) {
+    public synchronized void onChunkLoad(ChunkLoadEvent event) {
         World world = event.getWorld();
         Chunk chunk = event.getChunk();
         String name = world.getName();
@@ -82,7 +83,7 @@ public class ChunkLoader implements Listener {
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
         if (tickets != null) {
             for (ChunkTicket ticket : tickets) {
-                System.out.println("update finalize load: " +ticket.getUUID()+ " "+ ticket.chunkString());
+           //     System.out.println("load: " +ticket.getUUID()+ " "+ ticket.chunkString());
                 ticket.onFinalizeLoad();
                 activePieces.add(ticket.getConstruct());
             }
@@ -99,26 +100,42 @@ public class ChunkLoader implements Listener {
                 continue;
             }
 
-            Construct struct = deserializeConstruct(entity.getLocation(),pdc, key);
-            if (struct == null)
+         //   System.out.println("loop for chunk: "+ x +" "+z);
+            Construct struct = deserializeConstruct(entity.getLocation(),pdc, key);  ////
+            if (struct == null) {
                 continue;
+            }
 
             struct.recalculateOccupiedChunks();
             Set<Chunk> loadedChunks = struct.getOccupiedChunks();
 
             int loaded = (int)loadedChunks.stream().filter(Chunk::isLoaded).count();
             if (loaded == loadedChunks.size()) {
-                System.out.println("discover: spawn "+x+" "+z +" "+struct.getType());
-                struct.spawn();
+           //     System.out.println("discover: spawn "+x+" "+z +" "+struct.getType() + entity.getUniqueId());
                 entity.remove();
-                activePieces.add(struct);
+
+
+
+                // I really frickin hate this
+                // there's gotta be a better way
+                // cause this is stupid as crap
+                new BukkitRunnable() {
+
+                    public void run() {
+                        struct.spawn();
+
+                        activePieces.add(struct);
+                    }
+                }.runTaskLater(FortressGuns.getInstance(), 20);
+
+
             }
             else {
                 //0 because the chunk is already loaded
              ChunkTicket ticket = createTicket(loadedChunks,struct,entity,0);
              addLoadingTicket(ticket, world);
 
-             System.out.println("discover - add ticket: "+ticket.chunkString()+" "+ticket.getUUID()+" "+ticket.getConstruct().getType());
+   //          System.out.println("discover - add ticket: "+ticket.chunkString()+" "+ticket.getUUID()+" "+ticket.getConstruct().getType());
 
             }
         }
@@ -128,7 +145,7 @@ public class ChunkLoader implements Listener {
     //entities loaded = true
     //chunk loaded = true
     @EventHandler
-    public synchronized void onChunkUnload(EntitiesUnloadEvent event) {
+    public synchronized void onChunkUnload(ChunkUnloadEvent event) {
 
         Chunk chunk = event.getChunk();
         World world = event.getWorld();
@@ -166,6 +183,7 @@ public class ChunkLoader implements Listener {
             Entity pivot = struct.getCoreEntity();
 
 
+          //  System.out.println("Unloading: "+pivot.getUniqueId());
             struct.unload();
 
 
@@ -177,7 +195,7 @@ public class ChunkLoader implements Listener {
             //-1 because this chunk will be unloaded.
             ChunkTicket ticket = createTicket(chunks, struct, pivot, -1);
 
-            System.out.println("adding loading ticket for: "+ticket.getUUID()+" "+ticket.chunkString()+" "+ticket.getConstruct().getType());
+         //   System.out.println("adding loading ticket for: "+ticket.getUUID()+" "+ticket.chunkString()+" "+ticket.getConstruct().getType());
             addLoadingTicket(ticket,world);
         }
 
@@ -219,7 +237,7 @@ public class ChunkLoader implements Listener {
             return null;
 
         ConstructFactory<?> factory = type.getFactory();
-        System.out.println("Deserializing cons");
+     //   System.out.println("chunk loading arty ");
         return factory.create(loc,data);
 
     }

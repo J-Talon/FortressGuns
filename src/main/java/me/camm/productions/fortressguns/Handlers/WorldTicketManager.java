@@ -77,7 +77,8 @@ public class WorldTicketManager {
     }
 
 
-    //returns constructs which are fully loaded or unloaded after updating them
+    //returns constructs which are fully loaded
+    //after updating them
     public synchronized Set<ChunkTicket> update(int x, int z, boolean onLoad) {
 
         Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.getOrDefault(x, null);
@@ -88,24 +89,25 @@ public class WorldTicketManager {
         if (ticketSet == null)
             return null;
 
-        Set<ChunkTicket> thresholdChunks = new HashSet<>();
+        Set<ChunkTicket> fullyLoaded = new HashSet<>();
+        Set<ChunkTicket> fullyUnloaded = new HashSet<>();
 
         for (ChunkTicket ticket : ticketSet.values()) {
             if (onLoad) {
-                if (ticket.onLoad())
-                    thresholdChunks.add(ticket);
+                if (ticket.onLoad())  //the ticket is fully loaded
+                    fullyLoaded.add(ticket);
 
             } else {
-                if (!ticket.onUnload())
-                    thresholdChunks.add(ticket);
+                if (!ticket.onUnload())  //if the ticket is completely unloaded, remove it
+                    fullyUnloaded.add(ticket);
             }
         }
 
-        for (ChunkTicket ticket : thresholdChunks) {
+        for (ChunkTicket ticket : fullyUnloaded) {
             removeTicket(ticket);
         }
 
-        return thresholdChunks;
+        return fullyLoaded;
     }
 
 
