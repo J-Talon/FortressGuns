@@ -59,11 +59,18 @@ public class ExplosionShellHE extends ExplosionFunctional {
             Block block = world.getBlockAt(x,y,z);
             Material mat = block.getType();
 
+
+            if (!mat.isSolid()) {
+                lastPosition = current;
+                penPower -= 0.01;
+                continue;
+            }
+
             float hardness = mat.getHardness();
             hardness = hardness < 0 ? Float.MAX_VALUE : hardness;
 
             //mat.isSolid()
-            if (mat != Material.WATER && mat != Material.LAVA && !mat.isAir() && hardness > 0) {
+            if (hardness > 0) {
                 hasPenned = true;
                 penPower -= (mat.getBlastResistance() + 0.3F) * 0.3;
             }

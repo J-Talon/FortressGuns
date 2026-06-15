@@ -97,7 +97,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         createShotParticles(muzzle);
         shockwaveParticles();
 
-        setSmallDistance(0);
+        setSmallDistance(0.1);
 
 
         canFire = false;
