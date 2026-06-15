@@ -42,6 +42,8 @@ public class ExplosionShellHE extends ExplosionFunctional {
 
 
     private void getPenetrationExtent(Vector position) {
+
+
         double penPower = radius;
         boolean hasPenned = false;
 
@@ -57,8 +59,11 @@ public class ExplosionShellHE extends ExplosionFunctional {
             Block block = world.getBlockAt(x,y,z);
             Material mat = block.getType();
 
+            float hardness = mat.getHardness();
+            hardness = hardness < 0 ? Float.MAX_VALUE : hardness;
+
             //mat.isSolid()
-            if (mat != Material.WATER && mat != Material.LAVA && !mat.isAir() && mat.getHardness() > 0) {
+            if (mat != Material.WATER && mat != Material.LAVA && !mat.isAir() && hardness > 0) {
                 hasPenned = true;
                 penPower -= (mat.getBlastResistance() + 0.3F) * 0.3;
             }
