@@ -1,12 +1,12 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
+import me.camm.productions.fortressguns.Util.MathFG;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
@@ -21,7 +21,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import static me.camm.productions.fortressguns.Util.MathFG.getOrthogonal;
+import static me.camm.productions.fortressguns.Util.MathFG.randomOrthagonal;
 
 public class SimpleMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
 
@@ -72,7 +72,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
         fueledFlightAge = 0;
         direction = null;
         readyTime = 0;
-        Vector initial = Construct.eulerToVec(source.getAim());
+        Vector initial = MathFG.eulerToVec(source.getAim());
         initialVelocity = new Vec3D(initial.getX(),initial.getY(),initial.getZ());
         hadTarget = false;
         bukkitWorld = world.getWorld();
@@ -318,7 +318,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
         float pitch = targetLoc.getPitch();
 
         EulerAngle targetFacing = new EulerAngle(pitch, yaw, 0);
-        Vector targetFacingVec = Construct.eulerToVec(targetFacing);
+        Vector targetFacingVec = MathFG.eulerToVec(targetFacing);
 
         //turbulence calculations
         //arbitrary values from artistic standpoint
@@ -350,7 +350,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
         }
         else {
             if (targetOrthogonal == null)
-                targetOrthogonal = getOrthogonal(targetFacingVec);
+                targetOrthogonal = randomOrthagonal(targetFacingVec);
             double diffYaw = Math.toRadians(yaw - initialYRot);
             double diffPitch = Math.toRadians(pitch - initialXRot);
 

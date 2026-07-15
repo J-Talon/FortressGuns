@@ -108,7 +108,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
     @Override
     protected void initInventories() {
-        interactionInv = new InventoryGroup.RapidGroup(this);
+        interactionInv = new InventoryGroup.RapidGroupStandard(this);
     }
 
     @Override

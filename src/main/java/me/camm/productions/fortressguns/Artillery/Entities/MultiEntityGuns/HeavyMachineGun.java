@@ -8,6 +8,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightSh
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
+import me.camm.productions.fortressguns.Util.MathFG;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
@@ -196,7 +197,7 @@ public class HeavyMachineGun extends RapidFire {
         world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,1f,2f);
 
 
-        projectileVelocity = eulerToVec(aim).normalize();
+        projectileVelocity = MathFG.eulerToVec(aim).normalize();
         Vector direction = projectileVelocity.clone().multiply(getVectorPower());
 
         Vector addition = new Vector(random.nextDouble() - random.nextDouble(),

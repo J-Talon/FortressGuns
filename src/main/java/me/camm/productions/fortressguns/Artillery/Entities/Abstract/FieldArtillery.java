@@ -9,6 +9,7 @@ import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
+import me.camm.productions.fortressguns.Util.MathFG;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -59,7 +60,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         if (shell == null)
             return null;
 
-        Vector vec = eulerToVec(aim).normalize().multiply(getVectorPower());
+        Vector vec = MathFG.eulerToVec(aim).normalize().multiply(getVectorPower());
 
         final Vec3D vector = new Vec3D(vec.getX(), vec.getY(), vec.getZ());
         shell.setMot(vector);

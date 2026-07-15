@@ -11,6 +11,7 @@ import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
+import me.camm.productions.fortressguns.Util.MathFG;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -28,6 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import static me.camm.productions.fortressguns.Util.MathFG.nextHorizontalAngle;
+import static me.camm.productions.fortressguns.Util.MathFG.nextVerticalAngle;
 
 
 public class MissileLauncher extends ArtilleryRideable {
@@ -146,7 +150,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         fireRight = !fireRight;
 
-        Vector dir = eulerToVec(aim).normalize();
+        Vector dir = MathFG.eulerToVec(aim).normalize();
         Vector backBlastDir = dir.clone().multiply(-1);
 
         Vector front = dir.clone().multiply(1.5);  //slightly in front of the thing
@@ -275,8 +279,8 @@ public class MissileLauncher extends ArtilleryRideable {
     public synchronized void pivot(double vertAngle, double horAngle) {
 
 
-        horAngle = nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
-        vertAngle = nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
+        horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
+        vertAngle = MathFG.nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
         aim = new EulerAngle(vertAngle, horAngle, 0);
 

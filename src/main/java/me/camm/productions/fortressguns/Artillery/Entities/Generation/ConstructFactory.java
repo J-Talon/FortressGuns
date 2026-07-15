@@ -47,6 +47,26 @@ public abstract class ConstructFactory<T extends Construct> {
     }
 
 
+    static class FactoryCRAM extends ConstructFactory<CRAM> {
+
+        public CRAM create(Location loc, int ... params) {
+
+            if (params.length < ROTATION_MIN) {
+                return null;
+            }
+
+
+            CRAM cram = new CRAM(loc, loc.getWorld(), deserializeRotation(params));
+            deserializeSetAmmo(cram, params);
+            deserializeSetHealth(cram, params);
+            return cram;
+
+        }
+
+    }
+
+
+
     static class FactoryHeavyFlak extends ConstructFactory<HeavyFlak> {
 
         public HeavyFlak create(Location loc, int... params) {

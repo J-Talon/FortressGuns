@@ -108,8 +108,25 @@ public abstract class InventoryGroup {
 
 
 
-   public static class RapidGroup extends InventoryGroup {
-        public RapidGroup(Artillery owner) {
+    public static class RapidGroupIdeal extends InventoryGroup {
+
+       public RapidGroupIdeal(Artillery owner) {
+           super(owner);
+       }
+
+        @Override
+        protected void init() {
+            addInventory(new BulkLoadingInventory((Artillery)owner,this));
+            addInventory(new RoughMenuInventory((Artillery)owner, this));
+        }
+
+
+    }
+
+
+
+   public static class RapidGroupStandard extends InventoryGroup {
+        public RapidGroupStandard(Artillery owner) {
             super(owner);
         }
 

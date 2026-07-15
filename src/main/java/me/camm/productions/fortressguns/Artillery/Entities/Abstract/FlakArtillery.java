@@ -11,6 +11,7 @@ import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
+import me.camm.productions.fortressguns.Util.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
@@ -28,8 +29,6 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
 
     protected Entity target;
     protected boolean aiming;
-
-    protected static double vectorPower = 5;
 
     //variables for aiming based on average v
 
@@ -125,7 +124,7 @@ This method is called in a loop. You can think of it as being called many times 
             return;
 
 
-       EulerAngle aim = StandHelper.getLookatRotation(muzzle, target);
+       EulerAngle aim = MathFG.getLookatRotation(muzzle, target);
 
        pivot(-aim.getX(), -aim.getY());  //we got the rotation from the target to the muzzle. *-1 reverses it.
 

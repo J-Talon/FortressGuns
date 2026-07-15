@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import static me.camm.productions.fortressguns.Util.MathFG.getOrthogonal;
+import static me.camm.productions.fortressguns.Util.MathFG.randomOrthagonal;
 
 
 public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {
@@ -66,7 +66,7 @@ public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {
         Particle.DustTransition transition = new Particle.DustTransition(LIGHT_GRAY,DARK_GRAY,30);
         world.spawnParticle(Particle.REDSTONE,loc,(int)(70 * intensityPercent),1.7,2,1.7,1,transition);
 
-        Vector orthogonal = getOrthogonal(direction);
+        Vector orthogonal = randomOrthagonal(direction);
         final double ANGLE_INC = 10;
         for (double current = 0; current < 360; current += ANGLE_INC) {
             orthogonal.rotateAroundNonUnitAxis(direction,current);

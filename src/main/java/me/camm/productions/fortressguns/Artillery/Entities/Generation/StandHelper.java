@@ -204,56 +204,6 @@ public class StandHelper
 
 
 
-    /*
-    Given a source and a destination, calculates the euler angle needed for an armorstand to look at that
-    destination from the source.
-     */
-    public static EulerAngle getLookatRotation(Location source, Location lookat) {
-        return getLookatRotation(lookat.clone().subtract(source).toVector());
-    }
-
-
-    //@author CAMM
-    /*
-    the feeling when you rediscover an answer to a problem that you wrote but completely forgot about
-    ... this is basically vec to euler but for my specific use case *facepalm*
-     */
-    public static EulerAngle getLookatRotation(Vector direction) {
-
-        //x,y,z should be the diff between the dest and source.
-        //all you gotta know is that euler angles are basically 3 degrees mashed together
-        double x = direction.getX();
-        double z = direction.getZ();
-        double hypotenuseHorizontal = Math.sqrt(x * x + z * z);
-
-        double horAngle;
-
-        //basically straight up
-        if (hypotenuseHorizontal == 0) {
-            horAngle = 0;
-        }
-        else {
-            horAngle = Math.acos(z / hypotenuseHorizontal);
-            if (x < 0) {
-                horAngle *= -1;
-            }
-        }
-
-        double y = direction.getY();
-        double vertAngle;
-        double hypotenuseTotal = Math.sqrt( x * x + y * y + z * z);
-        if (hypotenuseTotal == 0) {
-            vertAngle = 0;
-        }
-        else {
-            vertAngle = Math.asin(y / hypotenuseTotal);
-        }
-
-        return new EulerAngle(vertAngle, horAngle, 0);
-    }
-
-
-
 
     /*
     Rotates the armorstand head such that the headpiece rotates as if the pivot point is the center of the head.

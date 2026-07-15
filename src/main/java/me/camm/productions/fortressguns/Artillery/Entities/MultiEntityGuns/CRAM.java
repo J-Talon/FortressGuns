@@ -44,7 +44,7 @@ public class CRAM extends Artillery implements AutoTracking {
 
     @Override
     protected void initInventories() {
-        interactionInv = new InventoryGroup.RapidGroup(this);
+        interactionInv = new InventoryGroup.RapidGroupIdeal(this);
     }
 
     public List<ArtilleryPart> getParts() {

@@ -16,6 +16,7 @@ import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.DataLoading.NBTSerializable;
+import me.camm.productions.fortressguns.Util.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
@@ -38,6 +39,8 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import static me.camm.productions.fortressguns.Util.MathFG.nextVerticalAngle;
 
 
 /*
@@ -172,7 +175,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         int health = FactorySerialization.serializeHealth(getHealth());
         return new Integer[]{type, rotation[0], rotation[1], rotation[2], ammoType, getAmmo(), health};
     }
-
 
     @Override
     public void unload() {
@@ -465,7 +467,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
         //don't add PI to give an extra 180 * to the rotation (see StandHelper.getASFace(EntityHuman) )
         //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
-        horAngle = nextHorizontalAngle(currY, horAngle, horRotSpeed);
+        horAngle = MathFG.nextHorizontalAngle(currY, horAngle, horRotSpeed);
 
         if (this instanceof Rideable)
             ((Rideable)this).positionSeat();
