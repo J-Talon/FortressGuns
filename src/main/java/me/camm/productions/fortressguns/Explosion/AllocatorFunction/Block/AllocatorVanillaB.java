@@ -1,9 +1,7 @@
 package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
-import me.camm.productions.fortressguns.Util.Tuple2;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;

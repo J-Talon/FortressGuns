@@ -10,8 +10,7 @@ import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
-import me.camm.productions.fortressguns.Util.MathFG;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;

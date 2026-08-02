@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.chunk;
 
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,8 +20,8 @@ public class WorldTicketManager {
     public void addTicket(ChunkTicket ticket) {
 
         lock.lock();
-        Set<Tuple2<Integer, Integer>> chunks = ticket.getChunks();
-        for (Tuple2<Integer, Integer> current : chunks) {
+        Set<IntTuple2> chunks = ticket.getChunks();
+        for (IntTuple2 current : chunks) {
 
             int x = current.getA();
             int z = current.getB();
@@ -51,9 +52,9 @@ public class WorldTicketManager {
     public synchronized void removeTicket(ChunkTicket ticket) {
 
         lock.lock();
-        Set<Tuple2<Integer, Integer>> chunks = ticket.getChunks();
+        Set<IntTuple2> chunks = ticket.getChunks();
 
-        for (Tuple2<Integer, Integer> chunk : chunks) {
+        for (IntTuple2 chunk : chunks) {
             int x = chunk.getA();
             int z = chunk.getB();
 

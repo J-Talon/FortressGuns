@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util;
+package me.camm.productions.fortressguns.Util.Math;
 
 public class Tuple3<A,B,C> {
 

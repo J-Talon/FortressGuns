@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
@@ -16,12 +17,13 @@ import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
-import me.camm.productions.fortressguns.Util.MathFG;
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.EntityHuman;
@@ -40,8 +42,10 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import static me.camm.productions.fortressguns.Util.MathFG.nextVerticalAngle;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.nextVerticalAngle;
 
 
 /*
@@ -71,7 +75,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected volatile boolean interpolating;
 
     protected volatile double health;//--
-    private final Set<Tuple2<Integer, Integer>> occupiedChunks;//
+    private final Set<IntTuple2> occupiedChunks;//
     protected World world;//
 
     protected boolean dead;//
@@ -597,10 +601,10 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     protected List<Player> getShakenPlayers() {
-        Set<Tuple2<Integer, Integer>> chunks = getOccupiedChunks();
+        Set<IntTuple2> chunks = getOccupiedChunks();
 
         final List<Player> vibrateFor = new LinkedList<>();
-        for (Tuple2<Integer, Integer> tup: chunks) {
+        for (IntTuple2 tup: chunks) {
 
             //it's fine cause at this point it should already be loaded
             Chunk c = world.getChunkAt(tup.getA(), tup.getB());
@@ -661,9 +665,13 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected void spawnPieces() {
         List<ArtilleryPart> parts = getParts();
 
-        net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
+        WorldServer nmsWorld = ((CraftWorld)world).getHandle();
+        Logger logger = FortressGuns.getInstance().getLogger();
+
         for (ArtilleryPart part: parts) {
-          nmsWorld.addEntity(part, CreatureSpawnEvent.SpawnReason.CUSTOM);
+          boolean result = nmsWorld.addAllEntitiesSafely(part);
+          if (!result)
+              logger.log(Level.WARNING, "Unable to properly spawn part for artillery");
         }
     }
 
@@ -749,7 +757,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
     @Override
-    public final Set<Tuple2<Integer, Integer>> getOccupiedChunks(){
+    public final Set<IntTuple2> getOccupiedChunks(){
         return occupiedChunks;
     }
 
@@ -817,6 +825,8 @@ see: loadPieces()
         double circle = Math.PI * 2;
         Location loc = initialLoc;
 
+        IntTuple2 firstChunk = null;
+        IntTuple2 lastChunk = null;
         for (double rads=0;rads < circle;rads+= Math.PI/4) {
 
             double z = totalDistance * Math.cos(rads);
@@ -824,7 +834,22 @@ see: loadPieces()
 
             // >> 4 is essentially dividing by 16
             //Chunk chunk = world.getChunkAt((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
-            occupiedChunks.add(new Tuple2<>((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4));
+            IntTuple2 chunk = new IntTuple2((loc.getBlockX()+(int)x) >> 4, (loc.getBlockZ()+(int)z) >> 4);
+
+            if (chunk.equals(firstChunk)) {
+                lastChunk = chunk;
+                continue;
+            }
+
+            if (chunk.equals(lastChunk)) {
+                lastChunk = chunk;
+                continue;
+            }
+
+            if (firstChunk == null) {
+                firstChunk = chunk;
+            }
+            lastChunk = chunk;
         }
     }
 

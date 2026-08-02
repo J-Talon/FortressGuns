@@ -2,10 +2,11 @@ package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -32,16 +33,7 @@ import java.util.logging.Logger;
 
 
 
-/*
 
-todo I think it's a better idea to abandon pdcs entirely and use
-a file based system
-
-especially seeing how unreliable chunk loading is, I think that
-having a file based tracking system which isn't affected by the wacky loading will
-be much better
-
- */
 
 
 public class ChunkLoader implements Listener {
@@ -123,7 +115,9 @@ public class ChunkLoader implements Listener {
 
         updateTrackedWorlds(name);
 
-        logger.log(Level.INFO,"Contains chunk "+x +" "+ z +" ? "+pieces.get(name).containsChunk(x,z));
+
+        if (pieces.get(name).containsChunk(x,z))
+            logger.log(Level.INFO, "Chunk loaded: "+x +" "+z);
 
 
 
@@ -155,7 +149,7 @@ public class ChunkLoader implements Listener {
                 continue;
 
             struct.calculateOccupiedChunks();
-            Set<Tuple2<Integer, Integer>> loadedChunks = struct.getOccupiedChunks();
+            Set<IntTuple2> loadedChunks = struct.getOccupiedChunks();
 
             int loaded = (int)loadedChunks.stream().filter(tup -> {
                 return world.isChunkLoaded(tup.getA(), tup.getB());
@@ -165,6 +159,7 @@ public class ChunkLoader implements Listener {
             if (loaded >= loadedChunks.size()) {
                 ticket = createTicket(loadedChunks, struct, e, 0); //1
                 logger.log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
+                ticket.markLoadTime();
                 assembledTickets.add(ticket);
             }
             else {
@@ -219,18 +214,14 @@ public class ChunkLoader implements Listener {
 
 
 
-            //todo world.getChunkAt(x,z) WILL load the chunk in question
+            //world.getChunkAt(x,z) WILL load the chunk in question
             //this is probably causing some of the issues with your system
             //we removed them. now
             // you need to figure out what's causing the chunk loading callbacks to not fire
 
-            //I'm guessing the issue is worldticketmanager::update but might be wrong
-            //technially the keys **should be all x and zs in the chunk stuff
-
-
             struct.calculateOccupiedChunks();
 
-            Set<Tuple2<Integer, Integer>> chunks = struct.getOccupiedChunks();
+            Set<IntTuple2> chunks = struct.getOccupiedChunks();
 
             Entity pivot = struct.getCoreEntity();
             struct.unload();
@@ -258,7 +249,7 @@ public class ChunkLoader implements Listener {
 
         while (iter.hasNext()) {
             ChunkTicket next = iter.next();
-            if (next.isAssembled()) {
+            if (next.isAssembled() && next.canFinish()) {
                 logger.log(Level.INFO, "Completed ticket "+next.getUUID());
                 next.finish();
                 removals.add(next);
@@ -285,11 +276,11 @@ public class ChunkLoader implements Listener {
 
 
 
-    public ChunkTicket createTicket(Set<Tuple2<Integer, Integer>> chunks, Construct construct, Entity pdc, int offset) {
+    public ChunkTicket createTicket(Set<IntTuple2> chunks, Construct construct, Entity pdc, int offset) {
         World world = pdc.getWorld();
 
         int loaded = 0;
-        for (Tuple2<Integer, Integer> tup: chunks) {
+        for (IntTuple2 tup: chunks) {
             if (world.isChunkLoaded(tup.getA(), tup.getB()))
                 loaded ++;
         }
@@ -338,6 +329,32 @@ public class ChunkLoader implements Listener {
     public void stop() {
         task.cancel();
     }
+
+    public @Nullable List<UUID> getLoadingTickets(String worldName) {
+        WorldTicketManager man = pieces.getOrDefault(worldName, null);
+        if (man == null) return null;
+
+        List<UUID> tickets = new ArrayList<>();
+        man.getActiveTickets().forEach(ticket -> {
+            tickets.add(ticket.getUUID());
+        });
+        return tickets;
+
+    }
+
+
+    public String checkTicket(String worldName, String id) {
+        WorldTicketManager man = pieces.getOrDefault(worldName, null);
+        if (man == null) return "No manager present for world "+worldName;
+
+        for (ChunkTicket ticket: man.getActiveTickets()) {
+            if (ticket.getUUID().toString().equals(id)) {
+             return ticket.toString();
+            }
+        }
+        return "No ticket found";
+    }
+
 
 
     public static Set<Construct> getActivePieces() {

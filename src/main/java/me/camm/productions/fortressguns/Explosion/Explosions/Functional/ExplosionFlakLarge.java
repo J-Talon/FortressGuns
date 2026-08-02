@@ -1,10 +1,9 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 
-import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFunctional;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectFlakLarge;
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;

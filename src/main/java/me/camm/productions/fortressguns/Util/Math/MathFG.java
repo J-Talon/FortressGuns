@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util;
+package me.camm.productions.fortressguns.Util.Math;
 
 import org.bukkit.Location;
 import org.bukkit.util.EulerAngle;

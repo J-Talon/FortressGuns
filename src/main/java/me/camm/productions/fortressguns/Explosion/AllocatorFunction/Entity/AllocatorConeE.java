@@ -1,8 +1,8 @@
 package me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.Allocator;
-import me.camm.productions.fortressguns.Util.Tuple2;
-import me.camm.productions.fortressguns.Util.Tuple3;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple3;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BoundingBox;

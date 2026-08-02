@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util;
+package me.camm.productions.fortressguns.Util.Math;
 
 public class Tuple2<A,B> {
 
@@ -33,19 +33,4 @@ public class Tuple2<A,B> {
         return "<"+a+", "+b+">";
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Tuple2<?,?>)) {
-            return super.equals(obj);
-        }
-
-        try {
-            Tuple2<A, B> tup = (Tuple2<A, B>) obj;
-            return tup.a == this.a && tup.b == this.b;
-        }
-        catch (ClassCastException e) {
-            return false;
-        }
-
-    }
 }

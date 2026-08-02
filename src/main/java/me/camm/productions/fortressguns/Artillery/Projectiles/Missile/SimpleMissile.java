@@ -6,7 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
-import me.camm.productions.fortressguns.Util.MathFG;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
@@ -21,7 +21,7 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import static me.camm.productions.fortressguns.Util.MathFG.randomOrthagonal;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
 public class SimpleMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
 

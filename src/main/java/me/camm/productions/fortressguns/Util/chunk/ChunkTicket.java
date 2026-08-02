@@ -2,7 +2,8 @@ package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 public class ChunkTicket {
 
     private final Construct construct;
-    private final Set<Tuple2<Integer, Integer>> chunks;
+    private final Set<IntTuple2> chunks;
     private final Chunk coreChunk;
     private final Entity oldCore;
     private final String worldName;
@@ -33,7 +34,7 @@ public class ChunkTicket {
     private Logger logger;
 
 
-    public ChunkTicket(Set<Tuple2<Integer, Integer>> chunks, int loaded, Construct construct, Entity oldCore, World world) {
+    public ChunkTicket(Set<IntTuple2> chunks, int loaded, Construct construct, Entity oldCore, World world) {
         this.construct = construct;
         this.chunks = chunks;
         numChunks = chunks.size();
@@ -104,7 +105,7 @@ public class ChunkTicket {
         }
 
         World world = oldCore.getWorld();
-        for (Tuple2<Integer, Integer> tup: chunks) {
+        for (IntTuple2 tup: chunks) {
 
             if (!world.isChunkLoaded(tup.getA(), tup.getB())) {
                 lock.unlock();
@@ -112,6 +113,8 @@ public class ChunkTicket {
             }
 
             Chunk c = world.getChunkAt(tup.getA(), tup.getB());
+
+
             if (! c.isEntitiesLoaded()) {
                 lock.unlock();
                 return false;
@@ -119,6 +122,16 @@ public class ChunkTicket {
         }
 
         lock.unlock();
+        return true;
+    }
+
+
+    public void markLoadTime() {
+        this.loadTime = System.currentTimeMillis();
+    }
+
+
+    public synchronized boolean canFinish() {
         return (System.currentTimeMillis() - loadTime >= 1000);
     }
 
@@ -129,7 +142,7 @@ public class ChunkTicket {
     }
 
 
-    public Set<Tuple2<Integer, Integer>> getChunks() {
+    public Set<IntTuple2> getChunks() {
         return chunks;
     }
 
@@ -161,10 +174,18 @@ public class ChunkTicket {
 
     @Override
     public String toString() {
-
         String s = getUUID().toString() + " @ "+worldName+": ";
-        for (Tuple2<Integer, Integer> c: chunks) {
-            s = s +" "+ c.toString();
+        for (IntTuple2 c: chunks) {
+
+            String mod = "";
+            if (world.isChunkLoaded(c.getA(), c.getB())) {
+                mod += "l";
+
+                Chunk chunk = world.getChunkAt(c.getA(), c.getB());
+                if (chunk.isEntitiesLoaded())
+                    mod += "e";
+            }
+            s = s + " " + mod + c.toString();
         }
         return s;
 
