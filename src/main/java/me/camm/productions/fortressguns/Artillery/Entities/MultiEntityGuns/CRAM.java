@@ -69,7 +69,7 @@ public class CRAM extends Artillery implements AutoTracking {
 
     @Override
     protected boolean instantiateParts() {
-        pivot = StandHelper.createCore(getCurrentLocation(),new ItemStack(Material.STONE),aim,world,this);
+        pivot = StandHelper.createCore(initialLoc ,new ItemStack(Material.STONE),aim,world,this);
         return true;
     }
 

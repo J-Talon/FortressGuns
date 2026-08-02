@@ -251,7 +251,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         Location nextStemLoc;
         for (int slot = 0; slot < stem.length; slot ++) {
-            nextStemLoc = getCurrentLocation().clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
+            nextStemLoc = initialLoc.clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
             stem[slot] = StandHelper.createInvisiblePart(nextStemLoc, BODY, horizontal,world, this);
 
             if (stem[slot] == null)

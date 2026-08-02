@@ -25,11 +25,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- * @author CAMM
- *
+
+
+
+
+/*
+
+todo I think it's a better idea to abandon pdcs entirely and use
+a file based system
+
+especially seeing how unreliable chunk loading is, I think that
+having a file based tracking system which isn't affected by the wacky loading will
+be much better
+
  */
+
 
 public class ChunkLoader implements Listener {
 
@@ -45,6 +58,7 @@ public class ChunkLoader implements Listener {
 
     private final ReentrantLock lock;
     private final BukkitTask task;
+    private Logger logger;
 
     static {
       pieces = new HashMap<>();
@@ -62,6 +76,7 @@ public class ChunkLoader implements Listener {
 
 
     private ChunkLoader() {
+
         this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
         this.lock = new ReentrantLock();
         BukkitRunnable runnable = new BukkitRunnable() {
@@ -82,6 +97,7 @@ public class ChunkLoader implements Listener {
         };
 
         task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);
+        logger = FortressGuns.getInstance().getLogger();
     }
 
     public static ChunkLoader getInstance() {
@@ -106,10 +122,20 @@ public class ChunkLoader implements Listener {
         int z = chunk.getZ();
 
         updateTrackedWorlds(name);
+
+        logger.log(Level.INFO,"Contains chunk "+x +" "+ z +" ? "+pieces.get(name).containsChunk(x,z));
+
+
+
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
 
-        if (tickets != null)
+        if (tickets != null) {
+            for (ChunkTicket ticket: tickets) {
+                logger.log(Level.INFO, "Ticket "+ticket.getUUID() +" awaiting assembly");
+            }
+
             assembledTickets.addAll(tickets);
+        }
         discoverConstructs(chunk);
 
         lock.unlock();
@@ -118,6 +144,7 @@ public class ChunkLoader implements Listener {
 
     private void discoverConstructs(Chunk chunk) {
 
+        World world = chunk.getWorld();
         for (Entity e: chunk.getEntities()) {
             PersistentDataContainer pdc = e.getPersistentDataContainer();
             if (!pdc.has(key, PersistentDataType.INTEGER_ARRAY))
@@ -128,16 +155,22 @@ public class ChunkLoader implements Listener {
                 continue;
 
             struct.calculateOccupiedChunks();
-            Set<Chunk> loadedChunks = struct.getOccupiedChunks();
+            Set<Tuple2<Integer, Integer>> loadedChunks = struct.getOccupiedChunks();
 
-            int loaded = (int)loadedChunks.stream().filter(Chunk::isLoaded).count();
+            int loaded = (int)loadedChunks.stream().filter(tup -> {
+                return world.isChunkLoaded(tup.getA(), tup.getB());
+            }).count();
+
             ChunkTicket ticket;
             if (loaded >= loadedChunks.size()) {
-                ticket = createTicket(loadedChunks, struct, e, 0);
+                ticket = createTicket(loadedChunks, struct, e, 0); //1
+                logger.log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
                 assembledTickets.add(ticket);
             }
             else {
-                ticket = createTicket(loadedChunks, struct, e, 0);
+                ticket = createTicket(loadedChunks, struct, e, 0); //loaded
+                logger.log(Level.INFO, "Adding loading ticket "+ticket.getUUID() +" at "+ticket.getCurrentLoaded() +" / " + ticket.getTotalChunks());
+                logger.log(Level.INFO, ticket.toString());
                 addLoadingTicket(ticket, chunk.getWorld());
             }
         }
@@ -184,14 +217,27 @@ public class ChunkLoader implements Listener {
             if (!struct.chunkLoaded())
                 continue;
 
+
+
+            //todo world.getChunkAt(x,z) WILL load the chunk in question
+            //this is probably causing some of the issues with your system
+            //we removed them. now
+            // you need to figure out what's causing the chunk loading callbacks to not fire
+
+            //I'm guessing the issue is worldticketmanager::update but might be wrong
+            //technially the keys **should be all x and zs in the chunk stuff
+
+
             struct.calculateOccupiedChunks();
-            Set<Chunk> chunks = struct.getOccupiedChunks();
+
+            Set<Tuple2<Integer, Integer>> chunks = struct.getOccupiedChunks();
 
             Entity pivot = struct.getCoreEntity();
             struct.unload();
 
             activePieces.remove(struct);
-            if (chunks.stream().filter(Chunk::isLoaded).count() - 1 <= 0)
+            int loaded = (int)chunks.stream().filter(tup -> {return world.isChunkLoaded(tup.getA(), tup.getB());}).count() -1;
+            if (loaded <= 0)
                 continue;
 
             //-1 because this chunk will be unloaded.
@@ -208,19 +254,27 @@ public class ChunkLoader implements Listener {
         lock.lock();
 
         Iterator<ChunkTicket> iter = assembledTickets.iterator();
-        while (iter.hasNext()) {
+        Set<ChunkTicket> removals = new HashSet<>();
 
+        while (iter.hasNext()) {
             ChunkTicket next = iter.next();
             if (next.isAssembled()) {
+                logger.log(Level.INFO, "Completed ticket "+next.getUUID());
                 next.finish();
-                iter.remove();
+                removals.add(next);
                 continue;
             }
 
             if (!next.isLoaded()) {
-                iter.remove();
+                removals.add(next);
             }
         }
+
+        for (ChunkTicket ticket: removals) {
+            managerRemove(ticket.getWorldName(), ticket);
+            assembledTickets.remove(ticket);
+        }
+
         lock.unlock();
     }
 
@@ -231,19 +285,21 @@ public class ChunkLoader implements Listener {
 
 
 
-    public ChunkTicket createTicket(Set<Chunk> chunks, Construct construct, Entity pdc, int offset) {
-        Set<Tuple2<Integer, Integer>> coords = new HashSet<>();
-        int loaded = 0;
-        for (Chunk chunk: chunks) {
-            coords.add(new Tuple2<>(chunk.getX(), chunk.getZ()));
-            if (chunk.isLoaded()) {
-                loaded ++;
-            }
-        }
-        loaded += offset;
+    public ChunkTicket createTicket(Set<Tuple2<Integer, Integer>> chunks, Construct construct, Entity pdc, int offset) {
+        World world = pdc.getWorld();
 
-        return new ChunkTicket(coords,loaded,construct, pdc);
+        int loaded = 0;
+        for (Tuple2<Integer, Integer> tup: chunks) {
+            if (world.isChunkLoaded(tup.getA(), tup.getB()))
+                loaded ++;
+        }
+
+        loaded += offset;
+        return new ChunkTicket(chunks,loaded,construct, pdc, world);
     }
+
+
+
 
     public synchronized @Nullable Set<ChunkTicket> managerUpdate(String worldName, int x, int z, boolean onload) {
         WorldTicketManager manager = pieces.getOrDefault(worldName, null);
@@ -252,6 +308,17 @@ public class ChunkLoader implements Listener {
 
         return manager.update(x,z, onload);
     }
+
+
+    private synchronized void managerRemove(String worldName, ChunkTicket ticket) {
+        WorldTicketManager man = pieces.getOrDefault(worldName, null);
+        if (man == null)
+            return;
+        man.removeTicket(ticket);
+
+
+    }
+
 
 
     //ticket for partially loaded constructs

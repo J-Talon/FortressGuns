@@ -202,7 +202,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
     protected boolean instantiateParts()
     {
 
-        pivot = StandHelper.createCore(getCurrentLocation(), BODY, aim, world, this);
+        pivot = StandHelper.createCore(this.initialLoc, BODY, aim, world, this);
 
         //pivot.setRotation(aim);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(DIST_X, DIST_Y,Math.PI*1.5),SEAT,new EulerAngle(0, aim.getY(),0),world,this);

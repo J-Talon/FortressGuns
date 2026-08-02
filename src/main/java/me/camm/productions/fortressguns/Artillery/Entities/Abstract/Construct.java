@@ -1,9 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Util.Tuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import org.bukkit.Chunk;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 
@@ -30,9 +32,13 @@ public abstract class Construct {
 
     public abstract boolean chunkLoaded();
 
-    public abstract Set<Chunk> getOccupiedChunks();
+    public abstract Set<Tuple2<Integer, Integer>> getOccupiedChunks();
 
     public abstract Chunk getCurrentChunk();
+
+    public abstract Chunk getInitialChunk();
+
+    public abstract Location getInitialLoc();
 
     public abstract void calculateOccupiedChunks();
 
