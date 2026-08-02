@@ -30,9 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static me.camm.productions.fortressguns.Util.MathFG.nextHorizontalAngle;
-import static me.camm.productions.fortressguns.Util.MathFG.nextVerticalAngle;
-
 
 public class MissileLauncher extends ArtilleryRideable {
 
@@ -212,7 +209,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
     @Override
     protected boolean instantiateParts() {
-        pivot = StandHelper.createCore(initialLocation.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
+        pivot = StandHelper.createCore(getCurrentLocation().add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
@@ -220,7 +217,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         if (health <= 0)
             setHealth(maxHealth);
-        recalculateOccupiedChunks();
+        calculateOccupiedChunks();
 
         return true;
     }
@@ -254,7 +251,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
         Location nextStemLoc;
         for (int slot = 0; slot < stem.length; slot ++) {
-            nextStemLoc = initialLocation.clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
+            nextStemLoc = getCurrentLocation().clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
             stem[slot] = StandHelper.createInvisiblePart(nextStemLoc, BODY, horizontal,world, this);
 
             if (stem[slot] == null)

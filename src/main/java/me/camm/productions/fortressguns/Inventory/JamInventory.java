@@ -103,7 +103,7 @@ public class JamInventory extends PanelInventory {
                     if (body.requiresReloading()) {
                         body.setAmmo(Math.max(0, body.getAmmo() - 1));
                         ItemStack ammoDrop = ConstructItemHelper.createAmmoItem(body.getLoadedAmmoType());
-                        world.dropItem(body.getInitialLocation(), ammoDrop);
+                        world.dropItem(body.getCurrentLocation(), ammoDrop);
                     }
 
                     body.setJammed(false);

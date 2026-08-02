@@ -1,17 +1,12 @@
-package me.camm.productions.fortressguns.Handlers;
+package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization;
+import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Tuple2;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
@@ -21,15 +16,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.EntitiesLoadEvent;
-import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author CAMM
@@ -40,13 +35,21 @@ public class ChunkLoader implements Listener {
 
 
     private final static Map<String, WorldTicketManager> pieces;
-    private final static Set<Construct> activePieces;
 
+
+    private final static Set<Construct> activePieces;
+    private final static Set<ChunkTicket> assembledTickets;
     private static ChunkLoader loader = null;
+    private final NamespacedKey key;
+
+
+    private final ReentrantLock lock;
+    private final BukkitTask task;
 
     static {
       pieces = new HashMap<>();
       activePieces = new HashSet<>();
+      assembledTickets = new HashSet<>();
     }
 
     @EventHandler
@@ -58,7 +61,28 @@ public class ChunkLoader implements Listener {
     }
 
 
-    private ChunkLoader() {}
+    private ChunkLoader() {
+        this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
+        this.lock = new ReentrantLock();
+        BukkitRunnable runnable = new BukkitRunnable() {
+            @Override
+            public void run() {
+
+                if (!FortressGuns.getInstance().isEnabled())
+                    cancel();
+
+                ENTER_CHUNKS:
+                {
+                    if (assembledTickets.isEmpty())
+                        break ENTER_CHUNKS;
+
+                    tick();
+                }
+            }
+        };
+
+        task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);
+    }
 
     public static ChunkLoader getInstance() {
         if (loader == null)
@@ -70,7 +94,10 @@ public class ChunkLoader implements Listener {
     //entities loaded = false
     //chunk loaded = true
     @EventHandler
-    public synchronized void onChunkLoad(ChunkLoadEvent event) {
+    public void onChunkLoad(ChunkLoadEvent event) {
+
+        lock.lock();
+
         World world = event.getWorld();
         Chunk chunk = event.getChunk();
         String name = world.getName();
@@ -78,77 +105,54 @@ public class ChunkLoader implements Listener {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-        updateWorldEntries(name);
-
+        updateTrackedWorlds(name);
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
-        if (tickets != null) {
-            for (ChunkTicket ticket : tickets) {
-           //     System.out.println("load: " +ticket.getUUID()+ " "+ ticket.chunkString());
-                ticket.onFinalizeLoad();
-                activePieces.add(ticket.getConstruct());
-            }
-        }
+
+        if (tickets != null)
+            assembledTickets.addAll(tickets);
+        discoverConstructs(chunk);
+
+        lock.unlock();
+    }
 
 
-        NamespacedKey key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
+    private void discoverConstructs(Chunk chunk) {
 
-        //discover
-        for (Entity entity: chunk.getEntities()) {
-
-            PersistentDataContainer pdc = entity.getPersistentDataContainer();
-            if (!pdc.has(key, PersistentDataType.INTEGER_ARRAY)) {
+        for (Entity e: chunk.getEntities()) {
+            PersistentDataContainer pdc = e.getPersistentDataContainer();
+            if (!pdc.has(key, PersistentDataType.INTEGER_ARRAY))
                 continue;
-            }
 
-         //   System.out.println("loop for chunk: "+ x +" "+z);
-            Construct struct = deserializeConstruct(entity.getLocation(),pdc, key);  ////
-            if (struct == null) {
+            Construct struct = FactorySerialization.deserializeConstruct(e.getLocation(),pdc, key);
+            if (struct == null)
                 continue;
-            }
 
-            struct.recalculateOccupiedChunks();
+            struct.calculateOccupiedChunks();
             Set<Chunk> loadedChunks = struct.getOccupiedChunks();
 
             int loaded = (int)loadedChunks.stream().filter(Chunk::isLoaded).count();
-            if (loaded == loadedChunks.size()) {
-           //     System.out.println("discover: spawn "+x+" "+z +" "+struct.getType() + entity.getUniqueId());
-                entity.remove();
-
-
-
-                // I really frickin hate this
-                // there's gotta be a better way
-                // cause this is stupid as crap
-
-                //I'm guessing that the reason why it's
-                //acting like this is because of different load states for chunks
-                //which unfortunately I CANNOT DO ANYTHING ABOUT AT THE MOMENT CAUSE IT'S 1.17.1
-
-                new BukkitRunnable() {
-
-                    public void run() {
-                        struct.spawn();
-
-                        activePieces.add(struct);
-                    }
-                }.runTaskLater(FortressGuns.getInstance(), 20);
-
-
+            ChunkTicket ticket;
+            if (loaded >= loadedChunks.size()) {
+                ticket = createTicket(loadedChunks, struct, e, 0);
+                assembledTickets.add(ticket);
             }
             else {
-                //0 because the chunk is already loaded
-             ChunkTicket ticket = createTicket(loadedChunks,struct,entity,0);
-             addLoadingTicket(ticket, world);
-
+                ticket = createTicket(loadedChunks, struct, e, 0);
+                addLoadingTicket(ticket, chunk.getWorld());
             }
         }
     }
 
 
+    //-----------------unloading logic-----------------------------
+
+
     //entities loaded = true
     //chunk loaded = true
     @EventHandler
-    public synchronized void onChunkUnload(ChunkUnloadEvent event) {
+    public void onChunkUnload(ChunkUnloadEvent event) {
+
+        lock.lock();
 
         Chunk chunk = event.getChunk();
         World world = event.getWorld();
@@ -156,53 +160,75 @@ public class ChunkLoader implements Listener {
         int x = chunk.getX();
         int z = chunk.getZ();
 
-
        managerUpdate(world.getName(), x, z, false);
+       shelveConstructs(chunk, world);
+
+       lock.unlock();
+    }
 
 
-        NamespacedKey key = new NamespacedKey(FortressGuns.getInstance(),FactorySerialization.getKey());
-
+    private void shelveConstructs(Chunk chunk, World world) {
         //discover on unload
         for (Entity entity: chunk.getEntities()) {
 
             //will require a translator
             net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
-
             if (!(nms instanceof ComponentAS component))
                 continue;
 
-            if (entity.getPersistentDataContainer().has(key,PersistentDataType.INTEGER_ARRAY)) {
+            if (entity.getPersistentDataContainer().has(key,PersistentDataType.INTEGER_ARRAY))
                 continue;
-            }
 
             Construct struct = component.getBody();
 
             if (!struct.chunkLoaded())
                 continue;
 
-            struct.recalculateOccupiedChunks();
+            struct.calculateOccupiedChunks();
             Set<Chunk> chunks = struct.getOccupiedChunks();
 
             Entity pivot = struct.getCoreEntity();
-
-
-          //  System.out.println("Unloading: "+pivot.getUniqueId());
             struct.unload();
 
-
             activePieces.remove(struct);
-
             if (chunks.stream().filter(Chunk::isLoaded).count() - 1 <= 0)
                 continue;
 
             //-1 because this chunk will be unloaded.
             ChunkTicket ticket = createTicket(chunks, struct, pivot, -1);
-
-         //   System.out.println("adding loading ticket for: "+ticket.getUUID()+" "+ticket.chunkString()+" "+ticket.getConstruct().getType());
             addLoadingTicket(ticket,world);
         }
-
     }
+
+
+
+
+    public void tick() {
+
+        lock.lock();
+
+        Iterator<ChunkTicket> iter = assembledTickets.iterator();
+        while (iter.hasNext()) {
+
+            ChunkTicket next = iter.next();
+            if (next.isAssembled()) {
+                next.finish();
+                iter.remove();
+                continue;
+            }
+
+            if (!next.isLoaded()) {
+                iter.remove();
+            }
+        }
+        lock.unlock();
+    }
+
+
+
+
+    //--------------------------------------------------
+
 
 
     public ChunkTicket createTicket(Set<Chunk> chunks, Construct construct, Entity pdc, int offset) {
@@ -228,23 +254,6 @@ public class ChunkLoader implements Listener {
     }
 
 
-    public @Nullable Construct deserializeConstruct(Location loc, PersistentDataContainer pdc, NamespacedKey key) {
-
-        int[] data = pdc.get(key, PersistentDataType.INTEGER_ARRAY);
-
-        if (data == null || data.length == 0)
-            return null;
-
-        ConstructType type = FactorySerialization.deserializeType(data[0]);
-        if (type == null)
-            return null;
-
-        ConstructFactory<?> factory = type.getFactory();
-     //   System.out.println("chunk loading arty ");
-        return factory.create(loc,data);
-
-    }
-
     //ticket for partially loaded constructs
     public void addLoadingTicket(ChunkTicket ticket, World world) {
         WorldTicketManager manager = pieces.get(world.getName());
@@ -253,10 +262,14 @@ public class ChunkLoader implements Listener {
 
 
 
-    public void updateWorldEntries(String worldName) {
+    public void updateTrackedWorlds(String worldName) {
         if (!pieces.containsKey(worldName)) {
             pieces.put(worldName, new WorldTicketManager(worldName));
         }
+    }
+
+    public void stop() {
+        task.cancel();
     }
 
 

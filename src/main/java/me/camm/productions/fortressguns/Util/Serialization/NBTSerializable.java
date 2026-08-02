@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.DataLoading;
+package me.camm.productions.fortressguns.Util.Serialization;
 
 public interface NBTSerializable<T> {
 

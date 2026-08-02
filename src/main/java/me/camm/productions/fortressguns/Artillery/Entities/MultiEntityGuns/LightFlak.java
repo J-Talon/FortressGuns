@@ -6,7 +6,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;

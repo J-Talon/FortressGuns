@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.DataLoading;
+package me.camm.productions.fortressguns.Util.Serialization;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.DataLoading.Config.*;
+import me.camm.productions.fortressguns.Util.Serialization.Config.*;
 import org.bukkit.plugin.Plugin;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;

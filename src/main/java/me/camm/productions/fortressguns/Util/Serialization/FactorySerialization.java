@@ -1,8 +1,14 @@
-package me.camm.productions.fortressguns.Artillery.Entities.Generation;
+package me.camm.productions.fortressguns.Util.Serialization;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,6 +110,23 @@ public class FactorySerialization {
         else {
             struct.setHealth(0);
         }
+    }
+
+
+    public static @Nullable Construct deserializeConstruct(Location loc, PersistentDataContainer pdc, NamespacedKey key) {
+
+        int[] data = pdc.get(key, PersistentDataType.INTEGER_ARRAY);
+
+        if (data == null || data.length == 0)
+            return null;
+
+        ConstructType type = FactorySerialization.deserializeType(data[0]);
+        if (type == null)
+            return null;
+
+        ConstructFactory<?> factory = type.getFactory();
+        return factory.create(loc,data);
+
     }
 
 

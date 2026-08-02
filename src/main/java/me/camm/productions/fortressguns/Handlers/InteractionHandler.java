@@ -14,6 +14,7 @@ import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Tuple3;
+import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;

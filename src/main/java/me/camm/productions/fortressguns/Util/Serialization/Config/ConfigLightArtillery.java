@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Config;
+package me.camm.productions.fortressguns.Util.Serialization.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.LightArtillery;
