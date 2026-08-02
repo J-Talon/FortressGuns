@@ -6,7 +6,6 @@ import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -50,7 +49,7 @@ public class ChunkLoader implements Listener {
 
     private final ReentrantLock lock;
     private final BukkitTask task;
-    private Logger logger;
+    private final Logger logger;
 
     static {
       pieces = new HashMap<>();
@@ -322,7 +321,7 @@ public class ChunkLoader implements Listener {
 
     public void updateTrackedWorlds(String worldName) {
         if (!pieces.containsKey(worldName)) {
-            pieces.put(worldName, new WorldTicketManager(worldName));
+            pieces.put(worldName, new WorldTicketManager());
         }
     }
 

@@ -1,8 +1,6 @@
 package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
-import me.camm.productions.fortressguns.Util.Math.Tuple2;
-
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -11,7 +9,7 @@ public class WorldTicketManager {
     private final Map<Integer, Map<Integer, Map<UUID, ChunkTicket>>> tickets;
     private final ReentrantLock lock;
 
-    public WorldTicketManager(String name) {
+    public WorldTicketManager() {
         tickets = new HashMap<>();
         this.lock = new ReentrantLock();
     }

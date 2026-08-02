@@ -3,7 +3,6 @@ package me.camm.productions.fortressguns.Util.chunk;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
-import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -31,7 +30,7 @@ public class ChunkTicket {
     AtomicInteger currentLoaded;
 
 
-    private Logger logger;
+    private final Logger logger;
 
 
     public ChunkTicket(Set<IntTuple2> chunks, int loaded, Construct construct, Entity oldCore, World world) {
@@ -56,9 +55,7 @@ public class ChunkTicket {
      */
     public synchronized boolean onLoad() {
 
-        if  (currentLoaded.updateAndGet((value) -> {
-            return Math.min(value + 1, numChunks);
-        }) > numChunks) {
+        if  (currentLoaded.updateAndGet((value) -> Math.min(value + 1, numChunks)) > numChunks) {
             this.loadTime = System.currentTimeMillis();
             logger.log(Level.INFO, getUUID() +" loaded, now at "+currentLoaded.get() +" / "+numChunks);
 
@@ -77,9 +74,7 @@ public class ChunkTicket {
     public synchronized boolean onUnload() {
 
         lock.lock();
-        int val = currentLoaded.updateAndGet((value) -> {
-            return Math.max(0, value - 1);
-        });
+        int val = currentLoaded.updateAndGet((value) -> Math.max(0, value - 1));
 
         logger.log(Level.INFO, getUUID() +" unloaded, now at "+val +" / "+numChunks);
 
@@ -167,14 +162,12 @@ public class ChunkTicket {
     }
 
     public boolean isLoaded() {
-        return construct.getOccupiedChunks().stream().filter(tup -> {
-            return world.isChunkLoaded(tup.getA(), tup.getB());
-        }).count() >= numChunks;
+        return construct.getOccupiedChunks().stream().filter(tup -> world.isChunkLoaded(tup.getA(), tup.getB())).count() >= numChunks;
     }
 
     @Override
     public String toString() {
-        String s = getUUID().toString() + " @ "+worldName+": ";
+        StringBuilder s = new StringBuilder(getUUID().toString() + " @ " + worldName + ": ");
         for (IntTuple2 c: chunks) {
 
             String mod = "";
@@ -185,9 +178,9 @@ public class ChunkTicket {
                 if (chunk.isEntitiesLoaded())
                     mod += "e";
             }
-            s = s + " " + mod + c.toString();
+            s.append(" ").append(mod).append(c);
         }
-        return s;
+        return s.toString();
 
     }
 }

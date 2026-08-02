@@ -65,7 +65,7 @@ public class CommandCheckTicket extends CommandHandler {
         if (ids == null) {return List.of("Error: No worlds loaded");}
 
         List<String> out = new ArrayList<>();
-        ids.forEach(id -> {out.add(id.toString());});
+        ids.forEach(id -> out.add(id.toString()));
         return out;
     }
 

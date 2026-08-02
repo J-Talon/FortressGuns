@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Util.command;
 
 import me.camm.productions.fortressguns.FortressGuns;
 import org.bukkit.command.*;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
