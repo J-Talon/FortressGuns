@@ -9,7 +9,7 @@ import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
-import me.camm.productions.fortressguns.Util.MathFG;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -202,7 +202,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
     protected boolean instantiateParts()
     {
 
-        pivot = StandHelper.createCore(initialLocation, BODY, aim, world, this);
+        pivot = StandHelper.createCore(this.initialLoc, BODY, aim, world, this);
 
         //pivot.setRotation(aim);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(DIST_X, DIST_Y,Math.PI*1.5),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
@@ -216,7 +216,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         }
 
         //for the base of the artillery
-        recalculateOccupiedChunks();
+        calculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
 

@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util;
+package me.camm.productions.fortressguns.Util.Math;
 
 public class Tuple2<A,B> {
 
@@ -28,4 +28,9 @@ public class Tuple2<A,B> {
     public void setB(B b) {
         this.b = b;
     }
+
+    public String toString() {
+        return "<"+a+", "+b+">";
+    }
+
 }

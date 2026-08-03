@@ -1,17 +1,12 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.*;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
 import org.bukkit.Location;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static me.camm.productions.fortressguns.Artillery.Entities.Generation.FactorySerialization.*;
+import static me.camm.productions.fortressguns.Util.Serialization.FactorySerialization.*;
 
 public abstract class ConstructFactory<T extends Construct> {
 

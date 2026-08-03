@@ -1,20 +1,17 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import org.bukkit.Chunk;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 
 
 import java.util.Set;
 import java.util.UUID;
-
-import static me.camm.productions.fortressguns.Util.MathFG.FULL_CIRCLE_DEG;
-import static me.camm.productions.fortressguns.Util.MathFG.RAD;
 
 public abstract class Construct {
 
@@ -36,11 +33,15 @@ public abstract class Construct {
 
     public abstract boolean chunkLoaded();
 
-    public abstract Set<Chunk> getOccupiedChunks();
+    public abstract Set<IntTuple2> getOccupiedChunks();
+
+    public abstract Chunk getCurrentChunk();
 
     public abstract Chunk getInitialChunk();
 
-    public abstract void recalculateOccupiedChunks();
+    public abstract Location getInitialLoc();
+
+    public abstract void calculateOccupiedChunks();
 
     public abstract Entity getCoreEntity();
 

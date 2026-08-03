@@ -5,7 +5,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;

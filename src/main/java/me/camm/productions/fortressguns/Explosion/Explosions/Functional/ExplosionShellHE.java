@@ -7,7 +7,7 @@ import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.Alloc
 import me.camm.productions.fortressguns.Explosion.Effect.EffectHE;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;

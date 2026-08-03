@@ -59,7 +59,7 @@ public class TestGun extends Artillery {
 
     @Override
     protected boolean instantiateParts() {
-        this.pivot = StandHelper.createCore(initialLocation, new ItemStack(Material.RED_TERRACOTTA),aim,world,this);
+        this.pivot = StandHelper.createCore(getCurrentLocation(), new ItemStack(Material.RED_TERRACOTTA),aim,world,this);
         return true;
     }
 

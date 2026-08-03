@@ -2,14 +2,14 @@ package me.camm.productions.fortressguns.Explosion.Effect;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionEffect;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-import static me.camm.productions.fortressguns.Util.MathFG.randomOrthagonal;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
 
 public class EffectHE extends ExplosionEffect<Tuple2<Double, Vector>> {

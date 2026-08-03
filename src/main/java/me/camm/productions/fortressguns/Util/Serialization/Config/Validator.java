@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.DataLoading.Config;
+package me.camm.productions.fortressguns.Util.Serialization.Config;
 
 import org.jetbrains.annotations.NotNull;
 

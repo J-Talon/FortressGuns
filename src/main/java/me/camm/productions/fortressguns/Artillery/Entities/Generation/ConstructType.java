@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Util.DataLoading.Config.*;
+import me.camm.productions.fortressguns.Util.Serialization.Config.*;
 import org.bukkit.ChatColor;
 
 public enum ConstructType {

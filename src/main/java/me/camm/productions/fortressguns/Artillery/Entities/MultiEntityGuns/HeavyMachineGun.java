@@ -6,9 +6,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.ChunkLoader;
 
-import me.camm.productions.fortressguns.Util.MathFG;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;

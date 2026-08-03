@@ -11,7 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
-import static me.camm.productions.fortressguns.Util.MathFG.linearInterpolate;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.linearInterpolate;
 
 
 public abstract class Allocator<R, I> {

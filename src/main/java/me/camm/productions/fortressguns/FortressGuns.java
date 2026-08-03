@@ -8,10 +8,10 @@ import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
-import me.camm.productions.fortressguns.Util.DataLoading.FileManager;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
-import org.bukkit.Bukkit;
+import me.camm.productions.fortressguns.Util.Serialization.FileManager;
+import me.camm.productions.fortressguns.Util.command.CommandListener;
+import net.minecraft.server.level.WorldServer;
+import net.minecraft.world.level.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,6 +27,8 @@ public final class FortressGuns extends JavaPlugin implements Listener {
 
     private static FortressGuns plugin;
     private InteractionHandler interactionHandler;
+    CommandListener commandHandler;
+
 
     public static Plugin getInstance(){
       return plugin;
@@ -38,16 +40,23 @@ public final class FortressGuns extends JavaPlugin implements Listener {
       FileManager.loadArtilleryConfig();
       interactionHandler = new InteractionHandler();
 
+
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(interactionHandler,this);
       manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(this, this);
       manager.registerEvents(ItemMergeHandler.getInstance(),this);
+
+      commandHandler = new CommandListener();
+
+
+
     }
 
     ///temporary
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+
         Player player = event.getPlayer();
         Inventory inv = player.getInventory();
 

@@ -1,24 +1,25 @@
-package me.camm.productions.fortressguns.Handlers;
+package me.camm.productions.fortressguns.Util.chunk;
 
-import me.camm.productions.fortressguns.Util.Tuple2;
-
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WorldTicketManager {
 
     private final Map<Integer, Map<Integer, Map<UUID, ChunkTicket>>> tickets;
-    String worldName;
+    private final ReentrantLock lock;
 
-    public WorldTicketManager(String name) {
+    public WorldTicketManager() {
         tickets = new HashMap<>();
-        this.worldName = name;
+        this.lock = new ReentrantLock();
     }
 
 
-    public synchronized void addTicket(ChunkTicket ticket) {
+    public void addTicket(ChunkTicket ticket) {
 
-        Set<Tuple2<Integer, Integer>> chunks = ticket.getChunks();
-        for (Tuple2<Integer, Integer> current : chunks) {
+        lock.lock();
+        Set<IntTuple2> chunks = ticket.getChunks();
+        for (IntTuple2 current : chunks) {
 
             int x = current.getA();
             int z = current.getB();
@@ -42,12 +43,16 @@ public class WorldTicketManager {
                 tickets.put(x, innerMap);
             }
         }
+
+        lock.unlock();
     }
 
     public synchronized void removeTicket(ChunkTicket ticket) {
-        Set<Tuple2<Integer, Integer>> chunks = ticket.getChunks();
 
-        for (Tuple2<Integer, Integer> chunk : chunks) {
+        lock.lock();
+        Set<IntTuple2> chunks = ticket.getChunks();
+
+        for (IntTuple2 chunk : chunks) {
             int x = chunk.getA();
             int z = chunk.getB();
 
@@ -74,6 +79,8 @@ public class WorldTicketManager {
             }
         }
 
+        lock.unlock();
+
     }
 
 
@@ -81,13 +88,19 @@ public class WorldTicketManager {
     //after updating them
     public synchronized Set<ChunkTicket> update(int x, int z, boolean onLoad) {
 
+        lock.lock();
+
         Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.getOrDefault(x, null);
-        if (innerMap == null)
+        if (innerMap == null) {
+            lock.unlock();
             return null;
+        }
 
         Map<UUID,ChunkTicket> ticketSet = innerMap.getOrDefault(z, null);
-        if (ticketSet == null)
+        if (ticketSet == null) {
+            lock.unlock();
             return null;
+        }
 
         Set<ChunkTicket> fullyLoaded = new HashSet<>();
         Set<ChunkTicket> fullyUnloaded = new HashSet<>();
@@ -107,6 +120,7 @@ public class WorldTicketManager {
             removeTicket(ticket);
         }
 
+        lock.unlock();
         return fullyLoaded;
     }
 

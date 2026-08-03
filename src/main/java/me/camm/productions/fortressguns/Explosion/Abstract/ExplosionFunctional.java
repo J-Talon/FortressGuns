@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Explosion.Abstract;
 
-import me.camm.productions.fortressguns.Util.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.Explosion;
