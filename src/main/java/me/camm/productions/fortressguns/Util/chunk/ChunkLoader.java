@@ -251,6 +251,7 @@ public class ChunkLoader implements Listener {
             if (next.isAssembled() && next.canFinish()) {
                 logger.log(Level.INFO, "Completed ticket "+next.getUUID());
                 next.finish();
+                activePieces.add(next.getConstruct());
                 removals.add(next);
                 continue;
             }

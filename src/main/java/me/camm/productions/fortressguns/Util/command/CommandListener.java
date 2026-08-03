@@ -14,7 +14,8 @@ import java.util.logging.Logger;
 
 
 enum CommandHeader {
-    CHECK_TICKET("ct");
+    CHECK_TICKET("ct"),
+    CHUNK_STATUS("cs");
 
     private final String s;
     private CommandHeader(String s) {
@@ -27,9 +28,12 @@ enum CommandHeader {
 
 }
 
+
+
 enum PluginCommands {
 
-    CT(CommandHeader.CHECK_TICKET, new CommandCheckTicket());
+    CT(CommandHeader.CHECK_TICKET, new CommandCheckTicket()),
+    CS(CommandHeader.CHUNK_STATUS, new CommandCheckChunk());
 
     private final CommandHeader head;
     private final CommandHandler hand;
@@ -48,8 +52,10 @@ enum PluginCommands {
 }
 
 
-public class CommandListener implements CommandExecutor, TabCompleter {
 
+
+
+public class CommandListener implements CommandExecutor, TabCompleter {
 
     private final Map<String, CommandHandler> handlers;
 
@@ -76,8 +82,10 @@ public class CommandListener implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String header, @NotNull String[] strings) {
-        if (!(handlers.containsKey(header)))
+        if (!(handlers.containsKey(header))) {
+            commandSender.sendMessage("Error: Could not find command handler");
             return true;
+        }
 
         return handlers.get(header).execute(commandSender, strings);
     }

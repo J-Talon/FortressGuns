@@ -10,6 +10,6 @@ commands:
     usage: /ct <uuid>
 
 
-  isl:
-    description: check if a chunk is loaded in current world
-    usage: /isl <x> <z>
+  cs:
+    description: check chunk status in current world (or default)
+    usage: /cs <x> <z>
