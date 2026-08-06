@@ -61,7 +61,7 @@ public class ChunkUtils {
         ChunkProviderServer provider = (ChunkProviderServer)nmsWorld.getChunkProvider();
         long pair = ChunkCoordIntPair.pair(x,z);
 
-        PlayerChunk playerChunk = (PlayerChunk)provider.a.k.get(pair);
+        PlayerChunk playerChunk = provider.a.k.get(pair);
         if (playerChunk == null) return false;
 
         return PlayerChunk.getChunkState(playerChunk.o).isAtLeast(PlayerChunk.State.d);
