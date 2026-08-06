@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 public enum InventoryCategory {
     RADAR(81,"Radar"),

@@ -1,22 +1,19 @@
-package me.camm.productions.fortressguns.ArtilleryItems;
+package me.camm.productions.fortressguns.item.ArtilleryItems;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ConstructItemHelper
+public class ItemUtils
 {
     private static final String CRATE = "Crate";
     private static final Material CHEST =  Material.CHEST;
@@ -27,6 +24,17 @@ public class ConstructItemHelper
 
 
     private static ItemStack stick = null;
+
+
+    /*
+    Ok you're gonna need the isItem() funcs in multiple locations potentially
+    the createItem() funcs can stay together
+
+    the helper funcs may want to be moved to their own separate thing
+
+    move interact, inv into parent dir item
+
+     */
 
     static {
         constructs = new HashMap<>();

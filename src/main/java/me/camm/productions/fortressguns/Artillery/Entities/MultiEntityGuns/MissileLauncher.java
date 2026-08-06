@@ -6,9 +6,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;

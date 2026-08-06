@@ -1,13 +1,13 @@
-package me.camm.productions.fortressguns.Inventory;
+package me.camm.productions.fortressguns.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Inventory.Abstract.PanelInventory;
-import me.camm.productions.fortressguns.Inventory.Abstract.StaticItem;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.PanelInventory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.StaticItem;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -102,7 +102,7 @@ public class JamInventory extends PanelInventory {
 
                     if (body.requiresReloading()) {
                         body.setAmmo(Math.max(0, body.getAmmo() - 1));
-                        ItemStack ammoDrop = ConstructItemHelper.createAmmoItem(body.getLoadedAmmoType());
+                        ItemStack ammoDrop = ItemUtils.createAmmoItem(body.getLoadedAmmoType());
                         world.dropItem(body.getCurrentLocation(), ammoDrop);
                     }
 

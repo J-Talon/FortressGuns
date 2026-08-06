@@ -8,17 +8,16 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectExplosionStandalone;
-import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
@@ -33,7 +32,6 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
@@ -700,7 +698,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         }
 
         if (dropItem) {
-            ConstructItemHelper.packageArtillery(this);
+            ItemUtils.packageArtillery(this);
         }
 
         super.destroy(dropItem, exploded);

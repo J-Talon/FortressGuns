@@ -1,6 +1,6 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
-import me.camm.productions.fortressguns.Inventory.*;
+import me.camm.productions.fortressguns.item.Inventory.*;
 
 public enum InventoryId {
 

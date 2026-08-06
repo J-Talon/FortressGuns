@@ -1,7 +1,7 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
@@ -95,7 +95,7 @@ public abstract class PanelInventory extends TransactionInventory {
     @Override
     protected boolean isStaticItem(ItemStack current) {
         for (StaticItem b: StaticItem.values()) {
-            if (ConstructItemHelper.matchesName(current, b.getName()))
+            if (ItemUtils.matchesName(current, b.getName()))
                 return true;
         }
         return false;
