@@ -28,11 +28,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-
-
-
-
+import static me.camm.productions.fortressguns.Util.chunk.ChunkUtils.createTicket;
+import static me.camm.productions.fortressguns.Util.chunk.ChunkUtils.isChunkEntityTicking;
 
 
 public class ChunkLoader implements Listener {
@@ -150,9 +147,7 @@ public class ChunkLoader implements Listener {
             struct.calculateOccupiedChunks();
             Set<IntTuple2> loadedChunks = struct.getOccupiedChunks();
 
-            int loaded = (int)loadedChunks.stream().filter(tup -> {
-                return world.isChunkLoaded(tup.getA(), tup.getB());
-            }).count();
+            int loaded = (int)loadedChunks.stream().filter(tup -> isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
 
             ChunkTicket ticket;
             if (loaded >= loadedChunks.size()) {
@@ -226,7 +221,7 @@ public class ChunkLoader implements Listener {
             struct.unload();
 
             activePieces.remove(struct);
-            int loaded = (int)chunks.stream().filter(tup -> {return world.isChunkLoaded(tup.getA(), tup.getB());}).count() -1;
+            int loaded = (int)chunks.stream().filter(tup -> isChunkEntityTicking(world,tup.getA(), tup.getB())).count() -1;
             if (loaded <= 0)
                 continue;
 
@@ -276,22 +271,6 @@ public class ChunkLoader implements Listener {
 
 
 
-    public ChunkTicket createTicket(Set<IntTuple2> chunks, Construct construct, Entity pdc, int offset) {
-        World world = pdc.getWorld();
-
-        int loaded = 0;
-        for (IntTuple2 tup: chunks) {
-            if (world.isChunkLoaded(tup.getA(), tup.getB()))
-                loaded ++;
-        }
-
-        loaded += offset;
-        return new ChunkTicket(chunks,loaded,construct, pdc, world);
-    }
-
-
-
-
     public synchronized @Nullable Set<ChunkTicket> managerUpdate(String worldName, int x, int z, boolean onload) {
         WorldTicketManager manager = pieces.getOrDefault(worldName, null);
         if (manager == null)
@@ -326,18 +305,14 @@ public class ChunkLoader implements Listener {
         }
     }
 
-    public void stop() {
-        task.cancel();
-    }
+
 
     public @Nullable List<UUID> getLoadingTickets(String worldName) {
         WorldTicketManager man = pieces.getOrDefault(worldName, null);
         if (man == null) return null;
 
         List<UUID> tickets = new ArrayList<>();
-        man.getActiveTickets().forEach(ticket -> {
-            tickets.add(ticket.getUUID());
-        });
+        man.getActiveTickets().forEach(ticket -> tickets.add(ticket.getUUID()));
         return tickets;
 
     }
@@ -355,7 +330,9 @@ public class ChunkLoader implements Listener {
         return "No ticket found";
     }
 
-
+    public void stop() {
+        task.cancel();
+    }
 
     public static Set<Construct> getActivePieces() {
         return activePieces;

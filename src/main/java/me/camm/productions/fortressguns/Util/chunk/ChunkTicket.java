@@ -102,18 +102,18 @@ public class ChunkTicket {
         World world = oldCore.getWorld();
         for (IntTuple2 tup: chunks) {
 
-            if (!world.isChunkLoaded(tup.getA(), tup.getB())) {
+            if (!ChunkUtils.isChunkEntityTicking(world, tup.getA(), tup.getB())) {
                 lock.unlock();
                 return false;
             }
 
-            Chunk c = world.getChunkAt(tup.getA(), tup.getB());
-
-
-            if (! c.isEntitiesLoaded()) {
-                lock.unlock();
-                return false;
-            }
+//            Chunk c = world.getChunkAt(tup.getA(), tup.getB());
+//
+//
+//            if (! c.isEntitiesLoaded()) {
+//                lock.unlock();
+//                return false;
+//            }
         }
 
         lock.unlock();
