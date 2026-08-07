@@ -13,3 +13,8 @@ commands:
   cs:
     description: check chunk status in current world (or default)
     usage: /cs <x> <z>
+
+
+  fginspect:
+    description: check an entity you are looking at for plugin construct PDC (within 10 blocks)
+    usage: /infocons

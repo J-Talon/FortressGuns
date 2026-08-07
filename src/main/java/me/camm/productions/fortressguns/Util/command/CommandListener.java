@@ -15,7 +15,8 @@ import java.util.logging.Logger;
 
 enum CommandHeader {
     CHECK_TICKET("ct"),
-    CHUNK_STATUS("cs");
+    CHUNK_STATUS("cs"),
+    INSPECT_ENTITY("fginspect");
 
     private final String s;
     private CommandHeader(String s) {
@@ -33,7 +34,8 @@ enum CommandHeader {
 enum PluginCommands {
 
     CT(CommandHeader.CHECK_TICKET, new CommandCheckTicket()),
-    CS(CommandHeader.CHUNK_STATUS, new CommandCheckChunk());
+    CS(CommandHeader.CHUNK_STATUS, new CommandCheckChunk()),
+    FG_INSPECT(CommandHeader.INSPECT_ENTITY, new CommandFGInspect());
 
     private final CommandHeader head;
     private final CommandHandler hand;

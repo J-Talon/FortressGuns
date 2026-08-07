@@ -127,7 +127,8 @@ public class ChunkTicket {
 
 
     public synchronized boolean canFinish() {
-        return (System.currentTimeMillis() - loadTime >= 1000);
+//        return (System.currentTimeMillis() - loadTime >= 1000);
+        return true;
     }
 
 
