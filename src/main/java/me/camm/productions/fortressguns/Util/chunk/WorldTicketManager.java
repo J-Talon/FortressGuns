@@ -42,7 +42,7 @@ public class WorldTicketManager {
         lock.unlock();
     }
 
-    public synchronized void removeTicket(ChunkTicket ticket) {
+    public void removeTicket(ChunkTicket ticket) {
 
         lock.lock();
         Set<IntTuple2> chunks = ticket.getChunks();
@@ -71,7 +71,7 @@ public class WorldTicketManager {
 
     //returns constructs which are fully loaded
     //after updating them
-    public synchronized Set<ChunkTicket> update(int x, int z, boolean onLoad) {
+    public Set<ChunkTicket> update(int x, int z, boolean onLoad) {
 
         lock.lock();
         long id = ChunkUtils.chunkId(x,z);
@@ -105,11 +105,13 @@ public class WorldTicketManager {
     }
 
 
-    public synchronized Set<ChunkTicket> getActiveTickets() {
+    public Set<ChunkTicket> getActiveTickets() {
+        lock.lock();
         Set<ChunkTicket> activeTickets = new HashSet<>();
         for (Map<UUID,ChunkTicket> inner : tickets.values()) {
                 activeTickets.addAll(inner.values());
         }
+        lock.unlock();
         return activeTickets;
     }
 

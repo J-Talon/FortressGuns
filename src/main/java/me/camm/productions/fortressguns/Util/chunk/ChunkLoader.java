@@ -47,7 +47,7 @@ public class ChunkLoader implements Listener {
     private final NamespacedKey key;
 
 
-    private final Lock lock;  //synchronized works too ya know
+    private final ReentrantLock lock;  //synchronized works too ya know
     private final BukkitTask task;
     private final Logger logger;
 
@@ -55,14 +55,6 @@ public class ChunkLoader implements Listener {
       pieces = new HashMap<>();
       activePieces = new HashSet<>();
       assembledTickets = new HashSet<>();
-    }
-
-    @EventHandler
-    public void onEntityPortal(EntityPortalEvent event) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
-        if (nms instanceof Component || nms instanceof ProjectileFG) {
-            event.setCancelled(true);
-        }
     }
 
 
@@ -79,9 +71,7 @@ public class ChunkLoader implements Listener {
 
                 ENTER_CHUNKS:
                 {
-                    lock.lock();
-                    if (assembledTickets.isEmpty()) {
-                        lock.unlock();
+                    if (assembledTickets.isEmpty()) {  //this shouldn't need a lock
                         break ENTER_CHUNKS;
                     }
 
@@ -103,6 +93,17 @@ public class ChunkLoader implements Listener {
             loader = new ChunkLoader();
         return loader;
     }
+
+
+
+    @EventHandler
+    public void onEntityPortal(EntityPortalEvent event) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
+        if (nms instanceof Component || nms instanceof ProjectileFG) {
+            event.setCancelled(true);
+        }
+    }
+
 
 
     //entities loaded = false
