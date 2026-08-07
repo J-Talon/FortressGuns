@@ -117,19 +117,9 @@ public class ChunkLoader implements Listener {
 
         updateTrackedWorlds(name);
 
-
-        if (pieces.get(name).containsChunk(x,z))
-            logger.log(Level.INFO, "Chunk loaded: "+x +" "+z);
-
-
-
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
 
         if (tickets != null) {
-            for (ChunkTicket ticket: tickets) {
-                logger.log(Level.INFO, "Ticket "+ticket.getUUID() +" awaiting assembly");
-            }
-
             assembledTickets.addAll(tickets);
         }
         discoverConstructs(chunk);
@@ -260,7 +250,7 @@ public class ChunkLoader implements Listener {
 
         while (iter.hasNext()) {
             ChunkTicket next = iter.next();
-            if (next.isAssembled() && next.canFinish()) {
+            if (next.isAssembled()) {
                 logger.log(Level.INFO, "Completed ticket "+next.getUUID());
                 next.finish();
                 activePieces.add(next.getConstruct());
