@@ -27,7 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class FortressGuns extends JavaPlugin implements Listener {
+public final class FortressGuns extends JavaPlugin {
 
     private static FortressGuns plugin;
     private InteractionHandler interactionHandler;
@@ -48,34 +48,12 @@ public final class FortressGuns extends JavaPlugin implements Listener {
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(interactionHandler,this);
       manager.registerEvents(new InventoryHandler(), this);
-      manager.registerEvents(this, this);
       manager.registerEvents(ItemMergeHandler.getInstance(),this);
 
       commandHandler = new CommandListener();
 
-
-
     }
 
-    ///temporary
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-
-        Player player = event.getPlayer();
-        Inventory inv = player.getInventory();
-
-        for (ConstructType type: ConstructType.values()) {
-            ItemStack created = ConstructItemHelper.createArtilleryItem(type);
-            inv.addItem(created);
-        }
-
-        for (AmmoItem item: AmmoItem.values()) {
-            ItemStack ammo = ConstructItemHelper.createAmmoItem(item);
-            inv.addItem(ammo);
-        }
-
-        inv.addItem(ConstructItemHelper.getStick());
-    }
 
     @Override
     public void onDisable() {
