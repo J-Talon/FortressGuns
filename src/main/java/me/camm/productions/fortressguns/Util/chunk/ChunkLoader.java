@@ -76,10 +76,14 @@ public class ChunkLoader implements Listener {
 
                 ENTER_CHUNKS:
                 {
+
+                    lock.lock();
                     if (assembledTickets.isEmpty())
                         break ENTER_CHUNKS;
 
+
                     tick();
+                    lock.unlock();
                 }
             }
         };
@@ -135,6 +139,8 @@ public class ChunkLoader implements Listener {
     private void discoverConstructs(Chunk chunk) {
 
         World world = chunk.getWorld();
+
+        lock.lock();
         for (Entity e: chunk.getEntities()) {
             PersistentDataContainer pdc = e.getPersistentDataContainer();
             if (!pdc.has(key, PersistentDataType.INTEGER_ARRAY))
@@ -163,6 +169,7 @@ public class ChunkLoader implements Listener {
                 addLoadingTicket(ticket, chunk.getWorld());
             }
         }
+        lock.unlock();
     }
 
 
@@ -237,29 +244,29 @@ public class ChunkLoader implements Listener {
     public void tick() {
 
         lock.lock();
-
         Iterator<ChunkTicket> iter = assembledTickets.iterator();
-        Set<ChunkTicket> removals = new HashSet<>();
+        //Set<ChunkTicket> removals = new HashSet<>();
 
         while (iter.hasNext()) {
             ChunkTicket next = iter.next();
             if (next.isAssembled() && next.canFinish()) {
                 logger.log(Level.INFO, "Completed ticket "+next.getUUID());
                 next.finish();
-                removals.add(next);
+                iter.remove();
+                //removals.add(next);
                 continue;
             }
 
             if (!next.isLoaded()) {
-                removals.add(next);
+                iter.remove();
+                //removals.add(next);
             }
         }
 
-        for (ChunkTicket ticket: removals) {
-            managerRemove(ticket.getWorldName(), ticket);
-            assembledTickets.remove(ticket);
-        }
-
+//        for (ChunkTicket ticket: removals) {
+//            managerRemove(ticket.getWorldName(), ticket);
+//            assembledTickets.remove(ticket);
+//        }
         lock.unlock();
     }
 
