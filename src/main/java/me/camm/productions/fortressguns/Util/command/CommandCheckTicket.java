@@ -15,23 +15,9 @@ public class CommandCheckTicket extends CommandHandler {
 
     private @Nullable List<UUID> getTickets(CommandSender sender) {
 
-        String w = findWorld(sender);
+        World w = findWorldOrDefault(sender);
         if (w == null) return null;
-        return ChunkLoader.getInstance().getLoadingTickets(w);
-    }
-
-
-    private String findWorld(CommandSender sender) {
-        World world;
-        if (! (sender instanceof Player)) {
-            List<World> worlds = sender.getServer().getWorlds();
-            if (worlds.isEmpty()) return null;
-
-            world = worlds.get(0);
-        }
-        else world = ((Player) sender).getWorld();
-        return world.getName();
-
+        return ChunkLoader.getInstance().getLoadingTickets(w.getName());
     }
 
 
@@ -43,13 +29,13 @@ public class CommandCheckTicket extends CommandHandler {
             return false;
         }
 
-        String w = findWorld(sender);
+        World w = findWorldOrDefault(sender);
         if (w == null) {
             sender.sendMessage("Could not find world");
             return true;
         }
 
-        sender.sendMessage(ChunkLoader.getInstance().checkTicket(w, args[0]));
+        sender.sendMessage(ChunkLoader.getInstance().checkTicket(w.getName(), args[0]));
         return true;
     }
 

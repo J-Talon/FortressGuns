@@ -107,13 +107,6 @@ public class ChunkTicket {
                 return false;
             }
 
-//            Chunk c = world.getChunkAt(tup.getA(), tup.getB());
-//
-//
-//            if (! c.isEntitiesLoaded()) {
-//                lock.unlock();
-//                return false;
-//            }
         }
 
         lock.unlock();
@@ -125,10 +118,6 @@ public class ChunkTicket {
         this.loadTime = System.currentTimeMillis();
     }
 
-
-    public synchronized boolean canFinish() {
-        return (System.currentTimeMillis() - loadTime >= 1000);
-    }
 
 
     public void finish() {
