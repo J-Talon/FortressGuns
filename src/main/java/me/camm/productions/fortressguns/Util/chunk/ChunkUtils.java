@@ -83,6 +83,10 @@ public class ChunkUtils {
     }
 
 
+    public static long chunkId(int x, int z) {
+        return (long)x & 4294967295L | ((long)z & 4294967295L) << 32;
+    }
+
 
 
 

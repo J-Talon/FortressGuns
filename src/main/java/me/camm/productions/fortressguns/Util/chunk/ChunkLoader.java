@@ -108,7 +108,7 @@ public class ChunkLoader implements Listener {
     //entities loaded = false
     //chunk loaded = true
     @EventHandler
-    public void onChunkLoad(ChunkLoadEvent event) {
+    public synchronized void onChunkLoad(ChunkLoadEvent event) {
 
         World world = event.getWorld();
         Chunk chunk = event.getChunk();
@@ -184,7 +184,7 @@ public class ChunkLoader implements Listener {
     //entities loaded = true
     //chunk loaded = true
     @EventHandler
-    public void onChunkUnload(ChunkUnloadEvent event) {
+    public synchronized void onChunkUnload(ChunkUnloadEvent event) {
 
         Chunk chunk = event.getChunk();
         World world = event.getWorld();
