@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,7 +47,7 @@ public class ChunkLoader implements Listener {
     private final NamespacedKey key;
 
 
-    private final ReentrantLock lock;
+    private final Lock lock;  //synchronized works too ya know
     private final BukkitTask task;
     private final Logger logger;
 
@@ -78,8 +79,11 @@ public class ChunkLoader implements Listener {
 
                 ENTER_CHUNKS:
                 {
-                    if (assembledTickets.isEmpty())
+                    lock.lock();
+                    if (assembledTickets.isEmpty()) {
+                        lock.unlock();
                         break ENTER_CHUNKS;
+                    }
 
                     tick();
                 }
@@ -106,8 +110,6 @@ public class ChunkLoader implements Listener {
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
 
-        lock.lock();
-
         World world = event.getWorld();
         Chunk chunk = event.getChunk();
         String name = world.getName();
@@ -120,11 +122,11 @@ public class ChunkLoader implements Listener {
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
 
         if (tickets != null) {
+            lock.lock();
             assembledTickets.addAll(tickets);
+            lock.unlock();
         }
         discoverConstructs(chunk);
-
-        lock.unlock();
     }
 
 
@@ -150,7 +152,10 @@ public class ChunkLoader implements Listener {
                 ticket = createTicket(loadedChunks, struct, e, 0); //1
                 logger.log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
                 ticket.markLoadTime();
+
+                lock.lock();
                 assembledTickets.add(ticket);
+                lock.unlock();
             }
             else {
                 ticket = createTicket(loadedChunks, struct, e, 0); //loaded
@@ -181,8 +186,6 @@ public class ChunkLoader implements Listener {
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
 
-        lock.lock();
-
         Chunk chunk = event.getChunk();
         World world = event.getWorld();
 
@@ -191,8 +194,6 @@ public class ChunkLoader implements Listener {
 
        managerUpdate(world.getName(), x, z, false);
        shelveConstructs(chunk, world);
-
-       lock.unlock();
     }
 
 
@@ -214,11 +215,6 @@ public class ChunkLoader implements Listener {
                 continue;
 
 
-
-            //world.getChunkAt(x,z) WILL load the chunk in question
-            //this is probably causing some of the issues with your system
-            //we removed them. now
-            // you need to figure out what's causing the chunk loading callbacks to not fire
 
             struct.calculateOccupiedChunks();
 
@@ -244,30 +240,21 @@ public class ChunkLoader implements Listener {
     public void tick() {
 
         lock.lock();
-
         Iterator<ChunkTicket> iter = assembledTickets.iterator();
-        Set<ChunkTicket> removals = new HashSet<>();
-
         while (iter.hasNext()) {
             ChunkTicket next = iter.next();
             if (next.isAssembled()) {
                 logger.log(Level.INFO, "Completed ticket "+next.getUUID());
                 next.finish();
                 activePieces.add(next.getConstruct());
-                removals.add(next);
+                iter.remove();
                 continue;
             }
 
             if (!next.isLoaded()) {
-                removals.add(next);
+                iter.remove();
             }
         }
-
-        for (ChunkTicket ticket: removals) {
-            managerRemove(ticket.getWorldName(), ticket);
-            assembledTickets.remove(ticket);
-        }
-
         lock.unlock();
     }
 
