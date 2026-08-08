@@ -20,7 +20,7 @@ public class CommandGiveItems extends CommandHandler {
         }
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("You must be in-world to use this command");
+            sender.sendMessage("You must be a player to use this command");
             return true;
         }
 

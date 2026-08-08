@@ -26,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,7 @@ public class ChunkLoader implements Listener {
     private ChunkLoader() {
 
         this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
-        this.lock = new ReentrantLock();
+        this.lock = new ReentrantLock(true); //fair lock
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -242,21 +241,29 @@ public class ChunkLoader implements Listener {
 
         lock.lock();
         Iterator<ChunkTicket> iter = assembledTickets.iterator();
-        while (iter.hasNext()) {
-            ChunkTicket next = iter.next();
-            if (next.isAssembled()) {
-                logger.log(Level.INFO, "Completed ticket "+next.getUUID());
-                next.finish();
-                activePieces.add(next.getConstruct());
-                iter.remove();
-                continue;
-            }
 
-            if (!next.isLoaded()) {
-                iter.remove();
+        try {
+            while (iter.hasNext()) {
+                ChunkTicket next = iter.next();
+                if (next.isAssembled()) {
+                    logger.log(Level.INFO, "Completed ticket " + next.getUUID());
+                    next.finish();
+                    activePieces.add(next.getConstruct());
+                    iter.remove();
+                    continue;
+                }
+
+                if (!next.isLoaded()) {
+                    iter.remove();
+                }
             }
         }
-        lock.unlock();
+        catch (RuntimeException e) {  // please have many oranges
+            logger.log(Level.WARNING, e.toString());
+        }
+        finally {
+            lock.unlock();
+        }
     }
 
 
