@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
@@ -18,6 +19,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
@@ -28,11 +30,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
-
-
-
-
+import static me.camm.productions.fortressguns.Util.chunk.ChunkUtils.createTicket;
+import static me.camm.productions.fortressguns.Util.chunk.ChunkUtils.isChunkEntityTicking;
 
 
 public class ChunkLoader implements Listener {
@@ -47,7 +46,7 @@ public class ChunkLoader implements Listener {
     private final NamespacedKey key;
 
 
-    private final ReentrantLock lock;
+    private final ReentrantLock lock;  //synchronized works too ya know
     private final BukkitTask task;
     private final Logger logger;
 
@@ -57,19 +56,11 @@ public class ChunkLoader implements Listener {
       assembledTickets = new HashSet<>();
     }
 
-    @EventHandler
-    public void onEntityPortal(EntityPortalEvent event) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
-        if (nms instanceof ComponentAS || nms instanceof ProjectileFG) {
-            event.setCancelled(true);
-        }
-    }
-
 
     private ChunkLoader() {
 
         this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
-        this.lock = new ReentrantLock();
+        this.lock = new ReentrantLock(true); //fair lock
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
             public void run() {
@@ -79,8 +70,9 @@ public class ChunkLoader implements Listener {
 
                 ENTER_CHUNKS:
                 {
-                    if (assembledTickets.isEmpty())
+                    if (assembledTickets.isEmpty()) {  //this shouldn't need a lock
                         break ENTER_CHUNKS;
+                    }
 
                     tick();
                 }
@@ -89,7 +81,11 @@ public class ChunkLoader implements Listener {
 
         task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);
         logger = FortressGuns.getInstance().getLogger();
+
+        JavaPlugin plugin = (JavaPlugin)FortressGuns.getInstance();
+        plugin.getServer().getWorlds().forEach(this::checkSpawnChunks);
     }
+
 
     public static ChunkLoader getInstance() {
         if (loader == null)
@@ -98,12 +94,21 @@ public class ChunkLoader implements Listener {
     }
 
 
+
+    @EventHandler
+    public void onEntityPortal(EntityPortalEvent event) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
+        if (nms instanceof Component || nms instanceof ProjectileFG) {
+            event.setCancelled(true);
+        }
+    }
+
+
+
     //entities loaded = false
     //chunk loaded = true
     @EventHandler
-    public void onChunkLoad(ChunkLoadEvent event) {
-
-        lock.lock();
+    public synchronized void onChunkLoad(ChunkLoadEvent event) {
 
         World world = event.getWorld();
         Chunk chunk = event.getChunk();
@@ -114,24 +119,14 @@ public class ChunkLoader implements Listener {
 
         updateTrackedWorlds(name);
 
-
-        if (pieces.get(name).containsChunk(x,z))
-            logger.log(Level.INFO, "Chunk loaded: "+x +" "+z);
-
-
-
         Set<ChunkTicket> tickets = managerUpdate(world.getName(),x,z,true);
 
         if (tickets != null) {
-            for (ChunkTicket ticket: tickets) {
-                logger.log(Level.INFO, "Ticket "+ticket.getUUID() +" awaiting assembly");
-            }
-
+            lock.lock();
             assembledTickets.addAll(tickets);
+            lock.unlock();
         }
         discoverConstructs(chunk);
-
-        lock.unlock();
     }
 
 
@@ -150,16 +145,17 @@ public class ChunkLoader implements Listener {
             struct.calculateOccupiedChunks();
             Set<IntTuple2> loadedChunks = struct.getOccupiedChunks();
 
-            int loaded = (int)loadedChunks.stream().filter(tup -> {
-                return world.isChunkLoaded(tup.getA(), tup.getB());
-            }).count();
+            int loaded = (int)loadedChunks.stream().filter(tup -> isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
 
             ChunkTicket ticket;
             if (loaded >= loadedChunks.size()) {
                 ticket = createTicket(loadedChunks, struct, e, 0); //1
                 logger.log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
                 ticket.markLoadTime();
+
+                lock.lock();
                 assembledTickets.add(ticket);
+                lock.unlock();
             }
             else {
                 ticket = createTicket(loadedChunks, struct, e, 0); //loaded
@@ -171,15 +167,24 @@ public class ChunkLoader implements Listener {
     }
 
 
+    private void checkSpawnChunks(World world) {
+
+        this.logger.log(Level.INFO, "Checking "+world.getName()+" for constructs...");
+        for (Chunk chunk: world.getLoadedChunks()) {
+            this.discoverConstructs(chunk);
+        }
+        this.logger.log(Level.INFO, "Check for world "+world.getName() +" done.");
+
+    }
+
+
     //-----------------unloading logic-----------------------------
 
 
     //entities loaded = true
     //chunk loaded = true
     @EventHandler
-    public void onChunkUnload(ChunkUnloadEvent event) {
-
-        lock.lock();
+    public synchronized void onChunkUnload(ChunkUnloadEvent event) {
 
         Chunk chunk = event.getChunk();
         World world = event.getWorld();
@@ -189,8 +194,6 @@ public class ChunkLoader implements Listener {
 
        managerUpdate(world.getName(), x, z, false);
        shelveConstructs(chunk, world);
-
-       lock.unlock();
     }
 
 
@@ -213,11 +216,6 @@ public class ChunkLoader implements Listener {
 
 
 
-            //world.getChunkAt(x,z) WILL load the chunk in question
-            //this is probably causing some of the issues with your system
-            //we removed them. now
-            // you need to figure out what's causing the chunk loading callbacks to not fire
-
             struct.calculateOccupiedChunks();
 
             Set<IntTuple2> chunks = struct.getOccupiedChunks();
@@ -226,7 +224,7 @@ public class ChunkLoader implements Listener {
             struct.unload();
 
             activePieces.remove(struct);
-            int loaded = (int)chunks.stream().filter(tup -> {return world.isChunkLoaded(tup.getA(), tup.getB());}).count() -1;
+            int loaded = (int)chunks.stream().filter(tup -> isChunkEntityTicking(world,tup.getA(), tup.getB())).count() -1;
             if (loaded <= 0)
                 continue;
 
@@ -242,52 +240,36 @@ public class ChunkLoader implements Listener {
     public void tick() {
 
         lock.lock();
-
         Iterator<ChunkTicket> iter = assembledTickets.iterator();
-        Set<ChunkTicket> removals = new HashSet<>();
 
-        while (iter.hasNext()) {
-            ChunkTicket next = iter.next();
-            if (next.isAssembled() && next.canFinish()) {
-                logger.log(Level.INFO, "Completed ticket "+next.getUUID());
-                next.finish();
-                removals.add(next);
-                continue;
-            }
+        try {
+            while (iter.hasNext()) {
+                ChunkTicket next = iter.next();
+                if (next.isAssembled()) {
+                    logger.log(Level.INFO, "Completed ticket " + next.getUUID());
+                    next.finish();
+                    activePieces.add(next.getConstruct());
+                    iter.remove();
+                    continue;
+                }
 
-            if (!next.isLoaded()) {
-                removals.add(next);
+                if (!next.isLoaded()) {
+                    iter.remove();
+                }
             }
         }
-
-        for (ChunkTicket ticket: removals) {
-            managerRemove(ticket.getWorldName(), ticket);
-            assembledTickets.remove(ticket);
+        catch (RuntimeException e) {  // please have many oranges
+            logger.log(Level.WARNING, e.toString());
         }
-
-        lock.unlock();
+        finally {
+            lock.unlock();
+        }
     }
 
 
 
 
     //--------------------------------------------------
-
-
-
-    public ChunkTicket createTicket(Set<IntTuple2> chunks, Construct construct, Entity pdc, int offset) {
-        World world = pdc.getWorld();
-
-        int loaded = 0;
-        for (IntTuple2 tup: chunks) {
-            if (world.isChunkLoaded(tup.getA(), tup.getB()))
-                loaded ++;
-        }
-
-        loaded += offset;
-        return new ChunkTicket(chunks,loaded,construct, pdc, world);
-    }
-
 
 
 
@@ -325,18 +307,14 @@ public class ChunkLoader implements Listener {
         }
     }
 
-    public void stop() {
-        task.cancel();
-    }
+
 
     public @Nullable List<UUID> getLoadingTickets(String worldName) {
         WorldTicketManager man = pieces.getOrDefault(worldName, null);
         if (man == null) return null;
 
         List<UUID> tickets = new ArrayList<>();
-        man.getActiveTickets().forEach(ticket -> {
-            tickets.add(ticket.getUUID());
-        });
+        man.getActiveTickets().forEach(ticket -> tickets.add(ticket.getUUID()));
         return tickets;
 
     }
@@ -354,7 +332,9 @@ public class ChunkLoader implements Listener {
         return "No ticket found";
     }
 
-
+    public void stop() {
+        task.cancel();
+    }
 
     public static Set<Construct> getActivePieces() {
         return activePieces;

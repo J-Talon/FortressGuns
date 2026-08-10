@@ -8,8 +8,28 @@ commands:
   ct:
     description: Check chunk ticket
     usage: /ct <uuid>
+    permission-message: You do not have permission to use this command
+    permission: fg.debug
 
 
-  isl:
-    description: check if a chunk is loaded in current world
-    usage: /isl <x> <z>
+  cs:
+    description: check chunk status in current world (or default)
+    usage: /cs <x> <z>
+    permission-message: You do not have permission to use this command
+    permission: fg.debug
+
+
+  fginspect:
+    description: check an entity you are looking at for plugin construct PDC (within 10 blocks)
+    usage: /infocons
+    permission: fg.debug
+    permission-message: You do not have permission to use this command
+
+
+  fgitems:
+    description: give the player all items from the plugin
+    usage: /fgitems
+    permission: fg.admin
+    permission-message: You do not have permission to use this command
+
+default-permission: op

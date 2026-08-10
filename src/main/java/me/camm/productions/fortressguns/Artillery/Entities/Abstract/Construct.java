@@ -83,6 +83,17 @@ public abstract class Construct {
        return id;
    }
 
+   public String toString() {
+       Location loc = getCoreEntity().getLocation();
+       String world;
+       if (loc.getWorld() == null)
+           world = "unknown";
+       else world = loc.getWorld().getName();
+
+       String format =  world + "<"+loc.getX() + ", "+loc.getY() +", "+ loc.getZ() +">";
+       return getType().getId() +" @ "+ format;
+   }
+
 
 
 }

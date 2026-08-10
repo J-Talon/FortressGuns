@@ -9,6 +9,7 @@ import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.Serialization.FileManager;
+import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.Util.command.CommandListener;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.level.World;
@@ -23,12 +24,15 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class FortressGuns extends JavaPlugin implements Listener {
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public final class FortressGuns extends JavaPlugin {
 
     private static FortressGuns plugin;
     private InteractionHandler interactionHandler;
     CommandListener commandHandler;
-
+    private Logger logger;
 
     public static Plugin getInstance(){
       return plugin;
@@ -39,44 +43,30 @@ public final class FortressGuns extends JavaPlugin implements Listener {
       plugin = this;
       FileManager.loadArtilleryConfig();
       interactionHandler = new InteractionHandler();
-
+      this.logger = getLogger();
 
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(interactionHandler,this);
       manager.registerEvents(new InventoryHandler(), this);
-      manager.registerEvents(this, this);
       manager.registerEvents(ItemMergeHandler.getInstance(),this);
 
       commandHandler = new CommandListener();
 
-
-
     }
 
-    ///temporary
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-
-        Player player = event.getPlayer();
-        Inventory inv = player.getInventory();
-
-        for (ConstructType type: ConstructType.values()) {
-            ItemStack created = ConstructItemHelper.createArtilleryItem(type);
-            inv.addItem(created);
-        }
-
-        for (AmmoItem item: AmmoItem.values()) {
-            ItemStack ammo = ConstructItemHelper.createAmmoItem(item);
-            inv.addItem(ammo);
-        }
-
-        inv.addItem(ConstructItemHelper.getStick());
-    }
 
     @Override
     public void onDisable() {
+        logger.log(Level.INFO,"Shutting down...");
         MissileLockNotifier.get(this).stop();
-        interactionHandler.onShutdown();
+
+        logger.info("Unloading active pieces...");
+        ChunkLoader.getActivePieces().forEach(construct -> {
+            if (!construct.isInvalid()) {
+                logger.info("Unloading construct: "+construct);
+                construct.unload();
+            }
+        });
     }
 
 

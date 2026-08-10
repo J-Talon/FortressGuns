@@ -221,6 +221,16 @@ destination from the source.
     }
 
 
+    /**
+     Input: x, y: non negative integers x,y
+     @return hash for x and y, also non negative
+     <a href="http://szudzik.com/ElegantPairing.pdf">...</a>
+     */
+    public static int pair2(int x, int y) {
+        if (Math.max(x,y) == x)
+            return y * y + x;
+        return x * x + x + y;
+    }
 
 
     //only for when the up direction is <0,1,0>

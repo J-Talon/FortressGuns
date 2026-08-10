@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class WorldTicketManager {
 
-    private final Map<Integer, Map<Integer, Map<UUID, ChunkTicket>>> tickets;
+    private final Map<Long, Map<UUID, ChunkTicket>> tickets;
     private final ReentrantLock lock;
 
     public WorldTicketManager() {
@@ -23,31 +23,26 @@ public class WorldTicketManager {
 
             int x = current.getA();
             int z = current.getB();
-            if (tickets.containsKey(x)) {
-                Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.get(x);
 
+            long id = ChunkUtils.chunkId(x,z);
 
-                if (innerMap.containsKey(z)) {
-                    Map<UUID,ChunkTicket> set = innerMap.get(z);
-                    set.putIfAbsent(ticket.getUUID(), ticket);
-                } else {
-                    Map<UUID,ChunkTicket> innerSet = new HashMap<>();
-                    innerSet.put(ticket.getUUID(),ticket);
-                    innerMap.put(z, innerSet);
-                }
-            } else {
-                Map<Integer, Map<UUID,ChunkTicket>> innerMap = new HashMap<>();
-                Map<UUID,ChunkTicket> innerSet = new HashMap<>();
-                innerSet.put(ticket.getUUID(),ticket);
-                innerMap.put(z, innerSet);
-                tickets.put(x, innerMap);
+            Map<UUID, ChunkTicket> inner;
+            if (tickets.containsKey(id)) {
+                inner = tickets.get(id);
+                inner.putIfAbsent(ticket.getUUID(), ticket);
+            }
+            else {
+              inner = new HashMap<>();
+              inner.put(ticket.getUUID(), ticket);
+              tickets.put(id, inner);
+
             }
         }
 
         lock.unlock();
     }
 
-    public synchronized void removeTicket(ChunkTicket ticket) {
+    public void removeTicket(ChunkTicket ticket) {
 
         lock.lock();
         Set<IntTuple2> chunks = ticket.getChunks();
@@ -56,26 +51,16 @@ public class WorldTicketManager {
             int x = chunk.getA();
             int z = chunk.getB();
 
-
-            //outer map
-            if (!tickets.containsKey(x)) {
+            long id = ChunkUtils.chunkId(x,z);
+            if (!tickets.containsKey(id)) {
                 continue;
             }
 
-            Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.get(x);
-            if (!innerMap.containsKey(z)) {
-                continue;
-            }
+            Map<UUID, ChunkTicket> inner = tickets.get(id);
+            inner.remove(ticket.getUUID());
 
-            Map<UUID,ChunkTicket> ticketsForChunk = innerMap.get(z);
-            ticketsForChunk.remove(ticket.getUUID());
-
-            if (ticketsForChunk.isEmpty()) {
-                innerMap.remove(z);
-            }
-
-            if (innerMap.isEmpty()) {
-                tickets.remove(x);
+            if (inner.isEmpty()) {
+                tickets.remove(id);
             }
         }
 
@@ -86,18 +71,13 @@ public class WorldTicketManager {
 
     //returns constructs which are fully loaded
     //after updating them
-    public synchronized Set<ChunkTicket> update(int x, int z, boolean onLoad) {
+    public Set<ChunkTicket> update(int x, int z, boolean onLoad) {
 
         lock.lock();
+        long id = ChunkUtils.chunkId(x,z);
 
-        Map<Integer, Map<UUID,ChunkTicket>> innerMap = tickets.getOrDefault(x, null);
+        Map<UUID,ChunkTicket> innerMap = tickets.getOrDefault(id, null);
         if (innerMap == null) {
-            lock.unlock();
-            return null;
-        }
-
-        Map<UUID,ChunkTicket> ticketSet = innerMap.getOrDefault(z, null);
-        if (ticketSet == null) {
             lock.unlock();
             return null;
         }
@@ -105,7 +85,7 @@ public class WorldTicketManager {
         Set<ChunkTicket> fullyLoaded = new HashSet<>();
         Set<ChunkTicket> fullyUnloaded = new HashSet<>();
 
-        for (ChunkTicket ticket : ticketSet.values()) {
+        for (ChunkTicket ticket : innerMap.values()) {
             if (onLoad) {
                 if (ticket.onLoad())  //the ticket is fully loaded
                     fullyLoaded.add(ticket);
@@ -125,23 +105,14 @@ public class WorldTicketManager {
     }
 
 
-
-    public synchronized Set<ChunkTicket> getActiveTickets() {
+    public Set<ChunkTicket> getActiveTickets() {
+        lock.lock();
         Set<ChunkTicket> activeTickets = new HashSet<>();
-        for (Map<Integer, Map<UUID,ChunkTicket>> inner : tickets.values()) {
-            for (Map<UUID,ChunkTicket> set : inner.values()) {
-                activeTickets.addAll(set.values());
-            }
+        for (Map<UUID,ChunkTicket> inner : tickets.values()) {
+                activeTickets.addAll(inner.values());
         }
+        lock.unlock();
         return activeTickets;
     }
 
-
-    public synchronized boolean containsChunk(int x, int z) {
-        Map<Integer, Map<UUID,ChunkTicket>> i = tickets.getOrDefault(x, null);
-        if (i == null)
-            return false;
-
-        return i.getOrDefault(z, null) != null;
-    }
 }
