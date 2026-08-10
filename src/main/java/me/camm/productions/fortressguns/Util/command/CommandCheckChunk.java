@@ -6,12 +6,13 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
+import static me.camm.productions.fortressguns.Util.command.PermissionNodeLabel.FG_DEBUG;
+
 public class CommandCheckChunk extends CommandHandler {
 
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-
 
         World world = findWorldOrDefault(sender);
         if (world == null) {
@@ -53,5 +54,11 @@ public class CommandCheckChunk extends CommandHandler {
     @Override
     public List<String> getTabCompletes(CommandSender sender, String[] in) {
         return List.of();
+    }
+
+
+    @Override
+    public String getPermissionNode() {
+        return FG_DEBUG.label();
     }
 }

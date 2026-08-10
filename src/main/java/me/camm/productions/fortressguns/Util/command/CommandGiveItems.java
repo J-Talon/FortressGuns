@@ -10,6 +10,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+import static me.camm.productions.fortressguns.Util.command.PermissionNodeLabel.FG_ADMIN;
+
 public class CommandGiveItems extends CommandHandler {
 
 
@@ -44,5 +46,10 @@ public class CommandGiveItems extends CommandHandler {
     @Override
     public List<String> getTabCompletes(CommandSender sender, String[] in) {
         return List.of();
+    }
+
+    @Override
+    public String getPermissionNode() {
+        return FG_ADMIN.label();
     }
 }

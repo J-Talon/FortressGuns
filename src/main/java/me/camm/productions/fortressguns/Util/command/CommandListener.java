@@ -13,6 +13,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+enum PermissionNodeLabel {
+    FG_DEBUG("fg.debug"),
+    FG_ADMIN("fg.admin");
+
+    private final String label;
+
+    private PermissionNodeLabel(String label) {
+        this.label = label;
+    }
+
+    public String label() {
+        return this.label;
+    }
+}
+
+
 enum CommandHeader {
     CHECK_TICKET("ct"),
     CHUNK_STATUS("cs"),
@@ -91,7 +107,21 @@ public class CommandListener implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        return handlers.get(header).execute(commandSender, strings);
+        CommandHandler handler = handlers.get(header);
+        String permission = command.getPermission();
+        if (permission == null) permission = handler.getPermissionNode();
+
+        if (!commandSender.hasPermission(permission)) {
+
+            String permMessage = command.getPermissionMessage();
+            if (permMessage == null)
+                permMessage = "You do not have permission to use this command";
+
+            commandSender.sendMessage(permMessage);
+            return true;
+        }
+
+        return handler.execute(commandSender, strings);
     }
 
     @Override

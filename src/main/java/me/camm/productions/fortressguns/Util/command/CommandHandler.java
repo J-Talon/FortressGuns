@@ -25,6 +25,8 @@ public abstract class CommandHandler {
         return world;
     }
 
+    public abstract String getPermissionNode();
+
 
 
 }

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static me.camm.productions.fortressguns.Util.command.PermissionNodeLabel.FG_DEBUG;
+
 
 public class CommandCheckTicket extends CommandHandler {
 
@@ -55,4 +57,8 @@ public class CommandCheckTicket extends CommandHandler {
         return out;
     }
 
+    @Override
+    public String getPermissionNode() {
+        return FG_DEBUG.label();
+    }
 }

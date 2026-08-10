@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+import static me.camm.productions.fortressguns.Util.command.PermissionNodeLabel.FG_DEBUG;
+
 public class CommandFGInspect extends CommandHandler {
 
     private static final double DISTANCE = 10;
@@ -134,5 +136,11 @@ public class CommandFGInspect extends CommandHandler {
     @Override
     public List<String> getTabCompletes(CommandSender sender, String[] in) {
         return List.of();
+    }
+
+
+    @Override
+    public String getPermissionNode() {
+        return FG_DEBUG.label();
     }
 }
