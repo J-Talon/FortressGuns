@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.ArtilleryItems;
+package me.camm.productions.fortressguns.item.ArtilleryItems;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;

@@ -1,10 +1,10 @@
-package me.camm.productions.fortressguns.Inventory;
+package me.camm.productions.fortressguns.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Inventory.Abstract.*;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -89,7 +89,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
         //they're in the transaction inv trying to take ammo from it
         //allowed if not loading
-        if (ConstructItemHelper.isAmmoItem(current) != null)  {
+        if (ItemUtils.isAmmoItem(current) != null)  {
             return;
         }
 
@@ -127,7 +127,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                             player.playSound(player.getLocation(), Sound.BLOCK_PISTON_EXTEND, 0.5f, 1);
 
                             if (type == null) {
-                                type = ConstructItemHelper.isAmmoItem(shell);
+                                type = ItemUtils.isAmmoItem(shell);
 
                                 if (type != null)
                                     loading = shell;
@@ -181,7 +181,7 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
                     return;
                 }
 
-                ItemStack ammo = ConstructItemHelper.createAmmoItem(loaded);
+                ItemStack ammo = ItemUtils.createAmmoItem(loaded);
                 ItemStack residing = gui.getItem(0);
 
                 if (residing == null || residing.getType().isAir()) {

@@ -1,11 +1,11 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
-import me.camm.productions.fortressguns.Inventory.*;
+import me.camm.productions.fortressguns.item.Inventory.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 

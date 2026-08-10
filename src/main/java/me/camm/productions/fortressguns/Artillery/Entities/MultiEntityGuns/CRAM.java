@@ -6,8 +6,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3D;

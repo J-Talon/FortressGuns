@@ -1,9 +1,9 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -113,8 +113,8 @@ return null? --> stacks cannot be merged
  */
     protected @Nullable Tuple2<ItemStack, ItemStack> mergeAmmo(@Nullable ItemStack residing, ItemStack input) {
 
-        AmmoItem resAmmo = ConstructItemHelper.isAmmoItem(residing);
-        AmmoItem inputAmmo = ConstructItemHelper.isAmmoItem(input);
+        AmmoItem resAmmo = ItemUtils.isAmmoItem(residing);
+        AmmoItem inputAmmo = ItemUtils.isAmmoItem(input);
         ItemStack placed; //the itemstack placed into the gui
         ItemStack AIR = new ItemStack(Material.AIR);
 

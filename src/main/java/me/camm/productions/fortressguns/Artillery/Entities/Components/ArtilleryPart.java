@@ -3,10 +3,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -86,7 +86,7 @@ public class ArtilleryPart extends ComponentAS
             ItemStack holding = human.getItemInMainHand();
 
             org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
-            org.bukkit.inventory.ItemStack pointer = ConstructItemHelper.getStick();
+            org.bukkit.inventory.ItemStack pointer = ItemUtils.getStick();
 
                 //if they punch the thing with a stick, fire the cannon instead.
 
@@ -254,6 +254,10 @@ public class ArtilleryPart extends ComponentAS
 
 
 
+    //todo perfect is the enemy of the done
+    // ideally this should be inlined into the new interaction system
+    // that way we'll have better maintainability
+    // just something for the future
     protected void handleInteraction(EntityHuman human, ItemStack stack) {
 
         Artillery arty = getBody();
@@ -275,7 +279,7 @@ public class ArtilleryPart extends ComponentAS
 
 
         org.bukkit.inventory.ItemStack stackBukkit = CraftItemStack.asBukkitCopy(stack);
-        org.bukkit.inventory.ItemStack pointer = ConstructItemHelper.getStick();
+        org.bukkit.inventory.ItemStack pointer = ItemUtils.getStick();
 
         if ((!pointer.isSimilar(stackBukkit))) {
 
@@ -311,7 +315,7 @@ public class ArtilleryPart extends ComponentAS
                 break FIND_INV;
             }
 
-            if (ConstructItemHelper.isAmmoItem(stack) != null) {
+            if (ItemUtils.isAmmoItem(stack) != null) {
 
                 menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
             } else {

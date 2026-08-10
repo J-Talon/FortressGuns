@@ -6,8 +6,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.Heavy
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
@@ -86,7 +86,7 @@ This method is called in a loop. You can think of it as being called many times 
         ItemStack offhand = player.getInventory().getItemInOffHand();
 
         ChatColor color = canFire() ? ChatColor.GREEN: ChatColor.RED;
-        if (ConstructItemHelper.getStick().isSimilar(offhand)) {
+        if (ItemUtils.getStick().isSimilar(offhand)) {
             int time = InteractionHandler.getTime(player.getUniqueId()).getA();
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(color+"Shell Fuse: ["+time+"/"+InteractionHandler.getSettingMax()+"] (Ticks)"));
         }

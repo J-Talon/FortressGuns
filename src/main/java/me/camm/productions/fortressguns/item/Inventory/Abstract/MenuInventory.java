@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
