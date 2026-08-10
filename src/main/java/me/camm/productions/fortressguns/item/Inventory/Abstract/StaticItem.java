@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Inventory.Abstract;
+package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

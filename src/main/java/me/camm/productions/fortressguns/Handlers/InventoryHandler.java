@@ -1,17 +1,14 @@
 package me.camm.productions.fortressguns.Handlers;
 
-import me.camm.productions.fortressguns.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

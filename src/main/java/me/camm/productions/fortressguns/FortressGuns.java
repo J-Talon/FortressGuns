@@ -2,8 +2,8 @@ package me.camm.productions.fortressguns;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
@@ -11,8 +11,6 @@ import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.Serialization.FileManager;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.Util.command.CommandListener;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.level.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

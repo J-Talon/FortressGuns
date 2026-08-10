@@ -9,10 +9,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Math.Tuple3;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import net.md_5.bungee.api.ChatMessageType;
@@ -59,6 +59,7 @@ public class InteractionHandler implements Listener
 
 
 
+
     public InteractionHandler(){
         handler = ChunkLoader.getInstance();
         Plugin plugin = FortressGuns.getInstance();
@@ -97,7 +98,7 @@ public class InteractionHandler implements Listener
 
         Player player = event.getPlayer();
         ItemStack stack = player.getInventory().getItemInOffHand();
-        ItemStack pointer = ConstructItemHelper.getStick();
+        ItemStack pointer = ItemUtils.getStick();
 
         if (!(pointer.isSimilar(stack))) {
             return;
@@ -185,13 +186,13 @@ public class InteractionHandler implements Listener
     public void onBlockPlace(BlockPlaceEvent event) {
 
         ItemStack item = event.getItemInHand();
-        if (ConstructItemHelper.holdsConstruct(item) != null) {
+        if (ItemUtils.holdsConstruct(item) != null) {
             event.getPlayer().sendMessage(ChatColor.RED+"[!] Right click the air if you're trying to assemble artillery.");
             event.setCancelled(true);
             return;
         }
 
-        if (ConstructItemHelper.isAmmoItem(item) != null) {
+        if (ItemUtils.isAmmoItem(item) != null) {
             event.setCancelled(true);
         }
     }
@@ -228,7 +229,7 @@ public class InteractionHandler implements Listener
     public void onPlayerInteract(PlayerInteractEvent event) {
 
         ItemStack stack = event.getItem();
-        if (ConstructItemHelper.isAmmoItem(stack) != null) {
+        if (ItemUtils.isAmmoItem(stack) != null) {
             Player player = event.getPlayer();
 
             org.bukkit.entity.Entity ride = player.getVehicle();
@@ -342,7 +343,7 @@ public class InteractionHandler implements Listener
 
 
         ItemStack item = event.getItem();
-        ConstructType type = ConstructItemHelper.holdsConstruct(item);
+        ConstructType type = ItemUtils.holdsConstruct(item);
 
             if (type == null)
                 return;

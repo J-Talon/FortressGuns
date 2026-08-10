@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.ArtilleryItems.ConstructItemHelper;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import net.minecraft.server.level.EntityPlayer;
 
@@ -80,7 +80,7 @@ public class ArtilleryCore extends ArtilleryPart {
 
 
         org.bukkit.inventory.ItemStack stack = CraftItemStack.asBukkitCopy(item);
-        org.bukkit.inventory.ItemStack pointer = ConstructItemHelper.getStick();
+        org.bukkit.inventory.ItemStack pointer = ItemUtils.getStick();
 
         if ((!pointer.isSimilar(stack))) {
 
