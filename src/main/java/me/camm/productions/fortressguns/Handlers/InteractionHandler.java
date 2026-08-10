@@ -66,13 +66,6 @@ public class InteractionHandler implements Listener
         plugin.getServer().getPluginManager().registerEvents(handler, plugin);
     }
 
-    public void onShutdown() {
-        ChunkLoader.getActivePieces().forEach(construct -> {
-            if (!construct.isInvalid())
-                construct.unload();
-        });
-    }
-
 
     public static void updateTarget(UUID id, org.bukkit.entity.Entity target) {
         targets.put(id, target);

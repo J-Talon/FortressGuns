@@ -209,7 +209,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
     @Override
     protected boolean instantiateParts() {
-        pivot = StandHelper.createCore(getCurrentLocation().add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
+        pivot = StandHelper.createCore(initialLoc.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )

@@ -64,9 +64,14 @@ Content to complete before first release
     - [X] Phase 2 - Projectile Overhaul
     - [X] Phase 3 - Explosion Overhaul
 - [X] Artillery operation mechanics
-- [ ] Bugfixing and polishing for some specific mechanics < Current Focus
+- [ ] Bugfixing and polishing for some specific mechanics
+    - [X] Chunk loading and saves
+    - [X] Debug commands 
+    - [ ] Wall collisions
+    - [ ] Entity tracking and targeting < Current Focus
+    - [ ] Balancing, Config
+    - [ ] Flares?
 - [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
-- [ ] Flares?
 
 Planned Content
 ---
