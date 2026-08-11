@@ -532,7 +532,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return loaded;
     }
 
-    public void setChunkLoaded(boolean loaded){
+    public synchronized void setChunkLoaded(boolean loaded){
         this.loaded = loaded;
     }
 
@@ -847,6 +847,8 @@ see: loadPieces()
             if (firstChunk == null) {
                 firstChunk = chunk;
             }
+
+            occupiedChunks.add(chunk);
             lastChunk = chunk;
         }
     }
