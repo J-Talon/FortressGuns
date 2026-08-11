@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
@@ -29,7 +30,8 @@ public class IBAmmoItem implements InteractionBehaviourItem {
     private static Material[] labels = null;
 
     @Override
-    public boolean accept(ItemStack stack) {
+    public boolean accept(Tuple2<Player, ItemStack> tup) {
+        ItemStack stack = tup.getB();
         return ItemUtils.isAmmoItem(stack) != null;
     }
 

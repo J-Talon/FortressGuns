@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.item.interact.behaviour;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
@@ -19,7 +20,8 @@ import org.bukkit.inventory.ItemStack;
 public class IBConstructBox implements InteractionBehaviourItem {
 
     @Override
-    public boolean accept(ItemStack stack) {
+    public boolean accept(Tuple2<Player, ItemStack> tup) {
+        ItemStack stack = tup.getB();
         return ItemUtils.holdsConstruct(stack) != null;
     }
 

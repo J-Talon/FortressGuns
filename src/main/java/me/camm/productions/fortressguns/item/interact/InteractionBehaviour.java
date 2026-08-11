@@ -11,9 +11,6 @@ public interface InteractionBehaviour<T> {
 
     public abstract boolean accept(T item);
 
-    //if accept() returns true, should it activate functions of other items which fit the same description?
-    public default boolean chain() {return false;}
-
     public @Nullable default IBHandle getHandle() {return null;}
 
 

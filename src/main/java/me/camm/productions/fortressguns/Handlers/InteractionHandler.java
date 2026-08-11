@@ -1,25 +1,23 @@
 package me.camm.productions.fortressguns.Handlers;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
+
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Util.Math.Tuple3;
+
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import me.camm.productions.fortressguns.item.interact.IBHandle;
+import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
+import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
+import me.camm.productions.fortressguns.item.interact.behaviour.*;
 import net.minecraft.server.level.EntityPlayer;
+
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -27,156 +25,117 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import org.bukkit.util.RayTraceResult;
+import org.jetbrains.annotations.Nullable;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import java.util.UUID;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 
 
-/*
- * @author CAMM
- */
+
+
+enum ItemBehaviour {
+    AMMO_ITEM(new IBAmmoItem()),
+    CREATE_CONSTRUCT(new IBConstructBox()),
+    RIDING_CONSTRUCT(new IBConstructs()),
+    DEV_SPYGLASS(new IBDevSpyglass()),
+    TACTICAL_PT(new IBTacticalPointer());
+
+    private final InteractionBehaviourItem behaviour;
+
+    private ItemBehaviour(InteractionBehaviourItem behaviour) {
+        this.behaviour =  behaviour;
+    }
+
+    public InteractionBehaviourItem getBehaviour() {
+        return behaviour;
+    }
+}
+
+
+
 public class InteractionHandler implements Listener
 {
-    private final static Map<UUID, Tuple3<Integer, Integer, Long>> artSetting = new HashMap<>();
 
-    private final ChunkLoader handler;
+    private final Map<Material, List<InteractionBehaviourItem>> itemInteractions;
+    private final Map<IBHandle, InteractionBehaviour<?>> accessors;
 
-    static final int MAX = 100, MIN = 0;
+    private static InteractionHandler instance = null;
+
+    private InteractionHandler() {
+        itemInteractions = new HashMap<>();
+        accessors = new HashMap<>();
 
 
+        for (ItemBehaviour behaviour: ItemBehaviour.values()) {
+            addItemBehaviour(behaviour.getBehaviour());
+        }
+    }
 
-
-
-    public InteractionHandler(){
-        handler = ChunkLoader.getInstance();
-        Plugin plugin = FortressGuns.getInstance();
-        plugin.getServer().getPluginManager().registerEvents(handler, plugin);
+    public static InteractionHandler getInstance() {
+        if (instance != null) return instance;
+        instance = new InteractionHandler();
+        return instance;
     }
 
 
 
+    public void addItemBehaviour(InteractionBehaviourItem interaction) {
 
-    public static int getSettingMax() {
-        return MAX;
-    }
+        IBHandle handle = interaction.getHandle();
 
-    public static int getSettingMin() {
-        return MIN;
-    }
+        if (handle != null) {
 
-
-
-    public static Tuple3<Integer, Integer,Long> getTime(UUID id) {
-        return artSetting.getOrDefault(id,new Tuple3<Integer, Integer,Long>((MAX - MIN) / 2,0,System.currentTimeMillis()));
-    }
-
-
-
-    @EventHandler
-    public void onPlayerScroll(PlayerItemHeldEvent event) {
-
-        int to = event.getNewSlot();
-        int from = event.getPreviousSlot();
-
-        Player player = event.getPlayer();
-        ItemStack stack = player.getInventory().getItemInOffHand();
-        ItemStack pointer = ItemUtils.getStick();
-
-        if (!(pointer.isSimilar(stack))) {
-            return;
+            if (accessors.containsKey(handle))
+                throw new IllegalArgumentException("Interaction handle "+handle.name()+" already registered!");
+            accessors.put(handle, interaction);
         }
 
-        int diff = to-from;
-        int diffAbs = Math.abs(diff);
 
+        Material[] labels = interaction.getLabels();
+        for (Material mat: labels) {
+            if (itemInteractions.containsKey(mat)) {
+                List<InteractionBehaviourItem> behaviours = itemInteractions.get(mat);
 
-        UUID id = player.getUniqueId();
-        Tuple3<Integer, Integer,Long> trip = getTime(id);
-        int time = trip.getA();
-        int dir = trip.getB();
-        long lastAction = trip.getC();
-
-
-
-        if (diffAbs == 8) {
-            time -= (diff / diffAbs);
-            dir = (diff / diffAbs);
-        }
-        else if (diffAbs == 1 || (System.currentTimeMillis() - lastAction > 700)) {
-            if (diff < 0) {
-                dir = -1;
-                time -= diffAbs;
-            } else {
-                time += diffAbs;
-                dir = 1;
+                if (behaviours.contains(interaction))
+                    throw new IllegalArgumentException("Interaction type already registered!");
+            }
+            else {
+                List<InteractionBehaviourItem> list = new ArrayList<>();
+                list.add(interaction);
+                itemInteractions.put(mat, list);
             }
         }
-        else {
-            if (dir > 0) {
-                time += diffAbs;
-            }
-             else {
-                time -= diffAbs;
-            }
-        }
-
-
-        org.bukkit.entity.Entity vehicle = player.getVehicle();
-        if (vehicle == null) {
-            time = updateSetting(time,dir,id);
-            notifySettingChange(time, player);
-            return;
-        }
-
-        Entity nms = ((CraftEntity)vehicle).getHandle();
-
-        if (!(nms instanceof ComponentAS)) {
-            time = updateSetting(time, dir, id);
-            notifySettingChange(time, player);
-            return;
-        }
-
-        time = updateSetting(time, dir, id);
-        player.playSound(player.getLocation(),Sound.BLOCK_NOTE_BLOCK_HAT,SoundCategory.BLOCKS,1,(((float)time / MAX) * 2f));
-
-
-
-        /*
-         1 - 2 --> increase
-         0 - 9 --> increase
-
-         9 - 0 --> decrease
-         2 - 1 --> decrease
-         */
     }
 
-    private int updateSetting(int time, int dir, UUID id) {
-        time = Math.max(MIN,time);
-        time = Math.min(MAX,time);
 
-        artSetting.put(id, new Tuple3<>(time, dir, System.currentTimeMillis()));
-        return time;
-    }
+    public @Nullable InteractionBehaviourItem getItemBehaviour(IBHandle handle) {
+        InteractionBehaviour<?> behaviour = accessors.getOrDefault(handle, null);
+        if (behaviour == null)
+            return null;
 
-    private void notifySettingChange(int time, Player player) {
-        player.playSound(player.getLocation(),Sound.BLOCK_NOTE_BLOCK_HAT,SoundCategory.BLOCKS,1,(((float)time / MAX) * 2f));
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(ChatColor.GOLD+"Power/Fuse: ["+time+"/"+MAX+"] (Ticks/Percent)"));
+        if (behaviour instanceof InteractionBehaviourItem) return (InteractionBehaviourItem) behaviour;
+        return null;
     }
 
 
 
+
+
+
+    //in the future I'd like to separate this out into it's own class
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
@@ -188,28 +147,18 @@ public class InteractionHandler implements Listener
 
         //whenever the player quits, the server creates a new entity whenever they join back. We do not want this to happen,
         //so we dismount them first.
-       Entity nms = ((CraftEntity)riding).getHandle();
-       EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-       if (nms instanceof ComponentAS) {
-           nmsPlayer.stopRiding();
+        Entity nms = ((CraftEntity)riding).getHandle();
+        EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
+        if (nms instanceof ComponentAS) {
+            nmsPlayer.stopRiding();
 
-           Construct cons = ((ComponentAS) nms).getBody();
+            Construct cons = ((ComponentAS) nms).getBody();
 
-           if (cons instanceof Rideable) {
-               ((Rideable) cons).onDismount();
-           }
-       }
+            if (cons instanceof Rideable) {
+                ((Rideable) cons).onDismount();
+            }
+        }
     }
-
-
-
-
-
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-
-    }
-
 
 
 
@@ -230,5 +179,104 @@ public class InteractionHandler implements Listener
         }
 
     }
+
+
+    @EventHandler
+    public void onPlayerScroll(PlayerItemHeldEvent event) {
+        Player player = event.getPlayer();
+
+        ItemStack stack = player.getInventory().getItemInOffHand();
+        Material mat = stack.getType();
+
+
+        List<InteractionBehaviourItem> interactionBehaviour = itemInteractions.getOrDefault(mat, null);
+        if (interactionBehaviour == null) return;
+
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, stack);
+        for (InteractionBehaviourItem interaction: interactionBehaviour) {
+            if (!interaction.accept(tup)) continue;
+            interaction.onScroll(event);
+        }
+
+    }
+
+
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        ItemStack stack = event.getItemInHand();
+        Material mat = stack.getType();
+
+        List<InteractionBehaviourItem> interactions = itemInteractions.getOrDefault(mat, null);
+        if (interactions == null) return;
+
+        for (InteractionBehaviourItem item: interactions) {
+            item.onBlockPlace(event);
+        }
+    }
+
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+
+        ItemStack stack = event.getItem();
+        Material mat = stack == null ? Material.AIR : stack.getType();
+
+        List<InteractionBehaviourItem> interactions = itemInteractions.getOrDefault(mat, null);
+        if (interactions == null) return;
+
+        Consumer<InteractionBehaviourItem> itemAction = null;
+
+        findAction:
+        {
+            if (event.getAction() == Action.LEFT_CLICK_AIR) {
+                itemAction = behaviour -> behaviour.onLCAir(event);
+                break findAction;
+            }
+
+            if (event.getAction() == Action.RIGHT_CLICK_AIR) {
+                itemAction = behaviour -> behaviour.onRCAir(event);
+                break findAction;
+            }
+
+            if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                itemAction = behaviour -> behaviour.onLCBlock(event);
+                break findAction;
+            }
+
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                itemAction = behaviour -> behaviour.onRCBlock(event);
+            }
+        }
+
+        if (itemAction == null)
+            return;
+
+        for (InteractionBehaviourItem inter: interactions) {
+            itemAction.accept(inter);
+        }
+    }
+
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        Player player = event.getPlayer();
+
+        ItemStack main = player.getInventory().getItemInMainHand();
+        Material mat = main.getType();
+
+        List<InteractionBehaviourItem> interactionBehaviour = itemInteractions.getOrDefault(mat, null);
+        if (interactionBehaviour == null) return;
+
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
+        for (InteractionBehaviourItem interaction: interactionBehaviour) {
+            if (!interaction.accept(tup)) continue;
+            interaction.onRCEntity(event);
+        }
+
+
+
+    }
+
 
 }

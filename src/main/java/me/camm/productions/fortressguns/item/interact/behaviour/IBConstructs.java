@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import org.bukkit.Material;
@@ -19,18 +20,13 @@ public class IBConstructs implements InteractionBehaviourItem {
 
     //any item
     @Override
-    public boolean accept(ItemStack stack) {
+    public boolean accept(Tuple2<Player, ItemStack> tup) {
         return true;
     }
 
     @Override
     public Material[] getLabels() {
-        return new Material[]{null, Material.AIR};
-    }
-
-    @Override
-    public boolean chain() {
-        return true;
+        return new Material[]{Material.AIR};
     }
 
     @Override

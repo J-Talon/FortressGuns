@@ -11,6 +11,8 @@ import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.item.interact.IBHandle;
+import me.camm.productions.fortressguns.item.interact.behaviour.IBTacticalPointer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
@@ -31,15 +33,23 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
 
     //variables for aiming based on average v
 
-    /*
-This method is called in a loop. You can think of it as being called many times per second
- */
+    private IBTacticalPointer action;
 
-   /*
-   Constructor.
-    */
     public FlakArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
+
+        InteractionHandler handler = InteractionHandler.getInstance();
+        try {
+            action = (IBTacticalPointer)handler.getItemBehaviour(IBHandle.TPOINTER_SETTING);
+        }
+        catch (ClassCastException e) {
+            action = null;
+        }
+
+        if (action == null) {
+            throw new IllegalStateException("Could not find a handler for setting time");
+        }
+
         this.target = null;
         aiming = false;
     }
@@ -57,7 +67,7 @@ This method is called in a loop. You can think of it as being called many times 
             return null;
 
         if (target == null && shooter != null) {
-            double time = InteractionHandler.getTime(shooter.getUniqueID()).getA();
+            double time = action.getTime(shooter.getUniqueID()).getA();
             shell.setExplodeTime(time);
         }
         else
@@ -87,8 +97,8 @@ This method is called in a loop. You can think of it as being called many times 
 
         ChatColor color = canFire() ? ChatColor.GREEN: ChatColor.RED;
         if (ItemUtils.getStick().isSimilar(offhand)) {
-            int time = InteractionHandler.getTime(player.getUniqueId()).getA();
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(color+"Shell Fuse: ["+time+"/"+InteractionHandler.getSettingMax()+"] (Ticks)"));
+            int time = action.getTime(player.getUniqueId()).getA();
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(color+"Shell Fuse: ["+time+"/"+action.getSettingMax()+"] (Ticks)"));
         }
         else {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(color + "Rotation: [" + x + " | " + y + "] Health: " + roundHealth));

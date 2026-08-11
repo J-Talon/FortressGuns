@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.item.interact.behaviour;
 
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.interact.IBHandle;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
@@ -26,7 +27,8 @@ public class IBDevSpyglass implements InteractionBehaviourItem {
 
 
     @Override
-    public boolean accept(ItemStack stack) {
+    public boolean accept(Tuple2<Player, ItemStack> tup) {
+        ItemStack stack = tup.getB();
         return stack != null && stack.getType() == itemMat;
     }
 
@@ -35,10 +37,6 @@ public class IBDevSpyglass implements InteractionBehaviourItem {
         return new Material[]{itemMat};
     }
 
-    @Override
-    public boolean chain() {
-        return true;
-    }
 
     @Override
     public @Nullable IBHandle getHandle() {

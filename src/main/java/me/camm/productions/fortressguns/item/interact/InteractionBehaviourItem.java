@@ -1,13 +1,15 @@
 package me.camm.productions.fortressguns.item.interact;
 
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
-public interface InteractionBehaviourItem extends InteractionBehaviour<ItemStack> {
+public interface InteractionBehaviourItem extends InteractionBehaviour<Tuple2<Player, ItemStack>> {
 
 
     public Material[] getLabels();
@@ -28,4 +30,6 @@ public interface InteractionBehaviourItem extends InteractionBehaviour<ItemStack
 
     public default void onScroll(PlayerItemHeldEvent event) {}
 
+
+    //left clicks for entities (attacking) are handled in entity damage event which I will tackle later
 }
