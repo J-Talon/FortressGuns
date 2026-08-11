@@ -47,10 +47,15 @@ public class JamInventory extends PanelInventory {
     @Override
     public void init() {
         inAnimation = false;
+        ItemStack air = new ItemStack(Material.AIR);
 
         int i;
         for (i = 0; i < 9; i ++) {
             gui.setItem(i, border);
+        }
+
+        for (i = 9; i < 18; i ++) {
+            gui.setItem(i, air);
         }
 
         for (i = 12; i < 15; i ++) {
@@ -63,6 +68,10 @@ public class JamInventory extends PanelInventory {
 
         for (i = 18; i < 27; i ++) {
             gui.setItem(i, border);
+        }
+
+        for (i = 27; i < gui.getSize(); i ++) {  //clear the round animation
+            gui.setItem(i, air);
         }
     }
 

@@ -107,7 +107,7 @@ public class MissileLockNotifier implements Runnable {
                 }
 
 
-                //todo - see about changing this to SpinWait.SpinUntil()
+                //see about changing this to SpinWait.SpinUntil()
                 Thread.sleep(1000);
                 showRed = !showRed;
 
