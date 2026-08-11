@@ -11,6 +11,7 @@ import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.Serialization.FileManager;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.Util.command.CommandListener;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,6 +30,8 @@ public final class FortressGuns extends JavaPlugin {
 
     private static FortressGuns plugin;
     private InteractionHandler interactionHandler;
+    private ChunkLoader loader;
+
     CommandListener commandHandler;
     private Logger logger;
 
@@ -40,13 +43,17 @@ public final class FortressGuns extends JavaPlugin {
     public void onEnable() {
       plugin = this;
       FileManager.loadArtilleryConfig();
-      interactionHandler = new InteractionHandler();
+
+      interactionHandler = InteractionHandler.getInstance();
+      loader = ChunkLoader.getInstance();
+
       this.logger = getLogger();
 
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(interactionHandler,this);
       manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(ItemMergeHandler.getInstance(),this);
+      manager.registerEvents(loader, plugin);
 
       commandHandler = new CommandListener();
 

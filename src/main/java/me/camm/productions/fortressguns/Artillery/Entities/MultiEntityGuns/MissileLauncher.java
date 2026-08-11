@@ -12,8 +12,12 @@ import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.item.interact.IBHandle;
+import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
+import me.camm.productions.fortressguns.item.interact.behaviour.IBTacticalPointer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
+import org.apache.commons.lang.ObjectUtils;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
@@ -65,6 +69,8 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     private final ArtilleryPart[] stem;
+    private IBDevSpyglass action;
+
 
     public MissileLauncher(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
@@ -74,6 +80,16 @@ public class MissileLauncher extends ArtilleryRideable {
         fireRight = true;
         this.target = null;
         lastFireTime = System.currentTimeMillis();
+
+        try {
+            action = (IBDevSpyglass) InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
+        } catch (ClassCastException e) {
+            action = null;
+        }
+
+        if (action == null) {
+            throw new IllegalStateException("Could not find target setting handler");
+        }
     }
 
     @Override
@@ -118,7 +134,9 @@ public class MissileLauncher extends ArtilleryRideable {
         if (shooter != null) {
 
             List<ArtilleryPart> parts = getParts();
-            target = InteractionHandler.getTarget(shooter.getUniqueId());
+
+            target = action.getTarget(shooter.getUniqueId());
+
             if (target != null) {
                 net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
                 if (nms instanceof ArtilleryPart && parts.contains(nms)) {

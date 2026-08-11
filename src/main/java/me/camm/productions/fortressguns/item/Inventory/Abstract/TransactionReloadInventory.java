@@ -121,8 +121,10 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
 
 
         event.setCancelled(true);
-        if (!body.acceptsAmmo(inputAmmo))
+        if (!body.acceptsAmmo(inputAmmo)) {
+            onAmmoReject(event);
             return;
+        }
 
 
         Tuple2<ItemStack, ItemStack> res = mergeAmmo(residing, input);
@@ -174,6 +176,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         }
 
         if (!body.acceptsAmmo(currAmmo)) {
+            onAmmoReject(event);
             event.setCancelled(true);
             return;
         }
@@ -200,11 +203,17 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
     }
 
 
-    private void onAmmoFull(InventoryClickEvent event) {
+    protected void onAmmoFull(InventoryClickEvent event) {
         Player player = (Player)event.getWhoClicked();
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.BLOCKS,1,1);
         player.sendMessage(ChatColor.RED+" [!] The gun's ammo capacity is full!");
 
+    }
+
+    protected void onAmmoReject(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.BLOCKS,1,1);
+        player.sendMessage(ChatColor.RED+" [!] The gun does not accept this type of ammo!");
     }
 
 
@@ -235,6 +244,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         ItemStack cursor = event.getCursor();
         AmmoItem cursorAmmo = ItemUtils.isAmmoItem(cursor);
         if (cursorAmmo == null || !((Artillery)owner).acceptsAmmo(cursorAmmo)) {
+            onAmmoReject(event);
             event.setCancelled(true);
             return;
         }

@@ -10,12 +10,11 @@ import java.util.Set;
 import java.util.UUID;
 
 
-//I am this** close to making a custom projectile for this...
 public class ItemMergeHandler implements Listener {
 
-    private Set<UUID> tickets;
+    private final Set<UUID> tickets;
     static ItemMergeHandler handler = null;
-    private static int THRESH = 60;
+    private static final int THRESH = 60;
 
     private ItemMergeHandler() {
         tickets = new HashSet<>();

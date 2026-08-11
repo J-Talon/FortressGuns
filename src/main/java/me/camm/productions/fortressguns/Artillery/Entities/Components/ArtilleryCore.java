@@ -6,6 +6,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.item.interact.IBHandle;
+import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
 import net.minecraft.server.level.EntityPlayer;
 
 import net.minecraft.sounds.SoundEffect;
@@ -30,8 +32,21 @@ Models the core of an artillery piece.
  */
 public class ArtilleryCore extends ArtilleryPart {
 
+
+    private IBDevSpyglass action;
     public ArtilleryCore(World world, Artillery body, double d0, double d1, double d2) {
         super(world, body, d0, d1, d2);
+
+        try {
+            action = (IBDevSpyglass) InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
+        }
+        catch (ClassCastException e) {
+            action = null;
+        }
+
+        if (action == null)
+            throw new IllegalStateException("Could not find handler for target setting");
+
     }
 
     @Override
@@ -119,7 +134,7 @@ public class ArtilleryCore extends ArtilleryPart {
             return;
 
 
-        org.bukkit.entity.Entity target = InteractionHandler.getTarget(human.getUniqueID());
+        org.bukkit.entity.Entity target = action.getTarget(human.getUniqueID());
         if (target == null) {
             return;
         }
