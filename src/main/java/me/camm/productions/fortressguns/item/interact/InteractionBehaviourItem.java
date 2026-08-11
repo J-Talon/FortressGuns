@@ -1,15 +1,16 @@
 package me.camm.productions.fortressguns.item.interact;
 
+import org.bukkit.Material;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
-public interface ItemBehaviour {
+public interface InteractionBehaviourItem extends InteractionBehaviour<ItemStack> {
 
 
-    public abstract boolean accept(ItemStack stack);
-
+    public Material[] getLabels();
 
     public default void onRCAir(PlayerInteractEvent event) {}
 
@@ -22,14 +23,9 @@ public interface ItemBehaviour {
 
     public default void onLCBlock(PlayerInteractEvent event) {}
 
-
-    //todo you may need to switch this depending on whether
-    //as manipulate event or player interact @ entity event is more suitable
+    //may need to change in the future as interact @ entity event or ASManipulate are more appropriate
     public default void onRCEntity(PlayerInteractEntityEvent event) {}
 
-    public default void onLCEntity(PlayerInteractEntityEvent event) {}
-
-
-
+    public default void onScroll(PlayerItemHeldEvent event) {}
 
 }

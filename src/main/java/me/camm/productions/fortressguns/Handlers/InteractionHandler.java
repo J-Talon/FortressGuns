@@ -49,7 +49,6 @@ import java.util.function.Predicate;
  */
 public class InteractionHandler implements Listener
 {
-    private final static Map<UUID, org.bukkit.entity.Entity> targets = new HashMap<>();
     private final static Map<UUID, Tuple3<Integer, Integer, Long>> artSetting = new HashMap<>();
 
     private final ChunkLoader handler;
@@ -67,9 +66,7 @@ public class InteractionHandler implements Listener
     }
 
 
-    public static void updateTarget(UUID id, org.bukkit.entity.Entity target) {
-        targets.put(id, target);
-    }
+
 
     public static int getSettingMax() {
         return MAX;
@@ -79,9 +76,6 @@ public class InteractionHandler implements Listener
         return MIN;
     }
 
-    public static org.bukkit.entity.Entity getTarget(UUID id) {
-        return targets.getOrDefault(id, null);
-    }
 
 
     public static Tuple3<Integer, Integer,Long> getTime(UUID id) {
@@ -182,20 +176,6 @@ public class InteractionHandler implements Listener
     }
 
 
-    @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event) {
-
-        ItemStack item = event.getItemInHand();
-        if (ItemUtils.holdsConstruct(item) != null) {
-            event.getPlayer().sendMessage(ChatColor.RED+"[!] Right click the air if you're trying to assemble artillery.");
-            event.setCancelled(true);
-            return;
-        }
-
-        if (ItemUtils.isAmmoItem(item) != null) {
-            event.setCancelled(true);
-        }
-    }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
@@ -228,159 +208,9 @@ public class InteractionHandler implements Listener
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
 
-        ItemStack stack = event.getItem();
-        if (ItemUtils.isAmmoItem(stack) != null) {
-            Player player = event.getPlayer();
-
-            org.bukkit.entity.Entity ride = player.getVehicle();
-            if (ride == null || !ride.isValid() || ride.isDead())
-                return;
-
-            Entity nms = ((CraftEntity)ride).getHandle();
-
-
-            if (!(nms instanceof ComponentAS)) {
-                return;
-            }
-
-            Construct cons = ((ComponentAS) nms).getBody();
-
-            if (!(cons instanceof ArtilleryRideable rideable)) {
-                return;
-            }
-
-            InventoryGroup group = rideable.getInventoryGroup();
-            if (rideable instanceof RapidFire rapid && rapid.isJammed()) {
-                group.openInventory(InventoryCategory.JAM_CLEAR, player);
-            }
-            else {
-                group.openInventory(InventoryCategory.RELOADING, player);
-            }
-            return;
-        }
-
-        findTarget(event);
-        handleArtilleryInteract(event);
     }
 
 
-
-    public void findTarget(PlayerInteractEvent event) {
-        ItemStack stack = event.getItem();
-        if (stack == null || stack.getItemMeta() == null) {
-            return;
-        }
-
-        if (stack.getType() != Material.SPYGLASS)
-            return;
-
-        if (event.getAction() != Action.LEFT_CLICK_AIR)
-            return;
-
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-
-        Predicate<org.bukkit.entity.Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
-            @Override
-            public boolean test(org.bukkit.entity.Entity entity) {
-                return !(entity.equals(player));
-            }
-        };
-
-        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
-        if (res == null)
-            return;
-
-        org.bukkit.entity.Entity hit = res.getHitEntity();
-        if (hit == null)
-            return;
-
-        updateTarget(player.getUniqueId(), hit);
-
-        player.playSound(player.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
-        player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
-    }
-
-
-
-
-    public void handleArtilleryInteract(PlayerInteractEvent event) {
-
-
-        Player player = event.getPlayer();
-        Action action = event.getAction();
-        EntityPlayer nms = ((CraftPlayer)player).getHandle();
-
-
-        //logic for when they're operating a gun and are interacting
-        Entity ride = nms.getVehicle();
-        if (ride instanceof ArtilleryPart part) {
-            Artillery body = part.getBody();
-
-            if (!(body instanceof Rideable)) {
-                //how the heck did you manage to ride the artillery???
-                return;
-            }
-
-            if (!part.equals(((Rideable) body).getSeat())) {
-                return;
-            }
-
-            Action a = event.getAction();
-            if (a != Action.LEFT_CLICK_AIR)
-                return;
-
-            //this is for the guns which don't have a fire trigger
-            //otherwise the logic in the firetrigger handles the shooting
-            if (body.canFire()) {
-                body.fire(player);
-                event.setCancelled(true);
-            }
-        }
-
-        if (action != Action.RIGHT_CLICK_AIR)
-            return;
-
-
-        ItemStack item = event.getItem();
-        ConstructType type = ItemUtils.holdsConstruct(item);
-
-            if (type == null)
-                return;
-
-        if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
-            player.sendMessage(ChatColor.RED+"[!] You must be on the ground to assemble artillery.");
-            return;
-        }
-
-        int x = (int)(Math.toRadians(nms.getXRot()) * 100);
-        int z = (int)(Math.toRadians(nms.getHeadRotation()) * 100);
-
-        //temporary
-        ConstructFactory<? extends Construct> factory = type.getFactory();
-        Construct cons = factory.create(player.getLocation().add(0,-0.6,0), type.ordinal(),x,z, 0);
-
-        if (cons != null) {
-            boolean success = cons.spawn();
-            ChunkLoader.addActivePiece(cons);
-            if (!success) {
-                player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this artillery.");
-            }
-            else {
-                player.playSound(player.getLocation(),Sound.BLOCK_ANVIL_PLACE,1,1);
-            }
-        }
-        else {
-            player.sendMessage(ChatColor.RED+"[!] Unable to create artillery. This is probably a bug.");
-        }
-
-
-
-
-
-            event.setCancelled(true);
-
-    }
 
 
     @EventHandler
