@@ -106,7 +106,6 @@ public class ChunkTicket {
 
 
     public void finish() {
-        System.out.println(this.toString());
         oldCore.remove();
         construct.spawn();
     }
@@ -122,10 +121,6 @@ public class ChunkTicket {
 
     public UUID getUUID() {
         return construct.getUUID();
-    }
-
-    public String getWorldName() {
-        return worldName;
     }
 
     public int getCurrentLoaded() {
