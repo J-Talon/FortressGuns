@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.*;
@@ -92,8 +93,10 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             if (input == null)
                 return;
 
-            if (!body.acceptsAmmo(input))
+            if (!body.acceptsAmmo(input)) {
+                super.onAmmoReject(event);
                 return;
+            }
 
             AmmoItem loaded = body.getLoadedAmmoType();
 
@@ -182,8 +185,12 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
         else
             lore = ChatColor.GOLD+""+item.getName();
 
-        return StaticItem.ROUND_SHOWCASE.toItem(ChatColor.WHITE+"Loaded Ammo: "+lore);
+        return owner.getType() == ConstructType.MISSILE_LAUNCHER ?
+                StaticItem.ROUND_SHOWCASE_HEAVY.toItem(ChatColor.WHITE + "Loaded Ammo: "+lore) :
+        StaticItem.ROUND_SHOWCASE.toItem(ChatColor.WHITE + "Loaded Ammo: "+lore);
     }
+
+
 
     @Override
     protected boolean isStaticItem(ItemStack current) {

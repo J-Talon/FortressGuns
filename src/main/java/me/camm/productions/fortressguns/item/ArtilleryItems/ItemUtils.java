@@ -27,6 +27,8 @@ public class ItemUtils
 
 
     /*
+    todo unify ammo items, construct items, sticks, etc
+
     Ok you're gonna need the isItem() funcs in multiple locations potentially
     the createItem() funcs can stay together
 
