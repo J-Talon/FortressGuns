@@ -50,8 +50,8 @@ enum ItemBehaviour {
     AMMO_ITEM(new IBAmmoItem()),
     CREATE_CONSTRUCT(new IBConstructBox()),
     RIDING_CONSTRUCT(new IBConstructs()),
-    DEV_SPYGLASS(new IBDevSpyglass()),
-    TACTICAL_PT(new IBTacticalPointer());
+    DEV_SPYGLASS(new IBDevSpyglass()),  //DEV_SPYGLASS_TARGET
+    TACTICAL_PT(new IBTacticalPointer());  //TPOINTER_SETTING
 
     private final InteractionBehaviourItem behaviour;
 

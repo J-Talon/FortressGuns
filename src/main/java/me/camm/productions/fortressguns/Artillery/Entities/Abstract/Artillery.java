@@ -333,14 +333,14 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
         y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
         double roundHealth = Math.round(health * 100d) / 100d;
-        Player player = (Player)(human.getBukkitEntity());
+        Player.Spigot player = ((Player)(human.getBukkitEntity())).spigot();
 
         if (canFire()) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+            player.sendMessage(ChatMessageType.ACTION_BAR,
                     new TextComponent(ChatColor.GREEN+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
         }
         else {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Rotation: ["+x+" | "+y+"] Health: " + roundHealth));
+            player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Rotation: ["+x+" | "+y+"] Health: " + roundHealth));
         }
     }
 
@@ -384,20 +384,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                 y = interpolatedAim.getY();
 
                 //
-                final double POINT_ZERO_RAD = 0.00017;   ///0.01 degrees -> rads = ~0.0017
-
-
-                double currX = aim.getX();
-                final double TWO_PI = 2*Math.PI;
-
-                double diffX = Math.abs(x - currX) % TWO_PI;
-                double accX = 1 - Math.abs(x - currX) / TWO_PI;
-
-                double diffY = Math.abs((y - aim.getY())) % TWO_PI;
-                double accY = 1 - Math.abs(y - aim.getY()) / TWO_PI;
-
-                boolean closeEnough = (diffX < POINT_ZERO_RAD && diffY < POINT_ZERO_RAD)
-                        || (accX < 0.01 && accY < 0.01);
+                boolean closeEnough = pivotIsCloseEnough(x, y);
 
                 if (closeEnough && !lengthChanged) {
                     setInterpolating(false);
@@ -416,6 +403,23 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             }
         }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
 
+    }
+
+    //returns whether the current aim is close enough to the target angle
+    protected boolean pivotIsCloseEnough(double x, double y) {
+        final double POINT_ZERO_RAD = 0.00017;   //0.01 degrees -> rads = ~0.0017
+
+        double currX = aim.getX();
+        final double TWO_PI = 2*Math.PI;
+
+        double diffX = Math.abs(x - currX) % TWO_PI;
+        double accX = 1 - Math.abs(x - currX) / TWO_PI;
+
+        double diffY = Math.abs((y - aim.getY())) % TWO_PI;
+        double accY = 1 - Math.abs(y - aim.getY()) / TWO_PI;
+
+        return (diffX < POINT_ZERO_RAD && diffY < POINT_ZERO_RAD)
+                || (accX < 0.01 && accY < 0.01);
     }
 
     /*
@@ -441,7 +445,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         currY = aim.getY();
 
 
-        ///90 degrees in the up and down directions
+        //90 degrees in the up and down directions
         //in radians
 
         if (vertAngle <= getMaxVertAngle()) {
@@ -554,8 +558,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     // is actually created when the spawnParts method is called, and loaded into the world (drawn) when loadPieces() is called
     public final boolean spawn() {
         dead = false;
-
-     //   System.out.println("Spawning: "+this.getUUID());
 
         boolean spawnedSuccess = instantiateParts();
         if (spawnedSuccess) {
