@@ -25,34 +25,32 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class SimpleFlare extends AbstractFlare {
-    private static final double VERTICAL_VARIANCE = 10.0;
+    private static final double directionVariance = 10.0;
 
     private static final double successChance = 0.5; // % chance per missile to affect it
-    private final Vec3D direction;
+    private final Vector direction;
+    private static final Vector up = new Vector(0, 1, 0);
     private int lifespan;
 
     private static final double ACCELERATION = 0.2;
     private static final double MAX_SPEED = 1;
     private final Set<SimpleMissile> affectedMissiles = new HashSet<>();
 
-    public SimpleFlare(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Vec3D guideDirection) {
+    public SimpleFlare(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Vector guideDirection) {
         super(world, x, y, z, shooter);
 
         this.lifespan = 10 * 20;
 
         if (shooter != null) {
-            // Random vertical offset: -10° to +10°
-            double pitchOffset = (Math.random() * 2.0 - 1.0) * VERTICAL_VARIANCE;
-
+            guideDirection = guideDirection.normalize();
             float yaw = shooter.getYRot();
-            float pitch = (float)(shooter.getXRot() + pitchOffset);
-
-            // Convert modified Euler angles back into a direction vector
-            Vector direction = MathFG.eulerToVec(new EulerAngle(pitch, yaw, 0));
-
-            this.direction = new Vec3D(direction.getX(), direction.getY(), direction.getZ()).d();
+            float pitch = shooter.getXRot();
+            Vector relativeHorizontal = up.getCrossProduct(guideDirection);
+            relativeHorizontal.normalize();
+            relativeHorizontal = relativeHorizontal.multiply((rand.nextFloat() - 0.5) * 2 * directionVariance);
+            this.direction = guideDirection.add(relativeHorizontal).normalize();
         } else {
-            this.direction = guideDirection.d();
+            this.direction = guideDirection.normalize();
         }
     }
 
