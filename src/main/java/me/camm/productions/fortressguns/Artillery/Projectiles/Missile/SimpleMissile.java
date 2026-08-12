@@ -20,6 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
@@ -417,5 +418,4 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     public float getWeight() {
         return 0.9F;
     }
-
 }

@@ -1,9 +1,8 @@
-package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
+package me.camm.productions.fortressguns.Artillery.Projectiles.Flare;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.server.level.EntityPlayer;
@@ -16,22 +15,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public abstract class AbstractRocket extends ProjectileArrowFG implements ProjectileExplosive {
-
-    protected Entity target;
-    protected boolean hadTarget;
-    private final MissileLockNotifier notifier;
+public abstract class AbstractFlare extends ProjectileArrowFG {
 
     protected Random rand;
 
-    protected Artillery source;
 
-    public AbstractRocket(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public AbstractFlare(World world, double x, double y, double z, @Nullable EntityPlayer shooter) {
         super(world, x,y,z, shooter);
-        notifier = MissileLockNotifier.get(FortressGuns.getInstance());
-        hadTarget = false;
         rand = new Random();
-        this.source = source;
     }
 
 
@@ -50,15 +41,6 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
         }
     }
 
-
-    public void setTarget(Entity target) {
-        this.target = target;
-        if (target instanceof Player || target instanceof SimpleFlare) {
-            notifier.addNotification(target.getUniqueId());
-        }
-
-        hadTarget = true;
-    }
     @Override
     protected ItemStack getItemStack() {
         return item;
