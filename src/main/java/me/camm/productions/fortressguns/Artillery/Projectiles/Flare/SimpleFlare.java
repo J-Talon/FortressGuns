@@ -25,20 +25,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class SimpleFlare extends AbstractFlare {
-    private static final double directionVariance = 10.0;
+    private static final double directionVariance = 0.5;
 
-    private static final double successChance = 0.5; // % chance per missile to affect it
+    private static final double successChance = 0.9; // % chance per missile to affect it
     private final Vector direction;
     private int lifespan;
+    private double radius = 50.0;
 
-    private static final double ACCELERATION = 0.2;
-    private static final double MAX_SPEED = 1;
+    private static final double MAX_SPEED = 0.5;
     private final Set<SimpleMissile> affectedMissiles = new HashSet<>();
 
     public SimpleFlare(World world, double x, double y, double z, EntityPlayer shooter) {
         super(world, x, y, z, shooter);
 
-        this.lifespan = 10 * 20;
+        this.lifespan = 30 * 20;
 
         if (shooter != null) {
             Player player = shooter.getBukkitEntity();
@@ -70,37 +70,37 @@ public class SimpleFlare extends AbstractFlare {
         // Get current velocity
         Vec3D motion = getMot();
 
-        // Accelerate in the direction the flare was fired
-        double speedSquared = motion.g();
+        // Forward acceleration
+        motion = motion.add(
+                direction.getX() * MAX_SPEED,
+                direction.getY() * MAX_SPEED,
+                direction.getZ() * MAX_SPEED
+        );
 
-        if (speedSquared < MAX_SPEED * MAX_SPEED) {
+        // Gravity
+        motion = motion.add(0, -0.05, 0);
 
-            // Add acceleration in the desired direction
-            motion = motion.add(
-                    direction.getX() * ACCELERATION,
-                    direction.getY() * ACCELERATION,
-                    direction.getZ() * ACCELERATION
-            );
-
-            // Don't exceed maximum speed
-            if (motion.g() > MAX_SPEED * MAX_SPEED) {
-                motion = motion.d().a(MAX_SPEED);
-            }
-
-            setMot(motion);
+        // Limit speed
+        if (motion.g() > MAX_SPEED * MAX_SPEED) {
+            motion = motion.d().a(MAX_SPEED);
         }
 
-        // Tell Minecraft that the entity's movement changed
+        setMot(motion);
         this.C = true;
 
         org.bukkit.World bukkitWorld = this.getBukkitEntity().getWorld();
         Location flareLocation = this.getBukkitEntity().getLocation();
 
-        double radius = 100.0;
         for (org.bukkit.entity.Entity entity :
                 bukkitWorld.getNearbyEntities(flareLocation, radius, radius, radius)) {
 
-            if (!(entity instanceof SimpleMissile missile)) {
+            if (!(entity instanceof org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity craftEntity)) {
+                continue;
+            }
+
+            net.minecraft.world.entity.Entity nmsEntity = craftEntity.getHandle();
+
+            if (!(nmsEntity instanceof SimpleMissile missile)) {
                 continue;
             }
 
@@ -110,15 +110,16 @@ public class SimpleFlare extends AbstractFlare {
                 continue;
             }
 
-            // Only affect this missile once
-            if (!affectedMissiles.add(missile)) {
-                continue;
-            }
+//            if (!affectedMissiles.add(missile)) {
+//                continue;
+//            }
 
-            if (this.rand.nextDouble() < successChance) {
+            if (this.rand.nextDouble() <= successChance) {
                 missile.setTarget(this.getBukkitEntity());
             }
         }
+
+        // insert effects here
     }
 
     @Override

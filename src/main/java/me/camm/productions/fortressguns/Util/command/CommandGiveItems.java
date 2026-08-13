@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Util.command;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.FlareGun;
 import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,6 +41,7 @@ public class CommandGiveItems extends CommandHandler {
         }
 
         inv.addItem(getStick());
+        inv.addItem(FlareGun.getItem());
 
         return true;
     }
