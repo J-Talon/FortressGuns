@@ -29,28 +29,32 @@ public class SimpleFlare extends AbstractFlare {
 
     private static final double successChance = 0.5; // % chance per missile to affect it
     private final Vector direction;
-    private static final Vector up = new Vector(0, 1, 0);
     private int lifespan;
 
     private static final double ACCELERATION = 0.2;
     private static final double MAX_SPEED = 1;
     private final Set<SimpleMissile> affectedMissiles = new HashSet<>();
 
-    public SimpleFlare(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Vector guideDirection) {
+    public SimpleFlare(World world, double x, double y, double z, EntityPlayer shooter) {
         super(world, x, y, z, shooter);
 
         this.lifespan = 10 * 20;
 
         if (shooter != null) {
-            guideDirection = guideDirection.normalize();
-            float yaw = shooter.getYRot();
-            float pitch = shooter.getXRot();
-            Vector relativeHorizontal = up.getCrossProduct(guideDirection);
+            Player player = shooter.getBukkitEntity();
+            Location loc = player.getLocation();
+            Vector forward = loc.getDirection();
+            Location upLoc = loc.clone();
+            upLoc.setPitch(loc.getPitch() - 90.0F);
+            Vector up = upLoc.getDirection().normalize(); // all this to get left/right stuff lol
+
+            forward = forward.normalize();
+            Vector relativeHorizontal = up.getCrossProduct(forward);
             relativeHorizontal.normalize();
             relativeHorizontal = relativeHorizontal.multiply((rand.nextFloat() - 0.5) * 2 * directionVariance);
-            this.direction = guideDirection.add(relativeHorizontal).normalize();
+            this.direction = forward.add(relativeHorizontal).normalize();
         } else {
-            this.direction = guideDirection.normalize();
+            this.direction = new Vector(1, 0, 1).normalize();
         }
     }
 
