@@ -564,6 +564,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             setChunkLoaded(true);
             spawnPieces();
         }
+        else {
+            FortressGuns.getInstance().getLogger().warning("Could not spawn artillery");
+        }
 
         //see entity.inBlock()
         /*

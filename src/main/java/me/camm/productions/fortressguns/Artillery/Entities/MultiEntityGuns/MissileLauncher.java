@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
@@ -22,6 +23,7 @@ import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -227,11 +229,12 @@ public class MissileLauncher extends ArtilleryRideable {
 
     @Override
     protected boolean instantiateParts() {
-        pivot = StandHelper.createCore(initialLoc.add(0,-0.5,0), BODY, new EulerAngle(0, aim.getY(), 0), world,this);
-        rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
+        pivot = StandHelper.createCore(initialLoc, BODY, new EulerAngle(0, aim.getY(), 0), world,this);
 
         if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
             return false;
+
+        rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (health <= 0)
             setHealth(maxHealth);
@@ -243,7 +246,7 @@ public class MissileLauncher extends ArtilleryRideable {
     @Override
     protected boolean spawnBaseParts() {
 
-        Location piv = pivot.getLocation(world).subtract(0,0.25,0);
+        Location piv = pivot.getLocation(world);
         double rads = 0;
         for (ArtilleryPart[] row: base) {
             for (int slot = 0; slot < row.length; slot++) {
@@ -456,4 +459,5 @@ public class MissileLauncher extends ArtilleryRideable {
     public void positionSeat() {
         posSeatAbsoluteHorizon(rotatingSeat,HOR_OFFSET,Y_OFFSET,0,Math.PI*1.5);
     }
+
 }

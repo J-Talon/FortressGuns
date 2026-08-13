@@ -59,7 +59,12 @@ public class IBConstructBox implements InteractionBehaviourItem {
         int z = (int)(Math.toRadians(eyeLoc.getYaw()) * 100);
 
         ConstructFactory<? extends Construct> factory = type.getFactory();
-        Construct cons = factory.create(player.getLocation().add(0,-0.6,0), type.ordinal(),x,z, 0);
+
+
+        double offsetY = -0.6;
+        if (type == ConstructType.MISSILE_LAUNCHER) offsetY -= 0.75;
+
+        Construct cons = factory.create(player.getLocation().add(0,offsetY,0), type.ordinal(),x,z, 0);
 
         if (cons != null) {
             boolean success = cons.spawn();

@@ -87,7 +87,7 @@ public class ChunkLoader implements Listener {
             }
         };
 
-        task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);
+        task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);  //20
         logger = FortressGuns.getInstance().getLogger();
 
         JavaPlugin plugin = (JavaPlugin)FortressGuns.getInstance();
@@ -247,10 +247,6 @@ public class ChunkLoader implements Listener {
 
             if (!struct.chunkLoaded())
                 continue;
-
-
-
-            struct.calculateOccupiedChunks();
 
             Set<IntTuple2> chunks = struct.getOccupiedChunks();
 
