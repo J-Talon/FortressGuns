@@ -133,7 +133,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     @Override
     public void explode(@Nullable Vec3D hit) {
 
-        if (target != null && target instanceof Player) {
+        if (target != null && (target instanceof Player || target instanceof SimpleFlare)) {
             notifier.exitNotification(target.getUniqueId());
         }
         org.bukkit.World world = getWorld().getWorld();

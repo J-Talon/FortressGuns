@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Flare;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSnowballFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.server.level.EntityPlayer;
@@ -15,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public abstract class AbstractFlare extends ProjectileArrowFG {
+public abstract class AbstractFlare extends ProjectileSnowballFG {
 
     protected Random rand;
 
@@ -39,10 +40,5 @@ public abstract class AbstractFlare extends ProjectileArrowFG {
         } else {
             return false;
         }
-    }
-
-    @Override
-    protected ItemStack getItemStack() {
-        return item;
     }
 }
