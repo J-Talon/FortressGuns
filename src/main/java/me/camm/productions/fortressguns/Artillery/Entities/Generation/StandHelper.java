@@ -40,6 +40,8 @@ public class StandHelper
         - 0.25 in x, z
 
          */
+
+
         double heightLow = 1.725;
         double heightHigh = 1.975;
         double horOffset = 0.25;

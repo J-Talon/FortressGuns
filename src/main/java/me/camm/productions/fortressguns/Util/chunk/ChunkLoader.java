@@ -57,6 +57,14 @@ public class ChunkLoader implements Listener {
     }
 
 
+
+    public static ChunkLoader getInstance() {
+        if (loader == null)
+            loader = new ChunkLoader();
+        return loader;
+    }
+
+
     private ChunkLoader() {
 
         this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
@@ -79,7 +87,7 @@ public class ChunkLoader implements Listener {
             }
         };
 
-        task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);
+        task = runnable.runTaskTimer(FortressGuns.getInstance(), 0,20);  //20
         logger = FortressGuns.getInstance().getLogger();
 
         JavaPlugin plugin = (JavaPlugin)FortressGuns.getInstance();
@@ -87,11 +95,37 @@ public class ChunkLoader implements Listener {
     }
 
 
-    public static ChunkLoader getInstance() {
-        if (loader == null)
-            loader = new ChunkLoader();
-        return loader;
+
+
+    public void tick() {
+
+        lock.lock();
+        Iterator<ChunkTicket> iter = assembledTickets.iterator();
+
+        try {
+            while (iter.hasNext()) {
+                ChunkTicket next = iter.next();
+                if (next.isAssembled()) {
+                    logger.log(Level.INFO, "Completed ticket " + next.getUUID());
+                    next.finish();
+                    activePieces.add(next.getConstruct());
+                    iter.remove();
+                    continue;
+                }
+
+                if (!next.isLoaded()) {
+                    iter.remove();
+                }
+            }
+        }
+        catch (RuntimeException e) {  // please have many oranges
+            logger.log(Level.WARNING, e.toString());
+        }
+        finally {
+            lock.unlock();
+        }
     }
+
 
 
 
@@ -145,13 +179,13 @@ public class ChunkLoader implements Listener {
             struct.calculateOccupiedChunks();
             Set<IntTuple2> loadedChunks = struct.getOccupiedChunks();
 
-            int loaded = (int)loadedChunks.stream().filter(tup -> isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
+            //int loaded = (int)loadedChunks.stream().filter(tup -> isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
+        int loaded = (int) loadedChunks.stream().filter(tup -> world.isChunkLoaded(tup.getA(), tup.getB())).count();
 
             ChunkTicket ticket;
             if (loaded >= loadedChunks.size()) {
                 ticket = createTicket(loadedChunks, struct, e, 0); //1
                 logger.log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
-                ticket.markLoadTime();
 
                 lock.lock();
                 assembledTickets.add(ticket);
@@ -214,10 +248,6 @@ public class ChunkLoader implements Listener {
             if (!struct.chunkLoaded())
                 continue;
 
-
-
-            struct.calculateOccupiedChunks();
-
             Set<IntTuple2> chunks = struct.getOccupiedChunks();
 
             Entity pivot = struct.getCoreEntity();
@@ -236,35 +266,6 @@ public class ChunkLoader implements Listener {
 
 
 
-
-    public void tick() {
-
-        lock.lock();
-        Iterator<ChunkTicket> iter = assembledTickets.iterator();
-
-        try {
-            while (iter.hasNext()) {
-                ChunkTicket next = iter.next();
-                if (next.isAssembled()) {
-                    logger.log(Level.INFO, "Completed ticket " + next.getUUID());
-                    next.finish();
-                    activePieces.add(next.getConstruct());
-                    iter.remove();
-                    continue;
-                }
-
-                if (!next.isLoaded()) {
-                    iter.remove();
-                }
-            }
-        }
-        catch (RuntimeException e) {  // please have many oranges
-            logger.log(Level.WARNING, e.toString());
-        }
-        finally {
-            lock.unlock();
-        }
-    }
 
 
 
@@ -332,9 +333,6 @@ public class ChunkLoader implements Listener {
         return "No ticket found";
     }
 
-    public void stop() {
-        task.cancel();
-    }
 
     public static Set<Construct> getActivePieces() {
         return activePieces;
