@@ -20,7 +20,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     private static final double directionVariance = 0.5;
     private static final ItemStack SPRITE = new ItemStack(Items.rA);
 
-    private static final double successChance = 0.9; // % chance per missile to affect it
+    private static final double successChance = 0.37; // % chance per missile to affect it ~ a 90% chance for a spread of missiles
     private final Vector DIRECTION;
     private int lifespan;
     private final double RADIUS = 50.0;
@@ -32,6 +32,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         super(world, x, y, z, shooter);
 
         this.lifespan = 15 * 20;
+        setNoGravity(true);
 
         if (shooter != null) {
             Player player = shooter.getBukkitEntity();
@@ -42,10 +43,12 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
             Vector up = upLoc.getDirection().normalize(); // all this to get left/right stuff lol
 
             forward = forward.normalize();
+            up = up.normalize();
             Vector relativeHorizontal = up.getCrossProduct(forward);
             relativeHorizontal.normalize();
             relativeHorizontal = relativeHorizontal.multiply((rand.nextFloat() - 0.5) * 2 * directionVariance);
-            this.DIRECTION = forward.add(relativeHorizontal).normalize();
+            up = up.multiply((rand.nextFloat() - 0.5) * 2 * directionVariance);
+            this.DIRECTION = forward.add(relativeHorizontal).add(up);
         } else {
             this.DIRECTION = new Vector(1, 0, 1).normalize();
         }
@@ -62,7 +65,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         super.tick();
 
         if (lifespan-- < 0) {
-            end();
+            this.die();
             return;
         }
 
@@ -70,7 +73,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         Vec3D motion = getMot();
 
         // Gravity
-//        motion = motion.add(0, 0.0002, 0);
+        motion = motion.add(0, -0.01, 0);
 
         setMot(motion);
         this.C = true;
@@ -117,12 +120,15 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
                 0.08, 0.08, 0.08,
                 0.01
         );
+        world.spawnParticle(Particle.FLASH, loc, 1);
+
         world.spawnParticle(
-                Particle.FLASH,
+                Particle.REDSTONE,
                 loc,
-                3,
+                10,
                 0.08, 0.08, 0.08,
-                0.01
+                0.01,
+                new Particle.DustOptions(Color.RED, 1.5f)
         );
 
         world.spawnParticle(
@@ -136,22 +142,19 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        end();
-        return false;
+        if (hitEntity instanceof SimpleFlare flare) {
+            return false;
+        }
+        this.die();
+        return true;
     }
 
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition,
                               EnumDirection blockFace,
                               BlockPosition hitBlock) {
-        end();
-        return false;
-    }
-
-    private void end() {
-        this.getBukkitEntity().remove();
-        this.affectedMissiles.clear();
         this.die();
+        return true;
     }
 
     @Override
