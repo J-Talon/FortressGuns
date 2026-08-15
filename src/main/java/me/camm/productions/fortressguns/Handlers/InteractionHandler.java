@@ -315,24 +315,28 @@ public class InteractionHandler implements Listener
     }
 
     @EventHandler
-    public void onBowShoot(EntityShootBowEvent event) { // heavily geared towards flare stuff
+    public void onBowShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
             return;
         }
 
         ItemStack bow = event.getBow();
 
-        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (bow == null) {
+            return;
+        }
 
-        Tuple2<Player, ItemStack> tup =
-                new Tuple2<>(player, offhand);
+        Material mat = bow.getType();
 
         List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(offhand.getType(), null);
+                itemInteractions.getOrDefault(mat, null);
 
         if (interactions == null) {
             return;
         }
+
+        Tuple2<Player, ItemStack> tup =
+                new Tuple2<>(player, bow);
 
         for (InteractionBehaviourItem interaction : interactions) {
             if (!interaction.accept(tup)) {

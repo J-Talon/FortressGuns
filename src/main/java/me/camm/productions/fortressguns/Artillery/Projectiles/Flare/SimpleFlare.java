@@ -31,7 +31,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     public SimpleFlare(World world, double x, double y, double z, EntityPlayer shooter) {
         super(world, x, y, z, shooter);
 
-        this.lifespan = 15 * 20;
+        this.lifespan = 10 * 20;
         setNoGravity(true);
 
         if (shooter != null) {
@@ -157,11 +157,12 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        if (hitEntity instanceof SimpleFlare flare) {
-            return false;
-        }
-        this.die();
-        return true;
+//        if (hitEntity instanceof SimpleFlare flare) {
+//            return false;
+//        }
+//        this.die();
+//        return true;
+        return false; // had an issue where player would kill their own flare so yeah
     }
 
     @Override

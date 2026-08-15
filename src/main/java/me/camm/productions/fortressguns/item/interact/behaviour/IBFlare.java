@@ -25,13 +25,24 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.meta.CrossbowMeta;
 
 public class IBFlare implements InteractionBehaviourItem {
 
     private static final String FLARE_NAME = ChatColor.GRAY + "Flares";
     private static final NamespacedKey LOADED_FLARE_KEY =
             new NamespacedKey(FortressGuns.getInstance(), "loaded_flare");
+
+    @Override
+    public Material[] getLabels() {
+        return new Material[] {
+                Material.FIREWORK_ROCKET,
+                Material.CROSSBOW // for crossbow intervention
+        };
+    }
 
     private void fireFlare(Block block) {
         Directional directional =
@@ -45,8 +56,7 @@ public class IBFlare implements InteractionBehaviourItem {
                         face.getModY() * 0.6,
                         face.getModZ() * 0.6);
 
-        WorldServer world =
-                ((CraftWorld) block.getWorld()).getHandle();
+        WorldServer world = ((CraftWorld) block.getWorld()).getHandle();
 
         SimpleFlare flare = new SimpleFlare(
                 world,
@@ -61,47 +71,130 @@ public class IBFlare implements InteractionBehaviourItem {
         world.addEntity(flare);
     }
 
-    @Override
-    public Material[] getLabels() {
-        return new Material[] {Material.FIREWORK_ROCKET};
+    private boolean isFlareLoaded(ItemStack crossbow) {
+        if (crossbow == null || crossbow.getType() != Material.CROSSBOW) {
+            return false;
+        }
+
+        ItemMeta meta = crossbow.getItemMeta();
+
+        return meta != null
+                && meta.getPersistentDataContainer().has(
+                LOADED_FLARE_KEY,
+                PersistentDataType.BYTE
+        );
+    }
+
+    private void setFlareLoaded(ItemStack crossbow, boolean loaded) {
+        ItemMeta meta = crossbow.getItemMeta();
+
+        if (meta == null) {
+            return;
+        }
+
+        if (loaded) {
+            meta.getPersistentDataContainer().set(
+                    LOADED_FLARE_KEY,
+                    PersistentDataType.BYTE,
+                    (byte) 1
+            );
+        } else {
+            meta.getPersistentDataContainer().remove(LOADED_FLARE_KEY);
+        }
+
+        crossbow.setItemMeta(meta);
+    }
+
+    private void startFlareLoadingCheck(Player player) {
+        ItemStack crossbow = player.getInventory().getItemInMainHand();
+
+        if (crossbow.getType() != Material.CROSSBOW) {
+            return;
+        }
+
+        if (isFlareLoaded(crossbow)) {
+            return;
+        }
+
+        ItemStack flare = player.getInventory().getItemInOffHand();
+
+        if (!accept(new Tuple2<>(player, flare))) {
+            return;
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                ItemStack current =
+                        player.getInventory().getItemInMainHand();
+
+                if (current.getType() != Material.CROSSBOW) {
+                    cancel();
+                    return;
+                }
+
+                CrossbowMeta meta = (CrossbowMeta) current.getItemMeta();
+
+                if (meta == null) {
+                    cancel();
+                    return;
+                }
+
+                // crossbow finished loading
+                if (meta.hasChargedProjectiles()) {
+                    ItemStack offhand =
+                            player.getInventory().getItemInOffHand();
+
+                    if (!accept(new Tuple2<>(player, offhand))) {
+                        cancel();
+                        return;
+                    }
+
+                    offhand.setAmount(offhand.getAmount() - 1);
+                    setFlareLoaded(current, true);
+
+                    cancel();
+                }
+            }
+        }.runTaskTimer(
+                FortressGuns.getInstance(),
+                1L,
+                1L
+        );
     }
 
     @Override
     public void onRCAir(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        ItemStack item = event.getItem();
 
-        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
-
-        if (itemInMainHand.getType() == Material.CROSSBOW) {
-            ItemStack offhand = player.getInventory().getItemInOffHand();
-
-            if (accept(new Tuple2<>(player, offhand))) {
-                event.setCancelled(true);
-
-                player.setFireTicks(100);
-            }
-        } else {
-            cancelIfCustomFlare(event);
+        if (item == null) {
+            return;
         }
+
+        if (item.getType() == Material.CROSSBOW) {
+            startFlareLoadingCheck(player);
+            return;
+        }
+
+        cancelIfCustomFlare(event);
     }
 
     @Override
     public void onRCBlock(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        ItemStack item = event.getItem();
 
-        ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
-
-        if (itemInMainHand.getType() == Material.CROSSBOW) {
-            ItemStack offhand = player.getInventory().getItemInOffHand();
-
-            if (accept(new Tuple2<>(player, offhand))) {
-                event.setCancelled(true);
-
-                player.setFireTicks(100);
-            }
-        } else {
-            cancelIfCustomFlare(event);
+        if (item == null) {
+            return;
         }
+
+        if (item.getType() == Material.CROSSBOW) {
+            startFlareLoadingCheck(player);
+            return;
+        }
+
+        cancelIfCustomFlare(event);
     }
 
     @Override
@@ -157,44 +250,31 @@ public class IBFlare implements InteractionBehaviourItem {
             return;
         }
 
-        ItemStack bow = event.getBow();
+        ItemStack crossbow = event.getBow();
 
-        // must be a crossbow
-        if (bow == null || bow.getType() != Material.CROSSBOW) {
+        if (crossbow == null || crossbow.getType() != Material.CROSSBOW) {
             return;
         }
 
-        // check offhand for custom flares
-        ItemStack offhand = player.getInventory().getItemInOffHand();
-
-        if (!accept(new Tuple2<>(player, offhand))) {
+        if (!isFlareLoaded(crossbow)) {
             return;
         }
 
-        // prevent the normal crossbow projectile from firing
         event.setCancelled(true);
 
-        // consume one flare
-        offhand.setAmount(offhand.getAmount() - 1);
+        // consume loaded flare
+        setFlareLoaded(crossbow, false);
 
-        // fire the custom flare
-        Location location = player.getEyeLocation();
-        Vector direction = location.getDirection().normalize();
+        // explode because balancing a crossbow sucks
+        player.getWorld().createExplosion(
+                player.getLocation(),
+                4.0F,
+                true,
+                false
+        ); // i've considered making it explode 3 times if the crossbow has multishot but I think that's too cruel
 
-        WorldServer world =
-                ((CraftWorld) player.getWorld()).getHandle();
-
-        SimpleFlare flare = new SimpleFlare(
-                world,
-                location.getX(),
-                location.getY(),
-                location.getZ(),
-                direction.getX() * 0.5,
-                direction.getY() * 0.5,
-                direction.getZ() * 0.5
-        );
-
-        world.addEntity(flare);
+        // set the player on fire
+        player.setFireTicks(100);
     }
 
     private void cancelIfCustomFlare(PlayerInteractEvent event) {
@@ -233,14 +313,24 @@ public class IBFlare implements InteractionBehaviourItem {
     public boolean accept(Tuple2<Player, ItemStack> item) {
         ItemStack stack = item.getB();
 
-        if (stack == null || stack.getType() != Material.FIREWORK_ROCKET) {
+        if (stack == null) {
             return false;
         }
 
-        ItemMeta meta = stack.getItemMeta();
+        // Custom flare item
+        if (stack.getType() == Material.FIREWORK_ROCKET) {
+            ItemMeta meta = stack.getItemMeta();
 
-        return meta != null
-                && meta.hasDisplayName()
-                && FLARE_NAME.equals(meta.getDisplayName());
+            return meta != null
+                    && meta.hasDisplayName()
+                    && FLARE_NAME.equals(meta.getDisplayName());
+        }
+
+        // Crossbow loaded with a custom flare
+        if (stack.getType() == Material.CROSSBOW) {
+            return isFlareLoaded(stack);
+        }
+
+        return false;
     }
 }
