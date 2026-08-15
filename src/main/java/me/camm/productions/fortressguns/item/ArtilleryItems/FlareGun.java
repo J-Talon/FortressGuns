@@ -1,14 +1,13 @@
 package me.camm.productions.fortressguns.item.ArtilleryItems;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
+import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -16,9 +15,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataType;
 
-public class FlareGun implements Listener {
+public class FlareGun {
 
-    private static final String name = "Flare Gun";
+    private static final String name = ChatColor.GRAY + "Flare Gun";
     private static final Material material = Material.DISPENSER;
     private static final long COOLDOWN_MILLIS = 3000;
     private static final NamespacedKey FLARE_GUN_KEY = new NamespacedKey("fortressguns", "flare_gun");
@@ -28,6 +27,7 @@ public class FlareGun implements Listener {
         ItemStack item = new ItemStack(material);
 
         ItemMeta meta = item.getItemMeta();
+
         meta.setDisplayName(name);
 
         meta.getPersistentDataContainer().set(
@@ -67,7 +67,7 @@ public class FlareGun implements Listener {
                 && AmmoItem.FLARE.getName().equals(meta.getDisplayName());
     }
 
-    private static boolean consumeAmmo(Player player, int amount) {
+    public static boolean consumeAmmo(Player player, int amount) {
         int available = 0;
 
         for (ItemStack item : player.getInventory().getContents()) {
@@ -104,7 +104,7 @@ public class FlareGun implements Listener {
         return true;
     }
 
-    private static boolean isOnCooldown(ItemStack gun) {
+    public static boolean isOnCooldown(ItemStack gun) {
         ItemMeta meta = gun.getItemMeta();
 
         if (meta == null) {
@@ -129,7 +129,7 @@ public class FlareGun implements Listener {
         return true;
     }
 
-    private static void setCooldown(Player player, ItemStack gun) {
+    public static void setCooldown(Player player, ItemStack gun) {
         ItemMeta meta = gun.getItemMeta();
 
         if (meta == null) {
@@ -142,60 +142,7 @@ public class FlareGun implements Listener {
                 System.currentTimeMillis() + COOLDOWN_MILLIS
         );
 
-        gun.setItemMeta(meta);;
-    }
-
-    @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
-        Action action = event.getAction();
-
-        if (action != Action.RIGHT_CLICK_AIR &&
-                action != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-
-        Player player = event.getPlayer();
-
-        ItemStack gun = player.getInventory().getItemInMainHand();
-
-        if (!isFlareGun(gun)) {
-            return;
-        }
-
-        if (isOnCooldown(gun)) {
-            player.sendMessage(ChatColor.RED + "Your Flare Gun is on cooldown!");
-            return;
-        }
-
-        if (!consumeAmmo(player, 1)) {
-            player.sendMessage(ChatColor.RED + "You need Flares to fire!");
-            return;
-        }
-
-        setCooldown(player, gun);
-
-        for (int i = 0; i < 5; i++) {
-            fire(player);
-        }
-    }
-
-    private void fire(Player player) {
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        EntityPlayer nmsPlayer = craftPlayer.getHandle();
-
-        WorldServer world = (WorldServer) nmsPlayer.getWorld();
-
-        org.bukkit.Location location = player.getEyeLocation().clone();
-
-        SimpleFlare flare = new SimpleFlare(
-                world,
-                location.getX(),
-                location.getY(),
-                location.getZ(),
-                nmsPlayer
-        );
-
-        world.addEntity(flare);
+        gun.setItemMeta(meta);
     }
 
     public static ItemStack getItem() {

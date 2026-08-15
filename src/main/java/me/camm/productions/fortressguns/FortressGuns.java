@@ -55,7 +55,6 @@ public final class FortressGuns extends JavaPlugin {
       manager.registerEvents(new InventoryHandler(), this);
       manager.registerEvents(ItemMergeHandler.getInstance(),this);
       manager.registerEvents(loader, plugin);
-      manager.registerEvents(new FlareGun(), this);
 
       commandHandler = new CommandListener();
 

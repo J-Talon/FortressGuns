@@ -3,9 +3,11 @@ package me.camm.productions.fortressguns.item.interact;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -29,6 +31,10 @@ public interface InteractionBehaviourItem extends InteractionBehaviour<Tuple2<Pl
     public default void onRCEntity(PlayerInteractEntityEvent event) {}
 
     public default void onScroll(PlayerItemHeldEvent event) {}
+
+    public default void onDispense(BlockDispenseEvent event) {}
+
+    public default void onItemConsume(PlayerItemConsumeEvent event) {}
 
 
     //left clicks for entities (attacking) are handled in entity damage event which I will tackle later
