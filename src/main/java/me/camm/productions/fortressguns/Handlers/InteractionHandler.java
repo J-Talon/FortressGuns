@@ -109,8 +109,11 @@ public class InteractionHandler implements Listener
             if (itemInteractions.containsKey(mat)) {
                 List<InteractionBehaviourItem> behaviours = itemInteractions.get(mat);
 
-                if (behaviours.contains(interaction))
+                if (behaviours.contains(interaction)) {
                     throw new IllegalArgumentException("Interaction type already registered!");
+                } else {
+                    behaviours.add(interaction);
+                }
             }
             else {
                 List<InteractionBehaviourItem> list = new ArrayList<>();
