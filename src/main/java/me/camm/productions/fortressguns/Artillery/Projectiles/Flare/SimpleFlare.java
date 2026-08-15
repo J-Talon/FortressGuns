@@ -96,20 +96,14 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         org.bukkit.World bukkitWorld = this.getBukkitEntity().getWorld();
         Location flareLocation = this.getBukkitEntity().getLocation();
 
-        for (org.bukkit.entity.Entity entity :
-                bukkitWorld.getNearbyEntities(flareLocation, RADIUS, RADIUS, RADIUS)) {
+        for (SimpleMissile missile : SimpleMissile.getActiveMissiles()) {
 
-            if (!(entity instanceof org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity craftEntity)) {
+            if (!missile.isAlive()) {
                 continue;
             }
 
-            net.minecraft.world.entity.Entity nmsEntity = craftEntity.getHandle();
-
-            if (!(nmsEntity instanceof SimpleMissile missile)) {
-                continue;
-            }
-
-            double distanceSquared = entity.getLocation().distanceSquared(flareLocation);
+            double distanceSquared =
+                    missile.getBukkitEntity().getLocation().distanceSquared(flareLocation);
 
             if (distanceSquared > RADIUS * RADIUS) {
                 continue;
@@ -119,12 +113,12 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
                 continue;
             }
 
-            if (this.rand.nextDouble() <= successChance) {
+            if (rand.nextDouble() <= successChance) {
                 missile.setTarget(this.getBukkitEntity());
             }
         }
 
-        // Flare particle effects
+        // flare particle effects
         org.bukkit.World world = this.getBukkitEntity().getWorld();
         Location loc = this.getBukkitEntity().getLocation();
 
