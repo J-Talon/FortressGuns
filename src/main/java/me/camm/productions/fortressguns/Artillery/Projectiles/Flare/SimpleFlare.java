@@ -60,6 +60,21 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         ));
     }
 
+    public SimpleFlare(World world, double x, double y, double z, double dx, double dy, double dz) {
+        super(world, x, y, z, null);
+
+        this.lifespan = 15 * 20;
+        setNoGravity(true);
+
+        DIRECTION = new Vector(dx, dy, dz);
+        setItem(SPRITE);
+        setMot(new Vec3D(
+                DIRECTION.getX() * MAX_SPEED,
+                DIRECTION.getY() * MAX_SPEED,
+                DIRECTION.getZ() * MAX_SPEED
+        ));
+    }
+
     @Override
     public void tick() {
         super.tick();

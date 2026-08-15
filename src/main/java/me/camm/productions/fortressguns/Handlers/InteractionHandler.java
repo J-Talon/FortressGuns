@@ -26,6 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -310,6 +311,35 @@ public class InteractionHandler implements Listener
         for (InteractionBehaviourItem interaction : interactions) {
             if (!interaction.accept(tup)) continue;
             interaction.onItemConsume(event);
+        }
+    }
+
+    @EventHandler
+    public void onBowShoot(EntityShootBowEvent event) { // heavily geared towards flare stuff
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        ItemStack bow = event.getBow();
+
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+
+        Tuple2<Player, ItemStack> tup =
+                new Tuple2<>(player, offhand);
+
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(offhand.getType(), null);
+
+        if (interactions == null) {
+            return;
+        }
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) {
+                continue;
+            }
+
+            interaction.onBowShoot(event);
         }
     }
 }

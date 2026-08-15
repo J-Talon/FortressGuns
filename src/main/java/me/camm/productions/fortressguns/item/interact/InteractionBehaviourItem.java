@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -35,6 +36,8 @@ public interface InteractionBehaviourItem extends InteractionBehaviour<Tuple2<Pl
     public default void onDispense(BlockDispenseEvent event) {}
 
     public default void onItemConsume(PlayerItemConsumeEvent event) {}
+
+    public default void onBowShoot(EntityShootBowEvent event) {}
 
 
     //left clicks for entities (attacking) are handled in entity damage event which I will tackle later
