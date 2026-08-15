@@ -210,7 +210,10 @@ public class InteractionHandler implements Listener
         List<InteractionBehaviourItem> interactions = itemInteractions.getOrDefault(mat, null);
         if (interactions == null) return;
 
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(event.getPlayer(), stack);
         for (InteractionBehaviourItem item: interactions) {
+            if (!item.accept(tup)) continue;
+
             item.onBlockPlace(event);
         }
     }
@@ -252,7 +255,10 @@ public class InteractionHandler implements Listener
         if (itemAction == null)
             return;
 
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(event.getPlayer(), stack);
+
         for (InteractionBehaviourItem inter: interactions) {
+            if (!inter.accept(tup)) continue;
             itemAction.accept(inter);
         }
     }

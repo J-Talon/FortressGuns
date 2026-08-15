@@ -3,7 +3,9 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
@@ -16,25 +18,32 @@ import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.item.interact.IBHandle;
 import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
 import me.camm.productions.fortressguns.item.interact.behaviour.IBTacticalPointer;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
 import org.apache.commons.lang.ObjectUtils;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 
 
 public class MissileLauncher extends ArtilleryRideable {
@@ -72,6 +81,10 @@ public class MissileLauncher extends ArtilleryRideable {
 
     private final ArtilleryPart[] stem;
     private IBDevSpyglass action;
+
+    private float tracking;
+
+
 
 
     public MissileLauncher(Location loc, World world, EulerAngle aim) {
@@ -318,19 +331,59 @@ public class MissileLauncher extends ArtilleryRideable {
         positionSeat();
     }
 
-    //basically there's an idea that if a player sits on the seat then they can start locking onto
-    //targets
-    public synchronized void startTracking() {
-     //onions. yummy.
+
+    //todo unify interactions
+    @Override
+    public void rideTick(EntityHuman human) {
+        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+
+    }
+
+
+    private void lockTarget(EntityHuman human) {
+        final double DISTANCE = 200;
+        World world = human.getWorld().getWorld();
+        Vector lookDirection = CraftVector.toBukkit(human.getLookDirection());
+        Location eyeLocation = new Location(world, human.locX(), human.locY() + human.getHeadHeight(), human.locZ());
+
+        final Construct ref = this;
+
+        class PredicateTarget implements Predicate<Entity> {
+
+            @Override
+            public boolean test(Entity entity) {
+                //return true => valid entity to raytrace
+                net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+
+                if (!(nms instanceof Component comp)) return true;
+
+                if (nms.equals(human)) return false;
+
+                Construct cons = comp.getBody();
+                return !(ref.equals(cons));
+            }
+        }
+
+
+        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection,DISTANCE);
+
+        if (res == null) return;
+        Entity hit = res.getHitEntity();
+
+        //do stuff here
+
+    }
+
+
+    @Override
+    public void onDismount() {
+        super.onDismount();
     }
 
 
 
 
     private Location[] getBarrelLocations() {
-
-
-
         double xStraight, zStraight;
         double yHeight = -LARGE_BLOCK_LENGTH * Math.sin(aim.getX());
         //90* offset
