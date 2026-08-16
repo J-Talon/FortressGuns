@@ -49,7 +49,6 @@ enum ItemBehaviour {
     AMMO_ITEM(new IBAmmoItem()),
     CREATE_CONSTRUCT(new IBConstructBox()),
     RIDING_CONSTRUCT(new IBConstructs()),
-    TEMP_BR(new IBDevBlazeRod()),  //DEV_BR
     DEV_SPYGLASS(new IBDevSpyglass()),  //DEV_SPYGLASS_TARGET
     TACTICAL_PT(new IBTacticalPointer()), //TPOINTER_SETTING
     FLARE_GUN(new IBFlareGun()),

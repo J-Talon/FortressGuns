@@ -69,17 +69,6 @@ public class IBConstructBox implements InteractionBehaviourItem {
 
         Construct cons = factory.create(player.getLocation().add(0,offsetY,0), type.ordinal(),x,z, 0);
 
-
-        ///debug
-        if (cons instanceof MissileLauncher launcher) {
-            InteractionBehaviourItem i = InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_BR);
-            IBDevBlazeRod rod = (IBDevBlazeRod)i;
-            rod.setLauncher(launcher);
-        }
-        ///debug
-
-
-
         if (cons != null) {
             boolean success = cons.spawn();
             ChunkLoader.addActivePiece(cons);
