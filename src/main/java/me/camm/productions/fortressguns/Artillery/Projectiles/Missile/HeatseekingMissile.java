@@ -88,8 +88,9 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
 
     @Override
     public void inactiveTick() {
-        explode(null);
-        super.inactiveTick();
+        if (this.b || this.au > 0)
+            explode(null);
+            super.inactiveTick();
     }
     @Override
     public float getExplosionPower() {
@@ -105,6 +106,8 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
 
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+
+
         Block hit = bukkitWorld.getBlockAt(hitBlock.getX(), hitBlock.getY(), hitBlock.getZ());
         if (hit.getType().isAir())
             return false;
@@ -290,13 +293,8 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
 
 
     private void flyToTarget(Location missileLoc) {
-//
-//        if (target instanceof Player && (!(((Player) target).isGliding()))) {
-//            notifier.removeNotification(target.getUniqueId());
-//        }
 
         if (target.isDead() || !target.isValid() || (target.getWorld() != bukkitWorld)) {
-
             notifier.removeNotification(target.getUniqueId());
             target = null;
             return;
