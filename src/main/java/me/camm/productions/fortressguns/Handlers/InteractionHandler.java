@@ -24,11 +24,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -52,7 +51,9 @@ enum ItemBehaviour {
     RIDING_CONSTRUCT(new IBConstructs()),
     TEMP_BR(new IBDevBlazeRod()),  //DEV_BR
     DEV_SPYGLASS(new IBDevSpyglass()),  //DEV_SPYGLASS_TARGET
-    TACTICAL_PT(new IBTacticalPointer());  //TPOINTER_SETTING
+    TACTICAL_PT(new IBTacticalPointer()), //TPOINTER_SETTING
+    FLARE_GUN(new IBFlareGun()),
+    FLARE(new IBFlare());
 
     private final InteractionBehaviourItem behaviour;
 
@@ -110,8 +111,11 @@ public class InteractionHandler implements Listener
             if (itemInteractions.containsKey(mat)) {
                 List<InteractionBehaviourItem> behaviours = itemInteractions.get(mat);
 
-                if (behaviours.contains(interaction))
+                if (behaviours.contains(interaction)) {
                     throw new IllegalArgumentException("Interaction type already registered!");
+                } else {
+                    behaviours.add(interaction);
+                }
             }
             else {
                 List<InteractionBehaviourItem> list = new ArrayList<>();
@@ -280,10 +284,73 @@ public class InteractionHandler implements Listener
             if (!interaction.accept(tup)) continue;
             interaction.onRCEntity(event);
         }
-
-
-
     }
 
+    @EventHandler
+    public void onDispense(BlockDispenseEvent event) {
+        ItemStack stack = event.getItem();
+        Material mat = stack.getType();
 
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(mat, null);
+
+        if (interactions == null) return;
+
+        Tuple2<Player, ItemStack> tup =
+                new Tuple2<>(null, stack);
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onDispense(event);
+        }
+    }
+
+    @EventHandler
+    public void onItemConsume(PlayerItemConsumeEvent event) {
+        ItemStack stack = event.getItem();
+        Material mat = stack.getType();
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(mat, null);
+        if (interactions == null) return;
+        Tuple2<Player, ItemStack> tup =
+                new Tuple2<>(null, stack);
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+            interaction.onItemConsume(event);
+        }
+    }
+
+    @EventHandler
+    public void onBowShoot(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
+        ItemStack bow = event.getBow();
+
+        if (bow == null) {
+            return;
+        }
+
+        Material mat = bow.getType();
+
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(mat, null);
+
+        if (interactions == null) {
+            return;
+        }
+
+        Tuple2<Player, ItemStack> tup =
+                new Tuple2<>(player, bow);
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) {
+                continue;
+            }
+
+            interaction.onBowShoot(event);
+        }
+    }
 }

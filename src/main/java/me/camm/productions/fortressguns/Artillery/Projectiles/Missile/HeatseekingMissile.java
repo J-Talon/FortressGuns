@@ -19,6 +19,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
@@ -37,6 +41,8 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     private int readyTime;
     private static final int FUEL = 600;  //
     private static final int PRIME = 5; //1/2 sec
+
+    private static Set<SimpleMissile> ACTIVE_MISSILES = new HashSet<>();
 
     private final Vec3D initialVelocity;
     private final boolean hadTarget;
@@ -76,6 +82,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
         initialYRot = initialXRot = Float.NaN;
         notifier = MissileLockNotifier.get(FortressGuns.getInstance());
         //velocity is in blocks/tick
+        ACTIVE_MISSILES.add(this);
     }
 
     public static void setExplosionPower(float explosionPower) {
@@ -83,6 +90,10 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     }
     public static void setDifficulty(float difficulty) {
         HeatseekingMissile.difficulty = difficulty;
+    }
+
+    public static Set<SimpleMissile> getActiveMissiles() {
+        return ACTIVE_MISSILES;
     }
 
 
@@ -130,7 +141,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     @Override
     public void explode(@Nullable Vec3D hit) {
 
-        if (target != null && target instanceof Player) {
+        if (target != null && (target instanceof Player || target instanceof SimpleFlare)) {
             notifier.exitNotification(target.getUniqueId());
         }
         org.bukkit.World world = getWorld().getWorld();
@@ -141,7 +152,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
         ExplosionFactory.missileExplosion(world, shooter.getBukkitEntity(),locX(), locY(),locZ(),4);
 
        // world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
-
+        ACTIVE_MISSILES.remove(this);
         this.die();
     }
 
@@ -410,5 +421,4 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     public float getWeight() {
         return 0.9F;
     }
-
 }

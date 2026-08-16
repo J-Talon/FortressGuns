@@ -11,6 +11,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.Heatseekin
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
 import org.jetbrains.annotations.Nullable;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 
 
 @FunctionalInterface
@@ -96,6 +97,14 @@ public interface ProjectileFactory<T extends ProjectileFG> {
             return new CRAMShell(world, x, y, z, shooter, source);
         }
 
+    }
+
+    class FactoryFlare implements ProjectileFactory<SimpleFlare> {
+        @Override
+        public SimpleFlare create(World world, double x, double y, double z,
+                                  EntityPlayer shooter, Artillery source) {
+            return new SimpleFlare(world, x, y, z, shooter);
+        }
     }
 
 }
