@@ -208,6 +208,10 @@ public class IBFlare implements InteractionBehaviourItem {
             return;
         }
 
+        if (event.getItem().getType() == Material.CROSSBOW) {
+            return;
+        }
+
         event.setCancelled(true);
 
         fireFlare(event.getBlock());
