@@ -7,8 +7,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
@@ -63,6 +65,9 @@ public class MissileLauncher extends ArtilleryRideable {
     static final int TRACK_REQUIRED = 65;
     static final int MAX_TRACK = 100;
     static final int MIN_TRACK = 0;
+    static final int TRACK_INCREASE = 3;
+    static final int TRACK_DECREASE = 1;
+    static final int TRACK_FALLBACK = 10;
 
     static final Random RANDOM;
 
@@ -85,6 +90,9 @@ public class MissileLauncher extends ArtilleryRideable {
     private final ArtilleryPart[] stem;
 
     private Entity trackedTarget;
+    private Entity fallbackTrack;
+
+    private int fallbackLock;
     private int trackingLock;
 
 
@@ -335,70 +343,77 @@ public class MissileLauncher extends ArtilleryRideable {
     public void rideTick(EntityHuman human) {
         lockTarget(human);
         pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
-        Player.Spigot player = ((Player)(human.getBukkitEntity())).spigot();
+        Player player = ((Player)(human.getBukkitEntity()));
+
+        ItemStack item = player.getInventory().getItemInOffHand();
+
 
         ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
 
-        if (trackingLock <= MIN_TRACK) {
+
+
+        if (ItemUtils.getStick().isSimilar(item)) {
             double x, y;
             x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
             y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
             double roundHealth = Math.round(health * 100d) / 100d;
 
-            player.sendMessage(ChatMessageType.ACTION_BAR,
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
                     new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
+            return;
+        }
+
+
+        float percent = (float)trackingLock / MAX_TRACK;
+        int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
+
+        String slice = ChatColor.RED+PROGRESS_BAR.substring(0,Math.max(bars  - 1, 0));
+        String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
+        //----main---
+
+        String extra = "";
+        ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
+
+        if (getAmmo() > 0) {
+            extra = ChatColor.GOLD+"|".repeat(getAmmo());
+
+            if (trackingLock >= TRACK_REQUIRED)
+                extra += dynamic+" TARGET LOCK";
+            else
+                extra += ChatColor.GOLD+ " TRACKING";
         }
         else {
-            float percent = (float)trackingLock / MAX_TRACK;
-            int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
-
-            String slice = ChatColor.RED+PROGRESS_BAR.substring(0,Math.max(bars  - 1, 0));
-            String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
-            //----main---
-
-            String extra = "";
-            ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
-
-            if (getAmmo() > 0) {
-                extra = ChatColor.GOLD+"|".repeat(getAmmo());
-
-                if (trackingLock >= TRACK_REQUIRED)
-                    extra += dynamic+" TARGET LOCK";
-                else
-                    extra += ChatColor.GOLD+ " TRACKING";
-            }
-            else {
-                extra = dynamic + "RELOAD";
-            }
-
-            //---extra
-
-
-            String type = "";
-            if (trackedTarget != null) {
-
-                if (trackedTarget.getType() == EntityType.PLAYER)
-                    type = trackedTarget.getName();
-                else type = trackedTarget.getType().name().replace('_', ' ');
-            }
-
-            type = ChatColor.RED + type;
-            //tracked ---
-
-
-            player.sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(type +" "+ slice + remain + slice +" "+extra));
+            extra = dynamic + "RELOAD";
         }
+
+        //---extra
+
+
+        String type = "";
+        if (trackedTarget != null) {
+
+            if (trackedTarget.getType() == EntityType.PLAYER)
+                type = trackedTarget.getName();
+            else type = trackedTarget.getType().name().replace('_', ' ');
+        }
+
+        type = ChatColor.RED + type;
+        //tracked ---
+
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                new TextComponent(type +" "+ slice + remain + slice +" "+extra));
+
 
 
     }
 
 
-    private void lockTarget(EntityHuman human) {
+    private void trackingUpdate() {
 
         if (trackingLock >= MIN_TRACK && trackedTarget != null) {
             if (!trackedTarget.isDead() && trackedTarget.isValid()) {
-             setTarget(trackedTarget);
+                setTarget(trackedTarget);
             }
             else {
                 trackedTarget = null;
@@ -409,11 +424,18 @@ public class MissileLauncher extends ArtilleryRideable {
             setTarget(null);
         }
 
-
         if (trackingLock <= 0) {
             trackedTarget = null;
             setTarget(null);
         }
+
+    }
+
+
+
+
+    private void lockTarget(EntityHuman human) {
+        this.trackingUpdate();
 
         World world = human.getWorld().getWorld();
         Vector lookDirection = CraftVector.toBukkit(human.getLookDirection());
@@ -429,6 +451,8 @@ public class MissileLauncher extends ArtilleryRideable {
 
                 if (nms.getUniqueID().equals(human.getUniqueID())) return false;
 
+                if (nms instanceof ProjectileFG) return false;
+
                 if (!(nms instanceof Component comp)) return true;
 
                 Construct cons = comp.getBody();
@@ -440,28 +464,42 @@ public class MissileLauncher extends ArtilleryRideable {
         RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
 
         if (res == null) {
-            trackingLock = Math.max(MIN_TRACK, trackingLock - 1);
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
             return;
         }
 
         Entity hit = res.getHitEntity();
 
         if (hit == null) {
-            trackingLock = Math.max(MIN_TRACK, trackingLock - 1);
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
             return;
         }
 
         if (trackedTarget == null) {
-            trackingLock = 3;
+            trackingLock = TRACK_INCREASE;
             this.trackedTarget = hit;
             return;
         }
 
         if (hit.getUniqueId().equals(trackedTarget.getUniqueId())) {
-            trackingLock = Math.min(MAX_TRACK, trackingLock + 3);
+            trackingLock = Math.min(MAX_TRACK, trackingLock + TRACK_INCREASE);
         }
-        else trackingLock = Math.max(MIN_TRACK, trackingLock - 1);
+        else {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            if (fallbackTrack != null) {
+                if (hit.getUniqueId().equals(fallbackTrack.getUniqueId())) {
+                    fallbackLock = Math.min(fallbackLock + TRACK_FALLBACK, MAX_TRACK);
+                }
+                else fallbackLock = MIN_TRACK;
+            }
+            fallbackTrack = hit;
+        }
 
+        if (fallbackLock > trackingLock) {
+            trackedTarget = fallbackTrack;
+            trackingLock = TRACK_INCREASE;
+            fallbackLock = 0;
+        }
     }
 
 
