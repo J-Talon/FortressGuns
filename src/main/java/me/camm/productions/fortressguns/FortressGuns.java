@@ -25,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.camm.productions.fortressguns.item.ArtilleryItems.FlareGun;
 
 public final class FortressGuns extends JavaPlugin {
 

@@ -17,7 +17,8 @@ public enum AmmoItem {
     STANDARD_LIGHT(Material.RAIL,ChatColor.GRAY+"Heavy Caliber Rounds", new ProjectileFactory.FactoryStandardLight()),
     FLAK_LIGHT(Material.RAIL, ChatColor.GRAY+"Light Flak Rounds", new ProjectileFactory.FactoryFlakLight()),
     MISSILE(Material.LEVER,ChatColor.GRAY + "Rocket", new ProjectileFactory.FactoryMissile()),
-    CRAM(Material.RAIL, ChatColor.GRAY+"CRAM Explosive Rounds", new ProjectileFactory.FactoryCRAM());
+    CRAM(Material.RAIL, ChatColor.GRAY+"CRAM Explosive Rounds", new ProjectileFactory.FactoryCRAM()),
+    FLARE(Material.FIREWORK_ROCKET, ChatColor.GRAY + "Flares", new ProjectileFactory.FactoryFlare());
 
 
     AmmoItem(Material mat, String name, ProjectileFactory<? extends ProjectileFG> factory) {
