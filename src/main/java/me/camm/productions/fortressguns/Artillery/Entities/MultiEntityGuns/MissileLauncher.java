@@ -9,13 +9,12 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.item.interact.IBHandle;
-import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
@@ -25,6 +24,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -51,10 +51,18 @@ public class MissileLauncher extends ArtilleryRideable {
     static final double RIGHT_ANGLE = Math.PI / 2;
     static final double Y_OFFSET = 0.5;
     static final double HOR_OFFSET = 1;
+    static final int PROGRESS_LENGTH = 50;
+    static final String PROGRESS_BAR;
+
+    static final double DISTANCE = 200;
+
     static int maxRockets;
     static long cooldown;
     static double maxHealth;
 
+    static final int TRACK_REQUIRED = 65;
+    static final int MAX_TRACK = 100;
+    static final int MIN_TRACK = 0;
 
     static final Random RANDOM;
 
@@ -70,14 +78,14 @@ public class MissileLauncher extends ArtilleryRideable {
         cooldown = 10000;
         maxRockets = 6;
 
+        PROGRESS_BAR = "|".repeat(PROGRESS_LENGTH);
+
     }
 
     private final ArtilleryPart[] stem;
-    private IBDevSpyglass action;
 
-    private float tracking;
-
-
+    private Entity trackedTarget;
+    private int trackingLock;
 
 
     public MissileLauncher(Location loc, World world, EulerAngle aim) {
@@ -86,18 +94,13 @@ public class MissileLauncher extends ArtilleryRideable {
         base = new ArtilleryPart[4][3];
         stem = new ArtilleryPart[2];
         fireRight = true;
+
+        this.trackedTarget = null;
         this.target = null;
+        trackingLock = 0;
+
         lastFireTime = System.currentTimeMillis();
 
-        try {
-            action = (IBDevSpyglass) InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
-        } catch (ClassCastException e) {
-            action = null;
-        }
-
-        if (action == null) {
-            throw new IllegalStateException("Could not find target setting handler");
-        }
     }
 
     @Override
@@ -133,33 +136,9 @@ public class MissileLauncher extends ArtilleryRideable {
         return missile;
     }
 
-    @Override
-    public void fire(@Nullable Player shooter) {
 
-        if (!canFire())
-            return;
 
-        if (shooter != null) {
-
-            List<ArtilleryPart> parts = getParts();
-
-            target = action.getTarget(shooter.getUniqueId());
-
-            if (target != null) {
-                net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
-                if (nms instanceof ArtilleryPart && parts.contains(nms)) {
-                    shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
-                    return;
-                }
-            }
-            setTarget(target);
-        }
-        else {
-            setTarget(null);
-        }
-
-        //
-        //frontLeft = barrel[midpoint]
+    private void fireOneShot(@Nullable Player shooter) {
         ArtilleryPart shootingPart, backBlast;
 
         if (fireRight) {
@@ -231,6 +210,32 @@ public class MissileLauncher extends ArtilleryRideable {
                 cancel();
             }
         }.runTask(plugin);
+
+
+    }
+
+    @Override
+    public void fire(@Nullable Player shooter) {
+
+        if (!canFire())
+            return;
+
+        if (shooter == null) {
+            setTarget(null);
+            fireOneShot(null);
+            return;
+        }
+
+        if (target != null) {
+            net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
+            if (nms instanceof ArtilleryPart part && part.getBody().equals(this)) {
+                shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
+                setTarget(null);
+                return;
+            }
+        }
+
+        fireOneShot(shooter);
     }
 
     @Override
@@ -328,13 +333,88 @@ public class MissileLauncher extends ArtilleryRideable {
     //todo unify interactions
     @Override
     public void rideTick(EntityHuman human) {
+        lockTarget(human);
         pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+        Player.Spigot player = ((Player)(human.getBukkitEntity())).spigot();
+
+        ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
+
+        if (trackingLock <= MIN_TRACK) {
+            double x, y;
+            x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
+            y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
+            double roundHealth = Math.round(health * 100d) / 100d;
+
+            player.sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
+        }
+        else {
+            float percent = (float)trackingLock / MAX_TRACK;
+            int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
+
+            String slice = ChatColor.RED+PROGRESS_BAR.substring(0,Math.max(bars  - 1, 0));
+            String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
+            //----main---
+
+            String extra = "";
+            ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
+
+            if (getAmmo() > 0) {
+                extra = ChatColor.GOLD+"|".repeat(getAmmo());
+
+                if (trackingLock >= TRACK_REQUIRED)
+                    extra += dynamic+" TARGET LOCK";
+                else
+                    extra += ChatColor.GOLD+ " TRACKING";
+            }
+            else {
+                extra = dynamic + "RELOAD";
+            }
+
+            //---extra
+
+
+            String type = "";
+            if (trackedTarget != null) {
+
+                if (trackedTarget.getType() == EntityType.PLAYER)
+                    type = trackedTarget.getName();
+                else type = trackedTarget.getType().name().replace('_', ' ');
+            }
+
+            type = ChatColor.RED + type;
+            //tracked ---
+
+
+            player.sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(type +" "+ slice + remain + slice +" "+extra));
+        }
+
 
     }
 
 
     private void lockTarget(EntityHuman human) {
-        final double DISTANCE = 200;
+
+        if (trackingLock >= MIN_TRACK && trackedTarget != null) {
+            if (!trackedTarget.isDead() && trackedTarget.isValid()) {
+             setTarget(trackedTarget);
+            }
+            else {
+                trackedTarget = null;
+                trackingLock = 0;
+            }
+        }
+        else {
+            setTarget(null);
+        }
+
+
+        if (trackingLock <= 0) {
+            trackedTarget = null;
+            setTarget(null);
+        }
+
         World world = human.getWorld().getWorld();
         Vector lookDirection = CraftVector.toBukkit(human.getLookDirection());
         Location eyeLocation = new Location(world, human.locX(), human.locY() + human.getHeadHeight(), human.locZ());
@@ -342,15 +422,14 @@ public class MissileLauncher extends ArtilleryRideable {
         final Construct ref = this;
 
         class PredicateTarget implements Predicate<Entity> {
-
             @Override
             public boolean test(Entity entity) {
                 //return true => valid entity to raytrace
                 net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
 
-                if (!(nms instanceof Component comp)) return true;
+                if (nms.getUniqueID().equals(human.getUniqueID())) return false;
 
-                if (nms.equals(human)) return false;
+                if (!(nms instanceof Component comp)) return true;
 
                 Construct cons = comp.getBody();
                 return !(ref.equals(cons));
@@ -358,18 +437,38 @@ public class MissileLauncher extends ArtilleryRideable {
         }
 
 
-        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection,DISTANCE);
+        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
 
-        if (res == null) return;
+        if (res == null) {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - 1);
+            return;
+        }
+
         Entity hit = res.getHitEntity();
 
-        //do stuff here
+        if (hit == null) {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - 1);
+            return;
+        }
+
+        if (trackedTarget == null) {
+            trackingLock = 3;
+            this.trackedTarget = hit;
+            return;
+        }
+
+        if (hit.getUniqueId().equals(trackedTarget.getUniqueId())) {
+            trackingLock = Math.min(MAX_TRACK, trackingLock + 3);
+        }
+        else trackingLock = Math.max(MIN_TRACK, trackingLock - 1);
 
     }
 
 
     @Override
     public void onDismount() {
+        this.trackingLock = 0;
+        this.trackedTarget = null;
         super.onDismount();
     }
 
