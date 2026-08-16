@@ -341,18 +341,17 @@ public class MissileLauncher extends ArtilleryRideable {
     //todo unify interactions
     @Override
     public void rideTick(EntityHuman human) {
-        lockTarget(human);
+
         pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
         Player player = ((Player)(human.getBukkitEntity()));
-
         ItemStack item = player.getInventory().getItemInOffHand();
-
-
         ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
 
+        if (!ItemUtils.getStick().isSimilar(item)) {
 
+            trackingLock = 0;
+            trackedTarget = null;
 
-        if (ItemUtils.getStick().isSimilar(item)) {
             double x, y;
             x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
             y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
@@ -363,6 +362,7 @@ public class MissileLauncher extends ArtilleryRideable {
             return;
         }
 
+        lockTarget(human);
 
         float percent = (float)trackingLock / MAX_TRACK;
         int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
