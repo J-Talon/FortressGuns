@@ -45,7 +45,6 @@ public final class FortressGuns extends JavaPlugin {
 
       commandHandler = new CommandListener();
       notifier = MissileLockNotifier.get(this);
-
     }
 
 

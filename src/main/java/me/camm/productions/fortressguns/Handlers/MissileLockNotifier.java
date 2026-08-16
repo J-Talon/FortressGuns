@@ -21,7 +21,6 @@ public class MissileLockNotifier implements Runnable {
     private final Map<UUID, Tuple2<Integer, Long>> entries;  //uuid, num missiles, expected end time stamp
 
     private static MissileLockNotifier notifier = null;
-    private static Thread thread;
 
     private final ReentrantLock conditionLock;
     private final Condition condition;
@@ -30,7 +29,6 @@ public class MissileLockNotifier implements Runnable {
     private final AtomicBoolean isSleeping;
     private final AtomicBoolean running;
 
-    private final Plugin plugin;
     private final Logger logger;
     private boolean showRed;
 
@@ -46,14 +44,13 @@ public class MissileLockNotifier implements Runnable {
         isSleeping = new AtomicBoolean(false);
         running = new AtomicBoolean(true);
 
-        this.plugin = p;
-        this.logger = plugin.getLogger();
+        this.logger = p.getLogger();
     }
 
     public static MissileLockNotifier get(Plugin p) {
         if (notifier == null) {
             notifier = new MissileLockNotifier(p);
-            thread = new Thread(notifier);
+            Thread thread = new Thread(notifier);
             thread.start();
         }
         return notifier;
@@ -61,9 +58,12 @@ public class MissileLockNotifier implements Runnable {
 
 
 
-    public void resume() {
+    public synchronized void resume() {
         if (!isSleeping.get()) return;
+        conditionLock.lock();
+        isSleeping.set(false);
         condition.signal();
+        conditionLock.unlock();
     }
 
     public void stop() {
@@ -98,6 +98,8 @@ public class MissileLockNotifier implements Runnable {
             tup = new Tuple2<>(1, endTS);
             entries.put(id, tup);
             dataLock.unlock();
+
+            resume();
             return;
         }
 
@@ -139,10 +141,17 @@ public class MissileLockNotifier implements Runnable {
             List<UUID> removals = new ArrayList<>();
 
             while (running.get()) {
+
                 dataLock.lock();
                 if (entries.isEmpty()) {
                     dataLock.unlock();
+
+                    conditionLock.lock();
+                    isSleeping.set(true);
+
+
                     condition.await();
+                    conditionLock.unlock();
                     continue;
                 }
 
@@ -172,10 +181,14 @@ public class MissileLockNotifier implements Runnable {
                 );
 
                 for (UUID id: removals) entries.remove(id);
+
                 dataLock.unlock();
 
-
+                conditionLock.lock();
                 condition.await(1, TimeUnit.SECONDS);
+                conditionLock.unlock();
+
+                showRed = !showRed;
             }
         }
         catch (InterruptedException e) {

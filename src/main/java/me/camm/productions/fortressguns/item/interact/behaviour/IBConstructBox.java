@@ -3,9 +3,12 @@ package me.camm.productions.fortressguns.item.interact.behaviour;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
+import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.interact.IBHandle;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import org.bukkit.ChatColor;
@@ -65,6 +68,17 @@ public class IBConstructBox implements InteractionBehaviourItem {
         if (type == ConstructType.MISSILE_LAUNCHER) offsetY -= 0.75;
 
         Construct cons = factory.create(player.getLocation().add(0,offsetY,0), type.ordinal(),x,z, 0);
+
+
+        ///debug
+        if (cons instanceof MissileLauncher launcher) {
+            InteractionBehaviourItem i = InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_BR);
+            IBDevBlazeRod rod = (IBDevBlazeRod)i;
+            rod.setLauncher(launcher);
+        }
+        ///debug
+
+
 
         if (cons != null) {
             boolean success = cons.spawn();

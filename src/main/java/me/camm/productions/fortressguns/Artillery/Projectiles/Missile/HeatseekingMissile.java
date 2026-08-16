@@ -290,10 +290,10 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
 
 
     private void flyToTarget(Location missileLoc) {
-
-        if (target instanceof Player && (!(((Player) target).isGliding()))) {
-            notifier.removeNotification(target.getUniqueId());
-        }
+//
+//        if (target instanceof Player && (!(((Player) target).isGliding()))) {
+//            notifier.removeNotification(target.getUniqueId());
+//        }
 
         if (target.isDead() || !target.isValid() || (target.getWorld() != bukkitWorld)) {
 

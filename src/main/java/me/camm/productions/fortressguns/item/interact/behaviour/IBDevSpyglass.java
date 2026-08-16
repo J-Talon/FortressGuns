@@ -46,26 +46,28 @@ public class IBDevSpyglass implements InteractionBehaviourItem {
     public void onLCAir(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         World world = player.getWorld();
+        updateTarget(player.getUniqueId(), player);
 
-        Predicate<Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
-            @Override
-            public boolean test(org.bukkit.entity.Entity entity) {
-                return !(entity.equals(player));
-            }
-        };
-
-        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
-        if (res == null)
-            return;
-
-        org.bukkit.entity.Entity hit = res.getHitEntity();
-        if (hit == null)
-            return;
-
-        updateTarget(player.getUniqueId(), hit);
+//        Predicate<Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
+//            @Override
+//            public boolean test(org.bukkit.entity.Entity entity) {
+//                return !(entity.equals(player));
+//            }
+//        };
+//
+//        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
+//        if (res == null)
+//            return;
+//
+//        org.bukkit.entity.Entity hit = res.getHitEntity();
+//        if (hit == null)
+//            return;
+//
+//        updateTarget(player.getUniqueId(), hit);
 
         player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
-        player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
+        player.sendMessage("target");
+     //   player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
     }
 
     public void updateTarget(UUID id, org.bukkit.entity.Entity target) {
