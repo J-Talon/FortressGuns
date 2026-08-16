@@ -26,7 +26,6 @@ public class ChunkTicket {
 
     private final ReentrantLock lock;
     final int numChunks;
-    private long loadTime;
     AtomicInteger currentLoaded;
 
 
@@ -54,15 +53,9 @@ public class ChunkTicket {
             false -> Not all chunks loaded, keep watching the ticket
      */
     public synchronized boolean onLoad() {
-
-        if  (currentLoaded.updateAndGet((value) -> Math.min(value + 1, numChunks)) > numChunks) {
-            this.loadTime = System.currentTimeMillis();
-            logger.log(Level.INFO, getUUID() +" loaded, now at "+currentLoaded.get() +" / "+numChunks);
-
-            return true;
-
-        }
-        return false;
+        int loaded = currentLoaded.updateAndGet((value) -> Math.min(value + 1, numChunks));
+        logger.log(Level.INFO, getUUID() +" loaded, now at "+currentLoaded.get() +" / "+numChunks);
+        return loaded >= numChunks;
 
     }
 
@@ -100,22 +93,14 @@ public class ChunkTicket {
         }
 
         World world = oldCore.getWorld();
-        for (IntTuple2 tup: chunks) {
-
-            if (!ChunkUtils.isChunkEntityTicking(world, tup.getA(), tup.getB())) {
-                lock.unlock();
-                return false;
-            }
-
+        int count = (int)chunks.stream().filter(tup -> ChunkUtils.isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
+        if (count < numChunks) {
+            lock.unlock();
+            return false;
         }
 
         lock.unlock();
         return true;
-    }
-
-
-    public void markLoadTime() {
-        this.loadTime = System.currentTimeMillis();
     }
 
 
@@ -136,10 +121,6 @@ public class ChunkTicket {
 
     public UUID getUUID() {
         return construct.getUUID();
-    }
-
-    public String getWorldName() {
-        return worldName;
     }
 
     public int getCurrentLoaded() {
