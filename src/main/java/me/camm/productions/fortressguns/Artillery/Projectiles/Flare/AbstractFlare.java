@@ -26,19 +26,19 @@ public abstract class AbstractFlare extends ProjectileSnowballFG {
         rand = new Random();
     }
 
-
-
-    ///code to allow projectile-projectile collisions
-    @Override
-    protected boolean a(net.minecraft.world.entity.Entity entity) {
-
-        if (!entity.isSpectator() && entity.isAlive() && !(entity.getEntityType() == EntityTypes.w)) {
-            net.minecraft.world.entity.Entity entity1 = shooter;
-            return entity1 == null || !entity1.isSameVehicle(entity);
-            //so either the bullet has no shooter, and they're not stacked and not enderman
-            //removed the check isInteractable()
-        } else {
-            return false;
-        }
-    }
+    //you probably don't need this
+//
+//    ///code to allow projectile-projectile collisions
+//    @Override
+//    protected boolean a(net.minecraft.world.entity.Entity entity) {
+//
+//        if (!entity.isSpectator() && entity.isAlive() && !(entity.getEntityType() == EntityTypes.w)) {
+//            net.minecraft.world.entity.Entity entity1 = shooter;
+//            return entity1 == null || !entity1.isSameVehicle(entity);
+//            //so either the bullet has no shooter, and they're not stacked and not enderman
+//            //removed the check isInteractable()
+//        } else {
+//            return false;
+//        }
+//    }
 }

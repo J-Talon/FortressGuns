@@ -42,7 +42,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     private static final int FUEL = 600;  //
     private static final int PRIME = 5; //1/2 sec
 
-    private static Set<SimpleMissile> ACTIVE_MISSILES = new HashSet<>();
+    private static Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
 
     private final Vec3D initialVelocity;
     private final boolean hadTarget;
@@ -92,16 +92,17 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
         HeatseekingMissile.difficulty = difficulty;
     }
 
-    public static Set<SimpleMissile> getActiveMissiles() {
+    public static Set<HeatseekingMissile> getActiveMissiles() {
         return ACTIVE_MISSILES;
     }
 
 
     @Override
     public void inactiveTick() {
-        if (this.b || this.au > 0)
+        if (this.b || this.au > 0) {
             explode(null);
             super.inactiveTick();
+        }
     }
     @Override
     public float getExplosionPower() {

@@ -54,11 +54,16 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
 
 
     public void setTarget(Entity target) {
-        this.target = target;
-        if (target instanceof Player || target instanceof SimpleFlare) {
+
+        if (hadTarget && this.target instanceof Player) {
+            notifier.exitNotification(this.target.getUniqueId());
+        }
+
+        if (target instanceof Player) {
             notifier.addNotification(target.getUniqueId(), getFuelTicks());
         }
 
+        this.target = target;
         hadTarget = true;
     }
 

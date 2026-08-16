@@ -118,11 +118,12 @@ public class MissileLockNotifier implements Runnable {
         Tuple2<Integer, Long> data = entries.getOrDefault(id, null);
         if (data == null) { dataLock.unlock(); return; }
 
-        int missiles = data.getA();
+        int missiles = data.getA() - 1;
 
-       if ((--missiles) <= 0) {
+       if (missiles <= 0) {
            entries.remove(id);
        }
+
        else data.setA(missiles);
        dataLock.unlock();
     }
