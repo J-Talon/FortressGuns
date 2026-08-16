@@ -112,7 +112,7 @@ public class ChunkTicket {
     }
 
 
-    public Set<IntTuple2> getChunks() {
+    public List<IntTuple2> getChunks() {
         return chunks;
     }
 
