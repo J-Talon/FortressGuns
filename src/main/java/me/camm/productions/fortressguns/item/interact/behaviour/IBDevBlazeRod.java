@@ -19,6 +19,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 public class IBDevBlazeRod implements InteractionBehaviourItem {
 
     private MissileLauncher launcher;
@@ -51,7 +53,17 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
     public void onLCAir(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         World world = player.getWorld();
-        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 10);
+
+        class PredicateSelf implements Predicate<Entity> {
+
+            @Override
+            public boolean test(Entity entity) {
+                return !(entity.getUniqueId().equals(player.getUniqueId()));
+            }
+        }
+
+
+        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 30);
 
         if (res == null) {
             notifNoTarget(player);
@@ -63,6 +75,8 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
             notifNoTarget(player);
             return;
         }
+
+        player.sendMessage(hit.getType().name());
 
         net.minecraft.world.entity.Entity nms = ((CraftEntity)hit).getHandle();
 
