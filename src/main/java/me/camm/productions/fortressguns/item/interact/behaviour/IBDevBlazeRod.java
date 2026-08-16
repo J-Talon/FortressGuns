@@ -32,15 +32,10 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
 
     @Override
     public void onRCAir(PlayerInteractEvent event) {
-        InteractionHandler handler = InteractionHandler.getInstance();
-        IBDevSpyglass s = (IBDevSpyglass) handler.getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
-        if (s == null) return;
-        Entity target = s.getTarget(event.getPlayer().getUniqueId());
 
         if (launcher == null)
             return;
-
-        launcher.setTarget(target);
+        launcher.setTarget(event.getPlayer());
         launcher.fire(event.getPlayer());
     }
 
