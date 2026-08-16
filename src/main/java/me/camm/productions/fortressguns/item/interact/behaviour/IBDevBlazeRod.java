@@ -1,15 +1,22 @@
 package me.camm.productions.fortressguns.item.interact.behaviour;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.interact.IBHandle;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.RayTraceResult;
 import org.jetbrains.annotations.Nullable;
 
 public class IBDevBlazeRod implements InteractionBehaviourItem {
@@ -36,9 +43,44 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
     }
 
 
+    private void notifNoTarget(Player player) {
+        player.sendMessage("No entity found");
+    }
+
     @Override
-    public @Nullable IBHandle getHandle() {
-        return IBHandle.DEV_BR;
+    public void onLCAir(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        World world = player.getWorld();
+        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 10);
+
+        if (res == null) {
+            notifNoTarget(player);
+            return;
+        }
+
+        Entity hit = res.getHitEntity();
+        if (hit == null) {
+            notifNoTarget(player);
+            return;
+        }
+
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)hit).getHandle();
+
+        if (!(nms instanceof Component comp)) {
+            notifNoTarget(player);
+            return;
+        }
+
+
+        Construct cons = comp.getBody();
+        if (cons.getType() == ConstructType.MISSILE_LAUNCHER) {
+            setLauncher((MissileLauncher) cons);
+            player.sendMessage("Set launcher");
+            return;
+        }
+
+        notifNoTarget(player);
+
     }
 
     @Override

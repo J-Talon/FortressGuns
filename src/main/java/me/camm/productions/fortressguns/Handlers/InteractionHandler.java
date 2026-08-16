@@ -46,10 +46,12 @@ import java.util.function.Consumer;
 
 
 enum ItemBehaviour {
+    DEV_SPYGLASS(new IBDevSpyglass()),  //DEV_SPYGLASS_TARGET
+    DEV_BLAZEROD(new IBDevBlazeRod()),
+
     AMMO_ITEM(new IBAmmoItem()),
     CREATE_CONSTRUCT(new IBConstructBox()),
     RIDING_CONSTRUCT(new IBConstructs()),
-    DEV_SPYGLASS(new IBDevSpyglass()),  //DEV_SPYGLASS_TARGET
     TACTICAL_PT(new IBTacticalPointer()), //TPOINTER_SETTING
     FLARE_GUN(new IBFlareGun()),
     FLARE(new IBFlare());
