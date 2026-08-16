@@ -211,12 +211,6 @@ public abstract class RapidFire extends ArtilleryRideable {
         return true;
     }
 
-    public ComponentAS getSeat(){
-        return rotatingSeat;
-    }
-
-
-
 
     @Override
     public synchronized void pivot(double vertAngle, double horAngle)
