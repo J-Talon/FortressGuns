@@ -348,9 +348,9 @@ public class MissileLauncher extends ArtilleryRideable {
         ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
 
         if (!ItemUtils.getStick().isSimilar(item)) {
-
             trackingLock = 0;
             trackedTarget = null;
+            setTarget(null);
 
             double x, y;
             x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
@@ -424,9 +424,12 @@ public class MissileLauncher extends ArtilleryRideable {
             setTarget(null);
         }
 
-        if (trackingLock <= 0) {
-            trackedTarget = null;
+        if (trackingLock <= TRACK_REQUIRED) {
             setTarget(null);
+        }
+
+        if (trackingLock <= MIN_TRACK) {
+            trackedTarget = null;
         }
 
     }
@@ -460,8 +463,8 @@ public class MissileLauncher extends ArtilleryRideable {
             }
         }
 
-
         RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
+
 
         if (res == null) {
             trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
@@ -475,11 +478,13 @@ public class MissileLauncher extends ArtilleryRideable {
             return;
         }
 
+
         if (trackedTarget == null) {
             trackingLock = TRACK_INCREASE;
             this.trackedTarget = hit;
             return;
         }
+
 
         if (hit.getUniqueId().equals(trackedTarget.getUniqueId())) {
             trackingLock = Math.min(MAX_TRACK, trackingLock + TRACK_INCREASE);
