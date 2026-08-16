@@ -63,7 +63,7 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
         }
 
 
-        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 30);
+        RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 30, new PredicateSelf());
 
         if (res == null) {
             notifNoTarget(player);
