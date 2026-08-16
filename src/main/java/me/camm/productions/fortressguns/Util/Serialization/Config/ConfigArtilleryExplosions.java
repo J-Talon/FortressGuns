@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShellHE;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.StandardHeavyShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import org.jetbrains.annotations.NotNull;
 
 @JsonTypeName("explosions")
@@ -24,7 +24,7 @@ public class ConfigArtilleryExplosions implements ConfigObject {
         HeavyShellHE.setExplosionPower(heavyHighExplosive);
         FlakHeavyShell.setExplosionPower(heavyFlak);
         StandardHeavyShell.setExplosionPower(standard);
-        SimpleMissile.setExplosionPower(missile);
+        HeatseekingMissile.setExplosionPower(missile);
 
         return true;
     }

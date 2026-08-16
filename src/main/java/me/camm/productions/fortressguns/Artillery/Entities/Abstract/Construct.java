@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public abstract class Construct {
 
     public abstract boolean chunkLoaded();
 
-    public abstract Set<IntTuple2> getOccupiedChunks();
+    public abstract List<IntTuple2> getOccupiedChunks();
 
     public abstract Chunk getCurrentChunk();
 

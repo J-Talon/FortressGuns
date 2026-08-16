@@ -17,12 +17,12 @@ import java.util.Random;
 
 public abstract class AbstractRocket extends ProjectileArrowFG implements ProjectileExplosive {
 
+
+
     protected Entity target;
     protected boolean hadTarget;
     private final MissileLockNotifier notifier;
-
     protected Random rand;
-
     protected Artillery source;
 
     public AbstractRocket(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
@@ -53,13 +53,12 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
     public void setTarget(Entity target) {
         this.target = target;
         if (target instanceof Player) {
-            notifier.addNotification(target.getUniqueId());
+            notifier.addNotification(target.getUniqueId(), getFuelTicks());
         }
 
         hadTarget = true;
     }
-    @Override
-    protected ItemStack getItemStack() {
-        return item;
-    }
+
+    public abstract int getFuelTicks();
+
 }

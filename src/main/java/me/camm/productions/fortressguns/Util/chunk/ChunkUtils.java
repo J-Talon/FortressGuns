@@ -49,6 +49,7 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 
+import java.util.List;
 import java.util.Set;
 
 public class ChunkUtils {
@@ -69,7 +70,7 @@ public class ChunkUtils {
     }
 
 
-    public static ChunkTicket createTicket(Set<IntTuple2> chunks, Construct construct, Entity pdc, int offset) {
+    public static ChunkTicket createTicket(List<IntTuple2> chunks, Construct construct, Entity pdc, int offset) {
         World world = pdc.getWorld();
 
         int loaded = 0;

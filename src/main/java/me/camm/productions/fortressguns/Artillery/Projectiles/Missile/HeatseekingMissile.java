@@ -16,14 +16,13 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
-public class SimpleMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
+public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
 
     private final org.bukkit.World bukkitWorld;
     private int fueledFlightAge;
@@ -58,16 +57,12 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
 
     static {
-        org.bukkit.inventory.ItemStack bukkitVer = new org.bukkit.inventory.ItemStack(Material.LEVER);
-        ItemMeta meta = bukkitVer.getItemMeta();
-        meta.setDisplayName("Rocket");
-        bukkitVer.setItemMeta(meta);
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
         explosionPower = 4;
         difficulty = 100;
     }
 
-    public SimpleMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeatseekingMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
         fueledFlightAge = 0;
         direction = null;
@@ -84,10 +79,10 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     }
 
     public static void setExplosionPower(float explosionPower) {
-        SimpleMissile.explosionPower = explosionPower;
+        HeatseekingMissile.explosionPower = explosionPower;
     }
     public static void setDifficulty(float difficulty) {
-        SimpleMissile.difficulty = difficulty;
+        HeatseekingMissile.difficulty = difficulty;
     }
 
 
@@ -125,7 +120,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     }
 
 
-    public static int getFuelTicks(){
+    public int getFuelTicks(){
         return FUEL;
     }
 

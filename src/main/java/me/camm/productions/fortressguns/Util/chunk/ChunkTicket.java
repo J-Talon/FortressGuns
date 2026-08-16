@@ -7,6 +7,7 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 public class ChunkTicket {
 
     private final Construct construct;
-    private final Set<IntTuple2> chunks;
+    private final List<IntTuple2> chunks;
     private final Chunk coreChunk;
     private final Entity oldCore;
     private final String worldName;
@@ -32,7 +33,7 @@ public class ChunkTicket {
     private final Logger logger;
 
 
-    public ChunkTicket(Set<IntTuple2> chunks, int loaded, Construct construct, Entity oldCore, World world) {
+    public ChunkTicket(List<IntTuple2> chunks, int loaded, Construct construct, Entity oldCore, World world) {
         this.construct = construct;
         this.chunks = chunks;
         numChunks = chunks.size();

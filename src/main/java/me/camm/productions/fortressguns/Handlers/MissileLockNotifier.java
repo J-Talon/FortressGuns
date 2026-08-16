@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Handlers;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -9,29 +9,45 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class MissileLockNotifier implements Runnable {
 
-    private final ConcurrentHashMap<UUID, Integer> players;
-    private final ConcurrentHashMap<UUID, Integer> time;
+    private final Map<UUID, Tuple2<Integer, Long>> entries;  //uuid, num missiles, expected end time stamp
 
     private static MissileLockNotifier notifier = null;
-    private static final Object lock = new Object();
     private static Thread thread;
-    private final int MAX_SECONDS;
-    private volatile boolean running;
+
+    private final ReentrantLock conditionLock;
+    private final Condition condition;
+    private final ReentrantLock dataLock;
+
+    private final AtomicBoolean isSleeping;
+    private final AtomicBoolean running;
+
     private final Plugin plugin;
+    private final Logger logger;
     private boolean showRed;
 
+
     private MissileLockNotifier(Plugin p) {
-        players = new ConcurrentHashMap<>();
-        time = new ConcurrentHashMap<>();
-        running = true;
+
+        entries = new HashMap<>();
+
+        conditionLock = new ReentrantLock();
+        condition = conditionLock.newCondition();
+        dataLock = new ReentrantLock(true);
+
+        isSleeping = new AtomicBoolean(false);
+        running = new AtomicBoolean(true);
+
         this.plugin = p;
-        MAX_SECONDS = SimpleMissile.getFuelTicks() / 20;
-        showRed = true;
+        this.logger = plugin.getLogger();
     }
 
     public static MissileLockNotifier get(Plugin p) {
@@ -43,121 +59,128 @@ public class MissileLockNotifier implements Runnable {
         return notifier;
     }
 
+
+
     public void resume() {
-        synchronized (lock) {
-            lock.notifyAll();
-        }
+        if (!isSleeping.get()) return;
+        condition.signal();
     }
 
-    public void stop(){
-        running = false;
-        resume();
+    public void stop() {
+        running.set(false);
+        if (isSleeping.get())
+            this.resume();
     }
 
-    public void addNotification(UUID id) {
 
+
+    public void addNotification(UUID id, int fuelTicks) {
+
+        if (!running.get()) return;
+
+
+        dataLock.lock();
         Player target = Bukkit.getPlayer(id);
-        if (target == null)
+        if (target == null) {
+            dataLock.unlock();
             return;
-
-        int missiles = players.getOrDefault(id, 0);
-
-        if (missiles == 0 && target.isGliding()) {
-            target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT,2f,1.2f);
-            target.sendMessage(ChatColor.RED+"[WARNING] Projectiles Incoming!");
         }
 
-        missiles ++;
+        long now = System.currentTimeMillis();
+        long endTS = (int)(fuelTicks * 1000.05) + now;
+        Tuple2<Integer, Long> tup = entries.getOrDefault(id, null);
+        if (tup == null) {
+            if (target.isGliding()) {
+                target.playSound(target.getLocation(), Sound.BLOCK_NOTE_BLOCK_BIT, 2f, 1.2f);
+                target.sendMessage(ChatColor.RED+"[WARNING] Projectiles Incoming!");
+            }
 
-        players.put(id, missiles);
-        time.put(id, 0);
+            tup = new Tuple2<>(1, endTS);
+            entries.put(id, tup);
+            dataLock.unlock();
+            return;
+        }
 
+        tup.setA(tup.getA() + 1);
+        if (endTS > tup.getB()) {
+            tup.setB(endTS);
+        }
+
+        dataLock.unlock();
         resume();
     }
 
     public void exitNotification(UUID id) {
-       int missiles = players.getOrDefault(id, -1);
-       if (missiles == -1)
-           return;
+
+        dataLock.lock();
+        Tuple2<Integer, Long> data = entries.getOrDefault(id, null);
+        if (data == null) { dataLock.unlock(); return; }
+
+        int missiles = data.getA();
 
        if ((--missiles) <= 0) {
-           time.remove(id);
-           players.remove(id);
+           entries.remove(id);
        }
-       else players.replace(id, missiles);
-
+       else data.setA(missiles);
+       dataLock.unlock();
     }
 
 
     public void removeNotification(UUID id) {
-        players.remove(id);
-        time.remove(id);
+        dataLock.lock();
+        entries.remove(id);
+        dataLock.unlock();
     }
 
 
     @Override
     public void run() {
-        while (running) {
-            try {
+        try {
+            List<UUID> removals = new ArrayList<>();
 
-                synchronized (lock) {
-                    if (players.isEmpty()) {
-                        lock.wait();
-                    }
+            while (running.get()) {
+                dataLock.lock();
+                if (entries.isEmpty()) {
+                    dataLock.unlock();
+                    condition.await();
+                    continue;
                 }
 
 
-                //see about changing this to SpinWait.SpinUntil()
-                Thread.sleep(1000);
-                showRed = !showRed;
-
-                players.forEach((uuid, integer) -> {
-                    Player player = Bukkit.getPlayer(uuid);
-
-                    if (player == null || !player.isOnline()) {
-                        players.remove(uuid);
-                    }
-                    else
-                    {
-                        int timeLeft = time.getOrDefault(uuid, -1);
-                        if (timeLeft == -1) {
-                            players.remove(uuid);
-                        }
-                        else
-                        {
-                            if (timeLeft > MAX_SECONDS) {
-                                players.remove(uuid);
-                                time.remove(uuid);
-                            }
-                            else {
-                                timeLeft ++;
-                                time.replace(uuid, timeLeft);
-                            }
+                entries.forEach((id, tup) -> {
+                    Player player = Bukkit.getPlayer(id);
+                    process: {
+                        if (player == null || !player.isOnline()) {
+                            removals.add(id);
+                            break process;
                         }
 
-                        if (player.isGliding()) {
-                            String out;
-                            if (integer == 1) {
-                                out = "Missile Inbound";
-                            } else out = "Missiles Inbound";
+                        long now = System.currentTimeMillis();
+                        if (now > tup.getB()) {
+                            removals.add(id);
+                            break process;
+                        }
 
-                            ChatColor color;
-                            if (showRed) {
-                                color = ChatColor.RED;
-                            }
-                            else color = ChatColor.WHITE;
+                        if (!player.isGliding())
+                            break process;
 
-                            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(color + "[WARNING] " + integer + " " + out + " [WARNING]"));
+                        String out = (tup.getA()) > 1 ? "Missiles Inbound" : "Missile Inbound";
+                        ChatColor color = showRed ? ChatColor.RED : ChatColor.WHITE;
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(color + "[WARNING] " + tup.getA() + " " + out + " [WARNING]"));
                         }
                     }
+                );
 
-                });
+                for (UUID id: removals) entries.remove(id);
+                dataLock.unlock();
 
-            }
-            catch (InterruptedException e) {
-                plugin.getLogger().warning("Notifier for Missile lock has been interrupted: Players might not get notified:"+e.getMessage());
+
+                condition.await(1, TimeUnit.SECONDS);
             }
         }
+        catch (InterruptedException e) {
+            logger.warning("Missile notifier thread was interrupted: "+e.getMessage());
+            running.set(false);
+        }
     }
-
 }

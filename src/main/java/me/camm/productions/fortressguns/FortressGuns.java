@@ -31,6 +31,7 @@ public final class FortressGuns extends JavaPlugin {
     private static FortressGuns plugin;
     private InteractionHandler interactionHandler;
     private ChunkLoader loader;
+    private MissileLockNotifier notifier;
 
     CommandListener commandHandler;
     private Logger logger;
@@ -56,6 +57,7 @@ public final class FortressGuns extends JavaPlugin {
       manager.registerEvents(loader, plugin);
 
       commandHandler = new CommandListener();
+      notifier = MissileLockNotifier.get(this);
 
     }
 
@@ -63,7 +65,7 @@ public final class FortressGuns extends JavaPlugin {
     @Override
     public void onDisable() {
         logger.log(Level.INFO,"Shutting down...");
-        MissileLockNotifier.get(this).stop();
+        notifier.stop();
 
         logger.info("Unloading active pieces...");
         ChunkLoader.getActivePieces().forEach(construct -> {

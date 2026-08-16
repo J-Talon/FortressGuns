@@ -7,7 +7,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
@@ -126,8 +126,8 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     @Override
-    protected @Nullable SimpleMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
-        SimpleMissile missile = (SimpleMissile) super.createProjectile(world, x, y, z, shooter, source);
+    protected @Nullable HeatseekingMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        HeatseekingMissile missile = (HeatseekingMissile) super.createProjectile(world, x, y, z, shooter, source);
         if (missile != null)
             missile.setTarget(target);
         return missile;
@@ -185,7 +185,7 @@ public class MissileLauncher extends ArtilleryRideable {
         Artillery construct = this;
 
         EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-        SimpleMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
+        HeatseekingMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
         if (missile == null) {
             plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
             return;
