@@ -16,33 +16,14 @@ import java.util.*;
 
 public class ItemUtils
 {
-    private static final String CRATE = "Crate";
-    private static final Material CHEST =  Material.CHEST;
-    private static final String VALUE = ChatColor.GOLD+"Value: ";
-
     private static final Map<String, ConstructType> constructs;
     private static final Map<String, AmmoItem> itemNames;
 
 
-    private static ItemStack stick = null;
-
-
-    /*
-    todo unify ammo items, construct items, sticks, etc
-
-    Ok you're gonna need the isItem() funcs in multiple locations potentially
-    the createItem() funcs can stay together
-
-    the helper funcs may want to be moved to their own separate thing
-
-    move interact, inv into parent dir item
-
-     */
-
     static {
         constructs = new HashMap<>();
         for (ConstructType type: ConstructType.values()) {
-            constructs.put(type.getBoxItem().getDisplayName(), type);
+            constructs.put(type.getName(), type);
         }
 
 
