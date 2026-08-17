@@ -9,8 +9,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.classification.FGItems;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
@@ -347,7 +347,7 @@ public class MissileLauncher extends ArtilleryRideable {
         ItemStack item = player.getInventory().getItemInOffHand();
         ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
 
-        if (!ItemUtils.getStick().isSimilar(item)) {
+        if (!FGItems.TACTICAL_PTR.isSimilar(item)) {
             trackingLock = 0;
             trackedTarget = null;
             setTarget(null);

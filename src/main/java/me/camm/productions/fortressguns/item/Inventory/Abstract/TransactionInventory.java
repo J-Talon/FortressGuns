@@ -2,8 +2,8 @@ package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;

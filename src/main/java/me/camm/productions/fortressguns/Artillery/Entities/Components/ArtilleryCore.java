@@ -4,8 +4,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.item.interact.IBHandle;
 import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
 import net.minecraft.server.level.EntityPlayer;
@@ -95,7 +96,7 @@ public class ArtilleryCore extends ArtilleryPart {
 
 
         org.bukkit.inventory.ItemStack stack = CraftItemStack.asBukkitCopy(item);
-        org.bukkit.inventory.ItemStack pointer = ItemUtils.getStick();
+        org.bukkit.inventory.ItemStack pointer = FGItems.TACTICAL_PTR.get();
 
         if ((!pointer.isSimilar(stack))) {
 
@@ -107,20 +108,6 @@ public class ArtilleryCore extends ArtilleryPart {
             return;
         }
 
-
-        /////////////////////////////////////////////////////////////
-        //testing
-//
-//        if (arty instanceof CRAM) {
-//            org.bukkit.entity.Entity target = InteractionHandler.getTarget(human.getUniqueID());
-//            Entity e = ((CraftEntity)target).getHandle();
-//
-//            ((CRAM) arty).setTarget(e);
-//            arty.fire(null);
-//            return;
-//        }
-
-        /////////////////////////////////////////////////////////////
 
         if (human.isCrouching()) {
 

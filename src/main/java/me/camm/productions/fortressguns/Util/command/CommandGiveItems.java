@@ -1,9 +1,8 @@
 package me.camm.productions.fortressguns.Util.command;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.item.ArtilleryItems.FlareGun;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.classification.FGItems;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 import static me.camm.productions.fortressguns.Util.command.PermissionNodeLabel.FG_ADMIN;
-import static me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils.*;
+import static me.camm.productions.fortressguns.item.ItemUtils.*;
 
 public class CommandGiveItems extends CommandHandler {
 
@@ -31,7 +30,7 @@ public class CommandGiveItems extends CommandHandler {
         Inventory inv = player.getInventory();
 
         for (ConstructType type: ConstructType.values()) {
-            ItemStack created = createArtilleryItem(type);
+            ItemStack created = type.getBoxItem().get();
             inv.addItem(created);
         }
 
@@ -40,8 +39,8 @@ public class CommandGiveItems extends CommandHandler {
             inv.addItem(ammo);
         }
 
-        inv.addItem(getStick());
-        inv.addItem(FlareGun.getItem());
+        inv.addItem(FGItems.TACTICAL_PTR.get());
+        inv.addItem(FGItems.FLARE_GUN.get());
 
         return true;
     }

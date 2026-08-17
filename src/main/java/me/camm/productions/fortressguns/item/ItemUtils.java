@@ -1,7 +1,8 @@
-package me.camm.productions.fortressguns.item.ArtilleryItems;
+package me.camm.productions.fortressguns.item;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -41,7 +42,7 @@ public class ItemUtils
     static {
         constructs = new HashMap<>();
         for (ConstructType type: ConstructType.values()) {
-            constructs.put(type.getName(), type);
+            constructs.put(type.getBoxItem().getDisplayName(), type);
         }
 
 
@@ -51,17 +52,6 @@ public class ItemUtils
         }
     }
 
-
-    public static ItemStack getStick() {
-        if (stick != null)
-            return stick;
-
-        stick = new ItemStack(Material.STICK);
-        ItemMeta meta = stick.getItemMeta();
-        meta.setDisplayName(ChatColor.GRAY+""+ChatColor.BOLD+"Tactical Pointer");
-        stick.setItemMeta(meta);
-        return stick;
-    }
 
 
     public static @Nullable ConstructType holdsConstruct(ItemStack stack) {
@@ -120,19 +110,6 @@ public class ItemUtils
 
 
 
-    public static ItemStack toItem(Artillery artillery) throws IllegalStateException {
-        ItemStack stack = new ItemStack(CHEST);
-
-        ItemMeta meta = stack.getItemMeta();
-        if (meta == null)
-         throw new IllegalStateException("Stack meta is null!");
-
-        meta.setDisplayName(artillery.getType().getName());
-        stack.setItemMeta(meta);
-
-        return stack;
-    }
-
     public static ItemStack createAmmoItem(AmmoItem item) throws IllegalStateException {
         ItemStack stack = new ItemStack(item.getMat());
         ItemMeta meta = stack.getItemMeta();
@@ -148,34 +125,13 @@ public class ItemUtils
 
 
 
-
-
-
-
-    public static ItemStack createArtilleryItem(ConstructType type) throws IllegalStateException {
-        ItemStack stack = new ItemStack(CHEST);
-        ItemMeta meta = stack.getItemMeta();
-
-        if (meta == null) {
-            throw new IllegalStateException("Stack meta is null!");
-        }
-
-        meta.setDisplayName(type.getName());
-        stack.setItemMeta(meta);
-        return stack;
-    }
-
-
-
-
-
     public static void packageArtillery(Artillery artillery) throws IllegalStateException {
 
         ArmorStand pivot = (ArmorStand)artillery.getCoreEntity();
         Location loc = pivot.getEyeLocation();
 
         World bukkit = artillery.getWorld();
-        bukkit.dropItem(loc,toItem(artillery));
+        bukkit.dropItem(loc,artillery.getType().getBoxItem().get());
 
     }
 }

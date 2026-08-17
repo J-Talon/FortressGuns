@@ -1,10 +1,10 @@
 package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.Math.Tuple3;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.ItemUtils;
+import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.item.interact.IBHandle;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import net.md_5.bungee.api.ChatMessageType;
@@ -41,12 +41,11 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
        ItemStack main = tup.getB();
        Player context = tup.getA();
 
-       ItemStack stick = ItemUtils.getStick();
-       if (stick.isSimilar(main))
+       if (FGItems.TACTICAL_PTR.isSimilar(main))
            return true;
 
        ItemStack offhand = context.getInventory().getItemInOffHand();
-       return main.isSimilar(offhand);
+       return FGItems.TACTICAL_PTR.isSimilar(offhand);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
 
     @Override
     public Material[] getLabels() {
-        return new Material[]{ItemUtils.getStick().getType()};
+        return new Material[]{FGItems.TACTICAL_PTR.get().getType()};
     }
 
     @Override
@@ -71,9 +70,9 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
 
         Player player = event.getPlayer();
         ItemStack stack = player.getInventory().getItemInOffHand();
-        ItemStack pointer = ItemUtils.getStick();
 
-        if (!(pointer.isSimilar(stack))) {
+
+        if (!(FGItems.TACTICAL_PTR.isSimilar(stack))) {
             return;
         }
 

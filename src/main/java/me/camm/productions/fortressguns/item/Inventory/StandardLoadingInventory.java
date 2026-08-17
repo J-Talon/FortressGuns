@@ -1,8 +1,8 @@
 package me.camm.productions.fortressguns.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.*;
 import org.bukkit.*;
