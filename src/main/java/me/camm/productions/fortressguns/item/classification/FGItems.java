@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.item.classification;
 
-import me.camm.productions.fortressguns.item.classification.Items.FGFlareGunItem;
-import me.camm.productions.fortressguns.item.classification.Items.FGTacticalPointerItem;
+import me.camm.productions.fortressguns.item.classification.tools.FGFlareGunItem;
+import me.camm.productions.fortressguns.item.classification.tools.FGTacticalPointerItem;
 import me.camm.productions.fortressguns.item.classification.ammo.*;
 import me.camm.productions.fortressguns.item.classification.box.*;
 

@@ -65,6 +65,7 @@ public class ItemUtils
         return itemNames.getOrDefault(name, null);
     }
 
+
     public static boolean matchesName(ItemStack first, ItemStack second) {
 
         if (first == null || second == null)

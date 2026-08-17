@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.item.classification.Items;
+package me.camm.productions.fortressguns.item.classification.tools;
 
 import me.camm.productions.fortressguns.item.classification.FGItem;
 import org.bukkit.ChatColor;

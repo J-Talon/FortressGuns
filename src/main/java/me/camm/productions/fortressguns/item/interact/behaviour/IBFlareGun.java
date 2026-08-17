@@ -22,8 +22,6 @@ public class IBFlareGun implements InteractionBehaviourItem {
     private static final long COOLDOWN_MILLIS = 3000;
     private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey("fortressguns", "flare_gun_cooldown");
 
-
-
     @Override
     public Material[] getLabels() {
         return new Material[]{Material.DISPENSER};

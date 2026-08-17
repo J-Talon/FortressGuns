@@ -48,12 +48,7 @@ public class IBDevSpyglass implements InteractionBehaviourItem {
         World world = player.getWorld();
 
 
-        Predicate<Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
-            @Override
-            public boolean test(org.bukkit.entity.Entity entity) {
-                return !(entity.equals(player));
-            }
-        };
+        Predicate<Entity> entityPredicate = entity -> !(entity.equals(player));
 
         RayTraceResult res = world.rayTraceEntities(player.getEyeLocation(),player.getEyeLocation().getDirection(),200, 1, entityPredicate);
         if (res == null)
