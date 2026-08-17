@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Abstract;
 
+import me.camm.productions.fortressguns.item.classification.FGItems;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
@@ -25,11 +26,7 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
 
     protected static final ItemStack item;
     static {
-        org.bukkit.inventory.ItemStack bukkitVer = new org.bukkit.inventory.ItemStack(Material.LEVER);
-        ItemMeta meta = bukkitVer.getItemMeta();
-        meta.setDisplayName("Rocket");
-        bukkitVer.setItemMeta(meta);
-        item = CraftItemStack.asNMSCopy(bukkitVer);
+        item = CraftItemStack.asNMSCopy(FGItems.HEAT_SEEKER_MISSILE.get());
     }
 
 
