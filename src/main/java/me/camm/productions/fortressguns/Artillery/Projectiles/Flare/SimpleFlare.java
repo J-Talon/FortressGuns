@@ -1,7 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Flare;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
@@ -26,7 +27,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     private final double RADIUS = 50.0;
 
     private static final double MAX_SPEED = 1;
-    private final Set<SimpleMissile> affectedMissiles = new HashSet<>();
+    private final Set<AbstractRocket> affectedMissiles = new HashSet<>();
 
     public SimpleFlare(World world, double x, double y, double z, EntityPlayer shooter) {
         super(world, x, y, z, shooter);
@@ -93,10 +94,9 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         setMot(motion);
         this.C = true;
 
-        org.bukkit.World bukkitWorld = this.getBukkitEntity().getWorld();
         Location flareLocation = this.getBukkitEntity().getLocation();
 
-        for (SimpleMissile missile : SimpleMissile.getActiveMissiles()) {
+        for (AbstractRocket missile : HeatseekingMissile.getActiveMissiles()) {
 
             if (!missile.isAlive()) {
                 continue;
@@ -115,6 +115,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
 
             if (rand.nextDouble() <= successChance) {
                 missile.setTarget(this.getBukkitEntity());
+
             }
         }
 
@@ -151,12 +152,9 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-//        if (hitEntity instanceof SimpleFlare flare) {
-//            return false;
-//        }
-//        this.die();
-//        return true;
-        return false; // had an issue where player would kill their own flare so yeah
+        return false;
+        // had an issue where player would kill their own flare so yeah
+        //don't pp collisions if not needed!
     }
 
     @Override

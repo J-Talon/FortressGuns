@@ -3,38 +3,42 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
-import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.item.interact.IBHandle;
-import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
-import me.camm.productions.fortressguns.item.interact.behaviour.IBTacticalPointer;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
-import org.apache.commons.lang.ObjectUtils;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 
 
 public class MissileLauncher extends ArtilleryRideable {
@@ -49,10 +53,21 @@ public class MissileLauncher extends ArtilleryRideable {
     static final double RIGHT_ANGLE = Math.PI / 2;
     static final double Y_OFFSET = 0.5;
     static final double HOR_OFFSET = 1;
+    static final int PROGRESS_LENGTH = 50;
+    static final String PROGRESS_BAR;
+
+    static final double DISTANCE = 200;
+
     static int maxRockets;
     static long cooldown;
     static double maxHealth;
 
+    static final int TRACK_REQUIRED = 65;
+    static final int MAX_TRACK = 100;
+    static final int MIN_TRACK = 0;
+    static final int TRACK_INCREASE = 3;
+    static final int TRACK_DECREASE = 1;
+    static final int TRACK_FALLBACK = 10;
 
     static final Random RANDOM;
 
@@ -68,10 +83,17 @@ public class MissileLauncher extends ArtilleryRideable {
         cooldown = 10000;
         maxRockets = 6;
 
+        PROGRESS_BAR = "|".repeat(PROGRESS_LENGTH);
+
     }
 
     private final ArtilleryPart[] stem;
-    private IBDevSpyglass action;
+
+    private Entity trackedTarget;
+    private Entity fallbackTrack;
+
+    private int fallbackLock;
+    private int trackingLock;
 
 
     public MissileLauncher(Location loc, World world, EulerAngle aim) {
@@ -80,18 +102,13 @@ public class MissileLauncher extends ArtilleryRideable {
         base = new ArtilleryPart[4][3];
         stem = new ArtilleryPart[2];
         fireRight = true;
+
+        this.trackedTarget = null;
         this.target = null;
+        trackingLock = 0;
+
         lastFireTime = System.currentTimeMillis();
 
-        try {
-            action = (IBDevSpyglass) InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
-        } catch (ClassCastException e) {
-            action = null;
-        }
-
-        if (action == null) {
-            throw new IllegalStateException("Could not find target setting handler");
-        }
     }
 
     @Override
@@ -120,40 +137,16 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     @Override
-    protected @Nullable SimpleMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
-        SimpleMissile missile = (SimpleMissile) super.createProjectile(world, x, y, z, shooter, source);
+    protected @Nullable HeatseekingMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        HeatseekingMissile missile = (HeatseekingMissile) super.createProjectile(world, x, y, z, shooter, source);
         if (missile != null)
             missile.setTarget(target);
         return missile;
     }
 
-    @Override
-    public void fire(@Nullable Player shooter) {
 
-        if (!canFire())
-            return;
 
-        if (shooter != null) {
-
-            List<ArtilleryPart> parts = getParts();
-
-            target = action.getTarget(shooter.getUniqueId());
-
-            if (target != null) {
-                net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
-                if (nms instanceof ArtilleryPart && parts.contains(nms)) {
-                    shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
-                    return;
-                }
-            }
-            setTarget(target);
-        }
-        else {
-            setTarget(null);
-        }
-
-        //
-        //frontLeft = barrel[midpoint]
+    private void fireOneShot(@Nullable Player shooter) {
         ArtilleryPart shootingPart, backBlast;
 
         if (fireRight) {
@@ -179,7 +172,7 @@ public class MissileLauncher extends ArtilleryRideable {
         Artillery construct = this;
 
         EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-        SimpleMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
+        HeatseekingMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
         if (missile == null) {
             plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
             return;
@@ -225,6 +218,32 @@ public class MissileLauncher extends ArtilleryRideable {
                 cancel();
             }
         }.runTask(plugin);
+
+
+    }
+
+    @Override
+    public void fire(@Nullable Player shooter) {
+
+        if (!canFire())
+            return;
+
+        if (shooter == null) {
+            setTarget(null);
+            fireOneShot(null);
+            return;
+        }
+
+        if (target != null) {
+            net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
+            if (nms instanceof ArtilleryPart part && part.getBody().equals(this)) {
+                shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
+                setTarget(null);
+                return;
+            }
+        }
+
+        fireOneShot(shooter);
     }
 
     @Override
@@ -318,19 +337,188 @@ public class MissileLauncher extends ArtilleryRideable {
         positionSeat();
     }
 
-    //basically there's an idea that if a player sits on the seat then they can start locking onto
-    //targets
-    public synchronized void startTracking() {
-     //onions. yummy.
+
+    //todo unify interactions
+    @Override
+    public void rideTick(EntityHuman human) {
+
+        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+        Player player = ((Player)(human.getBukkitEntity()));
+        ItemStack item = player.getInventory().getItemInOffHand();
+        ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
+
+        if (!ItemUtils.getStick().isSimilar(item)) {
+            trackingLock = 0;
+            trackedTarget = null;
+            setTarget(null);
+
+            double x, y;
+            x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
+            y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
+            double roundHealth = Math.round(health * 100d) / 100d;
+
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
+            return;
+        }
+
+        lockTarget(human);
+
+        float percent = (float)trackingLock / MAX_TRACK;
+        int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
+
+        String slice = ChatColor.RED+PROGRESS_BAR.substring(0,Math.max(bars  - 1, 0));
+        String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
+        //----main---
+
+        String extra = "";
+        ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
+
+        if (getAmmo() > 0) {
+            extra = ChatColor.GOLD+"|".repeat(getAmmo());
+
+            if (trackingLock >= TRACK_REQUIRED)
+                extra += dynamic+" TARGET LOCK";
+            else
+                extra += ChatColor.GOLD+ " TRACKING";
+        }
+        else {
+            extra = dynamic + "RELOAD";
+        }
+
+        //---extra
+
+
+        String type = "";
+        if (trackedTarget != null) {
+
+            if (trackedTarget.getType() == EntityType.PLAYER)
+                type = trackedTarget.getName();
+            else type = trackedTarget.getType().name().replace('_', ' ');
+        }
+
+        type = ChatColor.RED + type;
+        //tracked ---
+
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                new TextComponent(type +" "+ slice + remain + slice +" "+extra));
+
+
+
+    }
+
+
+    private void trackingUpdate() {
+
+        if (trackingLock >= MIN_TRACK && trackedTarget != null) {
+            if (!trackedTarget.isDead() && trackedTarget.isValid()) {
+                setTarget(trackedTarget);
+            }
+            else {
+                trackedTarget = null;
+                trackingLock = 0;
+            }
+        }
+        else {
+            setTarget(null);
+        }
+
+        if (trackingLock <= TRACK_REQUIRED) {
+            setTarget(null);
+        }
+
+        if (trackingLock <= MIN_TRACK) {
+            trackedTarget = null;
+        }
+
+    }
+
+
+
+
+    private void lockTarget(EntityHuman human) {
+        this.trackingUpdate();
+
+        World world = human.getWorld().getWorld();
+        Vector lookDirection = CraftVector.toBukkit(human.getLookDirection());
+        Location eyeLocation = new Location(world, human.locX(), human.locY() + human.getHeadHeight(), human.locZ());
+
+        final Construct ref = this;
+
+        class PredicateTarget implements Predicate<Entity> {
+            @Override
+            public boolean test(Entity entity) {
+                //return true => valid entity to raytrace
+                net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+
+                if (nms.getUniqueID().equals(human.getUniqueID())) return false;
+
+                if (nms instanceof ProjectileFG) return false;
+
+                if (!(nms instanceof Component comp)) return true;
+
+                Construct cons = comp.getBody();
+                return !(ref.equals(cons));
+            }
+        }
+
+        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
+
+
+        if (res == null) {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            return;
+        }
+
+        Entity hit = res.getHitEntity();
+
+        if (hit == null) {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            return;
+        }
+
+
+        if (trackedTarget == null) {
+            trackingLock = TRACK_INCREASE;
+            this.trackedTarget = hit;
+            return;
+        }
+
+
+        if (hit.getUniqueId().equals(trackedTarget.getUniqueId())) {
+            trackingLock = Math.min(MAX_TRACK, trackingLock + TRACK_INCREASE);
+        }
+        else {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            if (fallbackTrack != null) {
+                if (hit.getUniqueId().equals(fallbackTrack.getUniqueId())) {
+                    fallbackLock = Math.min(fallbackLock + TRACK_FALLBACK, MAX_TRACK);
+                }
+                else fallbackLock = MIN_TRACK;
+            }
+            fallbackTrack = hit;
+        }
+
+        if (fallbackLock > trackingLock) {
+            trackedTarget = fallbackTrack;
+            trackingLock = TRACK_INCREASE;
+            fallbackLock = 0;
+        }
+    }
+
+
+    @Override
+    public void onDismount() {
+        this.trackingLock = 0;
+        this.trackedTarget = null;
+        super.onDismount();
     }
 
 
 
 
     private Location[] getBarrelLocations() {
-
-
-
         double xStraight, zStraight;
         double yHeight = -LARGE_BLOCK_LENGTH * Math.sin(aim.getX());
         //90* offset

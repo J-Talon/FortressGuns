@@ -46,11 +46,13 @@ import java.util.function.Consumer;
 
 
 enum ItemBehaviour {
+    DEV_SPYGLASS(new IBDevSpyglass()),  //DEV_SPYGLASS_TARGET
+    DEV_BLAZEROD(new IBDevBlazeRod()),
+
     AMMO_ITEM(new IBAmmoItem()),
     CREATE_CONSTRUCT(new IBConstructBox()),
     RIDING_CONSTRUCT(new IBConstructs()),
-    DEV_SPYGLASS(new IBDevSpyglass()),
-    TACTICAL_PT(new IBTacticalPointer()),
+    TACTICAL_PT(new IBTacticalPointer()), //TPOINTER_SETTING
     FLARE_GUN(new IBFlareGun()),
     FLARE(new IBFlare());
 
@@ -214,7 +216,10 @@ public class InteractionHandler implements Listener
         List<InteractionBehaviourItem> interactions = itemInteractions.getOrDefault(mat, null);
         if (interactions == null) return;
 
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(event.getPlayer(), stack);
         for (InteractionBehaviourItem item: interactions) {
+            if (!item.accept(tup)) continue;
+
             item.onBlockPlace(event);
         }
     }
@@ -256,7 +261,10 @@ public class InteractionHandler implements Listener
         if (itemAction == null)
             return;
 
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(event.getPlayer(), stack);
+
         for (InteractionBehaviourItem inter: interactions) {
+            if (!inter.accept(tup)) continue;
             itemAction.accept(inter);
         }
     }

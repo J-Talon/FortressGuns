@@ -16,7 +16,6 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +26,7 @@ import java.util.Set;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
-public class SimpleMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
+public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
 
     private final org.bukkit.World bukkitWorld;
     private int fueledFlightAge;
@@ -43,7 +42,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     private static final int FUEL = 600;  //
     private static final int PRIME = 5; //1/2 sec
 
-    private static Set<SimpleMissile> ACTIVE_MISSILES = new HashSet<>();
+    private static Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
 
     private final Vec3D initialVelocity;
     private final boolean hadTarget;
@@ -64,16 +63,12 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
 
     static {
-        org.bukkit.inventory.ItemStack bukkitVer = new org.bukkit.inventory.ItemStack(Material.LEVER);
-        ItemMeta meta = bukkitVer.getItemMeta();
-        meta.setDisplayName("Rocket");
-        bukkitVer.setItemMeta(meta);
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
         explosionPower = 4;
         difficulty = 100;
     }
 
-    public SimpleMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeatseekingMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
         fueledFlightAge = 0;
         direction = null;
@@ -91,21 +86,23 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     }
 
     public static void setExplosionPower(float explosionPower) {
-        SimpleMissile.explosionPower = explosionPower;
+        HeatseekingMissile.explosionPower = explosionPower;
     }
     public static void setDifficulty(float difficulty) {
-        SimpleMissile.difficulty = difficulty;
+        HeatseekingMissile.difficulty = difficulty;
     }
 
-    public static Set<SimpleMissile> getActiveMissiles() {
+    public static Set<HeatseekingMissile> getActiveMissiles() {
         return ACTIVE_MISSILES;
     }
 
 
     @Override
     public void inactiveTick() {
-        explode(null);
-        super.inactiveTick();
+        if (this.b || this.au > 0) {
+            explode(null);
+            super.inactiveTick();
+        }
     }
     @Override
     public float getExplosionPower() {
@@ -121,6 +118,8 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+
+
         Block hit = bukkitWorld.getBlockAt(hitBlock.getX(), hitBlock.getY(), hitBlock.getZ());
         if (hit.getType().isAir())
             return false;
@@ -136,7 +135,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
     }
 
 
-    public static int getFuelTicks(){
+    public int getFuelTicks(){
         return FUEL;
     }
 
@@ -307,12 +306,7 @@ public class SimpleMissile extends AbstractRocket implements ProjectileFG, Proje
 
     private void flyToTarget(Location missileLoc) {
 
-        if (target instanceof Player && (!(((Player) target).isGliding()))) {
-            notifier.removeNotification(target.getUniqueId());
-        }
-
         if (target.isDead() || !target.isValid() || (target.getWorld() != bukkitWorld)) {
-
             notifier.removeNotification(target.getUniqueId());
             target = null;
             return;

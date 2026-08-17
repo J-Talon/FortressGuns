@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.interact.IBHandle;
-import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -48,6 +47,7 @@ public class IBDevSpyglass implements InteractionBehaviourItem {
         Player player = event.getPlayer();
         World world = player.getWorld();
 
+
         Predicate<Entity> entityPredicate = new Predicate<org.bukkit.entity.Entity>() {
             @Override
             public boolean test(org.bukkit.entity.Entity entity) {
@@ -66,6 +66,7 @@ public class IBDevSpyglass implements InteractionBehaviourItem {
         updateTarget(player.getUniqueId(), hit);
 
         player.playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER,1,1);
+
         player.sendMessage(ChatColor.RED+"[Development only] Target Acquired: "+hit.getType());
     }
 

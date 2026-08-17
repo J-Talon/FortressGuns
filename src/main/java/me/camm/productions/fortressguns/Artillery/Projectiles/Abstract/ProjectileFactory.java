@@ -7,7 +7,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.Standar
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
 import org.jetbrains.annotations.Nullable;
@@ -84,10 +84,10 @@ public interface ProjectileFactory<T extends ProjectileFG> {
     }
 
 
-    class FactoryMissile implements ProjectileFactory<SimpleMissile> {
+    class FactoryMissile implements ProjectileFactory<HeatseekingMissile> {
         @Override
-        public SimpleMissile create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
-            return new SimpleMissile(world, x, y, z, shooter, source);
+        public HeatseekingMissile create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+            return new HeatseekingMissile(world, x, y, z, shooter, source);
         }
     }
 

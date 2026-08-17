@@ -52,7 +52,8 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
 
     @Override
     public void inactiveTick() {
-        remove();
+        if (this.b || this.au > 20)  // in ground, in ground ticks
+            remove();
     }
 
     @Override

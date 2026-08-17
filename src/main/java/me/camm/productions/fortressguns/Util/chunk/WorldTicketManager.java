@@ -18,7 +18,7 @@ public class WorldTicketManager {
     public void addTicket(ChunkTicket ticket) {
 
         lock.lock();
-        Set<IntTuple2> chunks = ticket.getChunks();
+        List<IntTuple2> chunks = ticket.getChunks();
         for (IntTuple2 current : chunks) {
 
             int x = current.getA();
@@ -45,7 +45,7 @@ public class WorldTicketManager {
     public void removeTicket(ChunkTicket ticket) {
 
         lock.lock();
-        Set<IntTuple2> chunks = ticket.getChunks();
+        List<IntTuple2> chunks = ticket.getChunks();
 
         for (IntTuple2 chunk : chunks) {
             int x = chunk.getA();

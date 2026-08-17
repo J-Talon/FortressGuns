@@ -73,7 +73,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected volatile boolean interpolating;
 
     protected volatile double health;//--
-    private final Set<IntTuple2> occupiedChunks;//
+    private final List<IntTuple2> occupiedChunks;//
     protected World world;//
 
     protected boolean dead;//
@@ -150,7 +150,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
 
-        this.occupiedChunks = new HashSet<>();
+        this.occupiedChunks = new ArrayList<>();
         largeBlockDist = LARGE_BLOCK_LENGTH;
         smallBlockDist = SMALL_BLOCK_LENGTH;
         health = 0;
@@ -604,8 +604,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     protected List<Player> getShakenPlayers() {
-        Set<IntTuple2> chunks = getOccupiedChunks();
-
+        List<IntTuple2> chunks = getOccupiedChunks();
         final List<Player> vibrateFor = new LinkedList<>();
         for (IntTuple2 tup: chunks) {
 
@@ -760,7 +759,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
     @Override
-    public final Set<IntTuple2> getOccupiedChunks(){
+    public final List<IntTuple2> getOccupiedChunks(){
         return occupiedChunks;
     }
 

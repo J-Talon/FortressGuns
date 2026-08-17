@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Util.Serialization.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.SimpleMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import org.jetbrains.annotations.NotNull;
 
@@ -68,7 +68,7 @@ public class ConfigGeneral implements ConfigObject {
         }
 
         Artillery.setRequiresReloading(requireReloading);
-        SimpleMissile.setDifficulty(missileDifficulty);
+        HeatseekingMissile.setDifficulty(missileDifficulty);
         ExplosionFactory.setUseVanillaExplosions(useVanillaExplosions);
         ExplosionFactory.setDestructiveExplosions(destructiveExplosions);
         return true;

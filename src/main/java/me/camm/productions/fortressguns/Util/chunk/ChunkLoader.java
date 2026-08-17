@@ -177,7 +177,7 @@ public class ChunkLoader implements Listener {
                 continue;
 
             struct.calculateOccupiedChunks();
-            Set<IntTuple2> loadedChunks = struct.getOccupiedChunks();
+            List<IntTuple2> loadedChunks = struct.getOccupiedChunks();
 
             //int loaded = (int)loadedChunks.stream().filter(tup -> isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
         int loaded = (int) loadedChunks.stream().filter(tup -> world.isChunkLoaded(tup.getA(), tup.getB())).count();
@@ -248,7 +248,7 @@ public class ChunkLoader implements Listener {
             if (!struct.chunkLoaded())
                 continue;
 
-            Set<IntTuple2> chunks = struct.getOccupiedChunks();
+            List<IntTuple2> chunks = struct.getOccupiedChunks();
 
             Entity pivot = struct.getCoreEntity();
             struct.unload();

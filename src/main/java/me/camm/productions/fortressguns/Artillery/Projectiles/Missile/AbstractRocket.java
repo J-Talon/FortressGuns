@@ -18,6 +18,8 @@ import java.util.Random;
 
 public abstract class AbstractRocket extends ProjectileArrowFG implements ProjectileExplosive {
 
+
+
     protected Entity target;
     protected boolean hadTarget;
     private final MissileLockNotifier notifier;
@@ -52,15 +54,19 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
 
 
     public void setTarget(Entity target) {
-        this.target = target;
-        if (target instanceof Player || target instanceof SimpleFlare) {
-            notifier.addNotification(target.getUniqueId());
+
+        if (hadTarget && this.target instanceof Player) {
+            notifier.exitNotification(this.target.getUniqueId());
         }
 
+        if (target instanceof Player) {
+            notifier.addNotification(target.getUniqueId(), getFuelTicks());
+        }
+
+        this.target = target;
         hadTarget = true;
     }
-    @Override
-    protected ItemStack getItemStack() {
-        return item;
-    }
+
+    public abstract int getFuelTicks();
+
 }

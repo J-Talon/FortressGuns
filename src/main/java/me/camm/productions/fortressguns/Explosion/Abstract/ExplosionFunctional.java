@@ -32,7 +32,11 @@ public abstract class ExplosionFunctional extends ExplosionFG {
         this.radius = radius;
         this.destructive = destructive;
         this.source = source;
-        stupid = new Explosion(null, ((CraftEntity)source).getHandle(),0,0,0,0);
+
+        if (source != null)
+            stupid = new Explosion(null, ((CraftEntity)source).getHandle(),0,0,0,0);
+        else
+            new Explosion(null, null,0,0,0,0);
     }
 
 
