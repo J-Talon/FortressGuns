@@ -183,7 +183,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             lore = ChatColor.RED+"None";
         }
         else
-            lore = ChatColor.GOLD+""+item.getName();
+            lore = ChatColor.GOLD+item.getName();
 
         return owner.getType() == ConstructType.MISSILE_LAUNCHER ?
                 StaticItem.ROUND_SHOWCASE_HEAVY.toItem(ChatColor.WHITE + "Loaded Ammo: "+lore) :

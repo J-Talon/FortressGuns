@@ -187,17 +187,6 @@ public abstract class FieldArtillery extends ArtilleryRideable
         lengthChanged = true;
     }
 
-    protected synchronized void incrementLargeDistance(double increment) {
-        this.largeBlockDist += increment;
-        lengthChanged = true;
-    }
-
-    protected synchronized void setLargeDistance(double dist) {
-        this.largeBlockDist = dist;
-        lengthChanged = true;
-    }
-
-
     @Override
     protected boolean instantiateParts()
     {
