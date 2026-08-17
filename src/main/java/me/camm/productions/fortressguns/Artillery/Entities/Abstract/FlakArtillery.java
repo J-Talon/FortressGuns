@@ -6,8 +6,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.Heavy
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.classification.FGItems;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
@@ -96,7 +96,7 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
         ItemStack offhand = player.getInventory().getItemInOffHand();
 
         ChatColor color = canFire() ? ChatColor.GREEN: ChatColor.RED;
-        if (ItemUtils.getStick().isSimilar(offhand)) {
+        if (FGItems.TACTICAL_PTR.isSimilar(offhand)) {
             int time = action.getTime(player.getUniqueId()).getA();
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR,new TextComponent(color+"Shell Fuse: ["+time+"/"+action.getSettingMax()+"] (Ticks)"));
         }

@@ -3,10 +3,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.item.classification.FGItems;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -86,7 +87,7 @@ public class ArtilleryPart extends ComponentAS
             ItemStack holding = human.getItemInMainHand();
 
             org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
-            org.bukkit.inventory.ItemStack pointer = ItemUtils.getStick();
+            org.bukkit.inventory.ItemStack pointer = FGItems.TACTICAL_PTR.get();
 
                 //if they punch the thing with a stick, fire the cannon instead.
 
@@ -279,9 +280,7 @@ public class ArtilleryPart extends ComponentAS
 
 
         org.bukkit.inventory.ItemStack stackBukkit = CraftItemStack.asBukkitCopy(stack);
-        org.bukkit.inventory.ItemStack pointer = ItemUtils.getStick();
-
-        if ((!pointer.isSimilar(stackBukkit))) {
+        if ((!FGItems.TACTICAL_PTR.isSimilar(stackBukkit))) {
 
             if (human.isCrouching())
                 openMenu(human);

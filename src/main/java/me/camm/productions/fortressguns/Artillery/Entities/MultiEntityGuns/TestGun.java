@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,10 +16,12 @@ import org.jetbrains.annotations.Nullable;
 public class TestGun extends Artillery {
 
 
+    //for testing only
+    //not for actual gameplay
     public TestGun(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
         barrel = new ArtilleryPart[2];
-        base = new ArtilleryPart[0][0];
+        base = new ArtilleryPart[1][1];
     }
 
     @Override

@@ -2,16 +2,11 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
-import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import org.bukkit.Chunk;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-
-
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public abstract class Construct {

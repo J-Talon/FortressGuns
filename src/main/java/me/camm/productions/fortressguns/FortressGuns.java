@@ -12,13 +12,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.camm.productions.fortressguns.item.ArtilleryItems.FlareGun;
 
 public final class FortressGuns extends JavaPlugin {
 
     private static FortressGuns plugin;
-    private InteractionHandler interactionHandler;
-    private ChunkLoader loader;
     private MissileLockNotifier notifier;
 
     CommandListener commandHandler;
@@ -33,8 +30,8 @@ public final class FortressGuns extends JavaPlugin {
       plugin = this;
       FileManager.loadArtilleryConfig();
 
-      interactionHandler = InteractionHandler.getInstance();
-      loader = ChunkLoader.getInstance();
+      InteractionHandler interactionHandler = InteractionHandler.getInstance();
+      ChunkLoader loader = ChunkLoader.getInstance();
 
       this.logger = getLogger();
 

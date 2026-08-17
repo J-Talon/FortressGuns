@@ -42,7 +42,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     private static final int FUEL = 600;  //
     private static final int PRIME = 5; //1/2 sec
 
-    private static Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
+    private static final Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
 
     private final Vec3D initialVelocity;
     private final boolean hadTarget;

@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;

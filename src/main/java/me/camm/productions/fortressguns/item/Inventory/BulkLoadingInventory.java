@@ -2,8 +2,8 @@ package me.camm.productions.fortressguns.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.item.ArtilleryItems.AmmoItem;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.*;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -183,7 +183,7 @@ public class BulkLoadingInventory extends TransactionReloadInventory {
             lore = ChatColor.RED+"None";
         }
         else
-            lore = ChatColor.GOLD+""+item.getName();
+            lore = ChatColor.GOLD+item.getName();
 
         return owner.getType() == ConstructType.MISSILE_LAUNCHER ?
                 StaticItem.ROUND_SHOWCASE_HEAVY.toItem(ChatColor.WHITE + "Loaded Ammo: "+lore) :

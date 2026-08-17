@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.item.ArtilleryItems.ItemUtils;
+import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
