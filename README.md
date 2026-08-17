@@ -70,7 +70,7 @@ Content to complete before first release
     - [ ] Wall collisions
     - [ ] Entity tracking and targeting < Current Focus
     - [ ] Balancing, Config
-    - [ ] Flares?
+    - [X] Flares?
 - [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
 
 Planned Content
