@@ -31,7 +31,7 @@ public enum ConstructType {
     }
 
     public String getName() {
-        return boxItem.getDisplayName();
+        return boxItem == null ? null : boxItem.getDisplayName();
     }
 
 

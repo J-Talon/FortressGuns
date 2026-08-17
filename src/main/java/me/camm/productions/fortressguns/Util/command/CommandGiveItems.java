@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Util.command;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.item.classification.box.FGBoxItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -30,8 +31,9 @@ public class CommandGiveItems extends CommandHandler {
         Inventory inv = player.getInventory();
 
         for (ConstructType type: ConstructType.values()) {
-            ItemStack created = type.getBoxItem().get();
-            inv.addItem(created);
+            FGBoxItem box = type.getBoxItem();
+            if (box == null) continue;
+            inv.addItem(box.get());
         }
 
         for (AmmoItem item: AmmoItem.values()) {

@@ -84,7 +84,7 @@ public class IBFlareGun implements InteractionBehaviourItem {
 
     @Override
     public boolean accept(Tuple2<Player, ItemStack> item) {
-        return FGItems.FLARE.isSimilar(item.getB());
+        return FGItems.FLARE_GUN.isSimilar(item.getB());
     }
 
 

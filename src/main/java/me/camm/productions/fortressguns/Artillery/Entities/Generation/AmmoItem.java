@@ -31,11 +31,11 @@ public enum AmmoItem {
     private final ProjectileFactory<? extends ProjectileFG> factory;
 
     public Material getMat() {
-        return item.getMaterial();
+        return item == null ? null : item.getMaterial();
     }
 
     public String getName() {
-        return item.getDisplayName();
+        return item == null ? null : item.getDisplayName();
     }
 
     public ProjectileFG create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
