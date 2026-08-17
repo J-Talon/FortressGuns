@@ -12,8 +12,11 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -173,5 +176,57 @@ public class IBFlareGun implements InteractionBehaviourItem {
         }
 
         return true;
+    }
+
+    @Override
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+//        logger.log(Level.INFO, "onPrepareCraft");
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) { // if there is no result, no need to do stuff
+            return;
+        }
+
+//        if (CustomRecipes.isCustomRecipe(recipe)) {
+//            return;
+//        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (FGItems.FLARE_GUN.isSimilar(item)) {
+                event.getInventory().setResult(null);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onCraft(CraftItemEvent event) {
+//        logger.log(Level.INFO, "CraftItemEvent");
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) {
+            return;
+        }
+
+//        if (CustomRecipes.isCustomRecipe(recipe)) {
+//            return;
+//        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (FGItems.FLARE_GUN.isSimilar(item)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 }

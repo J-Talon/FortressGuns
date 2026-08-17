@@ -2,10 +2,10 @@ package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.item.ItemCrossbow;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,16 +19,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.meta.CrossbowMeta;
+
+import static me.camm.productions.fortressguns.item.classification.FGItems.FLARE;
 
 public class IBFlare implements InteractionBehaviourItem {
 
@@ -313,6 +316,21 @@ public class IBFlare implements InteractionBehaviourItem {
         }
     }
 
+    private boolean isFlare(ItemStack item) {
+        if (item == null || item.getType() != Material.FIREWORK_ROCKET)
+            return false;
+
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta == null || !meta.hasDisplayName())
+            return false;
+
+        if (meta.getDisplayName().equals(ChatColor.GRAY + "Flares")) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean accept(Tuple2<Player, ItemStack> item) {
         ItemStack stack = item.getB();
@@ -336,5 +354,55 @@ public class IBFlare implements InteractionBehaviourItem {
         }
 
         return false;
+    }
+
+    @Override
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) {
+            return;
+        }
+
+//        if (CustomRecipes.isCustomRecipe(recipe)) {
+//            return;
+//        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (FLARE.isSimilar(item)) {
+                event.getInventory().setResult(null);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onCraft(CraftItemEvent event) {
+
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) {
+            return;
+        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (FLARE.isSimilar(item)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 }

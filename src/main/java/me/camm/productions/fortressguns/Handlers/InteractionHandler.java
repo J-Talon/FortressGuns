@@ -27,6 +27,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -352,6 +354,38 @@ public class InteractionHandler implements Listener
             }
 
             interaction.onBowShoot(event);
+        }
+    }
+
+    @EventHandler
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+        for (ItemStack item : event.getInventory().getMatrix()) { // only 9 items so shouldn't be too bad
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onPrepareCraft(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onCraft(CraftItemEvent event) {
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onCraft(event);
+            }
         }
     }
 }

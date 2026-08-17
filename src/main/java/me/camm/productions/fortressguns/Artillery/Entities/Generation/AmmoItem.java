@@ -38,6 +38,10 @@ public enum AmmoItem {
         return item == null ? null : item.getDisplayName();
     }
 
+    public FGSingleConsumable getItem() {
+        return item;
+    }
+
     public ProjectileFG create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         return factory.create(world, x,y,z, shooter, source);
     }
