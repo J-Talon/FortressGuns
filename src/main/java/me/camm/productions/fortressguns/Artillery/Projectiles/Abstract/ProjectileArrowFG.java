@@ -9,9 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
-import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ProjectileArrowFG extends EntityArrow implements ProjectileFG {
@@ -62,7 +60,6 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
         else if (!isInWater()) {
             enteredWater = false;
         }
-
 
         if (this.aX() && !enteredLava) {
             enteredLava = true;

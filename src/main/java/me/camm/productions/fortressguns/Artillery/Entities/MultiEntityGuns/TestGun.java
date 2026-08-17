@@ -16,10 +16,12 @@ import org.jetbrains.annotations.Nullable;
 public class TestGun extends Artillery {
 
 
+    //for testing only
+    //not for actual gameplay
     public TestGun(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
         barrel = new ArtilleryPart[2];
-        base = new ArtilleryPart[0][0];
+        base = new ArtilleryPart[1][1];
     }
 
     @Override
