@@ -29,25 +29,25 @@ public final class RecipeManager {
                 .shape(
                         " I ",
                         "INI",
-                        " F "
+                        " G "
                 )
                 .ingredient('I', Material.IRON_INGOT)
-                .ingredient('F', Material.FIREWORK_ROCKET)
+                .ingredient('G', Material.GUNPOWDER)
                 .ingredient('N', Material.IRON_NUGGET)
                 .register();
 
         ShapedRecipe FlakShellRecipe = RecipeBuilder.create(
                         new NamespacedKey("fortressguns", "flak_shell_recipe"),
-                        FGItems.CRAM_BULLET.get()
+                        FGItems.FLAK_SHELL.get()
                 )
                 .shape(
                         " I ",
-                        "IBI",
-                        " F "
+                        "ITI",
+                        " G "
                 )
                 .ingredient('I', Material.IRON_INGOT)
-                .ingredient('F', Material.FIREWORK_ROCKET)
-                .ingredient('B', Material.IRON_BLOCK)
+                .ingredient('G', Material.GUNPOWDER)
+                .ingredient('T', Material.TNT)
                 .register();
 
         ShapedRecipe flareRecipe = RecipeBuilder.create(
@@ -83,28 +83,25 @@ public final class RecipeManager {
                         FGItems.HE_SHELL.get()
                 )
                 .shape(
-                        " S ",
-                        "ICI",
-                        " F "
+                        " I ",
+                        "ITI",
+                        "ITI"
                 )
                 .ingredient('I', Material.IRON_INGOT)
-                .ingredient('F', Material.FIREWORK_ROCKET)
-                .ingredient('C', Material.COMPASS)
-                .ingredient('S', Material.SPYGLASS)
+                .ingredient('T', Material.TNT)
                 .register();
 
         ShapedRecipe HMGBulletRecipe = RecipeBuilder.create(
                         new NamespacedKey("fortressguns", "hmgbullet_recipe"),
-                        FGItems.HEAT_SEEKER_MISSILE.get()
+                        FGItems.HMG_BULLET.get()
                 )
                 .shape(
                         " I ",
                         " C ",
-                        " F "
+                        " I "
                 )
                 .ingredient('I', Material.IRON_INGOT)
                 .ingredient('C', Material.GUNPOWDER)
-                .ingredient('F', Material.IRON_INGOT)
                 .register();
 
         ShapedRecipe LightFlakBulletRecipe = RecipeBuilder.create(
@@ -180,11 +177,11 @@ public final class RecipeManager {
                         FGItems.FIELD_HEAVY.get()
                 )
                 .shape(
-                        "NNN",
+                        " N ",
                         "NBN",
                         " R "
                 )
-                .ingredient('N', Material.IRON_INGOT)
+                .ingredient('N', Material.IRON_BLOCK)
                 .ingredient('R', Material.REDSTONE)
                 .ingredient('B', Material.CROSSBOW)
                 .register();
@@ -197,7 +194,7 @@ public final class RecipeManager {
                         "NBN",
                         " R "
                 )
-                .ingredient('N', Material.GOLD_INGOT)
+                .ingredient('N', Material.GOLD_BLOCK)
                 .ingredient('R', Material.REDSTONE)
                 .ingredient('B', Material.CROSSBOW)
                 .register();
