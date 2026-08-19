@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
+import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
@@ -23,7 +24,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class IBFlareGun implements InteractionBehaviourItem {
 
     private static final long COOLDOWN_MILLIS = 3000;
-    private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey("fortressguns", "flare_gun_cooldown");
+    private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey(FortressGuns.getInstance(), "flare_gun_cooldown");
 
     @Override
     public Material[] getLabels() {

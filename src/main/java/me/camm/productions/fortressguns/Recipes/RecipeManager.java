@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Recipes;
 
+import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.item.classification.FGItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -23,7 +24,7 @@ public final class RecipeManager {
 
     public static void registerRecipes() {
         ShapedRecipe CRAMBulletRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "cram_bullet_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "cram_bullet_recipe"),
                         FGItems.CRAM_BULLET.get()
                 )
                 .shape(
@@ -37,7 +38,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe FlakShellRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "flak_shell_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "flak_shell_recipe"),
                         FGItems.FLAK_SHELL.get()
                 )
                 .shape(
@@ -51,7 +52,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe flareRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "flare_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "flare_recipe"),
                         FGItems.FLARE.get()
                 )
                 .shape(
@@ -64,7 +65,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe HeatseekerRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "heatseeker_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "heatseeker_recipe"),
                         FGItems.HEAT_SEEKER_MISSILE.get()
                 )
                 .shape(
@@ -79,7 +80,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe HEShellRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "he_shell_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "he_shell_recipe"),
                         FGItems.HE_SHELL.get()
                 )
                 .shape(
@@ -92,7 +93,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe HMGBulletRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "hmgbullet_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "hmgbullet_recipe"),
                         FGItems.HMG_BULLET.get()
                 )
                 .shape(
@@ -105,7 +106,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe LightFlakBulletRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "light_flak_bullet_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "light_flak_bullet_recipe"),
                         FGItems.LIGHT_FLAK_BULLET.get()
                 )
                 .shape(
@@ -119,7 +120,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe SolidShellRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "solid_shell_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "solid_shell_recipe"),
                         FGItems.SOLID_SHELL.get()
                 )
                 .shape(
@@ -132,7 +133,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe flareGunRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "flare_gun_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "flare_gun_recipe"),
                         FGItems.FLARE_GUN.get()
                 )
                 .shape(
@@ -145,7 +146,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe CRAMRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "cram_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "cram_recipe"),
                         FGItems.CRAM.get()
                 )
                 .shape(
@@ -160,7 +161,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe FieldLightRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "field_light_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "field_light_recipe"),
                         FIELD_LIGHT.get()
                 )
                 .shape(
@@ -173,7 +174,7 @@ public final class RecipeManager {
                 .ingredient('B', Material.BOW)
                 .register();
         ShapedRecipe FieldHeavyRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "field_heavy_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "field_heavy_recipe"),
                         FGItems.FIELD_HEAVY.get()
                 )
                 .shape(
@@ -186,7 +187,7 @@ public final class RecipeManager {
                 .ingredient('B', Material.CROSSBOW)
                 .register();
         ShapedRecipe FlakHeavyRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "flak_heavy_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "flak_heavy_recipe"),
                         FGItems.FLAK_HEAVY.get()
                 )
                 .shape(
@@ -199,7 +200,7 @@ public final class RecipeManager {
                 .ingredient('B', Material.CROSSBOW)
                 .register();
         ShapedRecipe FlakLightRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "flak_light_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "flak_light_recipe"),
                         FGItems.FLAK_LIGHT.get()
                 )
                 .shape(
@@ -213,7 +214,7 @@ public final class RecipeManager {
                 .register();
 
         ShapedRecipe MissileLauncherRecipe = RecipeBuilder.create(
-                        new NamespacedKey("fortressguns", "missile_launcher_recipe"),
+                        new NamespacedKey(FortressGuns.getInstance(), "missile_launcher_recipe"),
                         FGItems.MISSILE_LAUNCHER.get()
                 )
                 .shape(
