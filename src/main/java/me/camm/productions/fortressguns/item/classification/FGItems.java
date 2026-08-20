@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.item.classification;
 
+import me.camm.productions.fortressguns.item.classification.ingredients.*;
 import me.camm.productions.fortressguns.item.classification.tools.FGFlareGunItem;
 import me.camm.productions.fortressguns.item.classification.tools.FGTacticalPointerItem;
 import me.camm.productions.fortressguns.item.classification.ammo.*;
@@ -30,7 +31,11 @@ public class FGItems {
     public static FGSingleConsumable LIGHT_FLAK_BULLET = new FGLightFlakAmmoItem();
     public static FGSingleConsumable SOLID_SHELL = new FGSolidShellItem();
 
-
-
+    public static FGSimpleIngredient ARTILLERY_BASE = new FGArtilleryBase();
+    public static FGSimpleIngredient FLAK_BARREL = new FGFlakBarrel();
+    public static FGSimpleIngredient FIELD_BARREL = new FGFieldBarrel();
+    public static FGSimpleIngredient MISSILE_BARREL = new FGMissileBarrel();
+    public static FGSimpleIngredient MACHINE_GUN_BARREL = new FGMachineGunBarrel();
+    public static FGSimpleIngredient[] SIMPLE_INGREDIENTS = {ARTILLERY_BASE, FLAK_BARREL, FIELD_BARREL, MISSILE_BARREL, MACHINE_GUN_BARREL};
 
 }

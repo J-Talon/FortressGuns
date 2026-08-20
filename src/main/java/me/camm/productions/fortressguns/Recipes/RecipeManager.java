@@ -5,10 +5,7 @@ import me.camm.productions.fortressguns.item.classification.FGItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +19,48 @@ public final class RecipeManager {
     private RecipeManager() {
     }
 
+    public static boolean recipeUsesItem(Recipe recipe, ItemStack item) {
+
+        if (recipe instanceof ShapedRecipe shaped) {
+            for (RecipeChoice choice : shaped.getChoiceMap().values()) {
+                if (choice instanceof RecipeChoice.ExactChoice exact) {
+                        for (ItemStack choiceItem : exact.getChoices()) {
+                                if (item.isSimilar(choiceItem)) {
+                                        return true;
+                                }
+                        }
+                }
+            }
+        }
+
+        if (recipe instanceof ShapelessRecipe shapeless) {
+            for (RecipeChoice choice : shapeless.getChoiceList()) {
+                if (choice instanceof RecipeChoice.ExactChoice exact) {
+                        for (ItemStack choiceItem : exact.getChoices()) {
+                                if (item.isSimilar(choiceItem)) {
+                                        return true;
+                                }
+                        }
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static void registerRecipes() {
+        ShapedRecipe ArtilleryBaseRecipe = RecipeBuilder.create(
+                        new NamespacedKey(FortressGuns.getInstance(), "artillery_base_recipe"),
+                        FGItems.ARTILLERY_BASE.get()
+                )
+                .shape(
+                        " B ",
+                        "BBB",
+                        " B "
+                )
+                .ingredient('B', Material.STONE_BRICKS)
+                .register();
+
         ShapedRecipe CRAMBulletRecipe = RecipeBuilder.create(
                         new NamespacedKey(FortressGuns.getInstance(), "cram_bullet_recipe"),
                         FGItems.CRAM_BULLET.get()
@@ -178,13 +216,12 @@ public final class RecipeManager {
                         FGItems.FIELD_HEAVY.get()
                 )
                 .shape(
-                        " N ",
-                        "NBN",
-                        " R "
+                        " D ",
+                        " B ",
+                        "   "
                 )
-                .ingredient('N', Material.IRON_BLOCK)
-                .ingredient('R', Material.REDSTONE)
-                .ingredient('B', Material.CROSSBOW)
+                .ingredient('D', Material.DISPENSER)
+                .ingredient('B', new RecipeChoice.ExactChoice(FIELD_LIGHT.get()))
                 .register();
         ShapedRecipe FlakHeavyRecipe = RecipeBuilder.create(
                         new NamespacedKey(FortressGuns.getInstance(), "flak_heavy_recipe"),
