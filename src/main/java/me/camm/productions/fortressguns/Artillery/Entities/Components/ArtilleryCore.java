@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
+import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBDevSpyglass;
@@ -38,7 +38,7 @@ public class ArtilleryCore extends ArtilleryPart {
         super(world, body, d0, d1, d2);
 
         try {
-            action = (IBDevSpyglass) ItemInteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
+            action = (IBDevSpyglass) InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
         }
         catch (ClassCastException e) {
             action = null;

@@ -9,7 +9,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavySh
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
-import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
+import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBTacticalPointer;
@@ -38,7 +38,7 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
     public FlakArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
 
-        ItemInteractionHandler handler = ItemInteractionHandler.getInstance();
+        InteractionHandler handler = InteractionHandler.getInstance();
         try {
             action = (IBTacticalPointer)handler.getItemBehaviour(IBHandle.TPOINTER_SETTING);
         }

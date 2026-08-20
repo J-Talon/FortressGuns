@@ -59,10 +59,10 @@ public class IBAmmoItem implements InteractionBehaviourItem {
         return labels;
     }
 
-    @Override
-    public void onRCEntity(PlayerInteractEntityEvent event) {
-        this.handleInteraction(event.getPlayer());
-    }
+//    @Override
+//    public void onRCEntity(PlayerInteractEntityEvent event) {
+//        this.handleInteraction(event.getPlayer());
+//    }
 
 
     @Override

@@ -1,6 +1,8 @@
 package me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.Math.Tuple3;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
@@ -105,16 +107,10 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
 
 
         org.bukkit.entity.Entity vehicle = player.getVehicle();
-        if (vehicle == null) {
+        Rideable ride = ConstructUtils.getRideableRef(vehicle);
+
+        if (ride == null) {
             time = updateSetting(time,dir,id);
-            notifySettingChange(time, player);
-            return;
-        }
-
-        Entity nms = ((CraftEntity)vehicle).getHandle();
-
-        if (!(nms instanceof Component)) {
-            time = updateSetting(time, dir, id);
             notifySettingChange(time, player);
             return;
         }

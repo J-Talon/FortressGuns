@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
@@ -17,6 +19,10 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
     protected boolean enteredWater = false;
     protected boolean enteredLava = false;
 
+
+    public ItemStack getItemStack() {
+        return Items.mh.createItemStack();
+    }
 
     public ProjectileArrowFG(World world, double x, double y, double z, @Nullable EntityPlayer shooter) {
         super(EntityTypes.d, x, y, z, world);

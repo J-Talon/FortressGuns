@@ -27,9 +27,6 @@ public interface InteractionBehaviourItem extends InteractionBehaviour<Tuple2<Pl
 
     public default void onLCBlock(PlayerInteractEvent event) {}
 
-    //may need to change in the future as interact @ entity event or ASManipulate are more appropriate
-    public default void onRCEntity(PlayerInteractEntityEvent event) {}
-
     public default void onScroll(PlayerItemHeldEvent event) {}
 
     public default void onDispense(BlockDispenseEvent event) {}

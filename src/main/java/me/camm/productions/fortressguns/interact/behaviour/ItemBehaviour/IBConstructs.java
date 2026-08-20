@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
@@ -42,32 +43,15 @@ public class IBConstructs implements InteractionBehaviourItem {
         if (ride == null)
             return;
 
-        //will require a translator
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)ride).getHandle();
+        //this has the side effect of checking that it is indeed a cons
+        Rideable rideable = ConstructUtils.getRideableRef(ride);
 
-        //logic for artillery which do not have a fire trigger
-        if (nms instanceof Component component) {
-            Construct body = component.getBody();
+        if (rideable == null) return;
 
+        this.interactArtillery((Construct) rideable, player);
+        event.setCancelled(true);
 
-            if (!(body instanceof Rideable)) {
-                //how the heck did you manage to ride the artillery???
-                return;
-            }
-
-            if (!component.equals(((Rideable) body).getSeat())) {
-                return;
-            }
-
-            //this is for the guns which don't have a fire trigger
-            //otherwise the logic in the firetrigger handles the shooting
-            //todo move all interaction logic from components into behaviours
-            this.interactArtillery(body, player);
-            event.setCancelled(true);
-
-        }
     }
-
 
     private void interactArtillery(Construct cons, Player player) {
         if (!(cons instanceof Artillery arty)) {

@@ -11,13 +11,15 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-public interface InteractionBehaviourCons extends InteractionBehaviour<Tuple3<ConstructType, ItemStack, Player>> {
+public interface InteractionBehaviourCons extends InteractionBehaviour<Tuple2<Player, ItemStack>> {
 
     /*
     tuple3 <cons, mainhand, player>
     onRCEntity -->
     onLCEntity -->
      */
+
+    public ConstructType[] getLabels();
 
     public void onRCCons(Construct struct, Component component, ItemStack mainHand, PlayerInteractEntityEvent event);
 
