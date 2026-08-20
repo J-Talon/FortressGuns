@@ -4,11 +4,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.item.ItemUtils;
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.item.classification.FGItems;
-import me.camm.productions.fortressguns.item.interact.IBHandle;
-import me.camm.productions.fortressguns.item.interact.behaviour.IBDevSpyglass;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
+import me.camm.productions.fortressguns.interact.IBHandle;
+import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBDevSpyglass;
 import net.minecraft.server.level.EntityPlayer;
 
 import net.minecraft.sounds.SoundEffect;

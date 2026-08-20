@@ -6,7 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigge
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;

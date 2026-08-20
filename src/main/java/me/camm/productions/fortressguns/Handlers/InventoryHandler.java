@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Handlers;
 
-import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

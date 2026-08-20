@@ -7,7 +7,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3D;

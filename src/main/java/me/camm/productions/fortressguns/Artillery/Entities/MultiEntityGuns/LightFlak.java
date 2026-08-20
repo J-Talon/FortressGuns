@@ -6,8 +6,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;

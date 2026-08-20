@@ -1,9 +1,9 @@
 package me.camm.productions.fortressguns.Util.command;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.item.classification.FGItems;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.item.classification.box.FGBoxItem;
+import me.camm.productions.fortressguns.interact.item.classification.box.FGBoxItem;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 
 import static me.camm.productions.fortressguns.Util.command.PermissionNodeLabel.FG_ADMIN;
-import static me.camm.productions.fortressguns.item.ItemUtils.*;
+import static me.camm.productions.fortressguns.interact.item.ItemUtils.*;
 
 public class CommandGiveItems extends CommandHandler {
 

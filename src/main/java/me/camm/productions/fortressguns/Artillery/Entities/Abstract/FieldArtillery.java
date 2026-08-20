@@ -4,9 +4,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;

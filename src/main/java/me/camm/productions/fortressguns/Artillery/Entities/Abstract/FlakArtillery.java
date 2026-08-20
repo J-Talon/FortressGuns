@@ -6,13 +6,13 @@ import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.Heavy
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
-import me.camm.productions.fortressguns.item.classification.FGItems;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
 import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.item.interact.IBHandle;
-import me.camm.productions.fortressguns.item.interact.behaviour.IBTacticalPointer;
+import me.camm.productions.fortressguns.interact.IBHandle;
+import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBTacticalPointer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;

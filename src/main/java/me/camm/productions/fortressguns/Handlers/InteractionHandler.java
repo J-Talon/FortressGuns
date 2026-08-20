@@ -6,18 +6,15 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
-import me.camm.productions.fortressguns.FortressGuns;
 
-import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
-import me.camm.productions.fortressguns.item.interact.IBHandle;
-import me.camm.productions.fortressguns.item.interact.InteractionBehaviour;
-import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
-import me.camm.productions.fortressguns.item.interact.behaviour.*;
+import me.camm.productions.fortressguns.interact.IBHandle;
+import me.camm.productions.fortressguns.interact.InteractionBehaviour;
+import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
+import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.*;
 import net.minecraft.server.level.EntityPlayer;
 
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -29,7 +26,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import org.jetbrains.annotations.Nullable;
 import org.spigotmc.event.entity.EntityDismountEvent;
