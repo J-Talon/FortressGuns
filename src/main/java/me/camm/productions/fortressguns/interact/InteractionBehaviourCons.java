@@ -2,34 +2,26 @@ package me.camm.productions.fortressguns.interact;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import me.camm.productions.fortressguns.Util.Math.Tuple3;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 
-public interface InteractionBehaviourCons extends InteractionBehaviour<Construct> {
+public interface InteractionBehaviourCons extends InteractionBehaviour<Tuple3<ConstructType, ItemStack, Player>> {
 
     /*
-    handleInteraction(itemstack, player)
-    artillerypart
-    handleInteraction()
-    --> part of these could both be inlined into item behaviour
-
-    but part of it also seems to be for air when interacting with entity?
-
-    artillery part
-
+    tuple3 <cons, mainhand, player>
     onRCEntity -->
     onLCEntity -->
-    onRCPrecise -->
-
-    rules:
-    lc is damage event
      */
 
-    public void onRCCons(Construct struct, Component component, PlayerInteractEntityEvent event);
+    public void onRCCons(Construct struct, Component component, ItemStack mainHand, PlayerInteractEntityEvent event);
 
     //EntityDamageByEntityEvent
-    public void onLCCons(Construct struct, Component component, Player player, ItemStack stack, EntityDamageByEntityEvent event);
+    public void onLCCons(Construct struct, Component component, Player player, ItemStack mainHand, EntityDamageByEntityEvent event);
 
 }

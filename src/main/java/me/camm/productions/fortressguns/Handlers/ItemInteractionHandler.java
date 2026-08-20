@@ -65,15 +65,15 @@ enum ItemBehaviour {
 
 
 
-public class InteractionHandler implements Listener
+public class ItemInteractionHandler implements Listener
 {
 
     private final Map<Material, List<InteractionBehaviourItem>> itemInteractions;
     private final Map<IBHandle, InteractionBehaviour<?>> accessors;
 
-    private static InteractionHandler instance = null;
+    private static ItemInteractionHandler instance = null;
 
-    private InteractionHandler() {
+    private ItemInteractionHandler() {
         itemInteractions = new HashMap<>();
         accessors = new HashMap<>();
 
@@ -83,9 +83,9 @@ public class InteractionHandler implements Listener
         }
     }
 
-    public static InteractionHandler getInstance() {
+    public static ItemInteractionHandler getInstance() {
         if (instance != null) return instance;
-        instance = new InteractionHandler();
+        instance = new ItemInteractionHandler();
         return instance;
     }
 
@@ -132,55 +132,6 @@ public class InteractionHandler implements Listener
         return null;
     }
 
-
-
-
-
-
-    //in the future I'd like to separate this out into it's own class
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        org.bukkit.entity.Entity riding = player.getVehicle();
-
-        if (riding == null)
-            return;
-
-
-        //whenever the player quits, the server creates a new entity whenever they join back. We do not want this to happen,
-        //so we dismount them first.
-        Entity nms = ((CraftEntity)riding).getHandle();
-        EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-        if (nms instanceof ComponentAS) {
-            nmsPlayer.stopRiding();
-
-            Construct cons = ((ComponentAS) nms).getBody();
-
-            if (cons instanceof Rideable) {
-                ((Rideable) cons).onDismount();
-            }
-        }
-    }
-
-
-
-    @EventHandler
-    public void onEntityDismount(EntityDismountEvent event) {
-
-        org.bukkit.entity.Entity mount = event.getDismounted();
-        Entity nms  = ((CraftEntity)mount).getHandle();
-
-        if (!(nms instanceof ComponentAS)) {
-            return;
-        }
-
-        Construct cons = ((ComponentAS) nms).getBody();
-
-        if (cons instanceof Rideable) {
-            ((Rideable) cons).onDismount();
-        }
-
-    }
 
 
     @EventHandler
@@ -282,6 +233,8 @@ public class InteractionHandler implements Listener
             interaction.onRCEntity(event);
         }
     }
+
+
 
     @EventHandler
     public void onDispense(BlockDispenseEvent event) {

@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns;
 
-import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
@@ -30,7 +30,7 @@ public final class FortressGuns extends JavaPlugin {
       plugin = this;
       FileManager.loadArtilleryConfig();
 
-      InteractionHandler interactionHandler = InteractionHandler.getInstance();
+      ItemInteractionHandler interactionHandler = ItemInteractionHandler.getInstance();
       ChunkLoader loader = ChunkLoader.getInstance();
 
       this.logger = getLogger();
