@@ -1,6 +1,8 @@
 package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
+import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
@@ -12,15 +14,18 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 public class IBFlareGun implements InteractionBehaviourItem {
 
     private static final long COOLDOWN_MILLIS = 3000;
-    private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey("fortressguns", "flare_gun_cooldown");
+    private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey(FortressGuns.getInstance(), "flare_gun_cooldown");
 
     @Override
     public Material[] getLabels() {
@@ -173,5 +178,55 @@ public class IBFlareGun implements InteractionBehaviourItem {
         }
 
         return true;
+    }
+
+    @Override
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) { // if there is no result, no need to do stuff
+            return;
+        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
+                continue;
+            }
+
+            if (FGItems.FLARE_GUN.isSimilar(item)) {
+                event.getInventory().setResult(null);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onCraft(CraftItemEvent event) {
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) { // if there is no result, no need to do stuff
+            return;
+        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
+                continue;
+            }
+
+            if (FGItems.FLARE_GUN.isSimilar(item)) {
+                event.getInventory().setResult(null);
+                return;
+            }
+        }
     }
 }
