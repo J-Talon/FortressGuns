@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.Math.Tuple3;
 import me.camm.productions.fortressguns.item.classification.FGItems;
@@ -168,12 +169,12 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
             return;
         }
 
-//        if (CustomRecipes.isCustomRecipe(recipe)) {
-//            return;
-//        }
-
         for (ItemStack item : event.getInventory().getMatrix()) {
             if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 
@@ -194,12 +195,12 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
             return;
         }
 
-//        if (CustomRecipes.isCustomRecipe(recipe)) {
-//            return;
-//        }
-
         for (ItemStack item : event.getInventory().getMatrix()) {
             if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 
