@@ -366,13 +366,13 @@ public class IBFlare implements InteractionBehaviourItem {
             return;
         }
 
-//        if (CustomRecipes.isCustomRecipe(recipe)) {
-//            return;
-//        }
-
         for (ItemStack item : event.getInventory().getMatrix()) {
 
             if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 
@@ -396,6 +396,10 @@ public class IBFlare implements InteractionBehaviourItem {
         for (ItemStack item : event.getInventory().getMatrix()) {
 
             if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 

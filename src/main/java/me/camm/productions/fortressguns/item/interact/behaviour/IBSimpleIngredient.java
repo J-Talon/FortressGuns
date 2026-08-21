@@ -2,12 +2,12 @@ package me.camm.productions.fortressguns.item.interact.behaviour;
 
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
-import me.camm.productions.fortressguns.item.classification.FGItem;
 import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.item.classification.ingredients.FGSimpleIngredient;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
@@ -45,6 +45,11 @@ public class IBSimpleIngredient implements InteractionBehaviourItem {
     }
 
     @Override
+    public void onBlockPlace(BlockPlaceEvent event) {
+        event.setCancelled(true);
+    }
+
+    @Override
     public void onPrepareCraft(PrepareItemCraftEvent event) {
         ItemStack result = event.getInventory().getResult();
         Recipe recipe = event.getRecipe();
@@ -58,7 +63,7 @@ public class IBSimpleIngredient implements InteractionBehaviourItem {
                 continue;
             }
 
-            if (RecipeManager.recipeUsesItem(recipe, item)) {
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 
@@ -85,7 +90,7 @@ public class IBSimpleIngredient implements InteractionBehaviourItem {
                 continue;
             }
 
-            if (RecipeManager.recipeUsesItem(recipe, item)) {
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 

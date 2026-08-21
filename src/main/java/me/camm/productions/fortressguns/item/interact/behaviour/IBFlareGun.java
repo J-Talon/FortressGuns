@@ -8,7 +8,6 @@ import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -195,7 +194,7 @@ public class IBFlareGun implements InteractionBehaviourItem {
                 continue;
             }
 
-            if (RecipeManager.recipeUsesItem(recipe, item)) {
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 
@@ -220,7 +219,7 @@ public class IBFlareGun implements InteractionBehaviourItem {
                 continue;
             }
 
-            if (RecipeManager.recipeUsesItem(recipe, item)) {
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
                 continue;
             }
 

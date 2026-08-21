@@ -19,7 +19,7 @@ public final class RecipeManager {
     private RecipeManager() {
     }
 
-    public static boolean recipeUsesItem(Recipe recipe, ItemStack item) {
+    public static boolean recipeUsesItemStrictly(Recipe recipe, ItemStack item) {
         if (recipe instanceof ShapedRecipe shaped) {
             for (RecipeChoice choice : shaped.getChoiceMap().values()) {
                 if (choice instanceof RecipeChoice.ExactChoice exact) {
@@ -65,11 +65,12 @@ public final class RecipeManager {
                         FGItems.FIELD_BARREL.get()
                 )
                 .shape(
-                        "   ",
-                        "DDD",
-                        "   "
+                        "IDI",
+                        "D D",
+                        "IDI"
                 )
                 .ingredient('D', Material.DISPENSER)
+                .ingredient('I', Material.IRON_INGOT)
                 .register();
 
         ShapedRecipe FlakBarrelRecipe = RecipeBuilder.create(
@@ -103,8 +104,8 @@ public final class RecipeManager {
                         FGItems.MISSILE_BARREL.get()
                 )
                 .shape(
-                        "DDR",
-                        "DDR",
+                        "DRD",
+                        "DDD",
                         "RRR"
                 )
                 .ingredient('D', Material.DISPENSER)
@@ -238,14 +239,26 @@ public final class RecipeManager {
                         FGItems.CRAM.get()
                 )
                 .shape(
-                        "SNS",
-                        "NBN",
-                        " R "
+                        " M ",
+                        "SBS",
+                        "BBB"
                 )
-                .ingredient('N', Material.IRON_INGOT)
-                .ingredient('R', Material.REDSTONE)
-                .ingredient('B', Material.BOW)
+                .ingredient('M', FGItems.MACHINE_GUN_BARREL)
+                .ingredient('B', FGItems.ARTILLERY_BASE)
                 .ingredient('S', Material.SPYGLASS)
+                .register();
+
+        ShapedRecipe HMGRecipe = RecipeBuilder.create(
+                        new NamespacedKey(FortressGuns.getInstance(), "hmg_recipe"),
+                        FGItems.HMG.get()
+                )
+                .shape(
+                        " M ",
+                        " B ",
+                        "B B"
+                )
+                .ingredient('M', FGItems.MACHINE_GUN_BARREL)
+                .ingredient('B', FGItems.ARTILLERY_BASE)
                 .register();
 
         ShapedRecipe FieldLightRecipe = RecipeBuilder.create(
@@ -253,51 +266,53 @@ public final class RecipeManager {
                         FIELD_LIGHT.get()
                 )
                 .shape(
-                        " N ",
-                        "NBN",
-                        " R "
+                        " F ",
+                        " B ",
+                        " B "
                 )
-                .ingredient('N', Material.IRON_INGOT)
-                .ingredient('R', Material.REDSTONE)
-                .ingredient('B', Material.BOW)
+                .ingredient('F', FGItems.FIELD_BARREL)
+                .ingredient('B', FGItems.ARTILLERY_BASE)
                 .register();
+
         ShapedRecipe FieldHeavyRecipe = RecipeBuilder.create(
                         new NamespacedKey(FortressGuns.getInstance(), "field_heavy_recipe"),
                         FGItems.FIELD_HEAVY.get()
                 )
                 .shape(
-                        " D ",
                         " B ",
-                        "   "
+                        "RBR",
+                        "AAA"
                 )
-                .ingredient('D', Material.DISPENSER)
-                .ingredient('B', FIELD_LIGHT)
+                .ingredient('A', FGItems.ARTILLERY_BASE)
+                .ingredient('B', FGItems.FIELD_BARREL)
+                .ingredient('R', Material.REDSTONE)
                 .register();
+
         ShapedRecipe FlakHeavyRecipe = RecipeBuilder.create(
                         new NamespacedKey(FortressGuns.getInstance(), "flak_heavy_recipe"),
                         FGItems.FLAK_HEAVY.get()
                 )
                 .shape(
-                        "NNN",
-                        "NBN",
-                        " R "
+                        " B ",
+                        "ABA",
+                        "AAA"
                 )
-                .ingredient('N', Material.GOLD_BLOCK)
-                .ingredient('R', Material.REDSTONE)
-                .ingredient('B', Material.CROSSBOW)
+                .ingredient('A', FGItems.ARTILLERY_BASE)
+                .ingredient('B', FGItems.FLAK_BARREL)
                 .register();
+
         ShapedRecipe FlakLightRecipe = RecipeBuilder.create(
                         new NamespacedKey(FortressGuns.getInstance(), "flak_light_recipe"),
                         FGItems.FLAK_LIGHT.get()
                 )
                 .shape(
-                        " N ",
-                        "NBN",
-                        " R "
+                        " B ",
+                        " A ",
+                        "ARA"
                 )
-                .ingredient('N', Material.GOLD_INGOT)
+                .ingredient('A', FGItems.ARTILLERY_BASE)
+                .ingredient('B', FGItems.FLAK_BARREL)
                 .ingredient('R', Material.REDSTONE)
-                .ingredient('B', Material.BOW)
                 .register();
 
         ShapedRecipe MissileLauncherRecipe = RecipeBuilder.create(
@@ -305,13 +320,13 @@ public final class RecipeManager {
                         FGItems.MISSILE_LAUNCHER.get()
                 )
                 .shape(
-                        "SNS",
-                        "NBN",
-                        " R "
+                        "SCS",
+                        "MBM",
+                        "BBB"
                 )
-                .ingredient('N', Material.GOLD_INGOT)
-                .ingredient('R', Material.REDSTONE)
-                .ingredient('B', Material.CROSSBOW)
+                .ingredient('B', FGItems.ARTILLERY_BASE)
+                .ingredient('M', FGItems.MISSILE_BARREL)
+                .ingredient('C', Material.COMPASS)
                 .ingredient('S', Material.SPYGLASS)
                 .register();
 
