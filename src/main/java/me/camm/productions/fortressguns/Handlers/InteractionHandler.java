@@ -56,7 +56,8 @@ enum ItemBehaviour {
     RIDING_CONSTRUCT(new IBConstructs()),
     TACTICAL_PT(new IBTacticalPointer()), //TPOINTER_SETTING
     FLARE_GUN(new IBFlareGun()),
-    FLARE(new IBFlare());
+    FLARE(new IBFlare()),
+    SIMPLE_INGREDIENT(new IBSimpleIngredient());
 
     private final InteractionBehaviourItem behaviour;
 

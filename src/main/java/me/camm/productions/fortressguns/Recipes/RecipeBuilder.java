@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Recipes;
 
+import me.camm.productions.fortressguns.item.classification.FGItem;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -40,9 +41,9 @@ public final class RecipeBuilder {
 
     public RecipeBuilder ingredient(
             char key,
-            RecipeChoice.ExactChoice material
+            FGItem item
     ) {
-        recipe.setIngredient(key, material);
+        recipe.setIngredient(key, new RecipeChoice.ExactChoice(item.get()));
         return this;
     }
 

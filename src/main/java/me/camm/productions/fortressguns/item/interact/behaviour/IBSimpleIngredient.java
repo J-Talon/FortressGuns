@@ -85,12 +85,12 @@ public class IBSimpleIngredient implements InteractionBehaviourItem {
                 continue;
             }
 
-            if (RecipeManager.recipeUsesItem(recipe, item)) { // move on if recipe specifies this ingredient
+            if (RecipeManager.recipeUsesItem(recipe, item)) {
                 continue;
             }
 
             for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
-                if (ingredient.isSimilar(item)) { // clearly this simple ingredient was not specified in the recipe
+                if (ingredient.isSimilar(item)) {
                     event.getInventory().setResult(null);
                     return;
                 }

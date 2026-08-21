@@ -20,15 +20,14 @@ public final class RecipeManager {
     }
 
     public static boolean recipeUsesItem(Recipe recipe, ItemStack item) {
-
         if (recipe instanceof ShapedRecipe shaped) {
             for (RecipeChoice choice : shaped.getChoiceMap().values()) {
                 if (choice instanceof RecipeChoice.ExactChoice exact) {
-                        for (ItemStack choiceItem : exact.getChoices()) {
-                                if (item.isSimilar(choiceItem)) {
-                                        return true;
-                                }
+                    for (ItemStack choiceItem : exact.getChoices()) {
+                        if (item.isSimilar(choiceItem)) {
+                            return true;
                         }
+                    }
                 }
             }
         }
@@ -36,11 +35,11 @@ public final class RecipeManager {
         if (recipe instanceof ShapelessRecipe shapeless) {
             for (RecipeChoice choice : shapeless.getChoiceList()) {
                 if (choice instanceof RecipeChoice.ExactChoice exact) {
-                        for (ItemStack choiceItem : exact.getChoices()) {
-                                if (item.isSimilar(choiceItem)) {
-                                        return true;
-                                }
+                    for (ItemStack choiceItem : exact.getChoices()) {
+                        if (item.isSimilar(choiceItem)) {
+                            return true;
                         }
+                    }
                 }
             }
         }
@@ -59,6 +58,57 @@ public final class RecipeManager {
                         " B "
                 )
                 .ingredient('B', Material.STONE_BRICKS)
+                .register();
+
+        ShapedRecipe FieldBarrelRecipe = RecipeBuilder.create(
+                        new NamespacedKey(FortressGuns.getInstance(), "field_barrel_recipe"),
+                        FGItems.FIELD_BARREL.get()
+                )
+                .shape(
+                        "   ",
+                        "DDD",
+                        "   "
+                )
+                .ingredient('D', Material.DISPENSER)
+                .register();
+
+        ShapedRecipe FlakBarrelRecipe = RecipeBuilder.create(
+                        new NamespacedKey(FortressGuns.getInstance(), "flak_barrel_recipe"),
+                        FGItems.FLAK_BARREL.get()
+                )
+                .shape(
+                        "CCC",
+                        "DDD",
+                        "CCC"
+                )
+                .ingredient('D', Material.DISPENSER)
+                .ingredient('C', Material.COPPER_INGOT)
+                .register();
+
+        ShapedRecipe MachineGunBarrelRecipe = RecipeBuilder.create(
+                        new NamespacedKey(FortressGuns.getInstance(), "machine_gun_barrel_recipe"),
+                        FGItems.MACHINE_GUN_BARREL.get()
+                )
+                .shape(
+                        "DDR",
+                        "DDR",
+                        "DDR"
+                )
+                .ingredient('D', Material.DISPENSER)
+                .ingredient('R', Material.REDSTONE)
+                .register();
+
+        ShapedRecipe MissileBarrelRecipe = RecipeBuilder.create(
+                        new NamespacedKey(FortressGuns.getInstance(), "missile_barrel_recipe"),
+                        FGItems.MISSILE_BARREL.get()
+                )
+                .shape(
+                        "DDR",
+                        "DDR",
+                        "RRR"
+                )
+                .ingredient('D', Material.DISPENSER)
+                .ingredient('R', Material.REDSTONE)
                 .register();
 
         ShapedRecipe CRAMBulletRecipe = RecipeBuilder.create(
@@ -221,7 +271,7 @@ public final class RecipeManager {
                         "   "
                 )
                 .ingredient('D', Material.DISPENSER)
-                .ingredient('B', new RecipeChoice.ExactChoice(FIELD_LIGHT.get()))
+                .ingredient('B', FIELD_LIGHT)
                 .register();
         ShapedRecipe FlakHeavyRecipe = RecipeBuilder.create(
                         new NamespacedKey(FortressGuns.getInstance(), "flak_heavy_recipe"),
