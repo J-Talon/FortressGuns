@@ -384,9 +384,6 @@ public class InteractionHandler implements Listener
 
 
 
-
-
-
     //more of a global event, so I'm leaving it for now
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {

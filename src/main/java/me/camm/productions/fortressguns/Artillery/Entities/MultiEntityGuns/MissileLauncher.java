@@ -651,9 +651,12 @@ public class MissileLauncher extends ArtilleryRideable {
 
     @Override
     public void onDismount(Player player) {
+        super.onDismount(player);
+        if (operator != null) return;
+
         this.trackingLock = 0;
         this.trackedTarget = null;
-        super.onDismount(player);
+
     }
 
 
