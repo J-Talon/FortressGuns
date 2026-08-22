@@ -126,7 +126,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                 }
 
                 //pivot is already called if there is a rider so don't call pivot twice
-                if (!hasRider()) {
+                if (getRider() != null) {
                     pivot(aim.getX(), aim.getY());
                 }
 

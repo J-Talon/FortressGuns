@@ -12,6 +12,9 @@ import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
+import me.camm.productions.fortressguns.interact.behaviour.ConstructBehaviour.CBGlobalInteractStanding;
+import me.camm.productions.fortressguns.interact.behaviour.ConstructBehaviour.CBGlobalPointer;
+import me.camm.productions.fortressguns.interact.behaviour.ConstructBehaviour.CBGlobalRiding;
 import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.*;
 
 import org.bukkit.*;
@@ -67,7 +70,9 @@ enum ItemBehaviour {
 
 
 enum ConstructBehaviour {
-    ;
+    GLOBAL_STANDING(new CBGlobalInteractStanding()),
+    GLOBAL_POINTER(new CBGlobalPointer()),
+    GLOBAL_RIDING(new CBGlobalRiding());
 
     private final InteractionBehaviourCons behaviour;
 
@@ -241,23 +246,6 @@ public class InteractionHandler implements Listener
         }
     }
 
-//
-//    @EventHandler
-//    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-//        Player player = event.getPlayer();
-//
-//        ItemStack main = player.getInventory().getItemInMainHand();
-//        Material mat = main.getType();
-//
-//        List<InteractionBehaviourItem> interactionBehaviour = itemInteractions.getOrDefault(mat, null);
-//        if (interactionBehaviour == null) return;
-//
-//        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
-//        for (InteractionBehaviourItem interaction: interactionBehaviour) {
-//            if (!interaction.accept(tup)) continue;
-//            interaction.onRCEntity(event);
-//        }
-//    }
 
 
 
@@ -328,6 +316,9 @@ public class InteractionHandler implements Listener
             interaction.onBowShoot(event);
         }
     }
+
+
+
 
 
     //-----------entity interactions----------------------------------
@@ -447,15 +438,22 @@ public class InteractionHandler implements Listener
 
         body = comp.getBody();
         type = body.getType();
-
         ItemStack main = player.getInventory().getItemInMainHand();
+
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
+
+
+        for (InteractionBehaviourCons wc: wildcards) {
+            if (wc.accept(tup)) {
+                wc.onRCCons(body, comp, main, event);
+            }
+        }
+
         Map<Material,List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
         if (inner == null) return;
 
         List<InteractionBehaviourCons> interactions = inner.getOrDefault(main.getType(), null);
         if (interactions == null) return;
-
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
 
         for (InteractionBehaviourCons interaction: interactions) {
             if (!interaction.accept(tup)) continue;
@@ -473,7 +471,6 @@ public class InteractionHandler implements Listener
         if (damager.getType() != EntityType.PLAYER) return;
 
         ItemStack main = ((Player)damager).getInventory().getItemInMainHand();
-
         EntityDamageEvent.DamageCause cause = event.getCause();
 
         //shouldn't be sweeping either
@@ -484,9 +481,15 @@ public class InteractionHandler implements Listener
 
         Construct struct = comp.getBody();
         ConstructType type = struct.getType();
+        Player player = (Player)damager;
 
-        Tuple2<Player, ItemStack> tup = new Tuple2<>((Player) damager, main);
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
 
+        for (InteractionBehaviourCons wc: wildcards) {
+            if (wc.accept(tup)) {
+                wc.onLCCons(struct, comp, player, main, event);
+            }
+        }
 
         Map<Material, List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
         if (inner == null) return;
@@ -494,10 +497,9 @@ public class InteractionHandler implements Listener
         List<InteractionBehaviourCons> interactions = inner.getOrDefault(main.getType(), null);
         if (interactions == null) return;
 
-
         for (InteractionBehaviourCons cons : interactions) {
             if (cons.accept(tup)) {
-                cons.onLCCons(struct, comp, (Player)damager, main, event);
+                cons.onLCCons(struct, comp, player, main, event);
             }
         }
     }

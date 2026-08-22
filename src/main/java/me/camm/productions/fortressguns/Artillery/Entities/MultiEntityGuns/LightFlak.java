@@ -215,7 +215,7 @@ public class LightFlak extends RapidFire {
 
 
     @Override
-    public void rideTick(EntityHuman human) {
+    public void rideTick(Player human) {
         super.rideTick(human);
 
         if (canFire) {

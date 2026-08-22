@@ -32,21 +32,8 @@ Models the core of an artillery piece.
  */
 public class ArtilleryCore extends ArtilleryPart {
 
-
-    private IBDevSpyglass action;
     public ArtilleryCore(World world, Artillery body, double d0, double d1, double d2) {
         super(world, body, d0, d1, d2);
-
-        try {
-            action = (IBDevSpyglass) InteractionHandler.getInstance().getItemBehaviour(IBHandle.DEV_SPYGLASS_TARGET);
-        }
-        catch (ClassCastException e) {
-            action = null;
-        }
-
-        if (action == null)
-            throw new IllegalStateException("Could not find handler for target setting");
-
     }
 
     @Override

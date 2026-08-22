@@ -84,14 +84,14 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
     }
 
     @Override
-    public void rideTick(EntityHuman human) {
-        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
+    public void rideTick(Player player) {
+
+        Location eyeLoc = player.getEyeLocation();
+        pivot(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()));
         double x, y;
         x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
         y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
         double roundHealth = Math.round(health * 100d) / 100d;
-        Player player = (Player)(human.getBukkitEntity());
-
 
         ItemStack offhand = player.getInventory().getItemInOffHand();
 

@@ -290,7 +290,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
     @Override
-    public void rideTick(EntityHuman human) {
+    public void rideTick(Player player) {
 
 
         final int MAX_OCT = 255;
@@ -307,9 +307,8 @@ public abstract class RapidFire extends ArtilleryRideable {
             ammoColor = net.md_5.bungee.api.ChatColor.DARK_AQUA;
         }
 
-
-        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
-        Player player = (Player)human.getBukkitEntity();
+        Location eyeLoc = player.getEyeLocation();
+        pivot(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()));
 
         double heat = getBarrelHeat();
         float heatPercent = (float)heat / 100;   ///heat is from [0-100]

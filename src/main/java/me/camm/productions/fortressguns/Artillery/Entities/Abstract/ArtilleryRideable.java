@@ -4,15 +4,15 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
@@ -33,6 +33,8 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     public ComponentAS getSeat() {
         return rotatingSeat;
     }
+
+
 
     @Override
     public void onDismount(Player player) {
@@ -59,6 +61,30 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
         operator.leaveVehicle();
         this.onDismount(operator);
     }
+
+
+
+    //called every tick when the player is riding
+    public void rideTick(Player human) {
+
+        Location eyeLoc = human.getEyeLocation();
+        pivot(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()));
+        double x, y;
+        x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
+        y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
+        double roundHealth = Math.round(health * 100d) / 100d;
+        Player.Spigot spigot = human.spigot();
+
+        if (canFire()) {
+            spigot.sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(ChatColor.GREEN+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
+        }
+        else {
+            spigot.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Rotation: ["+x+" | "+y+"] Health: " + roundHealth));
+        }
+    }
+
+
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
     protected void posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {

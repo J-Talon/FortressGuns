@@ -10,10 +10,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.interact.item.ItemUtils;
+
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,20 +22,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.logging.Logger;
-
 
 
 //handles the opening of inventories and mounting the artillery
 public class CBGlobalInteractStanding implements InteractionBehaviourCons {
-
-
-    private final Logger logger;
-
-    public CBGlobalInteractStanding(){
-        logger = FortressGuns.getInstance().getLogger();
-
-    }
 
 
     @Override

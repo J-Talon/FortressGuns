@@ -326,23 +326,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
 
-    //called every tick when the player is riding
-    public void rideTick(EntityHuman human) {
-        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
-        double x, y;
-        x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
-        y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
-        double roundHealth = Math.round(health * 100d) / 100d;
-        Player.Spigot player = ((Player)(human.getBukkitEntity())).spigot();
 
-        if (canFire()) {
-            player.sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.GREEN+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
-        }
-        else {
-            player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Rotation: ["+x+" | "+y+"] Health: " + roundHealth));
-        }
-    }
 
 
     public synchronized void setInterpolating(boolean interpolating) {
