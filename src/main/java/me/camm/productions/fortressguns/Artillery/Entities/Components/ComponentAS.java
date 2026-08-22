@@ -1,12 +1,19 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import net.minecraft.core.Vector3f;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.material.EnumPistonReaction;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class ComponentAS extends EntityArmorStand implements Component {
 
@@ -17,9 +24,7 @@ public class ComponentAS extends EntityArmorStand implements Component {
 
     }
 
-    public boolean validPosition(Location loc) {
-        return true;
-    }
+
 
     @Override
     public EnumPistonReaction getPushReaction() {
@@ -27,7 +32,7 @@ public class ComponentAS extends EntityArmorStand implements Component {
     }
 
     @Override
-    public Construct getBody() {
+    public @NotNull Construct getBody() {
         return body;
     }
 
@@ -41,20 +46,41 @@ public class ComponentAS extends EntityArmorStand implements Component {
         this.die();
     }
 
-    public void teleport( double x, double y, double z) {
+    @Override
+    public Entity getRider() {
+        List<net.minecraft.world.entity.Entity> entities = this.getPassengers();
+        if (entities == null || entities.isEmpty()) return null;
+        return entities.get(0).getBukkitEntity();
+    }
+
+    @Override
+    public void startRiding(Player player) {
+        this.addPassenger(((CraftPlayer)player).getHandle());
+        if (this.body instanceof Rideable rideable) {
+            rideable.onMount(player);
+        }
+    }
+
+
+
+    @Override
+    public void teleport(double x, double y, double z) {
         this.teleportAndSync(x,y,z);
         this.g(x,y,z);
     }
 
-    public void teleport(Location loc) {
+    @Override
+    public void teleport(@NotNull Location loc) {
         this.teleport(loc.getX(), loc.getY(), loc.getZ());
     }
 
-    public void setRotation(float x, float y){
+    @Override
+    public void setRotation(float x, float y) {
         this.setHeadPose(new Vector3f((float)Math.toDegrees(x),(float)Math.toDegrees(y),0));
     }
 
-    public void setRotation( EulerAngle angle) {
+    @Override
+    public void setRotation(@NotNull EulerAngle angle) {
         setRotation((float)angle.getX(),(float)angle.getY());
     }
 
@@ -67,5 +93,8 @@ public class ComponentAS extends EntityArmorStand implements Component {
         super.setRightLegPose(rightLeg);
         super.setLeftLegPose(leftLeg);
     }
+
+
+
 
 }

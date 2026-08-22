@@ -6,25 +6,19 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -46,8 +40,6 @@ public class MissileLauncher extends ArtilleryRideable {
     boolean fireRight;
     private Entity target;
     private long lastFireTime;
-
-
 
     static final ItemStack BODY, BASE, BARREL;
     static final double RIGHT_ANGLE = Math.PI / 2;
@@ -116,6 +108,10 @@ public class MissileLauncher extends ArtilleryRideable {
         interactionInv = new InventoryGroup.BulkPrecision(this);
     }
 
+
+
+    //============config====================================================
+
     public static void setMaxRockets(int maxRockets) {
         MissileLauncher.maxRockets = maxRockets;
     }
@@ -128,6 +124,16 @@ public class MissileLauncher extends ArtilleryRideable {
         MissileLauncher.maxHealth = maxHealth;
     }
 
+    //================================================
+
+
+
+
+
+
+
+    //===========firing / ammo ====================================
+
     public double getVectorPower() {
         return 2;
     }
@@ -136,8 +142,12 @@ public class MissileLauncher extends ArtilleryRideable {
         this.target = target;
     }
 
+
+    //todo replace with projectile factory
     @Override
     protected @Nullable HeatseekingMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+
+
         HeatseekingMissile missile = (HeatseekingMissile) super.createProjectile(world, x, y, z, shooter, source);
         if (missile != null)
             missile.setTarget(target);
@@ -246,6 +256,48 @@ public class MissileLauncher extends ArtilleryRideable {
         fireOneShot(shooter);
     }
 
+
+
+
+
+    @Override
+    public int getMaxAmmo() {
+        return maxRockets;
+    }
+
+
+    @Override
+    public boolean acceptsAmmo(AmmoItem item) {
+        return AmmoItem.MISSILE == item;
+    }
+
+    @Override
+    public ConstructType getType() {
+        return ConstructType.MISSILE_LAUNCHER;
+    }
+
+
+    @Override
+    public boolean canFire() {
+
+        if (getAmmo() > 0 || (!requiresReloading()) && loadedAmmoType != null)
+            return true;
+        return System.currentTimeMillis() >= (lastFireTime + cooldown);
+    }
+
+
+    //=======================================================
+
+
+    //=========== parts ====================================
+
+
+
+
+
+
+
+
     @Override
     protected boolean instantiateParts() {
         pivot = StandHelper.createCore(initialLoc, BODY, new EulerAngle(0, aim.getY(), 0), world,this);
@@ -337,78 +389,6 @@ public class MissileLauncher extends ArtilleryRideable {
         positionSeat();
     }
 
-
-    //todo unify interactions
-    @Override
-    public void rideTick(EntityHuman human) {
-
-        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
-        Player player = ((Player)(human.getBukkitEntity()));
-        ItemStack item = player.getInventory().getItemInOffHand();
-        ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
-
-        if (!FGItems.TACTICAL_PTR.isSimilar(item)) {
-            trackingLock = 0;
-            trackedTarget = null;
-            setTarget(null);
-
-            double x, y;
-            x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
-            y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
-            double roundHealth = Math.round(health * 100d) / 100d;
-
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
-            return;
-        }
-
-        lockTarget(human);
-
-        float percent = (float)trackingLock / MAX_TRACK;
-        int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
-
-        String slice = ChatColor.RED+PROGRESS_BAR.substring(0,Math.max(bars  - 1, 0));
-        String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
-        //----main---
-
-        String extra = "";
-        ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
-
-        if (getAmmo() > 0) {
-            extra = ChatColor.GOLD+"|".repeat(getAmmo());
-
-            if (trackingLock >= TRACK_REQUIRED)
-                extra += dynamic+" TARGET LOCK";
-            else
-                extra += ChatColor.GOLD+ " TRACKING";
-        }
-        else {
-            extra = dynamic + "RELOAD";
-        }
-
-        //---extra
-
-
-        String type = "";
-        if (trackedTarget != null) {
-
-            if (trackedTarget.getType() == EntityType.PLAYER)
-                type = trackedTarget.getName();
-            else type = trackedTarget.getType().name().replace('_', ' ');
-        }
-
-        type = ChatColor.RED + type;
-        //tracked ---
-
-
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
-                new TextComponent(type +" "+ slice + remain + slice +" "+extra));
-
-
-
-    }
-
-
     private void trackingUpdate() {
 
         if (trackingLock >= MIN_TRACK && trackedTarget != null) {
@@ -434,86 +414,6 @@ public class MissileLauncher extends ArtilleryRideable {
 
     }
 
-
-
-
-    private void lockTarget(EntityHuman human) {
-        this.trackingUpdate();
-
-        World world = human.getWorld().getWorld();
-        Vector lookDirection = CraftVector.toBukkit(human.getLookDirection());
-        Location eyeLocation = new Location(world, human.locX(), human.locY() + human.getHeadHeight(), human.locZ());
-
-        final Construct ref = this;
-
-        class PredicateTarget implements Predicate<Entity> {
-            @Override
-            public boolean test(Entity entity) {
-                //return true => valid entity to raytrace
-                net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
-
-                if (nms.getUniqueID().equals(human.getUniqueID())) return false;
-
-                if (nms instanceof ProjectileFG) return false;
-
-                if (!(nms instanceof Component comp)) return true;
-
-                Construct cons = comp.getBody();
-                return !(ref.equals(cons));
-            }
-        }
-
-        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
-
-
-        if (res == null) {
-            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
-            return;
-        }
-
-        Entity hit = res.getHitEntity();
-
-        if (hit == null) {
-            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
-            return;
-        }
-
-
-        if (trackedTarget == null) {
-            trackingLock = TRACK_INCREASE;
-            this.trackedTarget = hit;
-            return;
-        }
-
-
-        if (hit.getUniqueId().equals(trackedTarget.getUniqueId())) {
-            trackingLock = Math.min(MAX_TRACK, trackingLock + TRACK_INCREASE);
-        }
-        else {
-            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
-            if (fallbackTrack != null) {
-                if (hit.getUniqueId().equals(fallbackTrack.getUniqueId())) {
-                    fallbackLock = Math.min(fallbackLock + TRACK_FALLBACK, MAX_TRACK);
-                }
-                else fallbackLock = MIN_TRACK;
-            }
-            fallbackTrack = hit;
-        }
-
-        if (fallbackLock > trackingLock) {
-            trackedTarget = fallbackTrack;
-            trackingLock = TRACK_INCREASE;
-            fallbackLock = 0;
-        }
-    }
-
-
-    @Override
-    public void onDismount() {
-        this.trackingLock = 0;
-        this.trackedTarget = null;
-        super.onDismount();
-    }
 
 
 
@@ -603,32 +503,163 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
 
+    //===============riding logic===============================
+
 
 
     @Override
-    public int getMaxAmmo() {
-        return maxRockets;
+    public void rideTick(Player player) {
+
+        Location eyeLoc = player.getEyeLocation();
+        pivot(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()));
+
+        ItemStack item = player.getInventory().getItemInOffHand();
+        ChatColor colour = canFire() ? ChatColor.GREEN : ChatColor.RED;
+
+        if (!FGItems.TACTICAL_PTR.isSimilar(item)) {
+            trackingLock = 0;
+            trackedTarget = null;
+            setTarget(null);
+
+            double x, y;
+            x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
+            y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
+            double roundHealth = Math.round(health * 100d) / 100d;
+
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                    new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
+            return;
+        }
+
+        lockTarget(player);
+
+        float percent = (float)trackingLock / MAX_TRACK;
+        int bars = (int)(percent * PROGRESS_LENGTH * 0.5);
+
+        String slice = ChatColor.RED+PROGRESS_BAR.substring(0,Math.max(bars  - 1, 0));
+        String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
+        //----main---
+
+        String extra = "";
+        ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
+
+        if (getAmmo() > 0) {
+            extra = ChatColor.GOLD+"|".repeat(getAmmo());
+
+            if (trackingLock >= TRACK_REQUIRED)
+                extra += dynamic+" TARGET LOCK";
+            else
+                extra += ChatColor.GOLD+ " TRACKING";
+        }
+        else {
+            extra = dynamic + "RELOAD";
+        }
+
+        //---extra
+
+
+        String type = "";
+        if (trackedTarget != null) {
+
+            if (trackedTarget.getType() == EntityType.PLAYER)
+                type = trackedTarget.getName();
+            else type = trackedTarget.getType().name().replace('_', ' ');
+        }
+
+        type = ChatColor.RED + type;
+        //tracked ---
+
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                new TextComponent(type +" "+ slice + remain + slice +" "+extra));
+
+    }
+
+
+    private void lockTarget(Player human) {
+        this.trackingUpdate();
+
+        World world = human.getWorld();
+        Location eyeLocation = human.getEyeLocation();
+        Vector lookDirection = eyeLocation.getDirection();
+
+
+        final Construct ref = this;
+
+        class PredicateTarget implements Predicate<Entity> {
+            @Override
+            public boolean test(Entity entity) {
+                //return true => valid entity to raytrace
+                net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+
+                if (entity.getUniqueId().equals(human.getUniqueId())) return false;
+
+                if (ConstructUtils.isProjectileFG(entity)) return false;
+
+                Component comp = ConstructUtils.getComponentRef(entity);
+                if (comp == null) return true;
+
+                Construct cons = comp.getBody();
+                return !(ref.equals(cons));
+            }
+        }
+
+        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
+
+
+        if (res == null) {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            return;
+        }
+
+        Entity hit = res.getHitEntity();
+
+        if (hit == null) {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            return;
+        }
+
+
+        if (trackedTarget == null) {
+            trackingLock = TRACK_INCREASE;
+            this.trackedTarget = hit;
+            return;
+        }
+
+
+        if (hit.getUniqueId().equals(trackedTarget.getUniqueId())) {
+            trackingLock = Math.min(MAX_TRACK, trackingLock + TRACK_INCREASE);
+        }
+        else {
+            trackingLock = Math.max(MIN_TRACK, trackingLock - TRACK_DECREASE);
+            if (fallbackTrack != null) {
+                if (hit.getUniqueId().equals(fallbackTrack.getUniqueId())) {
+                    fallbackLock = Math.min(fallbackLock + TRACK_FALLBACK, MAX_TRACK);
+                }
+                else fallbackLock = MIN_TRACK;
+            }
+            fallbackTrack = hit;
+        }
+
+        if (fallbackLock > trackingLock) {
+            trackedTarget = fallbackTrack;
+            trackingLock = TRACK_INCREASE;
+            fallbackLock = 0;
+        }
     }
 
 
     @Override
-    public boolean acceptsAmmo(AmmoItem item) {
-        return AmmoItem.MISSILE == item;
-    }
-
-    @Override
-    public ConstructType getType() {
-        return ConstructType.MISSILE_LAUNCHER;
+    public void onDismount(Player player) {
+        this.trackingLock = 0;
+        this.trackedTarget = null;
+        super.onDismount(player);
     }
 
 
-    @Override
-    public boolean canFire() {
 
-        if (getAmmo() > 0 || (!requiresReloading()) && loadedAmmoType != null)
-            return true;
-        return System.currentTimeMillis() >= (lastFireTime + cooldown);
-    }
+
+    //============================================================
 
     @Override
     public double getMaxHealth() {

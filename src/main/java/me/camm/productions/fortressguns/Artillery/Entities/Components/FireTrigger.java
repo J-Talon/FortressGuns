@@ -16,38 +16,4 @@ public class FireTrigger extends ArtilleryPart {
     public FireTrigger(World world, Artillery body, Location loc) {
         super(world, body, loc);
     }
-
-    @Override
-    protected void handleInteraction(EntityHuman human, ItemStack stack) {
-
-
-        if (!( human instanceof EntityPlayer))
-            return;
-
-        if (!(body instanceof RapidFire rapid)) {
-            return;
-        }
-
-        List<Entity> entities = rapid.getSeat().getPassengers();
-
-        if (!entities.isEmpty()) {
-            if (!body.canFire() || !(entities.get(0).equals(human)))
-                return;
-
-            body.fire(((EntityPlayer)human).getBukkitEntity());
-        }
-        else {
-
-            if (human.isCrouching()) {
-                openMenu(human);
-                return;
-            }
-
-            seat(human);
-        }
-
-
-
-
-    }
 }

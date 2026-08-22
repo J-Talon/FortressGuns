@@ -27,6 +27,7 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -45,75 +46,76 @@ public class ArtilleryPart extends ComponentAS
     }
 
 
-    public Artillery getBody() {
+    public @NotNull Artillery getBody() {
         return body;
     }
 
 
 
+//
+//    @Override
+//    public boolean damageEntity(DamageSource source, float damage)
+//    {
+//        if (body.isInvalid())
+//            return super.damageEntity(source,damage);
+//        else
+//        {
+//            Entity entity = source.getEntity();
+//            if (!(entity instanceof EntityPlayer)) {
+//                return damageRaw(source, damage);
+//            }
+//
+//            EntityHuman human = ((EntityHuman)entity);
+//            List<org.bukkit.entity.Entity> riders = new ArrayList<>();
+//
+//
+//            if (body instanceof Rideable rideable) {
+//                List<Entity> nmsRiders = rideable.getSeat().getPassengers();
+//                for (Entity nms: nmsRiders) {
+//                    riders.add(nms.getBukkitEntity());
+//                }
+//            }
+//            else riders = body.getCoreEntity().getPassengers();
+//
+//
+//            if (!riders.isEmpty()) {
+//                org.bukkit.entity.Entity e = riders.get(0);
+//                if (human.equals(e))
+//                    return false;
+//            }
+//
+//
+//            ItemStack holding = human.getItemInMainHand();
+//
+//            org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
+//            org.bukkit.inventory.ItemStack pointer = FGItems.TACTICAL_PTR.get();
+//
+//                //if they punch the thing with a stick, fire the cannon instead.
+//
+//
+//                if (!(pointer.isSimilar(bukkitStack))) {
+//                    return damageRaw(source, damage);
+//                }
+//
+//            if (source instanceof EntityDamageSource && source.u().equals("player")) {
+//                body.fire(new CraftPlayer(getWorld().getCraftServer(), (EntityPlayer)human));
+//                return false;
+//            }
+//            else return damageRaw(source, damage);
+//
+//
+//        }
+//
+//    }
 
-    @Override
-    public boolean damageEntity(DamageSource source, float damage)
-    {
-        if (body.isInvalid())
-            return super.damageEntity(source,damage);
-        else
-        {
-            Entity entity = source.getEntity();
-            if (!(entity instanceof EntityPlayer)) {
-                return damageRaw(source, damage);
-            }
-
-            EntityHuman human = ((EntityHuman)entity);
-            List<org.bukkit.entity.Entity> riders = new ArrayList<>();
-
-
-            if (body instanceof Rideable rideable) {
-                List<Entity> nmsRiders = rideable.getSeat().getPassengers();
-                for (Entity nms: nmsRiders) {
-                    riders.add(nms.getBukkitEntity());
-                }
-            }
-            else riders = body.getCoreEntity().getPassengers();
-
-
-            if (!riders.isEmpty()) {
-                org.bukkit.entity.Entity e = riders.get(0);
-                if (human.equals(e))
-                    return false;
-            }
-
-
-            ItemStack holding = human.getItemInMainHand();
-
-            org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asBukkitCopy(holding);
-            org.bukkit.inventory.ItemStack pointer = FGItems.TACTICAL_PTR.get();
-
-                //if they punch the thing with a stick, fire the cannon instead.
-
-
-                if (!(pointer.isSimilar(bukkitStack))) {
-                    return damageRaw(source, damage);
-                }
-
-            if (source instanceof EntityDamageSource && source.u().equals("player")) {
-                body.fire(new CraftPlayer(getWorld().getCraftServer(), (EntityPlayer)human));
-                return false;
-            }
-            else return damageRaw(source, damage);
 
 
 
-
-
-        }
-
-    }
-
-    private boolean damageRaw(DamageSource source, float damage){
-        body.playSound(this);
-        return body.damage(source, damage);
-    }
+//
+//    private boolean damageRaw(DamageSource source, float damage){
+//        body.playSound(this);
+//        return body.damage(source, damage);
+//    }
 
     @Override
     protected SoundEffect getSoundHurt(DamageSource damagesource) {
@@ -122,10 +124,6 @@ public class ArtilleryPart extends ComponentAS
 
     public Sound getSoundHurt(){
         return Sound.BLOCK_BELL_USE;
-    }
-
-    public void setLocation(double x, double y, double z){
-        g(x,y,z);
     }
 
     public Location getLocation(org.bukkit.World world){
@@ -145,194 +143,6 @@ public class ArtilleryPart extends ComponentAS
     @Nullable
     protected SoundEffect getSoundDeath() {
         return SoundEffects.gJ;
-    }
-
-    public void seat(EntityHuman human) {
-
-        if (!(body instanceof Rideable rideable)) {
-            return;
-        }
-
-        ComponentAS seat = rideable.getSeat();
-        Player bukkit = (CraftPlayer)human.getBukkitEntity();
-
-        if (seat == null) {
-            bukkit.sendMessage(ChatColor.RED+"[!] No valid seat found!");
-            return;
-        }
-
-        if (!seat.getPassengers().isEmpty()) {
-            bukkit.sendMessage(ChatColor.RED+"[!] Someone else is using this!");
-            return;
-        }
-
-        if (body instanceof AutoTracking tracking) {
-            if (tracking.isAiming()) {
-              bukkit.sendMessage(ChatColor.RED+"[!] You cannot use this while it's auto-tracking!");
-                return;
-            }
-        }
-
-        bukkit.sendMessage("Operating "+ ChatColor.RESET+body.getType().getName());
-        bukkit.playSound(bukkit.getLocation(),Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.BLOCKS,1,1);
-
-
-        rideable.onMount();
-        rideable.updateOnInteraction();
-        human.startRiding(seat);
-
-
-        new BukkitRunnable(){
-
-            public void run()
-            {
-                if (body.isInvalid()) {
-                    rideable.onDismount();
-                    human.stopRiding();
-                    cancel();
-                }
-
-                Entity vehicle = human.getVehicle();
-                if (vehicle != null && vehicle.equals(seat)) {
-                    body.rideTick(human);
-                }
-                else {
-                    rideable.onDismount();
-                    cancel();
-                }
-            }
-        }.runTaskTimer(FortressGuns.getInstance(),0,1);
-
-
-    }
-
-
-
-    /*
-
-    Override of method for interaction
-     */
-    @Override
-    public EnumInteractionResult a(EntityHuman entityhuman, Vec3D vec3d, EnumHand enumhand)
-    {
-
-        /*
-                        a = success
-                        b = consume
-                        c = consume partial
-                        d = pass
-                        e = fail
-        */
-
-        ItemStack itemstack = entityhuman.b(enumhand);
-        if (!this.isMarker() && !itemstack.a(Items.rQ)) {
-            if (entityhuman.isSpectator()) {
-                return EnumInteractionResult.a;
-            } else if (entityhuman.t.y) {
-                return EnumInteractionResult.b;
-            } else {
-
-                handleInteraction(entityhuman, itemstack);
-                if (!(body instanceof Rideable)) {
-                    return EnumInteractionResult.b;
-                }
-
-                ComponentAS seat = ((Rideable) body).getSeat();
-
-                List<Entity> pass = seat.getPassengers();
-                if (pass.isEmpty())
-                    return EnumInteractionResult.b;
-
-                if (pass.get(0).equals(entityhuman))
-                    return EnumInteractionResult.d;
-
-            }
-        } else {
-            return EnumInteractionResult.d;
-        }
-        return EnumInteractionResult.b;
-    }
-
-
-
-    //todo perfect is the enemy of the done
-    // ideally this should be inlined into the new interaction system
-    // that way we'll have better maintainability
-    // just something for the future
-    protected void handleInteraction(EntityHuman human, ItemStack stack) {
-
-        Artillery arty = getBody();
-
-
-        //basically if they are riding then don't try to seat them again
-        if (arty instanceof Rideable ride) {
-            ComponentAS seat = ride.getSeat();
-            List<Entity> riders = seat.getPassengers();
-
-            if (!riders.isEmpty() && riders.get(0).equals(human)) {
-
-                if (arty.canFire()) {
-                    arty.fire((Player)human.getBukkitEntity());
-                    return;
-                }
-            }
-        }
-
-
-        org.bukkit.inventory.ItemStack stackBukkit = CraftItemStack.asBukkitCopy(stack);
-        if ((!FGItems.TACTICAL_PTR.isSimilar(stackBukkit))) {
-
-            if (human.isCrouching())
-                openMenu(human);
-            else
-                seat(human);
-        }
-
-    }
-
-
-    protected void openMenu(EntityHuman human) {
-
-        if (human.getVehicle() != null) {
-         return;
-        }
-
-        if (!human.isCrouching()) {
-            return;
-        }
-
-        Player player = (Player)human.getBukkitEntity();
-        ConstructInventory menu;
-        org.bukkit.inventory.ItemStack stack = player.getInventory().getItemInMainHand();
-
-        FIND_INV:
-        {
-
-
-            if (body instanceof RapidFire rapid && rapid.isJammed()) {
-                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.JAM_CLEAR);
-                break FIND_INV;
-            }
-
-            if (ItemUtils.isAmmoItem(stack) != null) {
-
-                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.RELOADING);
-            } else {
-                menu = body.getInventoryGroup().getInventoryByCategory(InventoryCategory.MENU);
-            }
-        }
-
-
-        if (menu == null) {
-            FortressGuns.getInstance().getLogger().warning("Inventory instance returned null!");
-            return;
-        }
-
-        body.getInventoryGroup().openInventory(menu, player);
-
-        //the idea here is that if player is holding a reloading item, then it will
-        //open the reloading inventory, else it will open a menu inventory
-
     }
 
 }

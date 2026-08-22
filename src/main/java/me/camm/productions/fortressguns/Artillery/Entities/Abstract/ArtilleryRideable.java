@@ -1,61 +1,74 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
-    protected volatile boolean hasRider;
-    protected ArtilleryPart rotatingSeat = null;
-
-
-
+    protected ArtilleryPart rotatingSeat = null;  //artillery may have multiple seats in the future
+    protected Player operator = null;
 
     public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-        this.hasRider = false;
     }
 
 
-    public void setHasRider(boolean hasRider){
-        this.hasRider = hasRider;
+    @Override
+    public @Nullable Player getRider() {
+        return operator;
     }
-
-    public boolean hasRider(){
-        return hasRider;
-    }
-
 
     @Override
     public ComponentAS getSeat() {
         return rotatingSeat;
     }
 
-    public void onDismount() {
-        setHasRider(false);
-        setCameraLocked(false);
-        setInterpolatedAim(getAim());
+    @Override
+    public void onDismount(Player player) {
+        if (this.operator != null && operator.getUniqueId().equals(player.getUniqueId())) {
+            this.operator = null;
+            setCameraLocked(false);
+            setInterpolatedAim(getAim());
+        }
     }
 
-    public void onMount() {
+    @Override
+    public boolean onMount(Player player) {
+        if (operator != null) return false;
+
         setCameraLocked(true);
-        setHasRider(true);
         setInterpolating(false);
+        this.operator = player;
+        return true;
+    }
+
+    @Override
+    public void kickOperator() {
+        if (operator == null) return;
+        operator.leaveVehicle();
+        this.onDismount(operator);
     }
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
-    protected void posSeatAbsoluteHorizon(ComponentAS seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
+    protected void posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
 
 
         EulerAngle aim = this.getAim();
         Location next = getSeatLocation( xOffset, yOffset, angAroundY);
 
         final double MAX_VIB = 0.25;  //artistic choice. too much makes it look bad, too little and they don't feel it
-        if (hasRider()) {
+        if (operator != null) {
             double amount = Math.abs(vibrationOffsetY) > MAX_VIB ? (vibrationOffsetY > 0 ? MAX_VIB : -MAX_VIB) : vibrationOffsetY;
             next.add(0, amount, 0);
         }
