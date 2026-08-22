@@ -111,6 +111,11 @@ public class InteractionHandler implements Listener
         for (ItemBehaviour behaviour: ItemBehaviour.values()) {
             addItemBehaviour(behaviour.getBehaviour());
         }
+
+
+        for (ConstructBehaviour behaviour: ConstructBehaviour.values()) {
+            addConstructBehaviour(behaviour.getBehaviour());
+        }
     }
 
     public static InteractionHandler getInstance() {
