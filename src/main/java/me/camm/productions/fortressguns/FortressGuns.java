@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Handlers.InteractionHandler;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
+import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Serialization.FileManager;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.Util.command.CommandListener;
@@ -43,6 +44,8 @@ public final class FortressGuns extends JavaPlugin {
 
       commandHandler = new CommandListener();
       notifier = MissileLockNotifier.get(this);
+
+      RecipeManager.registerRecipes();
     }
 
 

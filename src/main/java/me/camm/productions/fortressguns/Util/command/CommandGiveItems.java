@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 import me.camm.productions.fortressguns.item.classification.FGItems;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.item.classification.box.FGBoxItem;
+import me.camm.productions.fortressguns.item.classification.ingredients.FGSimpleIngredient;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -39,6 +40,10 @@ public class CommandGiveItems extends CommandHandler {
         for (AmmoItem item: AmmoItem.values()) {
             ItemStack ammo = createAmmoItem(item);
             inv.addItem(ammo);
+        }
+
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            inv.addItem(ingredient.get());
         }
 
         inv.addItem(FGItems.TACTICAL_PTR.get());
