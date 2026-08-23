@@ -133,7 +133,7 @@ public class MissileLauncher extends ArtilleryRideable {
 
 
     //===========firing / ammo ====================================
-
+    @Override
     public double getVectorPower() {
         return 2;
     }

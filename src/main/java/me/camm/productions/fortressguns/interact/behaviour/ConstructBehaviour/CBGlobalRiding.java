@@ -70,6 +70,8 @@ public class CBGlobalRiding implements InteractionBehaviourCons {
     //if they punch the vehicle and they're the rider, they shouldn't damage it
     @Override
     public void onLCCons(Construct struct, Component component, Player player, ItemStack mainHand, EntityDamageByEntityEvent event) {
+        System.out.println("here");
+
         if (ConstructUtils.isOperatorOf(player, struct)) event.setCancelled(true);
 
         if (!(struct instanceof Artillery arty)) return;
