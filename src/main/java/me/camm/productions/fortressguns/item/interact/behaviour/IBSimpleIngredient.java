@@ -8,13 +8,16 @@ import me.camm.productions.fortressguns.item.interact.InteractionBehaviourItem;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 public class IBSimpleIngredient implements InteractionBehaviourItem {
 
@@ -46,6 +49,11 @@ public class IBSimpleIngredient implements InteractionBehaviourItem {
 
     @Override
     public void onBlockPlace(BlockPlaceEvent event) {
+        event.setCancelled(true);
+    }
+
+    @Override
+    public void onItemConsume(PlayerItemConsumeEvent event) {
         event.setCancelled(true);
     }
 
@@ -97,6 +105,143 @@ public class IBSimpleIngredient implements InteractionBehaviourItem {
             for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
                 if (ingredient.isSimilar(item)) {
                     event.getInventory().setResult(null);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onFurnaceBurn(FurnaceBurnEvent event) {
+        ItemStack item = event.getFuel();
+
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            if (ingredient.isSimilar(item)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onFurnaceStartSmelt(FurnaceStartSmeltEvent event) {
+        ItemStack item = event.getSource();
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            if (ingredient.isSimilar(item)) {
+                event.setTotalCookTime(0);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onFurnaceSmelt(FurnaceSmeltEvent event) {
+        ItemStack item = event.getSource();
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            if (ingredient.isSimilar(item)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        item = event.getResult();
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            if (ingredient.isSimilar(item)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onFurnaceExtract(FurnaceExtractEvent event) { // when output is taken out
+        ItemStack item = (ItemStack) event.getBlock();
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            if (ingredient.isSimilar(item)) {
+                // CANCEL
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onBrew(BrewEvent event) {
+        for (ItemStack item : event.getContents().getContents()) {
+            for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+                if (ingredient.isSimilar(item)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onBrewingStandFuel(BrewingStandFuelEvent event) {
+        ItemStack item = (ItemStack) event.getFuel();
+        for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+            if (ingredient.isSimilar(item)) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+    }
+
+    @Override
+    public void onEnchantItem(EnchantItemEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+                if (ingredient.isSimilar(item)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onPrepareEnchant(PrepareItemEnchantEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+                if (ingredient.isSimilar(item)) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onPrepareAnvil(PrepareAnvilEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+                if (ingredient.isSimilar(item)) {
+                    event.setResult(null);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onPrepareSmithing(PrepareSmithingEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+                if (ingredient.isSimilar(item)) {
+                    event.setResult(null);
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSmith(SmithItemEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            for (FGSimpleIngredient ingredient : FGItems.SIMPLE_INGREDIENTS) {
+                if (ingredient.isSimilar(item)) {
+                    event.setCancelled(true);
                     return;
                 }
             }
