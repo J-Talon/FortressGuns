@@ -26,9 +26,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -386,6 +387,191 @@ public class InteractionHandler implements Listener
                 if (!interaction.accept(tup)) continue;
 
                 interaction.onCraft(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onFurnaceBurn(FurnaceBurnEvent event) {
+        ItemStack item = event.getFuel();
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(item.getType(), null);
+
+        if (interactions == null) return;
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onFurnaceBurn(event);
+        }
+    }
+
+    @EventHandler
+    public void onFurnaceStartSmelt(FurnaceStartSmeltEvent event) {
+        ItemStack item = event.getSource();
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(item.getType(), null);
+
+        if (interactions == null) return;
+
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onFurnaceStartSmelt(event);
+        }
+    }
+
+    @EventHandler
+    public void onFurnaceSmelt(FurnaceSmeltEvent event) {
+        ItemStack item = event.getSource();
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(item.getType(), null);
+
+        if (interactions == null) return;
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onFurnaceSmelt(event);
+        }
+
+        item = event.getResult();
+        tup = new Tuple2<>(null, item);
+        interactions =
+                itemInteractions.getOrDefault(item.getType(), null);
+
+        if (interactions == null) return;
+
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onFurnaceSmelt(event);
+        }
+    }
+
+    @EventHandler
+    public void onFurnaceExtract(FurnaceExtractEvent event) { // when output is taken out
+        ItemStack item = (ItemStack) event.getBlock();
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(item.getType(), null);
+        if (interactions == null) return;
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onFurnaceExtract(event);
+        }
+    }
+
+    @EventHandler
+    public void onBrew(BrewEvent event) {
+        for (ItemStack item : event.getContents().getContents()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onBrew(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBrewingStandFuel(BrewingStandFuelEvent event) {
+        ItemStack item = (ItemStack) event.getFuel();
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+        List<InteractionBehaviourItem> interactions =
+                itemInteractions.getOrDefault(item.getType(), null);
+        for (InteractionBehaviourItem interaction : interactions) {
+            if (!interaction.accept(tup)) continue;
+
+            interaction.onBrewingStandFuel(event);
+        }
+    }
+
+    @EventHandler
+    public void onEnchantItem(EnchantItemEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onEnchantItem(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPrepareEnchant(PrepareItemEnchantEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onPrepareEnchant(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPrepareAnvil(PrepareAnvilEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onPrepareAnvil(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPrepareSmithing(PrepareSmithingEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onPrepareSmithing(event);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onSmith(SmithItemEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
+            if (item == null) continue;
+            List<InteractionBehaviourItem> interactions =
+                    itemInteractions.getOrDefault(item.getType(), null);
+            if (interactions == null) continue;
+            for (InteractionBehaviourItem interaction : interactions) {
+                if (!interaction.accept(tup)) continue;
+
+                interaction.onSmith(event);
             }
         }
     }
