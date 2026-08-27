@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
@@ -16,9 +17,12 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -100,5 +104,57 @@ public class IBAmmoItem implements InteractionBehaviourItem {
             else {
                 group.openInventory(InventoryCategory.RELOADING, player);
             }
+    }
+
+    @Override
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) {
+            return;
+        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            // this custom item is legitimately required by the recipe.
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
+                continue;
+            }
+
+            if (accept(new Tuple2<>(null, item))) {
+                event.getInventory().setResult(null);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onCraft(CraftItemEvent event) {
+        ItemStack result = event.getInventory().getResult();
+        Recipe recipe = event.getRecipe();
+
+        if (result == null || result.getType() == Material.AIR) {
+            return;
+        }
+
+        for (ItemStack item : event.getInventory().getMatrix()) {
+            if (item == null || item.getType() == Material.AIR) {
+                continue;
+            }
+
+            // this custom item is legitimately required by the recipe.
+            if (RecipeManager.recipeUsesItemStrictly(recipe, item)) {
+                continue;
+            }
+
+            if (accept(new Tuple2<>(event.getWhoClicked() instanceof Player player ? player : null, item))) {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 }

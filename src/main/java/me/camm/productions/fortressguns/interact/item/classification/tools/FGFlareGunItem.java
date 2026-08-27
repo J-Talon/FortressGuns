@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.interact.item.classification.tools;
 
 import me.camm.productions.fortressguns.interact.item.classification.FGItem;
+import me.camm.productions.fortressguns.FortressGuns;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -13,7 +14,7 @@ public class FGFlareGunItem extends FGItem<Void> {
 
     private static final String name = ChatColor.GRAY + "Flare Gun";
     private static final Material material = Material.DISPENSER;
-    private static final NamespacedKey FLARE_GUN_KEY = new NamespacedKey("fortressguns", "flare_gun");
+    private static final NamespacedKey FLARE_GUN_KEY = new NamespacedKey(FortressGuns.getInstance(), "flare_gun");
 
 
     @Override
@@ -41,12 +42,11 @@ public class FGFlareGunItem extends FGItem<Void> {
 
     @Override
     public boolean isSimilar(@Nullable ItemStack other) {
-        ItemStack item = get();
-        if (item == null || item.getType() != material) {
+        if (other == null || other.getType() != material) {
             return false;
         }
 
-        ItemMeta meta = item.getItemMeta();
+        ItemMeta meta = other.getItemMeta();
 
         return meta != null
                 && meta.getPersistentDataContainer().has(

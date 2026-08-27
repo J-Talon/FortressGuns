@@ -71,7 +71,10 @@ Content to complete before first release
     - [ ] Entity tracking and targeting < Current Focus
     - [ ] Balancing, Config
     - [X] Flares?
-- [ ] Survival friendly ways to go about obtaining the artillery (Either recipes or something else)
+- [ ] Survival compat
+    - [ ] Recipes
+    - [ ] Misc improvements and tweaks
+    - [ ] Other Ammo types?
 
 Planned Content
 ---
