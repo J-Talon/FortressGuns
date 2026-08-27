@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.item.classification.ingredients;
+package me.camm.productions.fortressguns.interact.item.classification.ingredients;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

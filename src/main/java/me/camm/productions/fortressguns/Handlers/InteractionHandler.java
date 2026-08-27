@@ -544,7 +544,6 @@ public class InteractionHandler implements Listener
             }
         }
     }
-}
 
 
 

@@ -31,7 +31,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.inventory.meta.CrossbowMeta;
 
-import static me.camm.productions.fortressguns.item.classification.FGItems.FLARE;
+import static me.camm.productions.fortressguns.interact.item.classification.FGItems.FLARE;
 
 public class IBFlare implements InteractionBehaviourItem {
 

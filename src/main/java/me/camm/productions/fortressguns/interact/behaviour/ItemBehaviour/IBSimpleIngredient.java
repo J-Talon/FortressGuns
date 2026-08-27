@@ -1,9 +1,9 @@
-package me.camm.productions.fortressguns.item.interact.behaviour;
+package me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour;
 
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
-import me.camm.productions.fortressguns.item.classification.ingredients.FGSimpleIngredient;
+import me.camm.productions.fortressguns.interact.item.classification.ingredients.FGSimpleIngredient;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,7 +17,6 @@ import org.bukkit.inventory.Recipe;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 public class IBSimpleIngredient implements InteractionBehaviourItem {
 

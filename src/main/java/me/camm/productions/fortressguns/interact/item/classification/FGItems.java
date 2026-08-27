@@ -1,10 +1,11 @@
-package me.camm.productions.fortressguns.item.classification;
+package me.camm.productions.fortressguns.interact.item.classification;
 
-import me.camm.productions.fortressguns.item.classification.ingredients.*;
-import me.camm.productions.fortressguns.item.classification.tools.FGFlareGunItem;
-import me.camm.productions.fortressguns.item.classification.tools.FGTacticalPointerItem;
-import me.camm.productions.fortressguns.item.classification.ammo.*;
-import me.camm.productions.fortressguns.item.classification.box.*;
+import me.camm.productions.fortressguns.interact.item.classification.ammo.*;
+import me.camm.productions.fortressguns.interact.item.classification.box.*;
+import me.camm.productions.fortressguns.interact.item.classification.ingredients.*;
+import me.camm.productions.fortressguns.interact.item.classification.tools.FGFlareGunItem;
+import me.camm.productions.fortressguns.interact.item.classification.tools.FGTacticalPointerItem;
+
 
 public class FGItems {
 

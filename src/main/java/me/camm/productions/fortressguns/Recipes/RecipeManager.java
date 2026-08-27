@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Recipes;
 
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.item.classification.FGItems;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -10,7 +10,7 @@ import org.bukkit.inventory.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static me.camm.productions.fortressguns.item.classification.FGItems.FIELD_LIGHT;
+import static me.camm.productions.fortressguns.interact.item.classification.FGItems.FIELD_LIGHT;
 
 public final class RecipeManager {
 

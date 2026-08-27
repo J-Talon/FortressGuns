@@ -1,7 +1,7 @@
-package me.camm.productions.fortressguns.item.classification.ingredients;
+package me.camm.productions.fortressguns.interact.item.classification.ingredients;
 
-import me.camm.productions.fortressguns.item.classification.FGItem;
-import org.bukkit.ChatColor;
+
+import me.camm.productions.fortressguns.interact.item.classification.FGItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
