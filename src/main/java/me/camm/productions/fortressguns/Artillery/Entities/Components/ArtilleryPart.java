@@ -6,6 +6,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.World;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,4 +57,14 @@ public class ArtilleryPart extends ComponentAS
         return SoundEffects.gJ;
     }
 
+
+    @Override
+    public boolean onLeftClick(ItemStack mainHand, Player clicked) {
+        return false;
+    }
+
+    @Override
+    public void onRightClick(ItemStack mainHand, Player clicked) {
+
+    }
 }

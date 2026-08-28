@@ -1,31 +1,13 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
-
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Handlers.InteractionHandler;
-import me.camm.productions.fortressguns.interact.item.classification.FGItems;
-import me.camm.productions.fortressguns.interact.IBHandle;
-import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBDevSpyglass;
-import net.minecraft.server.level.EntityPlayer;
 
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.EntityHuman;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
-import org.bukkit.ChatColor;
 
 import org.bukkit.Sound;
-
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.entity.Player;
-
-import java.util.List;
 
 /*
 Models the core of an artillery piece.

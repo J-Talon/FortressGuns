@@ -9,7 +9,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavySh
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
-import me.camm.productions.fortressguns.Handlers.InteractionHandler;
+import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBTacticalPointer;
@@ -17,7 +17,6 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -38,7 +37,7 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
     public FlakArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
 
-        InteractionHandler handler = InteractionHandler.getInstance();
+        ItemInteractionHandler handler = ItemInteractionHandler.getInstance();
         try {
             action = (IBTacticalPointer)handler.getItemBehaviour(IBHandle.TPOINTER_SETTING);
         }

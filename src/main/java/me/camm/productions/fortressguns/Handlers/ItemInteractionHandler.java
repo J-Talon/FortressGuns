@@ -93,7 +93,7 @@ enum ConstructBehaviour {
 
 
 
-public class InteractionHandler implements Listener
+public class ItemInteractionHandler implements Listener
 {
     //there are both pros and cons to using material
     //display names are freed up which mean that if people rename things they still work
@@ -104,9 +104,9 @@ public class InteractionHandler implements Listener
 
     private final Map<IBHandle, InteractionBehaviour<?>> accessors;
 
-    private static InteractionHandler instance = null;
+    private static ItemInteractionHandler instance = null;
 
-    private InteractionHandler() {
+    private ItemInteractionHandler() {
         itemInteractions = new HashMap<>();
         accessors = new HashMap<>();
         constructInteractions = new HashMap<>();
@@ -124,9 +124,9 @@ public class InteractionHandler implements Listener
         }
     }
 
-    public static InteractionHandler getInstance() {
+    public static ItemInteractionHandler getInstance() {
         if (instance != null) return instance;
-        instance = new InteractionHandler();
+        instance = new ItemInteractionHandler();
         return instance;
     }
 
@@ -178,38 +178,14 @@ public class InteractionHandler implements Listener
     @EventHandler
     public void onPlayerScroll(PlayerItemHeldEvent event) {
         Player player = event.getPlayer();
-
-        ItemStack stack = player.getInventory().getItemInOffHand();
-        Material mat = stack.getType();
-
-
-        List<InteractionBehaviourItem> interactionBehaviour = itemInteractions.getOrDefault(mat, null);
-        if (interactionBehaviour == null) return;
-
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, stack);
-        for (InteractionBehaviourItem interaction: interactionBehaviour) {
-            if (!interaction.accept(tup)) continue;
-            interaction.onScroll(event);
-        }
-
+        handleGeneric(player.getInventory().getItemInOffHand(),player, (e) -> e.onScroll(event));
     }
 
 
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        ItemStack stack = event.getItemInHand();
-        Material mat = stack.getType();
-
-        List<InteractionBehaviourItem> interactions = itemInteractions.getOrDefault(mat, null);
-        if (interactions == null) return;
-
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(event.getPlayer(), stack);
-        for (InteractionBehaviourItem item: interactions) {
-            if (!item.accept(tup)) continue;
-
-            item.onBlockPlace(event);
-        }
+        handleGeneric(event.getItemInHand(), event.getPlayer(), (e) -> e.onBlockPlace(event));
     }
 
 
@@ -259,42 +235,21 @@ public class InteractionHandler implements Listener
 
 
 
-
+    //item event
     @EventHandler
     public void onDispense(BlockDispenseEvent event) {
-        ItemStack stack = event.getItem();
-        Material mat = stack.getType();
-
-        List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(mat, null);
-
-        if (interactions == null) return;
-
-        Tuple2<Player, ItemStack> tup =
-                new Tuple2<>(null, stack);
-
-        for (InteractionBehaviourItem interaction : interactions) {
-            if (!interaction.accept(tup)) continue;
-
-            interaction.onDispense(event);
-        }
+        handleGeneric(event.getItem(), null, (e) -> e.onDispense(event));
     }
 
+
+
+    //item event
     @EventHandler
     public void onItemConsume(PlayerItemConsumeEvent event) {
-        ItemStack stack = event.getItem();
-        Material mat = stack.getType();
-        List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(mat, null);
-        if (interactions == null) return;
-        Tuple2<Player, ItemStack> tup =
-                new Tuple2<>(null, stack);
-        for (InteractionBehaviourItem interaction : interactions) {
-            if (!interaction.accept(tup)) continue;
-            interaction.onItemConsume(event);
-        }
+        handleGeneric(event.getItem(), event.getPlayer(), (e) -> e.onItemConsume(event));
     }
 
+    //item event
     @EventHandler
     public void onBowShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
@@ -330,67 +285,32 @@ public class InteractionHandler implements Listener
 
     @EventHandler
     public void onPrepareCraft(PrepareItemCraftEvent event) {
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onPrepareCraft(event);
         for (ItemStack item : event.getInventory().getMatrix()) { // only 9 items so shouldn't be too bad
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onPrepareCraft(event);
-            }
+            handleGeneric(item, null,cons);
         }
     }
 
     @EventHandler
     public void onCraft(CraftItemEvent event) {
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onCraft(event);
+        Player player = (Player)event.getWhoClicked();
         for (ItemStack item : event.getInventory().getMatrix()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onCraft(event);
-            }
+            handleGeneric(item,player,cons);
         }
     }
 
+
+    // ===================== furnaces =======================
+
     @EventHandler
     public void onFurnaceBurn(FurnaceBurnEvent event) {
-        ItemStack item = event.getFuel();
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-        List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(item.getType(), null);
-
-        if (interactions == null) return;
-
-        for (InteractionBehaviourItem interaction : interactions) {
-            if (!interaction.accept(tup)) continue;
-
-            interaction.onFurnaceBurn(event);
-        }
+        handleGeneric(event.getFuel(), null, (e) -> e.onFurnaceBurn(event));
     }
 
     @EventHandler
     public void onFurnaceStartSmelt(FurnaceStartSmeltEvent event) {
-        ItemStack item = event.getSource();
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-        List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(item.getType(), null);
-
-        if (interactions == null) return;
-
-
-        for (InteractionBehaviourItem interaction : interactions) {
-            if (!interaction.accept(tup)) continue;
-
-            interaction.onFurnaceStartSmelt(event);
-        }
+        handleGeneric(event.getSource(), null, (e) -> e.onFurnaceStartSmelt(event));
     }
 
     @EventHandler
@@ -410,8 +330,7 @@ public class InteractionHandler implements Listener
 
         item = event.getResult();
         tup = new Tuple2<>(null, item);
-        interactions =
-                itemInteractions.getOrDefault(item.getType(), null);
+        interactions = itemInteractions.getOrDefault(item.getType(), null);
 
         if (interactions == null) return;
 
@@ -424,126 +343,82 @@ public class InteractionHandler implements Listener
 
     @EventHandler
     public void onFurnaceExtract(FurnaceExtractEvent event) { // when output is taken out
-        ItemStack item = (ItemStack) event.getBlock();
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-        List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(item.getType(), null);
-        if (interactions == null) return;
-        for (InteractionBehaviourItem interaction : interactions) {
-            if (!interaction.accept(tup)) continue;
-
-            interaction.onFurnaceExtract(event);
-        }
+        handleGeneric((ItemStack) event.getBlock(), event.getPlayer(), (e) -> e.onFurnaceExtract(event));
     }
+
+    // ===================== furnaces =======================
 
     @EventHandler
     public void onBrew(BrewEvent event) {
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onBrew(event);
         for (ItemStack item : event.getContents().getContents()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onBrew(event);
-            }
+            handleGeneric(item, null, cons);
         }
     }
 
     @EventHandler
     public void onBrewingStandFuel(BrewingStandFuelEvent event) {
-        ItemStack item = (ItemStack) event.getFuel();
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-        List<InteractionBehaviourItem> interactions =
-                itemInteractions.getOrDefault(item.getType(), null);
-        for (InteractionBehaviourItem interaction : interactions) {
-            if (!interaction.accept(tup)) continue;
-
-            interaction.onBrewingStandFuel(event);
-        }
+        handleGeneric(event.getFuel(), null, (e) -> e.onBrewingStandFuel(event));
     }
 
     @EventHandler
     public void onEnchantItem(EnchantItemEvent event) {
+        Player player = event.getEnchanter();
         for (ItemStack item : event.getInventory().getContents()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onEnchantItem(event);
-            }
+            handleGeneric(item,player,(e) -> e.onEnchantItem(event));
         }
     }
 
     @EventHandler
     public void onPrepareEnchant(PrepareItemEnchantEvent event) {
+        Player player = event.getEnchanter();
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onPrepareEnchant(event);
         for (ItemStack item : event.getInventory().getContents()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onPrepareEnchant(event);
-            }
+            handleGeneric(item, player, cons);
         }
     }
 
     @EventHandler
     public void onPrepareAnvil(PrepareAnvilEvent event) {
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onPrepareAnvil(event);
         for (ItemStack item : event.getInventory().getContents()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onPrepareAnvil(event);
-            }
+            handleGeneric(item, null, cons);
         }
     }
 
     @EventHandler
     public void onPrepareSmithing(PrepareSmithingEvent event) {
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onPrepareSmithing(event);
         for (ItemStack item : event.getInventory().getContents()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onPrepareSmithing(event);
-            }
+            handleGeneric(item,null, cons);
         }
     }
 
     @EventHandler
     public void onSmith(SmithItemEvent event) {
+        Player player = (Player)event.getWhoClicked();
+        Consumer<InteractionBehaviourItem> cons = (e) -> e.onSmith(event);
         for (ItemStack item : event.getInventory().getContents()) {
-            Tuple2<Player, ItemStack> tup = new Tuple2<>(null, item);
-            if (item == null) continue;
-            List<InteractionBehaviourItem> interactions =
-                    itemInteractions.getOrDefault(item.getType(), null);
-            if (interactions == null) continue;
-            for (InteractionBehaviourItem interaction : interactions) {
-                if (!interaction.accept(tup)) continue;
-
-                interaction.onSmith(event);
-            }
+            handleGeneric(item, player, cons);
         }
     }
+
+
+
+
+
+    private void handleGeneric(ItemStack item, Player player, Consumer<InteractionBehaviourItem> action) {
+        if (item == null) return;
+        List<InteractionBehaviourItem> interactions = itemInteractions.getOrDefault(item.getType(), null);
+        if (interactions == null) return;
+        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, item);
+        for (InteractionBehaviourItem interaction: interactions) {
+            if (!interaction.accept(tup)) continue;
+            action.accept(interaction);
+        }
+    }
+
+
 
 
 

@@ -41,13 +41,16 @@ public abstract class Construct {
 
     public abstract Entity getCoreEntity();
 
-   public void destroy(boolean drop, boolean explode) {
+    public void destroy(boolean drop, boolean explode) {
        ChunkLoader.removeActivePiece(this);
    }
 
     public abstract double getHealth();
 
     public abstract void setHealth(double health);
+
+    public abstract boolean damage(double amount);
+
 
     /*
  In unloaded state, only core should remain with the PDC
