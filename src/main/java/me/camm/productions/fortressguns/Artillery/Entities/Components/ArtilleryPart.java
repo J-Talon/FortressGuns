@@ -1,5 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.interact.item.ItemUtils;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,6 +28,7 @@ public class ArtilleryPart extends ComponentAS
     }
 
 
+    @Override
     public @NotNull Artillery getBody() {
         return body;
     }
@@ -41,6 +45,7 @@ public class ArtilleryPart extends ComponentAS
     public Location getLocation(org.bukkit.World world){
         return new Location(world,u,v,w);
     }
+
 
     public Location getEyeLocation(){
         return this.toBukkit().getEyeLocation();
@@ -60,11 +65,31 @@ public class ArtilleryPart extends ComponentAS
 
     @Override
     public boolean onLeftClick(ItemStack mainHand, Player clicked) {
-        return false;
+
+        if (body instanceof Rideable ride && ride.getRider() != null) {
+            if (ride.getRider().getUniqueId().equals(clicked.getUniqueId())) {
+                body.fire(clicked);
+                return false;
+            }
+        }
+
+        if (FGItems.TACTICAL_PTR.isSimilar(mainHand)) {
+            body.fire(clicked);
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public void onRightClick(ItemStack mainHand, Player clicked) {
 
+        if (body instanceof Rideable ride && ride.getRider() != null) {
+            if (ride.getRider().getUniqueId().equals(clicked.getUniqueId())) {
+                body.fire(clicked);
+            }
+
+
+        }
     }
 }

@@ -156,6 +156,9 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
     //It is probably better to handle the damage calculations in the components themselves, since
     //if we choose to do multiple version compatibility, nms will be different
     //there might not be an id, etc next time
+
+    //oh and also; glowing.
+    //yeah no glowing for you from spectral arrows
     protected boolean damageRaw(DamageSource source, float damage) {
         //String id = source.y;  //damagesource id
 
