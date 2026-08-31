@@ -174,7 +174,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
     @Override
     public boolean acceptsAmmo(AmmoItem item) {
-        return AmmoItem.EXPLOSIVE_HEAVY == item || AmmoItem.STANDARD_HEAVY == item;
+        return AmmoItem.EXPLOSIVE_HEAVY == item || AmmoItem.STANDARD_HEAVY == item || AmmoItem.NAPALM == item;
     }
 
     protected synchronized void incrementSmallDistance(double increment){

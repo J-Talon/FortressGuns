@@ -8,8 +8,10 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShe
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Napalm.NapalmShell;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
+import org.bukkit.entity.Projectile;
 import org.jetbrains.annotations.Nullable;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 
@@ -104,6 +106,14 @@ public interface ProjectileFactory<T extends ProjectileFG> {
         public SimpleFlare create(World world, double x, double y, double z,
                                   EntityPlayer shooter, Artillery source) {
             return new SimpleFlare(world, x, y, z, shooter);
+        }
+    }
+
+    class FactoryNapalm implements ProjectileFactory<NapalmShell> {
+        @Override
+        public NapalmShell create(World world, double x, double y, double z,
+                                  EntityPlayer shooter, Artillery source) {
+            return new NapalmShell(world, x, y, z, shooter, source);
         }
     }
 

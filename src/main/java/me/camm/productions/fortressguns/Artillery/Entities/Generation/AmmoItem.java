@@ -19,7 +19,8 @@ public enum AmmoItem {
     FLAK_LIGHT(FGItems.LIGHT_FLAK_BULLET, new ProjectileFactory.FactoryFlakLight()),
     MISSILE(FGItems.HEAT_SEEKER_MISSILE, new ProjectileFactory.FactoryMissile()),
     CRAM(FGItems.CRAM_BULLET, new ProjectileFactory.FactoryCRAM()),
-    FLARE(FGItems.FLARE, new ProjectileFactory.FactoryFlare());
+    FLARE(FGItems.FLARE, new ProjectileFactory.FactoryFlare()),
+    NAPALM(FGItems.NAPALM_SHELL, new ProjectileFactory.FactoryNapalm());
 
 
     AmmoItem(FGSingleConsumable cons, ProjectileFactory<? extends ProjectileFG> factory) {
