@@ -87,7 +87,7 @@ public class MissileLockNotifier implements Runnable {
         }
 
         long now = System.currentTimeMillis();
-        long endTS = (int)(fuelTicks * 1000.05) + now;
+        long endTS = fuelTicks * 50L + now;  // 1 tick is 50 mills
         Tuple2<Integer, Long> tup = entries.getOrDefault(id, null);
         if (tup == null) {
             if (target.isGliding()) {
