@@ -96,7 +96,7 @@ public class IBFlareGun implements InteractionBehaviourItem {
 
     private boolean isOnCooldown(ItemStack gun) {
 
-        if (FGItems.FLARE_GUN.isSimilar(gun)) return false;
+        if (!FGItems.FLARE_GUN.isSimilar(gun)) return false;
 
         ItemMeta meta = gun.getItemMeta();
 
