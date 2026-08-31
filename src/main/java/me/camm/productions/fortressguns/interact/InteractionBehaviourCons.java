@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated  //armorstand interactions are handled different differently than regular entities,
+             //meaning that behaviour cannot be handled purely with behaviours
 public interface InteractionBehaviourCons extends InteractionBehaviour<Tuple2<Player, ItemStack>> {
 
     //setting this to null will cause it to be a wildcard; any item/type will match the labels

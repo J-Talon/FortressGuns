@@ -8,7 +8,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
-import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
+//import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
 import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.*;
 import org.bukkit.*;
@@ -418,20 +418,20 @@ public class ItemInteractionHandler implements Listener
 
     //-----------entity interactions----------------------------------
 
-    private void generateEntry(Material mat, @NotNull Map<Material, List<InteractionBehaviourCons>> innerMap, InteractionBehaviourCons interaction) {
-
-        List<InteractionBehaviourCons> consList;
-        if (innerMap.containsKey(mat)) {
-             consList = innerMap.get(mat);
-            if (consList.contains(interaction)) throw new IllegalArgumentException("Interaction "+interaction.getClass().getName()+" already registered!");
-            consList.add(interaction);
-        }
-        else {
-            consList = new ArrayList<>();
-            consList.add(interaction);
-            innerMap.put(mat, consList);
-        }
-    }
+//    private void generateEntry(Material mat, @NotNull Map<Material, List<InteractionBehaviourCons>> innerMap, InteractionBehaviourCons interaction) {
+//
+//        List<InteractionBehaviourCons> consList;
+//        if (innerMap.containsKey(mat)) {
+//             consList = innerMap.get(mat);
+//            if (consList.contains(interaction)) throw new IllegalArgumentException("Interaction "+interaction.getClass().getName()+" already registered!");
+//            consList.add(interaction);
+//        }
+//        else {
+//            consList = new ArrayList<>();
+//            consList.add(interaction);
+//            innerMap.put(mat, consList);
+//        }
+//    }
 
 //
 //    public void addConstructBehaviour(InteractionBehaviourCons interaction) {

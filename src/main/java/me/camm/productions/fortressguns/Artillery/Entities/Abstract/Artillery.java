@@ -752,7 +752,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     public boolean damage(double damage) {
         setHealth(getHealth() - damage);
         if (health <= 0) {
-            destroy(false, false);
+            destroy(false, true);
             return false;
         }
         return true;

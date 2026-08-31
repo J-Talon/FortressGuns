@@ -58,7 +58,7 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
 
     @Override
     public void startRiding(Player player) {
-        this.addPassenger(((CraftPlayer) player).getHandle());
+        ((CraftPlayer) player).getHandle().startRiding(this);
         if (this.body instanceof Rideable rideable) {
             rideable.onMount(player);
         }

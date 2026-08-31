@@ -75,7 +75,7 @@ public class ArtilleryPart extends ComponentAS
                 if (rider == null)
                     body.fire(clicked);
                 else
-                    clicked.sendMessage("Cannot fire; the platform is being commandeered");
+                    clicked.sendMessage(ChatColor.RED+"Cannot fire; the platform is being commandeered");
 
                 return false;
             }
@@ -96,7 +96,7 @@ public class ArtilleryPart extends ComponentAS
         if (rider == null) {
 
             if (ride.isSeatLocked()) {
-                clicked.sendMessage("Cannot operate, Seat is locked!");
+                clicked.sendMessage(ChatColor.RED+"Cannot operate, Seat is locked!");
                 return;
             }
 
@@ -116,7 +116,7 @@ public class ArtilleryPart extends ComponentAS
                 return;
             }
 
-            clicked.sendMessage("Cannot operate, Someone else is using this!");
+            clicked.sendMessage(ChatColor.RED+"Cannot operate, Someone else is using this!");
         }
 
 
