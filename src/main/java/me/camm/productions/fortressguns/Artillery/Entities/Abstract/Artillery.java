@@ -538,20 +538,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             FortressGuns.getInstance().getLogger().warning("Could not spawn artillery");
         }
 
-        //see entity.inBlock()
-        /*
-        public boolean inBlock() {
-        if (this.P) {
-            return false;
-        } else {
-            float f = this.aW.a * 0.8F;
-            AxisAlignedBB axisalignedbb = AxisAlignedBB.a(this.bb(), (double)f, 1.0E-6, (double)f);
-            return this.t.b(this, axisalignedbb, (iblockdata, blockposition) -> {
-                return iblockdata.o(this.t, blockposition);
-            }).findAny().isPresent();
-        }
-    }
-         */
+
+
+        //todo block checks
 
         return spawnedSuccess;
     }
