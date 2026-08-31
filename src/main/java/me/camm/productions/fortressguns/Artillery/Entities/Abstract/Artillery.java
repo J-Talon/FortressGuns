@@ -9,11 +9,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryC
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.item.ItemUtils;
+import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectExplosionStandalone;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
@@ -126,20 +126,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
 
-    //Enum for damage multipliers
-    private enum DamageMultiplier {
-        EXPLOSION(2),
-        FIRE(1.5),
-        GUN(1.2),
-        MAGIC(0.01),
-        DEFAULT(0.3);
-
-        final double multiplier;
-
-        DamageMultiplier(double mult){
-            this.multiplier = mult;
-        }
-    }
 
 
     public Artillery(Location loc, World world, EulerAngle aim) {
@@ -326,23 +312,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
 
-    //called every tick when the player is riding
-    public void rideTick(EntityHuman human) {
-        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
-        double x, y;
-        x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
-        y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;
-        double roundHealth = Math.round(health * 100d) / 100d;
-        Player.Spigot player = ((Player)(human.getBukkitEntity())).spigot();
 
-        if (canFire()) {
-            player.sendMessage(ChatMessageType.ACTION_BAR,
-                    new TextComponent(ChatColor.GREEN+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
-        }
-        else {
-            player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED + "Rotation: ["+x+" | "+y+"] Health: " + roundHealth));
-        }
-    }
 
 
     public synchronized void setInterpolating(boolean interpolating) {
@@ -764,41 +734,28 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
 
-    public boolean damage(DamageSource source, float damage){
+    public void playSound(ArtilleryPart part){
+       world.playSound(part.getLocation(world),part.getSoundHurt(), SoundCategory.BLOCKS,1,1);
+    }
 
-        if (source.isExplosion()) {
-            damage *= (float) DamageMultiplier.EXPLOSION.multiplier;
-        }
-        else if (source.isFire()) {
-            damage *= (float) DamageMultiplier.FIRE.multiplier;
-        }
-        else if (source instanceof GunSource) {
-            damage *= (float) DamageMultiplier.GUN.multiplier;
-        }
-        else if (source.isMagic()) {
-            damage *= (float) DamageMultiplier.MAGIC.multiplier;
-        }
-        else
-             damage *= (float) DamageMultiplier.DEFAULT.multiplier;
+    @Override
+    public double getHealth(){
+        return health;
+    }
 
-        setHealth(this.health - damage);
+    @Override
+    public void setHealth(double health){
+        this.health = health;
+    }
+
+    @Override
+    public boolean damage(double damage) {
+        setHealth(getHealth() - damage);
         if (health <= 0) {
             destroy(false, true);
             return false;
         }
         return true;
-    }
-
-    public void playSound(ArtilleryPart part){
-       world.playSound(part.getLocation(world),part.getSoundHurt(), SoundCategory.BLOCKS,1,1);
-    }
-
-    public double getHealth(){
-        return health;
-    }
-
-    public synchronized void setHealth(double health){
-        this.health = health;
     }
 
 

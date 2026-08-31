@@ -1,15 +1,14 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Abstract;
 
-import me.camm.productions.fortressguns.item.classification.FGItems;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ProjectileArrowFG extends EntityArrow implements ProjectileFG {
@@ -21,16 +20,8 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
     protected boolean enteredLava = false;
 
 
-
-    protected static final ItemStack item;
-    static {
-        item = CraftItemStack.asNMSCopy(FGItems.HEAT_SEEKER_MISSILE.get());
-    }
-
-
-    @Override
-    protected ItemStack getItemStack() {
-        return item;
+    public ItemStack getItemStack() {
+        return Items.mh.createItemStack();
     }
 
     public ProjectileArrowFG(World world, double x, double y, double z, @Nullable EntityPlayer shooter) {

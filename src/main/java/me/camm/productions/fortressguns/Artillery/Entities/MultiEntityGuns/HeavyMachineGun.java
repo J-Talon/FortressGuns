@@ -138,7 +138,7 @@ public class HeavyMachineGun extends RapidFire {
 
 
     @Override
-    public void rideTick(EntityHuman human) {
+    public void rideTick(Player human) {
         super.rideTick(human);
 
         long timeElapsed = System.currentTimeMillis() - lastFireTime;

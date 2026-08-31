@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
+
+@Deprecated //use consumers
 public class ArtilleryQueue {
 
     private byte pos;
@@ -43,7 +45,7 @@ public class ArtilleryQueue {
                 continue;
             }
 
-            if (a instanceof Rideable && ((Rideable) a).hasRider()) {
+            if (a instanceof Rideable && ((Rideable) a).getRider() != null) {
                 artillery[index] = null;
                 caller.sendMessage("The artillery at "+a.getCurrentLocation().toString()+" " +
                         "has an operator and cannot perform that action.");

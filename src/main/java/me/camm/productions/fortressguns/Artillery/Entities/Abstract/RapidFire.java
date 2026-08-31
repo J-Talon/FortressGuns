@@ -6,7 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigge
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
-import me.camm.productions.fortressguns.item.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.md_5.bungee.api.ChatMessageType;
@@ -290,7 +290,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
     @Override
-    public void rideTick(EntityHuman human) {
+    public void rideTick(Player player) {
 
 
         final int MAX_OCT = 255;
@@ -307,9 +307,8 @@ public abstract class RapidFire extends ArtilleryRideable {
             ammoColor = net.md_5.bungee.api.ChatColor.DARK_AQUA;
         }
 
-
-        pivot(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation()));
-        Player player = (Player)human.getBukkitEntity();
+        Location eyeLoc = player.getEyeLocation();
+        pivot(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()));
 
         double heat = getBarrelHeat();
         float heatPercent = (float)heat / 100;   ///heat is from [0-100]
@@ -413,14 +412,16 @@ public abstract class RapidFire extends ArtilleryRideable {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, componentLeft);
     }
 
-    @Override
-    public void updateOnInteraction() {
+    public boolean onMount(Player player) {
+        boolean res = super.onMount(player);
+        if (!res) return false;
+
         long next = Math.max(lastInteractionTime, lastFireTime);
 
         long diff = System.currentTimeMillis() - next - getInactiveHeatTicks();
 
         if (diff < 0)
-            return;
+            return true;
 
         //diff is in millis
         //convert to ticks  --> (n * 20) / 1000 == 0.02*n
@@ -428,6 +429,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
         setBarrelHeat(Math.max(0,getBarrelHeat() - (diff * getHeatDissipationRate())));
         lastInteractionTime = System.currentTimeMillis();
+        return true;
     }
 
 

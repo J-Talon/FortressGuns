@@ -88,4 +88,6 @@ public class HeavyArtillery extends FieldArtillery
     protected int getSmallDistThreshold() {
         return SMALL_THRESH;
     }
+
+
 }

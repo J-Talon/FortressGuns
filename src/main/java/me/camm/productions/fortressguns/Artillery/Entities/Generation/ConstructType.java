@@ -2,9 +2,8 @@ package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Util.Serialization.Config.*;
-import me.camm.productions.fortressguns.item.classification.FGItems;
-import me.camm.productions.fortressguns.item.classification.box.FGBoxItem;
-import org.bukkit.ChatColor;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
+import me.camm.productions.fortressguns.interact.item.classification.box.FGBoxItem;
 
 public enum ConstructType {
     FIELD_LIGHT(FGItems.FIELD_LIGHT,new ConstructFactory.FactoryLightArtillery(), "fieldLight", ConfigLightArtillery.class),
