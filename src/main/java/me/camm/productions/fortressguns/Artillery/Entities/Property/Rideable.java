@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Property;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.entity.Entity;
@@ -12,7 +13,7 @@ import java.util.List;
 // but for now, keep it at 1
 public interface Rideable {
 
-    ComponentAS getSeat();
+    Component getSeat();
 
     void positionSeat();
 
@@ -30,5 +31,4 @@ public interface Rideable {
     boolean onMount(Player entity);
 
     void kickOperator();
-
 }

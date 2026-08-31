@@ -16,6 +16,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import static me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils.openMenu;
+
 public class CBGlobalRiding implements InteractionBehaviourCons {
 
 
@@ -50,12 +52,12 @@ public class CBGlobalRiding implements InteractionBehaviourCons {
         if (ConstructUtils.isOperatorOf(player, struct)) event.setCancelled(true);
 
         if (struct instanceof RapidFire rapid && rapid.isJammed()) {
-            openMenu(struct, player, mainHand);
+          //  openMenu(struct, player, mainHand);
             return;
         }
 
         if (ItemUtils.isAmmoItem(mainHand) != null) {
-            openMenu(struct, player, mainHand);
+           // openMenu(struct, player, mainHand);
             return;
         }
 

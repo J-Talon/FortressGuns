@@ -195,7 +195,10 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
         if (bukkit.getType() != EntityType.PLAYER) return damageRaw(source, damage);
 
         Player player = (Player) bukkit;
-        return onLeftClick(player.getInventory().getItemInMainHand(), player);
+        boolean shouldDamage = onLeftClick(player.getInventory().getItemInMainHand(), player);
+
+        return shouldDamage && damageRaw(source, damage);
+
     }
 }
 

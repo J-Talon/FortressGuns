@@ -1,15 +1,19 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.FortressGuns;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +34,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     }
 
     @Override
-    public ComponentAS getSeat() {
+    public Component getSeat() {
         return rotatingSeat;
     }
 
@@ -52,6 +56,33 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
         setCameraLocked(true);
         setInterpolating(false);
         this.operator = player;
+
+        ArtilleryRideable artillery = this;
+
+        new BukkitRunnable() {
+            public void run() {
+                if (artillery.isInvalid() || !artillery.chunkLoaded()) {
+                    cancel();
+                    return;
+                }
+
+                Entity vehicle = player.getVehicle();
+                if (vehicle == null) {
+                    cancel();
+                    return;
+                }
+
+                if (!vehicle.getUniqueId().equals(rotatingSeat.getUniqueID())) {
+                    artillery.kickOperator();
+                    cancel();
+                    return;
+                }
+
+                artillery.rideTick(player);
+            }
+        }.runTaskTimer(FortressGuns.getInstance(),0,1);
+
+
         return true;
     }
 

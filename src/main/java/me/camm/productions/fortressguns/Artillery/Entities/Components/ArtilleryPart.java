@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -63,33 +63,77 @@ public class ArtilleryPart extends ComponentAS
     }
 
 
+
+
     @Override
     public boolean onLeftClick(ItemStack mainHand, Player clicked) {
 
-        if (body instanceof Rideable ride && ride.getRider() != null) {
-            if (ride.getRider().getUniqueId().equals(clicked.getUniqueId())) {
+        if (body instanceof Rideable ride) {
+            Player rider = ride.getRider();
+
+            if (FGItems.TACTICAL_PTR.isSimilar(mainHand)) {
+                if (rider == null)
+                    body.fire(clicked);
+                else
+                    clicked.sendMessage("Cannot fire; the platform is being commandeered");
+
+                return false;
+            }
+
+            if (rider != null && rider.getUniqueId().equals(clicked.getUniqueId())) {
                 body.fire(clicked);
                 return false;
             }
         }
 
-        if (FGItems.TACTICAL_PTR.isSimilar(mainHand)) {
-            body.fire(clicked);
-            return false;
+        return true;
+    }
+
+
+
+    private void handleRideableRC(Rideable ride, ItemStack mainHand, Player clicked) {
+        Player rider = ride.getRider();
+        if (rider == null) {
+
+            if (ride.isSeatLocked()) {
+                clicked.sendMessage("Cannot operate, Seat is locked!");
+                return;
+            }
+
+            ride.getSeat().startRiding(clicked);
+        }
+        else {
+            //the player is the operator
+            if (rider.getUniqueId().equals(clicked.getUniqueId())) {
+                Material mat = mainHand.getType();
+
+                if (mat == Material.AIR) {
+                    body.fire(clicked);
+                    return;
+                }
+
+                ConstructUtils.openMenu(body, clicked, mainHand);
+                return;
+            }
+
+            clicked.sendMessage("Cannot operate, Someone else is using this!");
         }
 
-        return true;
+
+
     }
 
     @Override
     public void onRightClick(ItemStack mainHand, Player clicked) {
 
-        if (body instanceof Rideable ride && ride.getRider() != null) {
-            if (ride.getRider().getUniqueId().equals(clicked.getUniqueId())) {
-                body.fire(clicked);
-            }
-
-
+        if (clicked.isSneaking() && clicked.getVehicle() == null) {
+            ConstructUtils.openMenu(body, clicked, mainHand);
+            return;
         }
+
+        if (body instanceof Rideable ride) {
+            this.handleRideableRC(ride, mainHand, clicked);
+        }
+
     }
 }

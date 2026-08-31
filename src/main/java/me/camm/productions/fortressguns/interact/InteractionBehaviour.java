@@ -22,30 +22,30 @@ public interface InteractionBehaviour<T> {
 
 
 
-    default void openMenu(Construct cons, Player player, ItemStack stack) {
-        if (!(cons instanceof Artillery body)) return;
-
-        ConstructInventory menu;
-        InventoryGroup group = body.getInventoryGroup();
-        FIND_INV:
-        {
-
-            if (body instanceof RapidFire rapid && rapid.isJammed()) {
-                menu = group.getInventoryByCategory(InventoryCategory.JAM_CLEAR);
-                break FIND_INV;
-            }
-
-            if (ItemUtils.isAmmoItem(stack) != null) {
-                menu = group.getInventoryByCategory(InventoryCategory.RELOADING);
-            } else {
-                menu = group.getInventoryByCategory(InventoryCategory.MENU);
-            }
-        }
-
-        if (menu == null) {
-            FortressGuns.getInstance().getLogger().warning("Inventory instance returned null!");
-            return;
-        }
-        group.openInventory(menu, player);
-    }
+//    default void openMenu(Construct cons, Player player, ItemStack stack) {
+//        if (!(cons instanceof Artillery body)) return;
+//
+//        ConstructInventory menu;
+//        InventoryGroup group = body.getInventoryGroup();
+//        FIND_INV:
+//        {
+//
+//            if (body instanceof RapidFire rapid && rapid.isJammed()) {
+//                menu = group.getInventoryByCategory(InventoryCategory.JAM_CLEAR);
+//                break FIND_INV;
+//            }
+//
+//            if (ItemUtils.isAmmoItem(stack) != null) {
+//                menu = group.getInventoryByCategory(InventoryCategory.RELOADING);
+//            } else {
+//                menu = group.getInventoryByCategory(InventoryCategory.MENU);
+//            }
+//        }
+//
+//        if (menu == null) {
+//            FortressGuns.getInstance().getLogger().warning("Inventory instance returned null!");
+//            return;
+//        }
+//        group.openInventory(menu, player);
+//    }
 }

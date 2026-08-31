@@ -52,7 +52,7 @@ public class CBGlobalInteractStanding implements InteractionBehaviourCons {
 
         if (!(struct instanceof Rideable ride)) {
             if (!player.isSneaking()) return;
-            openMenu(struct, player, mainHand);
+           // openMenu(struct, player, mainHand);
             return;
         }
 

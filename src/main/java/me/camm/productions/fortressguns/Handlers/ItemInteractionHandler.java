@@ -3,20 +3,14 @@ package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
-
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
-import me.camm.productions.fortressguns.interact.behaviour.ConstructBehaviour.CBGlobalInteractStanding;
-import me.camm.productions.fortressguns.interact.behaviour.ConstructBehaviour.CBGlobalPointer;
-import me.camm.productions.fortressguns.interact.behaviour.ConstructBehaviour.CBGlobalRiding;
 import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.*;
-
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -26,8 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -75,21 +67,21 @@ enum ItemBehaviour {
 
 
 
-enum ConstructBehaviour {
-    GLOBAL_STANDING(new CBGlobalInteractStanding()),
-    GLOBAL_POINTER(new CBGlobalPointer()),
-    GLOBAL_RIDING(new CBGlobalRiding());
-
-    private final InteractionBehaviourCons behaviour;
-
-    private ConstructBehaviour(InteractionBehaviourCons cons) {
-        this.behaviour = cons;
-    }
-
-    public InteractionBehaviourCons getBehaviour() {
-        return behaviour;
-    }
-}
+//enum ConstructBehaviour {
+//    GLOBAL_STANDING(new CBGlobalInteractStanding()),
+//    GLOBAL_POINTER(new CBGlobalPointer()),
+//    GLOBAL_RIDING(new CBGlobalRiding());
+//
+//    private final InteractionBehaviourCons behaviour;
+//
+//    private ConstructBehaviour(InteractionBehaviourCons cons) {
+//        this.behaviour = cons;
+//    }
+//
+//    public InteractionBehaviourCons getBehaviour() {
+//        return behaviour;
+//    }
+//}
 
 
 
@@ -99,8 +91,8 @@ public class ItemInteractionHandler implements Listener
     //display names are freed up which mean that if people rename things they still work
     //but there is a performance penalty
     private final Map<Material, List<InteractionBehaviourItem>> itemInteractions;
-    private final Map<ConstructType,Map<Material, List<InteractionBehaviourCons>>> constructInteractions;
-    private final List<InteractionBehaviourCons> wildcards;
+    //private final Map<ConstructType,Map<Material, List<InteractionBehaviourCons>>> constructInteractions;
+   // private final List<InteractionBehaviourCons> wildcards;
 
     private final Map<IBHandle, InteractionBehaviour<?>> accessors;
 
@@ -109,8 +101,8 @@ public class ItemInteractionHandler implements Listener
     private ItemInteractionHandler() {
         itemInteractions = new HashMap<>();
         accessors = new HashMap<>();
-        constructInteractions = new HashMap<>();
-        wildcards = new ArrayList<>();
+       // constructInteractions = new HashMap<>();
+       // wildcards = new ArrayList<>();
 
 
 
@@ -119,9 +111,9 @@ public class ItemInteractionHandler implements Listener
         }
 
 
-        for (ConstructBehaviour behaviour: ConstructBehaviour.values()) {
-            addConstructBehaviour(behaviour.getBehaviour());
-        }
+//        for (ConstructBehaviour behaviour: ConstructBehaviour.values()) {
+//            addConstructBehaviour(behaviour.getBehaviour());
+//        }
     }
 
     public static ItemInteractionHandler getInstance() {
@@ -441,41 +433,41 @@ public class ItemInteractionHandler implements Listener
         }
     }
 
-
-    public void addConstructBehaviour(InteractionBehaviourCons interaction) {
-        IBHandle handle = interaction.getHandle();
-
-        if (handle != null) {
-
-            if (accessors.containsKey(handle))
-                throw new IllegalArgumentException("Handle "+handle.name()+" already registered!");
-            else {
-                accessors.put(handle, interaction);
-            }
-        }
-
-        if (interaction.treatGlobally()) {
-
-            if (wildcards.contains(interaction))
-                throw new IllegalArgumentException(interaction.getClass().getName() +" is already registered as a wildcard!");
-            wildcards.add(interaction);
-            return;
-        }
-
-        ConstructType[] types = interaction.getPrimaryLabels();
-        Material[] secondaryLabels = interaction.getSecondaryLabels();
-
-
-        for (ConstructType type: types) {
-            Map<Material,List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
-            if (inner == null)
-                inner = new HashMap<>();
-
-            for (Material mat: secondaryLabels) {
-                this.generateEntry(mat, inner, interaction);
-            }
-        }
-    }
+//
+//    public void addConstructBehaviour(InteractionBehaviourCons interaction) {
+//        IBHandle handle = interaction.getHandle();
+//
+//        if (handle != null) {
+//
+//            if (accessors.containsKey(handle))
+//                throw new IllegalArgumentException("Handle "+handle.name()+" already registered!");
+//            else {
+//                accessors.put(handle, interaction);
+//            }
+//        }
+//
+//        if (interaction.treatGlobally()) {
+//
+//            if (wildcards.contains(interaction))
+//                throw new IllegalArgumentException(interaction.getClass().getName() +" is already registered as a wildcard!");
+//            wildcards.add(interaction);
+//            return;
+//        }
+//
+//        ConstructType[] types = interaction.getPrimaryLabels();
+//        Material[] secondaryLabels = interaction.getSecondaryLabels();
+//
+//
+//        for (ConstructType type: types) {
+//            Map<Material,List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
+//            if (inner == null)
+//                inner = new HashMap<>();
+//
+//            for (Material mat: secondaryLabels) {
+//                this.generateEntry(mat, inner, interaction);
+//            }
+//        }
+//    }
 
 
 
@@ -525,84 +517,84 @@ public class ItemInteractionHandler implements Listener
 
 
 
-    @EventHandler
-    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-        Player player = event.getPlayer();
-        org.bukkit.entity.Entity clicked = event.getRightClicked();
+//    @EventHandler
+//    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+//        Player player = event.getPlayer();
+//        org.bukkit.entity.Entity clicked = event.getRightClicked();
+//
+//        ConstructType type;
+//        Construct body;
+//
+//        Component comp = ConstructUtils.getComponentRef(clicked);
+//        if (comp == null) return;
+//
+//        body = comp.getBody();
+//        type = body.getType();
+//        ItemStack main = player.getInventory().getItemInMainHand();
+//
+//        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
+//
+//
+//        for (InteractionBehaviourCons wc: wildcards) {
+//            if (wc.accept(tup)) {
+//                wc.onRCCons(body, comp, main, event);
+//            }
+//        }
+//
+//        Map<Material,List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
+//        if (inner == null) return;
+//
+//        List<InteractionBehaviourCons> interactions = inner.getOrDefault(main.getType(), null);
+//        if (interactions == null) return;
+//
+//        for (InteractionBehaviourCons interaction: interactions) {
+//            if (!interaction.accept(tup)) continue;
+//            interaction.onRCCons(body, comp, main, event);
+//        }
+//    }
 
-        ConstructType type;
-        Construct body;
 
-        Component comp = ConstructUtils.getComponentRef(clicked);
-        if (comp == null) return;
-
-        body = comp.getBody();
-        type = body.getType();
-        ItemStack main = player.getInventory().getItemInMainHand();
-
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
-
-
-        for (InteractionBehaviourCons wc: wildcards) {
-            if (wc.accept(tup)) {
-                wc.onRCCons(body, comp, main, event);
-            }
-        }
-
-        Map<Material,List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
-        if (inner == null) return;
-
-        List<InteractionBehaviourCons> interactions = inner.getOrDefault(main.getType(), null);
-        if (interactions == null) return;
-
-        for (InteractionBehaviourCons interaction: interactions) {
-            if (!interaction.accept(tup)) continue;
-            interaction.onRCCons(body, comp, main, event);
-        }
-    }
-
-
-    @EventHandler
-    public void onPlayerDamageEntity(EntityDamageByEntityEvent event) {
-
-        org.bukkit.entity.Entity damager = event.getDamager();
-        org.bukkit.entity.Entity damagee = event.getEntity();
-
-        if (damager.getType() != EntityType.PLAYER) return;
-
-        ItemStack main = ((Player)damager).getInventory().getItemInMainHand();
-        EntityDamageEvent.DamageCause cause = event.getCause();
-
-        //shouldn't be sweeping either
-        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
-
-        Component comp = ConstructUtils.getComponentRef(damagee);
-        if (comp == null) return;
-
-        Construct struct = comp.getBody();
-        ConstructType type = struct.getType();
-        Player player = (Player)damager;
-
-        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
-
-        for (InteractionBehaviourCons wc: wildcards) {
-            if (wc.accept(tup)) {
-                wc.onLCCons(struct, comp, player, main, event);
-            }
-        }
-
-        Map<Material, List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
-        if (inner == null) return;
-
-        List<InteractionBehaviourCons> interactions = inner.getOrDefault(main.getType(), null);
-        if (interactions == null) return;
-
-        for (InteractionBehaviourCons cons : interactions) {
-            if (cons.accept(tup)) {
-                cons.onLCCons(struct, comp, player, main, event);
-            }
-        }
-    }
+//    @EventHandler
+//    public void onPlayerDamageEntity(EntityDamageByEntityEvent event) {
+//
+//        org.bukkit.entity.Entity damager = event.getDamager();
+//        org.bukkit.entity.Entity damagee = event.getEntity();
+//
+//        if (damager.getType() != EntityType.PLAYER) return;
+//
+//        ItemStack main = ((Player)damager).getInventory().getItemInMainHand();
+//        EntityDamageEvent.DamageCause cause = event.getCause();
+//
+//        //shouldn't be sweeping either
+//        if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
+//
+//        Component comp = ConstructUtils.getComponentRef(damagee);
+//        if (comp == null) return;
+//
+//        Construct struct = comp.getBody();
+//        ConstructType type = struct.getType();
+//        Player player = (Player)damager;
+//
+//        Tuple2<Player, ItemStack> tup = new Tuple2<>(player, main);
+//
+//        for (InteractionBehaviourCons wc: wildcards) {
+//            if (wc.accept(tup)) {
+//                wc.onLCCons(struct, comp, player, main, event);
+//            }
+//        }
+//
+//        Map<Material, List<InteractionBehaviourCons>> inner = constructInteractions.getOrDefault(type, null);
+//        if (inner == null) return;
+//
+//        List<InteractionBehaviourCons> interactions = inner.getOrDefault(main.getType(), null);
+//        if (interactions == null) return;
+//
+//        for (InteractionBehaviourCons cons : interactions) {
+//            if (cons.accept(tup)) {
+//                cons.onLCCons(struct, comp, player, main, event);
+//            }
+//        }
+//    }
 
 }
 
