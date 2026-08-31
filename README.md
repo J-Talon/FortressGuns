@@ -67,14 +67,14 @@ Content to complete before first release
 - [ ] Bugfixing and polishing for some specific mechanics
     - [X] Chunk loading and saves
     - [X] Debug commands 
-    - [ ] Wall collisions
-    - [ ] Entity tracking and targeting < Current Focus
+    - [ ] Wall collisions < Current Focus
+    - [X] Entity tracking and targeting
     - [ ] Balancing, Config
     - [X] Flares?
 - [ ] Survival compat
-    - [ ] Recipes
+    - [X] Recipes
     - [ ] Misc improvements and tweaks
-    - [ ] Other Ammo types?
+    - [ ] Other Ammo types < Current Focus
 
 Planned Content
 ---
@@ -91,8 +91,7 @@ Although it is an intriguing prospect to consider... I might change my mind on t
 
 
 Why has implementation taken so long?
-This is a project which as I've mentioned above, has a low ranking on my priority list. First comes school and work and then other projects which have a set due date. I'm also the only
-person who is working on this project. 
-
+This is a project which as I've mentioned above, has a low ranking on my priority list. First comes school and work and then other projects which have a set due date. I've also only recently
+gotten assistance with development. Before then, it was all solo.
 
 
