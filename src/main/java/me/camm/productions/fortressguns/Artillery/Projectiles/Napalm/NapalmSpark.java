@@ -10,7 +10,6 @@ import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.IProjectile;
@@ -24,21 +23,14 @@ import org.bukkit.Sound;
 import javax.annotation.Nullable;
 
 
-public class NapalmShell extends HeavyShell implements ProjectileFG {
+public class NapalmSpark extends AbstractNapalm implements ProjectileFG  {
 
 
     protected Artillery source;
-    private World world;
-    public NapalmShell(World world, double locX, double locY, double locZ, @Nullable EntityPlayer shooter, Artillery source) {
-        super(world, locX, locY, locZ, shooter, source);
+    public NapalmSpark(World world, double locX, double locY, double locZ, @Nullable EntityPlayer shooter, Artillery source) {
+        super(world, locX, locY, locZ, shooter);
         this.source = source;
-        this.world = world;
         setCritical(true);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
     }
 
 
@@ -56,16 +48,45 @@ public class NapalmShell extends HeavyShell implements ProjectileFG {
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        return false;
+        // arson arson arson arson ARSON!
+        return true;
     }
 
     @Override
     public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
-        Location loc = this.getBukkitEntity().getLocation();
-        for (int i = 0; i < 5; i++) {
-            NapalmSpark ns = new NapalmSpark(world, loc.getX(), loc.getY(), loc.getZ(), null, source);
-            world.addEntity(ns);
+        Location impact = new Location(
+                bukkitWorld,
+                exactHitPosition.getX(),
+                exactHitPosition.getY(),
+                exactHitPosition.getZ()
+        );
+
+        int radius = 10;
+
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+
+                    // sphere
+                    if (x * x + y * y + z * z > radius * radius)
+                        continue;
+
+                    Location fireLocation = impact.clone().add(x, y, z);
+
+                    if (!fireLocation.getBlock().getType().isAir())
+                        continue;
+
+                    Location below = fireLocation.clone().subtract(0, 1, 0);
+
+                    if (!below.getBlock().getType().isSolid())
+                        continue;
+
+                    fireLocation.getBlock().setType(org.bukkit.Material.FIRE);
+                }
+            }
         }
+
+        this.die();
         return false;
     }
 
