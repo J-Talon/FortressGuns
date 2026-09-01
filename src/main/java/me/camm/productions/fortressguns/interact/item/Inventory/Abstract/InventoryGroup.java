@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.interact.item.Inventory.*;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,14 +53,6 @@ public abstract class InventoryGroup {
     }
 
 
-    public void openInventory(Player player, String name) {
-        ConstructInventory inv = getInventory(name);
-        if (inv == null)
-            return;
-
-        InventoryHandler.startInteraction(player,inv);
-    }
-
     public void openInventory(ConstructInventory inv, Player player) {
         InventoryHandler.startInteraction(player,inv);
     }
@@ -91,7 +84,21 @@ public abstract class InventoryGroup {
         tags.put(cat, id);
     }
 
+
+    //closes the inventories for all of viewers
+    public void close() {
+        for (ConstructInventory inventory: inventories.values()) {
+            inventory.getInventory().getViewers().forEach(HumanEntity::closeInventory);
+        }
+    }
+
+
+
     protected abstract void init();
+
+
+
+
 
 
 
