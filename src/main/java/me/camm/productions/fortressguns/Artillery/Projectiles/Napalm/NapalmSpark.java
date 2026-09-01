@@ -66,7 +66,6 @@ public class NapalmSpark extends AbstractNapalm implements ProjectileFG  {
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
-
                     // sphere
                     if (x * x + y * y + z * z > radius * radius)
                         continue;
@@ -84,6 +83,19 @@ public class NapalmSpark extends AbstractNapalm implements ProjectileFG  {
                     fireLocation.getBlock().setType(org.bukkit.Material.FIRE);
                 }
             }
+        }
+
+        for (org.bukkit.entity.Entity entity : bukkitWorld.getNearbyEntities(impact, radius, radius, radius)) { // entity handling
+
+            if (!(entity instanceof org.bukkit.entity.LivingEntity living))
+                continue;
+
+            // Make sure it is actually inside the spherical radius
+            if (living.getLocation().distanceSquared(impact) > radius * radius)
+                continue;
+
+            // 10 seconds of fire
+            living.setFireTicks(200);
         }
 
         this.die();
