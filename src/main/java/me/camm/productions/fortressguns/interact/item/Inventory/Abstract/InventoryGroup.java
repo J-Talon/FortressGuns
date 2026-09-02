@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public abstract class InventoryGroup {
@@ -88,7 +90,14 @@ public abstract class InventoryGroup {
     //closes the inventories for all of viewers
     public void close() {
         for (ConstructInventory inventory: inventories.values()) {
-            inventory.getInventory().getViewers().forEach(HumanEntity::closeInventory);
+            List<HumanEntity> entities = inventory.getInventory().getViewers();
+            Iterator<HumanEntity> iter = entities.listIterator();
+
+            while (iter.hasNext()) {
+                HumanEntity next = iter.next();
+                iter.remove();  //this might be dangerous, we'll see
+                next.closeInventory();
+            }
         }
     }
 
