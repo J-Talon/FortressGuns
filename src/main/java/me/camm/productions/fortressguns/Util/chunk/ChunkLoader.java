@@ -7,6 +7,13 @@ import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShellHE;
+import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.StandardHeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import me.camm.productions.fortressguns.FortressGuns;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -26,6 +33,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.Vec3D;
 
 
 import java.util.*;
@@ -47,6 +55,7 @@ public class ChunkLoader implements Listener {
     private final static Set<ChunkTicket> assembledTickets;
     private static ChunkLoader loader = null;
     private final NamespacedKey key;
+    private final NamespacedKey projectileKey;
     private final NamespacedKey flareKey;
     private final NamespacedKey flareLifespanKey;
     private final NamespacedKey flareVelocityKey;
@@ -74,6 +83,7 @@ public class ChunkLoader implements Listener {
     private ChunkLoader() {
 
         this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
+        this.projectileKey = new NamespacedKey(FortressGuns.getInstance(), "projectile_type");
         this.flareKey = new NamespacedKey(FortressGuns.getInstance(), "flare");
         this.flareLifespanKey = new NamespacedKey(FortressGuns.getInstance(), "flare_lifespan");
         this.flareVelocityKey = new NamespacedKey(FortressGuns.getInstance(), "flare_velocity");
@@ -169,21 +179,24 @@ public class ChunkLoader implements Listener {
             assembledTickets.addAll(tickets);
             lock.unlock();
         }
-        restoreFlares(chunk);
+        restoreProjectiles(chunk);
         discoverConstructs(chunk);
     }
 
 
-    private void restoreFlares(Chunk chunk) {
+    private void restoreProjectiles(Chunk chunk) {
         World world = chunk.getWorld();
 
         for (Entity entity : chunk.getEntities()) {
             PersistentDataContainer pdc = entity.getPersistentDataContainer();
-            if (!pdc.has(flareKey, PersistentDataType.BYTE))
+            String projectileType = pdc.get(projectileKey, PersistentDataType.STRING);
+            if (projectileType == null && pdc.has(flareKey, PersistentDataType.BYTE))
+                projectileType = SimpleFlare.class.getSimpleName();
+            if (projectileType == null)
                 continue;
 
             net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-            if (nms instanceof SimpleFlare)
+            if (nms instanceof ProjectileFG)
                 continue;
 
             long[] velocity = pdc.get(flareVelocityKey, PersistentDataType.LONG_ARRAY); // apparently there's no DOUBLE_ARRAY :(
@@ -191,22 +204,50 @@ public class ChunkLoader implements Listener {
                 continue;
 
             Location location = entity.getLocation();
-            SimpleFlare flare = new SimpleFlare(
+            ProjectileFG projectile = createProjectile(
+                    projectileType,
                     ((CraftWorld) world).getHandle(),
                     location.getX(), location.getY(), location.getZ(),
                     Double.longBitsToDouble(velocity[0]),
                     Double.longBitsToDouble(velocity[1]),
                     Double.longBitsToDouble(velocity[2])
             );
+            if (projectile == null)
+                continue;
 
             Integer lifespan = pdc.get(flareLifespanKey, PersistentDataType.INTEGER);
-            if (lifespan != null)
+            if (projectile instanceof SimpleFlare flare && lifespan != null)
                 flare.setLifespan(lifespan);
 
             entity.remove();
-            flare.getBukkitEntity().setPersistent(true);
-            ((CraftWorld) world).getHandle().addEntity(flare);
+            net.minecraft.world.entity.Entity restored = (net.minecraft.world.entity.Entity) projectile;
+            // this should overwrite the velocity to be that of the original
+            restored.setMot(new Vec3D(Double.longBitsToDouble(velocity[0]), Double.longBitsToDouble(velocity[1]), Double.longBitsToDouble(velocity[2])));
+            restored.getBukkitEntity().setPersistent(true);
+            ((CraftWorld) world).getHandle().addEntity(restored);
         }
+    }
+
+    private @Nullable ProjectileFG createProjectile(String type, net.minecraft.world.level.World world,
+                                                     double x, double y, double z,
+                                                     double dx, double dy, double dz) {
+        if (type.equals(SimpleFlare.class.getSimpleName()))
+            return new SimpleFlare(world, x, y, z, dx, dy, dz);
+        if (type.equals(StandardHeavyShell.class.getSimpleName()))
+            return new StandardHeavyShell(world, x, y, z, null, null);
+        if (type.equals(HeavyShellHE.class.getSimpleName()))
+            return new HeavyShellHE(world, x, y, z, null, null);
+        if (type.equals(FlakHeavyShell.class.getSimpleName()))
+            return new FlakHeavyShell(world, x, y, z, null, null);
+        if (type.equals(StandardLightShell.class.getSimpleName()))
+            return new StandardLightShell(world, x, y, z, null, null);
+        if (type.equals(FlakLightShell.class.getSimpleName()))
+            return new FlakLightShell(world, x, y, z, null, null);
+        if (type.equals(CRAMShell.class.getSimpleName()))
+            return new CRAMShell(world, x, y, z, null, null);
+        if (type.equals(HeatseekingMissile.class.getSimpleName()))
+            return new HeatseekingMissile(world, x, y, z, null, null);
+        return null;
     }
 
 
@@ -283,18 +324,19 @@ public class ChunkLoader implements Listener {
             net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
             if (nms instanceof ProjectileFG) {
                 entity.setPersistent(true);
+                PersistentDataContainer pdc = entity.getPersistentDataContainer();
+                pdc.set(projectileKey, PersistentDataType.STRING, nms.getClass().getSimpleName());
+
+                org.bukkit.util.Vector velocity = entity.getVelocity();
+                pdc.set(flareVelocityKey, PersistentDataType.LONG_ARRAY, new long[]{
+                        Double.doubleToLongBits(velocity.getX()),
+                        Double.doubleToLongBits(velocity.getY()),
+                        Double.doubleToLongBits(velocity.getZ())
+                });
 
                 if (nms instanceof SimpleFlare flare) {
-                    PersistentDataContainer pdc = entity.getPersistentDataContainer();
                     pdc.set(flareKey, PersistentDataType.BYTE, (byte) 1);
                     pdc.set(flareLifespanKey, PersistentDataType.INTEGER, flare.getLifespan());
-
-                    org.bukkit.util.Vector velocity = entity.getVelocity();
-                        pdc.set(flareVelocityKey, PersistentDataType.LONG_ARRAY, new long[]{
-                            Double.doubleToLongBits(velocity.getX()),
-                            Double.doubleToLongBits(velocity.getY()),
-                            Double.doubleToLongBits(velocity.getZ())
-                    });
                 }
             }
         }
