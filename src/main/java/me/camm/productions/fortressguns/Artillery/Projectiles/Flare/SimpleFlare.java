@@ -79,6 +79,14 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         ));
     }
 
+    public int getLifespan() {
+        return lifespan;
+    }
+
+    public void setLifespan(int lifespan) {
+        this.lifespan = lifespan;
+    }
+
 //    @Override
 //    public float getWeight() { // for context I thought this would affect gravity
 //        return 0.5F;
@@ -86,6 +94,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
 
     @Override
     public void tick() {
+//        System.out.println("A");
         if (getMot().f() == 0 && DIRECTION != null) {
             setMot(new Vec3D(
                     DIRECTION.getX() * MAX_SPEED,
@@ -187,12 +196,14 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
                     data.getDouble("FortressGunsDirectionY"),
                     data.getDouble("FortressGunsDirectionZ")
             );
-        } else if (getMot().f() > 0) {
-            Vec3D motion = getMot().d();
-            DIRECTION = new Vector(motion.b, motion.c, motion.d);
+
+            setMot(new Vec3D(
+                    DIRECTION.getX() * MAX_SPEED,
+                    DIRECTION.getY() * MAX_SPEED,
+                    DIRECTION.getZ() * MAX_SPEED
+            ));
         }
     }
-
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
         return false;
