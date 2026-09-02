@@ -87,4 +87,28 @@ public class ConstructUtils {
         }
         group.openInventory(menu, player);
     }
+
+
+
+
+    //see entity.inBlock()
+        /*
+        public boolean inBlock() {
+        if (this.P) {
+            return false;
+        } else {
+            float f = this.aW.a * 0.8F;
+                            ^ width of the entity size
+
+            AxisAlignedBB axisalignedbb = AxisAlignedBB.a(this.bb(), (double)f, 1.0E-6, (double)f);
+            //bb() returns Vec3D(this.locX(), this.getHeadY(), this.locZ());
+
+            t = world
+
+            return this.t.b(this, axisalignedbb, (iblockdata, blockposition) -> {
+                return iblockdata.o(this.t, blockposition);
+            }).findAny().isPresent();
+        }
+    }
+         */
 }

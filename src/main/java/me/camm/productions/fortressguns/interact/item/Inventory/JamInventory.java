@@ -96,6 +96,13 @@ public class JamInventory extends PanelInventory {
             boolean played = false;
             @Override
             public void run() {
+
+                if (owner.isInvalid() || !owner.chunkLoaded()) {
+                    cancel();
+                    group.close();
+                    return;
+                }
+
                 if (gui.getViewers().isEmpty()) {
                     init();
                     cancel();
@@ -152,6 +159,13 @@ public class JamInventory extends PanelInventory {
             int x = 0;
             @Override
             public void run() {
+
+                if (owner.isInvalid() || !owner.chunkLoaded()) {
+                    cancel();
+                    group.close();
+                    return;
+                }
+
                 if (gui.getViewers().isEmpty()) {
                     init();
                     cancel();
