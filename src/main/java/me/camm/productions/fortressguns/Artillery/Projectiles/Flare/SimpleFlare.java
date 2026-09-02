@@ -5,11 +5,14 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRo
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
+import net.minecraft.world.level.material.FluidType;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -22,7 +25,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     private static final ItemStack SPRITE = new ItemStack(Items.rA);
 
     private static final double successChance = 0.37; // % chance per missile to affect it ~ a 90% chance for a spread of missiles
-    private final Vector DIRECTION;
+    private Vector DIRECTION;
     private int lifespan;
     private final double RADIUS = 50.0;
 
@@ -33,7 +36,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         super(world, x, y, z, shooter);
 
         this.lifespan = 10 * 20;
-        setNoGravity(true);
+//        setNoGravity(true);
 
         if (shooter != null) {
             Player player = shooter.getBukkitEntity();
@@ -65,7 +68,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         super(world, x, y, z, null);
 
         this.lifespan = 15 * 20;
-        setNoGravity(true);
+//        setNoGravity(true);
 
         DIRECTION = new Vector(dx, dy, dz);
         setItem(SPRITE);
@@ -76,8 +79,30 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         ));
     }
 
+    public int getLifespan() {
+        return lifespan;
+    }
+
+    public void setLifespan(int lifespan) {
+        this.lifespan = lifespan;
+    }
+
+//    @Override
+//    public float getWeight() { // for context I thought this would affect gravity
+//        return 0.5F;
+//    }
+
     @Override
     public void tick() {
+//        System.out.println("A");
+        if (getMot().f() == 0 && DIRECTION != null) {
+            setMot(new Vec3D(
+                    DIRECTION.getX() * MAX_SPEED,
+                    DIRECTION.getY() * MAX_SPEED,
+                    DIRECTION.getZ() * MAX_SPEED
+            ));
+        }
+
         super.tick();
 
         if (lifespan-- < 0) {
@@ -85,13 +110,6 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
             return;
         }
 
-        // Get current velocity
-        Vec3D motion = getMot();
-
-        // Gravity
-        motion = motion.add(0, -0.01, 0);
-
-        setMot(motion);
         this.C = true;
 
         Location flareLocation = this.getBukkitEntity().getLocation();
@@ -150,6 +168,42 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         );
     }
 
+    @Override
+    public void saveData(NBTTagCompound data) {
+        super.saveData(data);
+        data.setInt("FortressGunsLifespan", lifespan);
+
+        if (DIRECTION != null) {
+            data.setDouble("FortressGunsDirectionX", DIRECTION.getX());
+            data.setDouble("FortressGunsDirectionY", DIRECTION.getY());
+            data.setDouble("FortressGunsDirectionZ", DIRECTION.getZ());
+        }
+    }
+
+    @Override
+    public void loadData(NBTTagCompound data) {
+        super.loadData(data);
+
+        lifespan = data.hasKey("FortressGunsLifespan")
+                ? data.getInt("FortressGunsLifespan")
+                : 15 * 20;
+
+        if (data.hasKey("FortressGunsDirectionX")
+                && data.hasKey("FortressGunsDirectionY")
+                && data.hasKey("FortressGunsDirectionZ")) {
+            DIRECTION = new Vector(
+                    data.getDouble("FortressGunsDirectionX"),
+                    data.getDouble("FortressGunsDirectionY"),
+                    data.getDouble("FortressGunsDirectionZ")
+            );
+
+            setMot(new Vec3D(
+                    DIRECTION.getX() * MAX_SPEED,
+                    DIRECTION.getY() * MAX_SPEED,
+                    DIRECTION.getZ() * MAX_SPEED
+            ));
+        }
+    }
     @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
         return false;
