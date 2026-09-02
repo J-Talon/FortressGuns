@@ -37,7 +37,6 @@ public abstract class TransactionInventory extends ConstructInventory {
             return;
         }
 
-        System.out.println("here");
 
 
         Set<Integer> slots = event.getRawSlots();
