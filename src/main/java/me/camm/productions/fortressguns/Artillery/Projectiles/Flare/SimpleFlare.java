@@ -36,7 +36,6 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         super(world, x, y, z, shooter);
 
         this.lifespan = 10 * 20;
-//        setNoGravity(true);
 
         if (shooter != null) {
             Player player = shooter.getBukkitEntity();
@@ -68,7 +67,6 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         super(world, x, y, z, null);
 
         this.lifespan = 15 * 20;
-//        setNoGravity(true);
 
         DIRECTION = new Vector(dx, dy, dz);
         setItem(SPRITE);
@@ -87,14 +85,8 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         this.lifespan = lifespan;
     }
 
-//    @Override
-//    public float getWeight() { // for context I thought this would affect gravity
-//        return 0.5F;
-//    }
-
     @Override
     public void tick() {
-//        System.out.println("A");
         if (getMot().f() == 0 && DIRECTION != null) {
             setMot(new Vec3D(
                     DIRECTION.getX() * MAX_SPEED,
@@ -169,42 +161,6 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     }
 
     @Override
-    public void saveData(NBTTagCompound data) {
-        super.saveData(data);
-        data.setInt("FortressGunsLifespan", lifespan);
-
-        if (DIRECTION != null) {
-            data.setDouble("FortressGunsDirectionX", DIRECTION.getX());
-            data.setDouble("FortressGunsDirectionY", DIRECTION.getY());
-            data.setDouble("FortressGunsDirectionZ", DIRECTION.getZ());
-        }
-    }
-
-    @Override
-    public void loadData(NBTTagCompound data) {
-        super.loadData(data);
-
-        lifespan = data.hasKey("FortressGunsLifespan")
-                ? data.getInt("FortressGunsLifespan")
-                : 15 * 20;
-
-        if (data.hasKey("FortressGunsDirectionX")
-                && data.hasKey("FortressGunsDirectionY")
-                && data.hasKey("FortressGunsDirectionZ")) {
-            DIRECTION = new Vector(
-                    data.getDouble("FortressGunsDirectionX"),
-                    data.getDouble("FortressGunsDirectionY"),
-                    data.getDouble("FortressGunsDirectionZ")
-            );
-
-            setMot(new Vec3D(
-                    DIRECTION.getX() * MAX_SPEED,
-                    DIRECTION.getY() * MAX_SPEED,
-                    DIRECTION.getZ() * MAX_SPEED
-            ));
-        }
-    }
-    @Override
     public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
         return false;
         // had an issue where player would kill their own flare so yeah
@@ -222,5 +178,10 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     @Override
     public float getHitDamage() {
         return 0;
+    }
+
+    @Override
+    public void remove() {
+        this.die();
     }
 }

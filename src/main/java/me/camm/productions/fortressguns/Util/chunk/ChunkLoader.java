@@ -6,14 +6,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentA
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -47,9 +44,6 @@ public class ChunkLoader implements Listener {
     private final static Set<ChunkTicket> assembledTickets;
     private static ChunkLoader loader = null;
     private final NamespacedKey key;
-    private final NamespacedKey flareKey;
-    private final NamespacedKey flareLifespanKey;
-    private final NamespacedKey flareVelocityKey;
 
 
     private final ReentrantLock lock;  //synchronized works too ya know
@@ -74,9 +68,6 @@ public class ChunkLoader implements Listener {
     private ChunkLoader() {
 
         this.key = new NamespacedKey(FortressGuns.getInstance(), FactorySerialization.getKey());
-        this.flareKey = new NamespacedKey(FortressGuns.getInstance(), "flare");
-        this.flareLifespanKey = new NamespacedKey(FortressGuns.getInstance(), "flare_lifespan");
-        this.flareVelocityKey = new NamespacedKey(FortressGuns.getInstance(), "flare_velocity");
         this.lock = new ReentrantLock(true); //fair lock
         BukkitRunnable runnable = new BukkitRunnable() {
             @Override
@@ -169,46 +160,9 @@ public class ChunkLoader implements Listener {
             assembledTickets.addAll(tickets);
             lock.unlock();
         }
-        restoreFlares(chunk);
         discoverConstructs(chunk);
+        removeFGProjectiles(chunk); // if there's fgprojectiles in this chunk, then they were there when it was unloaded
     }
-
-
-    private void restoreFlares(Chunk chunk) {
-        World world = chunk.getWorld();
-
-        for (Entity entity : chunk.getEntities()) {
-            PersistentDataContainer pdc = entity.getPersistentDataContainer();
-            if (!pdc.has(flareKey, PersistentDataType.BYTE))
-                continue;
-
-            net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-            if (nms instanceof SimpleFlare)
-                continue;
-
-            long[] velocity = pdc.get(flareVelocityKey, PersistentDataType.LONG_ARRAY); // apparently there's no DOUBLE_ARRAY :(
-            if (velocity == null || velocity.length != 3)
-                continue;
-
-            Location location = entity.getLocation();
-            SimpleFlare flare = new SimpleFlare(
-                    ((CraftWorld) world).getHandle(),
-                    location.getX(), location.getY(), location.getZ(),
-                    Double.longBitsToDouble(velocity[0]),
-                    Double.longBitsToDouble(velocity[1]),
-                    Double.longBitsToDouble(velocity[2])
-            );
-
-            Integer lifespan = pdc.get(flareLifespanKey, PersistentDataType.INTEGER);
-            if (lifespan != null)
-                flare.setLifespan(lifespan);
-
-            entity.remove();
-            flare.getBukkitEntity().setPersistent(true);
-            ((CraftWorld) world).getHandle().addEntity(flare);
-        }
-    }
-
 
     private void discoverConstructs(Chunk chunk) {
 
@@ -273,29 +227,16 @@ public class ChunkLoader implements Listener {
         int z = chunk.getZ();
 
        managerUpdate(world.getName(), x, z, false);
-       persistProjectiles(chunk);
+       removeFGProjectiles(chunk);
        shelveConstructs(chunk, world);
     }
 
 
-    private void persistProjectiles(Chunk chunk) {
+    private void removeFGProjectiles(Chunk chunk) {
         for (Entity entity : chunk.getEntities()) {
             net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-            if (nms instanceof ProjectileFG) {
-                entity.setPersistent(true);
-
-                if (nms instanceof SimpleFlare flare) {
-                    PersistentDataContainer pdc = entity.getPersistentDataContainer();
-                    pdc.set(flareKey, PersistentDataType.BYTE, (byte) 1);
-                    pdc.set(flareLifespanKey, PersistentDataType.INTEGER, flare.getLifespan());
-
-                    org.bukkit.util.Vector velocity = entity.getVelocity();
-                        pdc.set(flareVelocityKey, PersistentDataType.LONG_ARRAY, new long[]{
-                            Double.doubleToLongBits(velocity.getX()),
-                            Double.doubleToLongBits(velocity.getY()),
-                            Double.doubleToLongBits(velocity.getZ())
-                    });
-                }
+            if (nms instanceof ProjectileFG p) {
+                p.remove();
             }
         }
     }
