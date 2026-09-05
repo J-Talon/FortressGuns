@@ -72,7 +72,7 @@ public class ArtilleryPart extends ComponentAS
             Player rider = ride.getRider();
 
             if (FGItems.TACTICAL_PTR.isSimilar(mainHand)) {
-                if (rider == null)
+                if (rider == null)  //here
                     body.fire(clicked);
                 else
                     clicked.sendMessage(ChatColor.RED+"Cannot fire; the platform is being commandeered");
