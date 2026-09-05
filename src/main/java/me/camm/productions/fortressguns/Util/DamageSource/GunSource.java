@@ -42,7 +42,7 @@ public class GunSource extends EntityDamageSourceIndirect {
 
 
       String body = victim.getUniqueID().toString().equalsIgnoreCase("ae5430bf-2066-43e6-8eff-2bb4cc730bd6") ?
-              " was reduced to electronic waste " : " was shot to bits by ";
+              " was reduced to electronic waste by " : " was shot to bits by ";
 
       ChatMessage message = new ChatMessage("");
       IChatBaseComponent killerName = owner.getScoreboardDisplayName();

@@ -637,6 +637,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
 
+        getInventoryGroup().close();
+
         dead = true;
         List<ArtilleryPart> components = getParts();
         try {
