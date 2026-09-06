@@ -102,6 +102,8 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
         canFire = false;
 
+
+
         final List<Player> vibrateFor = getShakenPlayers();
         new BukkitRunnable()
         {
@@ -126,7 +128,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                 }
 
                 //pivot is already called if there is a rider so don't call pivot twice
-                if (getRider() != null) {
+                if (getRider() == null) {
                     pivot(aim.getX(), aim.getY());
                 }
 
