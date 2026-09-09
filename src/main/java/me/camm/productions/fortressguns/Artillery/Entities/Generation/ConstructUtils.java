@@ -12,10 +12,14 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Constru
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
+import net.minecraft.world.level.World;
+import net.minecraft.world.phys.AxisAlignedBB;
+import net.minecraft.world.phys.Vec3D;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 public class ConstructUtils {
@@ -86,6 +90,32 @@ public class ConstructUtils {
             return;
         }
         group.openInventory(menu, player);
+    }
+
+
+    /*
+    small:
+    w = 0.25
+    h = 0.9875
+
+    large:
+    w = 0.5
+    h = 1.975
+
+     */
+    public static boolean isInBlock(Entity entity, Vector nextPosition) {
+
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+        float entityWidth = nms.getWidth() * 0.8F;
+        float entityHeight = nms.getHeadHeight();
+        World world = nms.t;
+
+        Vec3D check = new Vec3D(nextPosition.getX(), nextPosition.getY() + (double)entityHeight, nextPosition.getZ());
+
+        AxisAlignedBB boundingBox = AxisAlignedBB.a(check, entityWidth, 1.0E-6, entityWidth);
+
+        return world.b(nms, boundingBox, (blockType, position) ->
+                blockType.o(world, position)).findAny().isPresent();
     }
 
 
