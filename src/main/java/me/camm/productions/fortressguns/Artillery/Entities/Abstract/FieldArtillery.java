@@ -177,15 +177,6 @@ public abstract class FieldArtillery extends ArtilleryRideable
         return AmmoItem.EXPLOSIVE_HEAVY == item || AmmoItem.STANDARD_HEAVY == item;
     }
 
-    protected synchronized void incrementSmallDistance(double increment){
-        this.smallBlockDist += increment;
-        lengthChanged = true;
-    }
-
-    protected synchronized void setSmallDistance(double dist) {
-        this.smallBlockDist = dist;
-        lengthChanged = true;
-    }
 
     @Override
     protected boolean instantiateParts()

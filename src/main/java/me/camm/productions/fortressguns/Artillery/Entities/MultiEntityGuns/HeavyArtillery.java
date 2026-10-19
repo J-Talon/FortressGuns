@@ -66,11 +66,6 @@ public class HeavyArtillery extends FieldArtillery
 
 
     @Override
-    protected synchronized void incrementSmallDistance(double increment) {
-        super.incrementSmallDistance(increment);
-    }
-
-    @Override
     public double getMaxHealth() {
         return maxHealth;
     }

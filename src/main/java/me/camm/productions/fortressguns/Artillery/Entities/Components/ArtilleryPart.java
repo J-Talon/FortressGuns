@@ -65,6 +65,9 @@ public class ArtilleryPart extends ComponentAS
 
 
 
+
+
+
     @Override
     public boolean onLeftClick(ItemStack mainHand, Player clicked) {
 

@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.Math;
 
 import org.bukkit.Location;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -17,6 +18,13 @@ public class MathFG {
     public static double linearInterpolate(double increment, double start, double end) {
         return start + increment * (end - start);
     }
+
+
+    public static boolean AABBIntersects(BoundingBox a, BoundingBox b) {
+        return a.overlaps(b);
+    }
+
+
 
 
     public static double randomDouble() {

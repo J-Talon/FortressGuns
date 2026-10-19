@@ -12,15 +12,26 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Constru
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
+import net.minecraft.core.BlockPosition;
 import net.minecraft.world.level.World;
+import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.phys.AxisAlignedBB;
 import net.minecraft.world.phys.Vec3D;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiPredicate;
+
 
 public class ConstructUtils {
 
@@ -93,19 +104,40 @@ public class ConstructUtils {
     }
 
 
-    /*
-    small:
-    w = 0.25
-    h = 0.9875
 
-    large:
-    w = 0.5
-    h = 1.975
+    public static boolean isInBlock(Entity entity) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+        return isInBlock(nms);
+    }
 
-     */
+
+
+    public static boolean isInBlock(net.minecraft.world.entity.Entity nms) {
+        Vec3D check = new Vec3D(nms.locX(), nms.getHeadY(), nms.locZ());
+        World world = nms.t;
+
+        float entityWidth = nms.getWidth() * 0.8F;
+
+        AxisAlignedBB axisalignedbb = AxisAlignedBB.a(check,entityWidth, 1.0E-6, entityWidth);
+        //bb() returns Vec3D(this.locX(), this.getHeadY(), this.locZ());
+
+        return world.b(nms, axisalignedbb, (iblockdata, blockposition) -> {
+            return iblockdata.o(world, blockposition);
+        }).findAny().isPresent();
+    }
+
+
+
+
+
     public static boolean isInBlock(Entity entity, Vector nextPosition) {
 
         net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+        return isInBlock(nms, nextPosition);
+    }
+
+
+    public static boolean isInBlock(net.minecraft.world.entity.Entity nms, Vector nextPosition) {
         float entityWidth = nms.getWidth() * 0.8F;
         float entityHeight = nms.getHeadHeight();
         World world = nms.t;
@@ -119,31 +151,47 @@ public class ConstructUtils {
     }
 
 
-//    public void x() {
-//        net.minecraft.world.entity.Entity e;
-//        e.inBlock();
-//
-//    }
+
+    public static List<Block> getHeadBlocks(net.minecraft.world.entity.Entity nms) {
+        float entityWidth = nms.getWidth() * 0.8F;
+
+        World world = nms.t;
+        org.bukkit.World bukkitWorld = world.getWorld();
+
+        Vec3D location = new Vec3D(nms.locX(), nms.getHeadY(), nms.locZ());
+        AxisAlignedBB boundingBox = AxisAlignedBB.a(location,entityWidth, 1.0E-6,entityWidth);
+        BoundingBox bukkitCheck = new BoundingBox(boundingBox.a, boundingBox.b, boundingBox.c, boundingBox.d,boundingBox.e, boundingBox.f);
+
+        List<Block> blocks = new ArrayList<>();
+        List<Block> intersecting = new ArrayList<>();
+
+        BiPredicate<IBlockData, BlockPosition> predicate = new BiPredicate<>() {
+            @Override
+            public boolean test(IBlockData blockType, BlockPosition position) {
+                boolean res = blockType.o(world, position);
+                if (res) {
+                    blocks.add(bukkitWorld.getBlockAt(position.getX(), position.getY(), position.getZ()));
+                }
+                return res;
+            }
+        };
+
+        world.b(nms, boundingBox, predicate).toList(); //yes, this is necessary
 
 
-    //see entity.inBlock()
-        /*
-        public boolean inBlock() {
-        if (this.P) {
-            return false;
-        } else {
-            float f = this.aW.a * 0.8F;
-                            ^ width of the entity size
+        for (Block block: blocks) {
+            int x, y, z;
+            x = block.getX();
+            y = block.getY();
+            z = block.getZ();
+            BoundingBox blockBox = new BoundingBox(x,y,z,x+1, y+1,z+1);
 
-            AxisAlignedBB axisalignedbb = AxisAlignedBB.a(this.bb(), (double)f, 1.0E-6, (double)f);
-            //bb() returns Vec3D(this.locX(), this.getHeadY(), this.locZ());
-
-            t = world
-
-            return this.t.b(this, axisalignedbb, (iblockdata, blockposition) -> {
-                return iblockdata.o(this.t, blockposition);
-            }).findAny().isPresent();
+            if (blockBox.overlaps(bukkitCheck)) {
+                intersecting.add(block);
+            }
         }
+
+       return intersecting;
+
     }
-         */
 }

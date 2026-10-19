@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Util.DamageSource.DamageMultiplier;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
@@ -15,9 +16,8 @@ import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.material.EnumPistonReaction;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
@@ -185,8 +185,25 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
     @Override
     public boolean damageEntity(DamageSource source, float damage)
     {
+
         if (body.isInvalid())
             return super.damageEntity(source,damage);
+
+        if (source.y.equalsIgnoreCase("inWall")) {
+            List<Block> blocks = ConstructUtils.getHeadBlocks(this);
+            float damageSum = 0;
+
+            for (Block block: blocks) {
+                damageSum += block.getType().getBlastResistance();
+                org.bukkit.World world = getWorld().getWorld();
+                Location hit = block.getLocation().add(0.5,0.5, 0.5);
+                world.spawnParticle(Particle.BLOCK_CRACK,hit,30,block.getBlockData());
+                world.playSound(hit, Sound.BLOCK_NETHERRACK_BREAK,SoundCategory.BLOCKS,1,1);
+                block.setType(Material.AIR);
+            }
+
+            return damageRaw(source,damageSum);
+        }
 
         net.minecraft.world.entity.Entity entity = source.getEntity();
         if (entity == null) return damageRaw(source, damage);
