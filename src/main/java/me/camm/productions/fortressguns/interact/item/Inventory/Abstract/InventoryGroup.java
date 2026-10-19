@@ -6,10 +6,13 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.interact.item.Inventory.*;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public abstract class InventoryGroup {
@@ -52,14 +55,6 @@ public abstract class InventoryGroup {
     }
 
 
-    public void openInventory(Player player, String name) {
-        ConstructInventory inv = getInventory(name);
-        if (inv == null)
-            return;
-
-        InventoryHandler.startInteraction(player,inv);
-    }
-
     public void openInventory(ConstructInventory inv, Player player) {
         InventoryHandler.startInteraction(player,inv);
     }
@@ -91,7 +86,28 @@ public abstract class InventoryGroup {
         tags.put(cat, id);
     }
 
+
+    //closes the inventories for all of viewers
+    public void close() {
+        for (ConstructInventory inventory: inventories.values()) {
+            List<HumanEntity> entities = inventory.getInventory().getViewers();
+            Iterator<HumanEntity> iter = entities.listIterator();
+
+            while (iter.hasNext()) {
+                HumanEntity next = iter.next();
+                iter.remove();  //this might be dangerous, we'll see
+                next.closeInventory();
+            }
+        }
+    }
+
+
+
     protected abstract void init();
+
+
+
+
 
 
 

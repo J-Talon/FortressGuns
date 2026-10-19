@@ -161,8 +161,8 @@ public class ChunkLoader implements Listener {
             lock.unlock();
         }
         discoverConstructs(chunk);
+        removeFGProjectiles(chunk); // if there's fgprojectiles in this chunk, then they were there when it was unloaded
     }
-
 
     private void discoverConstructs(Chunk chunk) {
 
@@ -227,7 +227,18 @@ public class ChunkLoader implements Listener {
         int z = chunk.getZ();
 
        managerUpdate(world.getName(), x, z, false);
+       removeFGProjectiles(chunk);
        shelveConstructs(chunk, world);
+    }
+
+
+    private void removeFGProjectiles(Chunk chunk) {
+        for (Entity entity : chunk.getEntities()) {
+            net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
+            if (nms instanceof ProjectileFG p) {
+                p.remove();
+            }
+        }
     }
 
 

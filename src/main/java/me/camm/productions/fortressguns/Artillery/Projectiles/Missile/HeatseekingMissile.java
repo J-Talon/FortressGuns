@@ -73,7 +73,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
         fueledFlightAge = 0;
         direction = null;
         readyTime = 0;
-        Vector initial = MathFG.eulerToVec(source.getAim());
+        Vector initial = source == null ? new Vector(1, 0, 0) : MathFG.eulerToVec(source.getAim());
         initialVelocity = new Vec3D(initial.getX(),initial.getY(),initial.getZ());
         hadTarget = false;
         bukkitWorld = world.getWorld();

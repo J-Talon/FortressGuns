@@ -111,6 +111,12 @@ getCursor() --> item on the cursor before the pickup | is Material.AIR generally
 
                     public void run() {
 
+                        if (owner.isInvalid() || !owner.chunkLoaded()) {
+                            cancel();
+                            group.close();
+                            return;
+                        }
+
 
                         if (gui.getViewers().isEmpty()) {
                             inLoadingAnimation = false;

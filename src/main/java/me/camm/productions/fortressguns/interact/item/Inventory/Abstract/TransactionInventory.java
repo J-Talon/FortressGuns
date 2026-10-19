@@ -22,9 +22,22 @@ public abstract class TransactionInventory extends ConstructInventory {
         super(owner, setting, group);
     }
 
+    //returns whether the construct is invalid
+    protected boolean isDead() {
+        return owner.isInvalid() || !owner.chunkLoaded();
+    }
+
 
     @Override
     public void transact(InventoryDragEvent event) {
+
+        if (isDead()) {
+            event.setCancelled(true);
+            group.close();
+            return;
+        }
+
+
 
         Set<Integer> slots = event.getRawSlots();
 
@@ -47,7 +60,7 @@ public abstract class TransactionInventory extends ConstructInventory {
 
         InventoryView view = event.getView();
 
-        Inventory first = null, second = null;
+        Inventory first, second;
         first = view.getInventory(min);
         second = view.getInventory(max);
 
@@ -72,6 +85,12 @@ public abstract class TransactionInventory extends ConstructInventory {
 
     @Override
     public void transact(InventoryClickEvent event) {
+
+        if (isDead()) {
+            event.setCancelled(true);
+            group.close();
+            return;
+        }
 
         String actionName = event.getAction().toString().toLowerCase();
 
