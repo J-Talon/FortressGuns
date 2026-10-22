@@ -7,7 +7,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructU
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -21,8 +20,6 @@ import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -64,7 +61,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected ArtilleryPart[][] base;
     protected Location initialLoc;
 
-    protected ArtilleryCore pivot;
+    protected Component pivot;
     protected EulerAngle aim;//
     protected volatile EulerAngle interpolatedAim;
     protected volatile boolean cameraLocked;
@@ -178,7 +175,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             translation[index] = data[index];
         }
 
-        PersistentDataContainer container = pivot.getBukkitEntity().getPersistentDataContainer();
+        PersistentDataContainer container = pivot.getPDC();
         container.set(new NamespacedKey(plugin, FactorySerialization.getKey()), PersistentDataType.INTEGER_ARRAY,translation);
         setChunkLoaded(false);
     }
@@ -287,7 +284,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     public Location getCurrentLocation(){
-        return pivot.getLocation(world);
+        return pivot.getLocation();
     }
 
     public ArtilleryPart[][] getBase() {
@@ -362,7 +359,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                 }
 
                 if (!pivot(x,y)) {
-                    world.playSound(pivot.getEyeLocation(),Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,0.5f,0);
+                    world.playSound(pivot.getLocation(),Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,0.5f,0);
                     interpolatedAim = aim;
                     setInterpolating(false);
                     cancel();
@@ -481,7 +478,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             //setting the rotation of all of the barrel armorstands.
             barrelComponent.setRotation(aim);
 
-            Location centre = pivot.getLocation(world).clone();
+            Location centre = pivot.getLocation();
 
             Vector teleport;
             if (barrelComponent.isSmall())
@@ -664,7 +661,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
     public final boolean isInvalid() {
-        return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
+        return (pivot == null || (!pivot.isValid()) || health <= 0 || dead);
     }
 
     public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
@@ -682,7 +679,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
         Location loc;
         if (pivot != null)
-            loc = pivot.getLocation(world).clone();
+            loc = pivot.getLocation();
         else return;
 
         if (exploded) {
@@ -697,7 +694,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     public org.bukkit.entity.Entity getCoreEntity(){
-        return pivot.getBukkitEntity();
+        return pivot.getEntity();
     }
 
 

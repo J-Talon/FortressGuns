@@ -100,77 +100,77 @@ public class CRAM extends Artillery implements AutoTracking {
 
          */
 
-        double bs = 4;
-
-
-        Vector targetPos = new Vector(target.locX(), target.locY(), target.locZ());
-        Vector shooterPos = pivot.getEyeLocation().toVector();
-
-
-
-        Vector tv;
-        Vec3D mot = target.getMot();
-        tv = new Vector(mot.getX(), mot.getY(), mot.getZ());
-
-       // tv.multiply(1/20);
-
-        //target pos relative to shooter
-        Vector tp = targetPos.clone().subtract(shooterPos);
-
-        System.out.println("tp: "+tp);
-        System.out.println("raw tv: "+ mot);
-        System.out.println("tv: "+tv);
-        System.out.println("sp: "+shooterPos);
-
-        double a = tv.dot(tv) - (bs * bs);
-        double b = tp.dot(tv) * 2;
-        double c = tp.dot(tp);
-
-
-        double discriminant = b*b - (4*a*c);
-        if (discriminant < 0)
-            return;
-
-        double deltaTPos = ((-b) + Math.sqrt(discriminant) ) / (2 * a);
-        double deltaTNeg = ((-b) - (Math.sqrt(discriminant))) / (2 * a);
-
-        double deltaTime = -1;
-
-        if (deltaTPos > 0) {
-            deltaTime = deltaTPos;
-        }
-        else if (deltaTNeg > 0) {
-            deltaTime = deltaTNeg;
-        }
-
-        if (deltaTime < 0)
-            return;
-
-      //  deltaTime = deltaTime / 20;
-
-
-        Vector direction = tp.clone().add(tv.clone().multiply(deltaTime));
-
-        double denominator = deltaTime * bs;
-
-        System.out.println(deltaTime);
-
-        direction.multiply(1/denominator);
-
-        direction.normalize();
-        direction.multiply(bs);
-
-        System.out.println("direction: "+ direction);
-
-        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
-        CRAMShell shell = new CRAMShell(nms,shooterPos.getX(), shooterPos.getY(), shooterPos.getZ(),null,this);
-
-        Vec3D dir = new Vec3D(direction.getX(), direction.getY(), direction.getZ());
-        shell.setMot(dir);
-        nms.addEntity(shell);
-
-        System.out.println("shooting");
-
+//        double bs = 4;
+//
+//
+//        Vector targetPos = new Vector(target.locX(), target.locY(), target.locZ());
+//        Vector shooterPos = pivot.getEyeLocation().toVector();
+//
+//
+//
+//        Vector tv;
+//        Vec3D mot = target.getMot();
+//        tv = new Vector(mot.getX(), mot.getY(), mot.getZ());
+//
+//       // tv.multiply(1/20);
+//
+//        //target pos relative to shooter
+//        Vector tp = targetPos.clone().subtract(shooterPos);
+//
+//        System.out.println("tp: "+tp);
+//        System.out.println("raw tv: "+ mot);
+//        System.out.println("tv: "+tv);
+//        System.out.println("sp: "+shooterPos);
+//
+//        double a = tv.dot(tv) - (bs * bs);
+//        double b = tp.dot(tv) * 2;
+//        double c = tp.dot(tp);
+//
+//
+//        double discriminant = b*b - (4*a*c);
+//        if (discriminant < 0)
+//            return;
+//
+//        double deltaTPos = ((-b) + Math.sqrt(discriminant) ) / (2 * a);
+//        double deltaTNeg = ((-b) - (Math.sqrt(discriminant))) / (2 * a);
+//
+//        double deltaTime = -1;
+//
+//        if (deltaTPos > 0) {
+//            deltaTime = deltaTPos;
+//        }
+//        else if (deltaTNeg > 0) {
+//            deltaTime = deltaTNeg;
+//        }
+//
+//        if (deltaTime < 0)
+//            return;
+//
+//      //  deltaTime = deltaTime / 20;
+//
+//
+//        Vector direction = tp.clone().add(tv.clone().multiply(deltaTime));
+//
+//        double denominator = deltaTime * bs;
+//
+//        System.out.println(deltaTime);
+//
+//        direction.multiply(1/denominator);
+//
+//        direction.normalize();
+//        direction.multiply(bs);
+//
+//        System.out.println("direction: "+ direction);
+//
+//        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
+//        CRAMShell shell = new CRAMShell(nms,shooterPos.getX(), shooterPos.getY(), shooterPos.getZ(),null,this);
+//
+//        Vec3D dir = new Vec3D(direction.getX(), direction.getY(), direction.getZ());
+//        shell.setMot(dir);
+//        nms.addEntity(shell);
+//
+//        System.out.println("shooting");
+//
 
     }
 

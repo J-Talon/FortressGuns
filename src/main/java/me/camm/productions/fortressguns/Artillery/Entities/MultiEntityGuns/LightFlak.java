@@ -133,16 +133,14 @@ public class LightFlak extends RapidFire {
 
     private void fireOneShot() {
 
-        List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
+        Entity rider = rotatingSeat.getRider();
 
 
         Player operator = null;
-        if (passengers.isEmpty())
-            return;
+        if (rider == null) return;
 
-        Entity e = passengers.get(0);
-        if (e instanceof Player)
-            operator = (Player) e;
+        if (rider instanceof Player)
+            operator = (Player) rider;
 
         if (operator == null)
             return;

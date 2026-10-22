@@ -123,7 +123,7 @@ public abstract class RapidFire extends ArtilleryRideable {
             double z = horizontalDistance*Math.cos(aim.getY());
             double x = -horizontalDistance*Math.sin(aim.getY());
 
-            Location centre = pivot.getLocation(world).clone();
+            Location centre = pivot.getLocation().clone();
             ArtilleryPart stand;
 
             //if it is small, add 0.75 so that it is high enough
@@ -231,7 +231,7 @@ public abstract class RapidFire extends ArtilleryRideable {
             double x = -horizontalDistance*Math.sin(horAngle);
 
 
-            Location centre = pivot.getLocation(world).clone();
+            Location centre = pivot.getLocation().clone();
 
             //teleporting the armorstands to be in line with the pivot
             Location teleport = centre.add(x, height + 0.75, z);

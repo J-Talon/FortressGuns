@@ -6,10 +6,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public interface Component {
 
@@ -44,6 +47,16 @@ public interface Component {
 
 
    public boolean enoughSpace();
+
+   public UUID getUUID();
+
+   public PersistentDataContainer getPDC();
+
+   public Location getLocation();
+
+   public boolean isValid();
+
+   public Entity getEntity();
 
     /*
 

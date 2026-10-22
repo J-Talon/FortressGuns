@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
-    protected ArtilleryPart rotatingSeat = null;  //artillery may have multiple seats in the future
+    protected Component rotatingSeat = null;  //artillery may have multiple seats in the future
     protected Player operator = null;
 
     public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
@@ -70,7 +70,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
                     return;
                 }
 
-                if (!vehicle.getUniqueId().equals(rotatingSeat.getUniqueID())) {
+                if (!vehicle.getUniqueId().equals(rotatingSeat.getUUID())) {
                     artillery.kickOperator();
                     cancel();
                     return;

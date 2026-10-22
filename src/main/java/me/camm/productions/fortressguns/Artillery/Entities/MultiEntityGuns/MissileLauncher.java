@@ -317,7 +317,7 @@ public class MissileLauncher extends ArtilleryRideable {
     @Override
     protected void spawnBaseParts() {
 
-        Location piv = pivot.getLocation(world);
+        Location piv = pivot.getLocation();
         double rads = 0;
         for (ArtilleryPart[] row: base) {
             for (int slot = 0; slot < row.length; slot++) {

@@ -24,13 +24,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-
+import java.util.UUID;
 
 
 public abstract class ComponentAS extends EntityArmorStand implements Component {
@@ -197,8 +197,33 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
 
 
     @Override
+    public PersistentDataContainer getPDC() {
+        return getBukkitEntity().getPersistentDataContainer();
+    }
+
+    @Override
+    public Location getLocation() {
+        return getBukkitEntity().getLocation();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this.getUniqueID();
+    }
+
+    @Override
+    public boolean isValid() {
+        return isAlive();
+    }
+
+    @Override
     public boolean spawn() {
         return this.t.addEntity(this);
+    }
+
+    @Override
+    public Entity getEntity() {
+        return getBukkitEntity();
     }
 
 

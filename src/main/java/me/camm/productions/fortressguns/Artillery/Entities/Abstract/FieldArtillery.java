@@ -217,7 +217,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
             int length = 0;
 
             for (int slot=0;slot<standRow.length;slot++) {
-                Location loc = pivot.getLocation(this.world).clone().
+                Location loc = pivot.getLocation().clone().
                         add((position[0] * LARGE_BLOCK_LENGTH + length*position[0]),
                               -0.75,    //-0.75 makes stuff look nice (from testing)
                                 (LARGE_BLOCK_LENGTH * position[1] + length*position[1]));
@@ -317,7 +317,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
             double z = horizontalDistance*Math.cos(aim.getY());
             double x = -horizontalDistance*Math.sin(aim.getY());
 
-            Location centre = pivot.getLocation(world).clone();
+            Location centre = pivot.getLocation().clone();
 
 
             ArtilleryPart stand;
