@@ -162,11 +162,13 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    public void positionSeat() {
+    public boolean positionSeat() {
         if (rotatingSeat != null) {
             //Math.PI * 1.5 --> 90* angle. Technically it's 270 degrees though
-            posSeatAbsoluteHorizon(rotatingSeat,DIST_X, DIST_Y, getVibrationOffsetY(),Math.PI*1.5);
+            return posSeatAbsoluteHorizon(rotatingSeat,DIST_X, DIST_Y, getVibrationOffsetY(),Math.PI*1.5);
         }
+
+        return false;
     }
 
     @Override
@@ -179,41 +181,23 @@ public abstract class FieldArtillery extends ArtilleryRideable
         return AmmoItem.EXPLOSIVE_HEAVY == item || AmmoItem.STANDARD_HEAVY == item;
     }
 
-    protected synchronized void incrementSmallDistance(double increment){
-        this.smallBlockDist += increment;
-        lengthChanged = true;
-    }
-
-    protected synchronized void setSmallDistance(double dist) {
-        this.smallBlockDist = dist;
-        lengthChanged = true;
-    }
 
     @Override
-    protected boolean instantiateParts()
+    protected void instantiateParts()
     {
-
         pivot = StandHelper.createCore(this.initialLoc, BODY, aim, world, this);
 
         //pivot.setRotation(aim);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(DIST_X, DIST_Y,Math.PI*1.5),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
 
-        if (pivot == null || rotatingSeat == null) {
-            return false;
-        }
-
-        if (!spawnTurretParts() || !spawnBaseParts()) {
-            return false;
-        }
-
         //for the base of the artillery
+        spawnTurretParts();
+        spawnBaseParts();
+
+
         calculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
-
-
-        return true;
-
     }
 
 
@@ -233,7 +217,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
             int length = 0;
 
             for (int slot=0;slot<standRow.length;slot++) {
-                Location loc = pivot.getLocation(this.world).clone().
+                Location loc = pivot.getLocation().clone().
                         add((position[0] * LARGE_BLOCK_LENGTH + length*position[0]),
                               -0.75,    //-0.75 makes stuff look nice (from testing)
                                 (LARGE_BLOCK_LENGTH * position[1] + length*position[1]));
@@ -256,9 +240,6 @@ public abstract class FieldArtillery extends ArtilleryRideable
                 else
                     part = StandHelper.createInvisiblePart(loc,BODY,null,world, this);
 
-                if (part == null)
-                    return false;
-
                 length ++;
                 standRow[slot] = part;
             }
@@ -275,7 +256,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    protected boolean spawnTurretParts() {
+    protected void spawnTurretParts() {
 
         int smallThresh = getSmallDistThreshold();
 
@@ -336,7 +317,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
             double z = horizontalDistance*Math.cos(aim.getY());
             double x = -horizontalDistance*Math.sin(aim.getY());
 
-            Location centre = pivot.getLocation(world).clone();
+            Location centre = pivot.getLocation().clone();
 
 
             ArtilleryPart stand;
@@ -344,20 +325,14 @@ public abstract class FieldArtillery extends ArtilleryRideable
             //if it is small, add 0.75 so that it is high enough
             if (small) {
                 stand = StandHelper.createInvisiblePart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
-                if (stand == null)
-                    return false;
-
                 stand.setSmall(true);
             }
             else {
                 stand = StandHelper.createInvisiblePart(centre.add(x, height, z), BODY, aim, world, this);
-                if (stand == null)
-                    return false;
             }
 
             barrel[slot] = stand;
         }
-        return true;
     }
 
 

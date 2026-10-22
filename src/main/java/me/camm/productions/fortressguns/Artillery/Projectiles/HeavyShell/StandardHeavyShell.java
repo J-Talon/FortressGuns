@@ -4,13 +4,12 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.ShellSource;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.core.BaseBlockPosition;
-import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.EntityDamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.level.World;
@@ -20,7 +19,10 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +61,7 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
 
-    protected void hitEffectBlock(@Nullable Vec3D hit) {
+    protected void hitEffectBlock(@Nullable Vector hitPos) {
         final float PEN_POWER = 6f;  // put into config
 
         Vector direction = CraftVector.toBukkit(getMot());
@@ -71,11 +73,9 @@ public class StandardHeavyShell extends HeavyShell {
         direction.multiply(0.3); //resolution
 
 
-        Vector hitPos;
-        if (hit == null) {
+        if (hitPos == null) {
             hitPos = CraftVector.toBukkit(getPositionVector());
         }
-        else hitPos = CraftVector.toBukkit(hit);
 
         Block currentPen = bukkitWorld.getBlockAt(hitPos.getBlockX(), hitPos.getBlockY(), hitPos.getBlockZ());
 
@@ -134,7 +134,7 @@ public class StandardHeavyShell extends HeavyShell {
 
     //deflections should only happen if both projectiles are non explosive
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(Entity hitEntity, Vector entityPosition) {
 
         if (super.onEntityHit(hitEntity, entityPosition)) {
             this.remove();
@@ -147,20 +147,22 @@ public class StandardHeavyShell extends HeavyShell {
             return true;
         }
 
+        net.minecraft.world.entity.Entity hitEntityNMS = ((CraftEntity)hitEntity).getHandle();
+
 
         float length = (float)getMot().f();
         float damageMultiplier = (float) (length / source.getVectorPower());
         float damage = getHitDamage();
 
         Vec3D velocity = getMot().d().a(weight);  //d() => norm,  a() => mult
-        hitEntity.i(velocity.getX() * weight, velocity.getY() * weight,velocity.getZ() * weight);  //i => push()
+        hitEntityNMS.i(velocity.getX() * weight, velocity.getY() * weight,velocity.getZ() * weight);  //i => push()
 
         EntityDamageSource source = ShellSource.artilleryHit(shooter, this);
-        if (hitEntity instanceof EntityLiving living) {
+        if (hitEntityNMS instanceof EntityLiving living) {
             //if the damage would be blocked
             if (living.applyBlockingModifier(ShellSource.artilleryHit(shooter,this))) {
-                hitEntity.damageEntity(source, damage * damageMultiplier * 5);
-                hitEffectBlock(this.getPositionVector());
+                hitEntityNMS.damageEntity(source, damage * damageMultiplier * 5);
+                hitEffectBlock(CraftVector.toBukkit(this.getPositionVector()));
                 return true;
             }
 
@@ -170,7 +172,7 @@ public class StandardHeavyShell extends HeavyShell {
         }
 
 
-        hitEntity.damageEntity(source,damage * damageMultiplier);
+        hitEntityNMS.damageEntity(source,damage * damageMultiplier);
         Location loc = CraftVector.toBukkit(getPositionVector()).toLocation(bukkitWorld);
         bukkitWorld.playSound(loc,Sound.ITEM_TRIDENT_HIT,1,0);
         bukkitWorld.spawnParticle(Particle.END_ROD,loc,10,0,0,0,0.1f);
@@ -178,11 +180,9 @@ public class StandardHeavyShell extends HeavyShell {
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition block) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block block) {
 
-        // Vec3D exactHitPosition = hitBlock.getPos();
-
-        Vec3D normalVector = getNormalVector(blockFace);
+        Vec3D normalVector = CraftVector.toNMS(blockFace.getDirection());
 
         Vec3D motion = getMot();
         double length = motion.f();
@@ -217,8 +217,9 @@ public class StandardHeavyShell extends HeavyShell {
                 bukkitWorld.playSound(loc, Sound.BLOCK_BELL_USE,2,2);
                 bukkitWorld.spawnParticle(Particle.END_ROD,loc,10,0,0,0,0.2d);
                 bukkitWorld.spawnParticle(Particle.BLOCK_CRACK,loc, 30, 0.1, 0.1, 0.1,1, bukkitBlock.getBlockData());
-                Vec3D reflectionVector = getReflectionVector(blockFace, motion);
-                setMot(reflectionVector);
+
+                Vector reflectionVector = MathFG.getReflectionVector(blockFace, motion.getX(), motion.getY(), motion.getZ());
+                setMot(reflectionVector.getX(), reflectionVector.getY(), reflectionVector.getZ());
                 return false;
             }
 
@@ -236,14 +237,14 @@ public class StandardHeavyShell extends HeavyShell {
         return new Vec3D(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public Vec3D getReflectionVector(EnumDirection blockFace, Vec3D in) {
-        Vec3D vector = getNormalVector(blockFace);
+
+    public Vec3D getReflectionVector(BlockFace blockFace, Vector in) {
+        Vector vector = blockFace.getDirection();
         double x,y,z;
         x = vector.getX() != 0 ? in.getX() * -1 : in.getX();
         y = vector.getY() != 0 ? in.getY() * -1 : in.getY();
         z = vector.getZ() != 0 ? in.getZ() * -1 : in.getZ();
         return new Vec3D(x,y,z);
-
     }
 
 

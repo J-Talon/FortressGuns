@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Flare;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import net.minecraft.core.BlockPosition;
@@ -8,13 +9,15 @@ import net.minecraft.core.EnumDirection;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.tags.Tag;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.level.material.FluidType;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -30,7 +33,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     private final double RADIUS = 50.0;
 
     private static final double MAX_SPEED = 1;
-    private final Set<AbstractRocket> affectedMissiles = new HashSet<>();
+    private final Set<ProjectileSeeking> affectedMissiles = new HashSet<>();
 
     public SimpleFlare(World world, double x, double y, double z, EntityPlayer shooter) {
         super(world, x, y, z, shooter);
@@ -119,12 +122,14 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
                 continue;
             }
 
-            if (!affectedMissiles.add(missile)) {
+            if (!(missile instanceof ProjectileSeeking seeking)) continue;
+
+            if (!affectedMissiles.add(seeking)) {
                 continue;
             }
 
             if (rand.nextDouble() <= successChance) {
-                missile.setTarget(this.getBukkitEntity());
+                seeking.setTarget(this.getBukkitEntity());
 
             }
         }
@@ -161,16 +166,14 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        return false;
+    public boolean onEntityHit(Entity hitEntity, Vector entityPosition) {
         // had an issue where player would kill their own flare so yeah
         //don't pp collisions if not needed!
+        return false;
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition,
-                              EnumDirection blockFace,
-                              BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         this.die();
         return true;
     }
@@ -180,8 +183,4 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
         return 0;
     }
 
-    @Override
-    public void remove() {
-        this.die();
-    }
 }

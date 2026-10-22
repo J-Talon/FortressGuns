@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 public class CRAMShell extends LightShell implements ProjectileExplosive {
@@ -36,7 +37,7 @@ public class CRAMShell extends LightShell implements ProjectileExplosive {
     }
 
     @Override
-    public void explode(@Nullable Vec3D hit) {
+    public void explode(@Nullable Vector hit) {
         this.die();
     }
 

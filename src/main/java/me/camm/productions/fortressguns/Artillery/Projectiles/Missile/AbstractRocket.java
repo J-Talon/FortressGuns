@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -20,18 +22,12 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
 
 
 
-    protected Entity target;
-    protected boolean hadTarget;
-    private final MissileLockNotifier notifier;
-
     protected Random rand;
 
     protected Artillery source;
 
     public AbstractRocket(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, x,y,z, shooter);
-        notifier = MissileLockNotifier.get(FortressGuns.getInstance());
-        hadTarget = false;
         rand = new Random();
         this.source = source;
     }
@@ -53,20 +49,10 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
     }
 
 
-    public void setTarget(Entity target) {
 
-        if (hadTarget && this.target instanceof Player) {
-            notifier.exitNotification(this.target.getUniqueId());
-        }
-
-        if (target instanceof Player) {
-            notifier.addNotification(target.getUniqueId(), getFuelTicks());
-        }
-
-        this.target = target;
-        hadTarget = true;
-    }
 
     public abstract int getFuelTicks();
+
+
 
 }

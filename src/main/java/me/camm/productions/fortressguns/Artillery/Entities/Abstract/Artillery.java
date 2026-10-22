@@ -2,10 +2,11 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -19,8 +20,6 @@ import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -32,6 +31,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -61,7 +61,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected ArtilleryPart[][] base;
     protected Location initialLoc;
 
-    protected ArtilleryCore pivot;
+    protected Component pivot;
     protected EulerAngle aim;//
     protected volatile EulerAngle interpolatedAim;
     protected volatile boolean cameraLocked;
@@ -164,10 +164,10 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         if (!chunkLoaded())
             return;
 
-        List<ArtilleryPart> parts = getParts();
+        List<Component> parts = getParts();
         parts.remove(pivot);
 
-        parts.forEach(ArtilleryPart::die);
+        parts.forEach(Component::remove);
 
         Integer[] data = serializeData();
         int[] translation = new int[data.length];
@@ -175,7 +175,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             translation[index] = data[index];
         }
 
-        PersistentDataContainer container = pivot.getBukkitEntity().getPersistentDataContainer();
+        PersistentDataContainer container = pivot.getPDC();
         container.set(new NamespacedKey(plugin, FactorySerialization.getKey()), PersistentDataType.INTEGER_ARRAY,translation);
         setChunkLoaded(false);
     }
@@ -244,9 +244,10 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public abstract int getMaxAmmo();
 
-    public List<ArtilleryPart> getParts() {
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
-        for (ArtilleryPart[] segment: base)
+
+    public List<Component> getParts() {
+        List<Component> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (Component[] segment: base)
             parts.addAll(Arrays.asList(segment));
 
         return parts;
@@ -283,7 +284,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     public Location getCurrentLocation(){
-        return pivot.getLocation(world);
+        return pivot.getLocation();
     }
 
     public ArtilleryPart[][] getBase() {
@@ -356,7 +357,13 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                     cancel();
                     return;
                 }
-                pivot(x,y);
+
+                if (!pivot(x,y)) {
+                    world.playSound(pivot.getLocation(),Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,0.5f,0);
+                    interpolatedAim = aim;
+                    setInterpolating(false);
+                    cancel();
+                }
 
             }
 
@@ -393,15 +400,15 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     horAngle: The horizontal angle of the aim (in rads)
 
      */
-    public synchronized void pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
+    public synchronized boolean pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
     {
         if (dead)
-            return;
+            return false;
 
         if (isInvalid()) {
             destroy(false, true);
             dead = true;
-            return;
+            return false;
         }
 
 
@@ -428,7 +435,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
         if (currX == vertAngle && currY == horAngle && !lengthChanged)
-            return;
+            return false;
 
         lengthChanged = false;
 
@@ -439,12 +446,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
         horAngle = MathFG.nextHorizontalAngle(currY, horAngle, horRotSpeed);
 
-        if (this instanceof Rideable)
-            ((Rideable)this).positionSeat();
-
-
-        aim = new EulerAngle(vertAngle,horAngle,0);
-        pivot.setRotation(aim);
+        Vector[] locations = new Vector[barrel.length];
 
         //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
@@ -476,19 +478,40 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             //setting the rotation of all of the barrel armorstands.
             barrelComponent.setRotation(aim);
 
-            Location centre = pivot.getLocation(world).clone();
+            Location centre = pivot.getLocation();
 
-            //teleporting the armorstands to be in line with the pivot
-            if (barrelComponent.isSmall()) {
-                Location teleport = centre.add(x, height + 0.75, z);
-                barrelComponent.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
+            Vector teleport;
+            if (barrelComponent.isSmall())
+                teleport = centre.add(x, height + 0.75, z).toVector();
+            else
+                teleport = centre.add(x, height, z).toVector();
+
+
+            if (!(smallBlockDist < SMALL_BLOCK_LENGTH || largeBlockDist < LARGE_BLOCK_LENGTH)) {
+                if (ConstructUtils.isInBlock(barrelComponent, teleport)) {
+                    return false;
+                }
             }
-            else {
-                Location teleport = centre.clone().add(x, height, z);
-                barrelComponent.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
-            }
+            locations[slot] = teleport;
         }
+
+
+        if (this instanceof Rideable)
+            ((Rideable)this).positionSeat();
+
+        aim = new EulerAngle(vertAngle,horAngle,0);
+        pivot.setRotation(aim);
+
+        for (int slot=0;slot< barrel.length;slot++) {
+            ArtilleryPart barrelComponent = barrel[slot];
+            Vector teleport = locations[slot];
+            barrelComponent.teleport(teleport.getX(), teleport.getY(), teleport.getZ());
+        }
+        return true;
     }
+
+    public abstract void fire(@Nullable Player shooter);
+
 
     public double[] getBasePositions(double radian){
         double distance = LARGE_BLOCK_LENGTH;
@@ -505,7 +528,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         this.loaded = loaded;
     }
 
-    public abstract void fire(@Nullable Player shooter);
 
     public synchronized double getVibrationOffsetY(){
         return vibrationOffsetY;
@@ -516,28 +538,35 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
 
+    protected synchronized void incrementSmallDistance(double increment){
+        this.smallBlockDist += increment;
+        lengthChanged = true;
+    }
+
+    protected synchronized void setSmallDistance(double dist) {
+        this.smallBlockDist = dist;
+        lengthChanged = true;
+    }
+
+
 
 
 
     //to spawn an artillery piece, an external method calls spawn(). In the actual artillery classes however, the artillery
     // is actually created when the spawnParts method is called, and loaded into the world (drawn) when loadPieces() is called
-    public final boolean spawn() {
+    public final boolean spawn(boolean ignoreSpaceRequirement) {
         dead = false;
 
-        boolean spawnedSuccess = instantiateParts();
-        if (spawnedSuccess) {
-            setChunkLoaded(true);
-            spawnPieces();
-        }
-        else {
-            FortressGuns.getInstance().getLogger().warning("Could not spawn artillery");
+        instantiateParts();
+
+        if (!ignoreSpaceRequirement && !enoughSpace()) {
+            return false;
         }
 
+        setChunkLoaded(true);
+        spawnPieces();
 
-
-        //todo block checks
-
-        return spawnedSuccess;
+        return true;
     }
 
     public abstract boolean canFire();
@@ -619,20 +648,20 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
     protected void spawnPieces() {
-        List<ArtilleryPart> parts = getParts();
-
-        WorldServer nmsWorld = ((CraftWorld)world).getHandle();
+        List<Component> parts = getParts();
         Logger logger = FortressGuns.getInstance().getLogger();
 
-        for (ArtilleryPart part: parts) {
-          boolean result = nmsWorld.addAllEntitiesSafely(part);
+        for (Component part: parts) {
+          boolean result = part.spawn();
           if (!result)
               logger.log(Level.WARNING, "Unable to properly spawn part for artillery");
         }
     }
 
+
+
     public final boolean isInvalid() {
-        return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
+        return (pivot == null || (!pivot.isValid()) || health <= 0 || dead);
     }
 
     public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
@@ -640,9 +669,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         getInventoryGroup().close();
 
         dead = true;
-        List<ArtilleryPart> components = getParts();
+        List<Component> components = getParts();
         try {
-            components.forEach(Entity::die);
+            components.forEach(Component::remove);
         }
         catch (NullPointerException ignored) {
 
@@ -650,7 +679,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
         Location loc;
         if (pivot != null)
-            loc = pivot.getLocation(world).clone();
+            loc = pivot.getLocation();
         else return;
 
         if (exploded) {
@@ -665,7 +694,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     public org.bukkit.entity.Entity getCoreEntity(){
-        return pivot.getBukkitEntity();
+        return pivot.getEntity();
     }
 
 
@@ -714,11 +743,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
 
-    @Override
-    public final List<IntTuple2> getOccupiedChunks(){
-        return occupiedChunks;
-    }
-
 
     public void playSound(ArtilleryPart part){
        world.playSound(part.getLocation(world),part.getSoundHurt(), SoundCategory.BLOCKS,1,1);
@@ -737,6 +761,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     @Override
     public boolean damage(double damage) {
         setHealth(getHealth() - damage);
+        world.playSound(getCurrentLocation(),Sound.BLOCK_BELL_USE,SoundCategory.BLOCKS,1,1);
+
         if (health <= 0) {
             destroy(false, true);
             return false;
@@ -749,10 +775,18 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 These methods create the artillery components but don't spawn them.
 see: loadPieces()
  */
-    protected abstract boolean instantiateParts();
-    protected abstract boolean spawnBaseParts();
-    protected abstract boolean spawnTurretParts();
+    protected abstract void instantiateParts();
+    protected abstract void spawnBaseParts();
+    protected abstract void spawnTurretParts();
 
+
+    //=========Chunks ==================================================================
+
+
+    @Override
+    public final List<IntTuple2> getOccupiedChunks(){
+        return occupiedChunks;
+    }
 
     //this should only be necessary when updating where we are on file write/read.
     //basically this is only required when unloading / loading

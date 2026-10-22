@@ -11,6 +11,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
 
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.util.Vector;
 
 
 import javax.annotation.Nullable;
@@ -90,7 +94,7 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
 
 
     @Override
-    public void explode(@Nullable Vec3D hit) {
+    public void explode(@Nullable Vector hit) {
         this.die();
         if (hit == null)
             ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower());
@@ -100,20 +104,20 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
 
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         explode(exactHitPosition);
         return true;
     }
 
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(org.bukkit.entity.Entity hitEntity, Vector entityPosition) {
 
         if (super.onEntityHit(hitEntity, entityPosition)) {
             return true;
         }
 
-        explode(getPositionVector());
+        explode(CraftVector.toBukkit(getPositionVector()));
         return true;
     }
 

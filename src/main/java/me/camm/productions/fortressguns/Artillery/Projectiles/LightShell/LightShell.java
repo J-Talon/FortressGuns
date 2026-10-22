@@ -20,10 +20,15 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -60,8 +65,10 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
 
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(org.bukkit.entity.Entity bukkit, Vector entityPosition) {
         this.a(GameEvent.I, this.getShooter());
+
+        Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
         if (shooter != null) {
             DamageSource source = GunSource.gunShot(shooter,this);
@@ -78,7 +85,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
             ((ProjectileExplosive) hitEntity).explode(null);
         }
         else {
-            org.bukkit.entity.Entity bukkit = hitEntity.getBukkitEntity();
+
             org.bukkit.World bukkitWorld = getWorld().getWorld();
 
             if (bukkit instanceof Explosive) {
@@ -104,7 +111,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         this.a(GameEvent.I, this.getShooter());
 
         org.bukkit.World bukkit = getWorld().getWorld();
@@ -121,7 +128,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
             }
         }
 
-        Vec3D vec = exactHitPosition;
+        Vec3D vec = CraftVector.toNMS(exactHitPosition);
         Vec3D mot = getMot().e().d().a(0.7);
         //0.7 is an arbitrary artistic decision
         //we're basically normalizing, reversing the vector and multiplying it by 0.7
@@ -171,6 +178,14 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
 
     }
 
+    @Override
+    public void setVelocity(double x, double y, double z) {
+        this.setMot(x,y,z);
+    }
 
+    @Override
+    public void addToWorld(org.bukkit.World world) {
+        ((CraftWorld)world).getHandle().addEntity(this);
+    }
 
 }

@@ -108,7 +108,7 @@ public class ChunkTicket {
 
     public void finish() {
         oldCore.remove();
-        construct.spawn();
+        construct.spawn(false);
     }
 
 

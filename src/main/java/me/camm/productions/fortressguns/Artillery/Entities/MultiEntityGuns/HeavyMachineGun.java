@@ -152,14 +152,13 @@ public class HeavyMachineGun extends RapidFire {
 
     private void fireSingleShot(Location muzzle) {
 
-        List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
-        if (passengers.isEmpty()) {
+        Entity rider = rotatingSeat.getRider();
+        if (rider == null) {
             setCanFire(true);
             return;
         }
 
-        Entity possibleOperator = passengers.get(0);
-        Player operator = possibleOperator instanceof Player ? (Player) possibleOperator : null;
+        Player operator = rider instanceof Player ? (Player) rider : null;
         if (operator == null) {
             setCanFire(true);
             return;

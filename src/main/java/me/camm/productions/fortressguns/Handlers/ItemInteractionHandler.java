@@ -10,7 +10,7 @@ import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
 //import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
-import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.*;
+import me.camm.productions.fortressguns.interact.ItemBehaviour.*;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -27,7 +27,6 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spigotmc.event.entity.EntityDismountEvent;
 

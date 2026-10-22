@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import org.bukkit.Location;
@@ -64,20 +65,19 @@ public class LightArtillery extends FieldArtillery
     }
 
     @Override
-    protected boolean spawnBaseParts() {
+    protected void spawnBaseParts() {
         double rads = -Math.PI/3;
         int bar = 0;
         double radsIfTrue = Math.PI;
         double radsIfFalse = 2 * Math.PI / 3;
-
-        return super.spawnBaseWithDegrees(bar, rads, radsIfTrue, radsIfFalse, true);
+        spawnBaseWithDegrees(bar, rads, radsIfTrue, radsIfFalse, true);
     }
 
 
     @Override
-    public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
-        for (ArtilleryPart[] segment: base)
+    public List<Component> getParts(){
+        List<Component> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (Component[] segment: base)
             parts.addAll(Arrays.asList(segment));
         parts.add(pivot);
         parts.add(rotatingSeat);
