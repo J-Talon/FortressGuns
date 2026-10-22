@@ -12,7 +12,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.IBHandle;
-import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBTacticalPointer;
+import me.camm.productions.fortressguns.interact.ItemBehaviour.IBTacticalPointer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;

@@ -10,6 +10,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.Standar
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 
@@ -17,7 +18,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 @FunctionalInterface
 public interface ProjectileFactory<T extends ProjectileFG> {
 
-    T create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source);
+    @NotNull T create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source);
 
     /*
 
@@ -48,7 +49,7 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
     class FactoryStandardHeavy implements ProjectileFactory<StandardHeavyShell> {
         @Override
-        public StandardHeavyShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull StandardHeavyShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new StandardHeavyShell(world, x, y, z, shooter, source);
         }
     }
@@ -56,14 +57,14 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
     class FactoryStandardLight implements ProjectileFactory<StandardLightShell> {
         @Override
-        public StandardLightShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull StandardLightShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new StandardLightShell(world, x, y, z, shooter, source);
         }
     }
 
     class FactoryExplosiveHeavy implements ProjectileFactory<HeavyShellHE> {
         @Override
-        public HeavyShellHE create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull HeavyShellHE create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new HeavyShellHE(world, x, y, z, shooter, source);
         }
     }
@@ -71,14 +72,14 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
     class FactoryFlakLight implements ProjectileFactory<FlakLightShell> {
         @Override
-        public FlakLightShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull FlakLightShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new FlakLightShell(world, x, y, z, shooter, source);
         }
     }
 
     class FactoryFlakHeavy implements ProjectileFactory<FlakHeavyShell> {
         @Override
-        public FlakHeavyShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull FlakHeavyShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new FlakHeavyShell(world, x, y, z, shooter, source);
         }
     }
@@ -86,14 +87,14 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
     class FactoryMissile implements ProjectileFactory<HeatseekingMissile> {
         @Override
-        public HeatseekingMissile create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull HeatseekingMissile create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new HeatseekingMissile(world, x, y, z, shooter, source);
         }
     }
 
     class FactoryCRAM implements ProjectileFactory<CRAMShell> {
         @Override
-        public CRAMShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        public @NotNull CRAMShell create(World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
             return new CRAMShell(world, x, y, z, shooter, source);
         }
 
@@ -101,8 +102,8 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
     class FactoryFlare implements ProjectileFactory<SimpleFlare> {
         @Override
-        public SimpleFlare create(World world, double x, double y, double z,
-                                  EntityPlayer shooter, Artillery source) {
+        public @NotNull SimpleFlare create(World world, double x, double y, double z,
+                                           EntityPlayer shooter, Artillery source) {
             return new SimpleFlare(world, x, y, z, shooter);
         }
     }

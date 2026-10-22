@@ -162,11 +162,13 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    public void positionSeat() {
+    public boolean positionSeat() {
         if (rotatingSeat != null) {
             //Math.PI * 1.5 --> 90* angle. Technically it's 270 degrees though
-            posSeatAbsoluteHorizon(rotatingSeat,DIST_X, DIST_Y, getVibrationOffsetY(),Math.PI*1.5);
+            return posSeatAbsoluteHorizon(rotatingSeat,DIST_X, DIST_Y, getVibrationOffsetY(),Math.PI*1.5);
         }
+
+        return false;
     }
 
     @Override
@@ -181,30 +183,21 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    protected boolean instantiateParts()
+    protected void instantiateParts()
     {
-
         pivot = StandHelper.createCore(this.initialLoc, BODY, aim, world, this);
 
         //pivot.setRotation(aim);
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(DIST_X, DIST_Y,Math.PI*1.5),SEAT,new EulerAngle(0, aim.getY(),0),world,this);
 
-        if (pivot == null || rotatingSeat == null) {
-            return false;
-        }
-
-        if (!spawnTurretParts() || !spawnBaseParts()) {
-            return false;
-        }
-
         //for the base of the artillery
+        spawnTurretParts();
+        spawnBaseParts();
+
+
         calculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
-
-
-        return true;
-
     }
 
 
@@ -247,9 +240,6 @@ public abstract class FieldArtillery extends ArtilleryRideable
                 else
                     part = StandHelper.createInvisiblePart(loc,BODY,null,world, this);
 
-                if (part == null)
-                    return false;
-
                 length ++;
                 standRow[slot] = part;
             }
@@ -266,7 +256,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    protected boolean spawnTurretParts() {
+    protected void spawnTurretParts() {
 
         int smallThresh = getSmallDistThreshold();
 
@@ -335,20 +325,14 @@ public abstract class FieldArtillery extends ArtilleryRideable
             //if it is small, add 0.75 so that it is high enough
             if (small) {
                 stand = StandHelper.createInvisiblePart(centre.add(x, height + 0.75, z), BARREL, aim, world, this);
-                if (stand == null)
-                    return false;
-
                 stand.setSmall(true);
             }
             else {
                 stand = StandHelper.createInvisiblePart(centre.add(x, height, z), BODY, aim, world, this);
-                if (stand == null)
-                    return false;
             }
 
             barrel[slot] = stand;
         }
-        return true;
     }
 
 

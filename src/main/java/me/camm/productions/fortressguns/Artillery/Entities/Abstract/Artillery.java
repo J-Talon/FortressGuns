@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
@@ -166,10 +167,10 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         if (!chunkLoaded())
             return;
 
-        List<ArtilleryPart> parts = getParts();
+        List<Component> parts = getParts();
         parts.remove(pivot);
 
-        parts.forEach(ArtilleryPart::die);
+        parts.forEach(Component::remove);
 
         Integer[] data = serializeData();
         int[] translation = new int[data.length];
@@ -246,9 +247,10 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public abstract int getMaxAmmo();
 
-    public List<ArtilleryPart> getParts() {
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
-        for (ArtilleryPart[] segment: base)
+
+    public List<Component> getParts() {
+        List<Component> parts = new ArrayList<>(Arrays.asList(barrel));
+        for (Component[] segment: base)
             parts.addAll(Arrays.asList(segment));
 
         return parts;
@@ -358,7 +360,13 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                     cancel();
                     return;
                 }
-                pivot(x,y);
+
+                if (!pivot(x,y)) {
+                    world.playSound(pivot.getEyeLocation(),Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,0.5f,0);
+//                    interpolatedAim = aim;
+                    setInterpolating(false);
+                    cancel();
+                }
 
             }
 
@@ -395,15 +403,15 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     horAngle: The horizontal angle of the aim (in rads)
 
      */
-    public synchronized void pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
+    public synchronized boolean pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
     {
         if (dead)
-            return;
+            return false;
 
         if (isInvalid()) {
             destroy(false, true);
             dead = true;
-            return;
+            return false;
         }
 
 
@@ -430,7 +438,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
         if (currX == vertAngle && currY == horAngle && !lengthChanged)
-            return;
+            return false;
 
         lengthChanged = false;
 
@@ -484,7 +492,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
             if (!(smallBlockDist < SMALL_BLOCK_LENGTH || largeBlockDist < LARGE_BLOCK_LENGTH)) {
                 if (ConstructUtils.isInBlock(barrelComponent, teleport)) {
-                    return;
+                    return false;
                 }
             }
             locations[slot] = teleport;
@@ -502,6 +510,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             Vector teleport = locations[slot];
             barrelComponent.teleport(teleport.getX(), teleport.getY(), teleport.getZ());
         }
+        return true;
     }
 
     public abstract void fire(@Nullable Player shooter);
@@ -548,23 +557,19 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     //to spawn an artillery piece, an external method calls spawn(). In the actual artillery classes however, the artillery
     // is actually created when the spawnParts method is called, and loaded into the world (drawn) when loadPieces() is called
-    public final boolean spawn() {
+    public final boolean spawn(boolean ignoreSpaceRequirement) {
         dead = false;
 
-        boolean spawnedSuccess = instantiateParts();
-        if (spawnedSuccess) {
-            setChunkLoaded(true);
-            spawnPieces();
-        }
-        else {
-            FortressGuns.getInstance().getLogger().warning("Could not spawn artillery");
+        instantiateParts();
+
+        if (!ignoreSpaceRequirement && !enoughSpace()) {
+            return false;
         }
 
+        setChunkLoaded(true);
+        spawnPieces();
 
-
-        //todo block checks
-
-        return spawnedSuccess;
+        return true;
     }
 
     public abstract boolean canFire();
@@ -646,17 +651,17 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
     protected void spawnPieces() {
-        List<ArtilleryPart> parts = getParts();
-
-        WorldServer nmsWorld = ((CraftWorld)world).getHandle();
+        List<Component> parts = getParts();
         Logger logger = FortressGuns.getInstance().getLogger();
 
-        for (ArtilleryPart part: parts) {
-          boolean result = nmsWorld.addAllEntitiesSafely(part);
+        for (Component part: parts) {
+          boolean result = part.spawn();
           if (!result)
               logger.log(Level.WARNING, "Unable to properly spawn part for artillery");
         }
     }
+
+
 
     public final boolean isInvalid() {
         return (pivot == null || (!pivot.isAlive()) || health <= 0 || dead);
@@ -667,9 +672,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         getInventoryGroup().close();
 
         dead = true;
-        List<ArtilleryPart> components = getParts();
+        List<Component> components = getParts();
         try {
-            components.forEach(Entity::die);
+            components.forEach(Component::remove);
         }
         catch (NullPointerException ignored) {
 
@@ -742,8 +747,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
 
 
-
-
     public void playSound(ArtilleryPart part){
        world.playSound(part.getLocation(world),part.getSoundHurt(), SoundCategory.BLOCKS,1,1);
     }
@@ -775,9 +778,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 These methods create the artillery components but don't spawn them.
 see: loadPieces()
  */
-    protected abstract boolean instantiateParts();
-    protected abstract boolean spawnBaseParts();
-    protected abstract boolean spawnTurretParts();
+    protected abstract void instantiateParts();
+    protected abstract void spawnBaseParts();
+    protected abstract void spawnTurretParts();
 
 
     //=========Chunks ==================================================================

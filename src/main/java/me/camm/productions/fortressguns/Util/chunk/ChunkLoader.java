@@ -98,32 +98,35 @@ public class ChunkLoader implements Listener {
 
 
     public void tick() {
-
         lock.lock();
         Iterator<ChunkTicket> iter = assembledTickets.iterator();
 
-        try {
-            while (iter.hasNext()) {
+        while (iter.hasNext()) {
+
+
                 ChunkTicket next = iter.next();
                 if (next.isAssembled()) {
-                    logger.log(Level.INFO, "Completed ticket " + next.getUUID());
+                    logger.log(Level.INFO, "Chunk loader completing ticket " + next.getUUID());
+
+                    try {
                     next.finish();
                     activePieces.add(next.getConstruct());
                     iter.remove();
                     continue;
+
+                    }
+                    catch (NullPointerException ignored) {
+                        logger.warning("Unable to spawn turret from ticket "+next.getUUID() +", ["+next+"] since it's reference is bad. Skipping, sorry!");
+                        iter.remove();
+                    }
                 }
 
                 if (!next.isLoaded()) {
                     iter.remove();
                 }
-            }
+
         }
-        catch (RuntimeException e) {  // please have many oranges
-            logger.log(Level.WARNING, e.toString());
-        }
-        finally {
-            lock.unlock();
-        }
+        lock.unlock();
     }
 
 

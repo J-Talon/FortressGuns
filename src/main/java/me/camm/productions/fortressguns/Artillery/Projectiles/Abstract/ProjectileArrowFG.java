@@ -1,7 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Abstract;
 
+import me.camm.productions.fortressguns.Util.Math.MathFG;
+import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
@@ -9,6 +13,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ProjectileArrowFG extends EntityArrow implements ProjectileFG {
@@ -32,7 +39,7 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
             setShooter(this.shooter);
         }
 
-        bukkitWorld = getWorld().getWorld();
+        bukkitWorld = t.getWorld();
     }
 
 
@@ -69,12 +76,31 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
 
     @Override
     public void a(MovingObjectPositionEntity pos) {
-        onEntityHit(pos.getEntity(),pos.getPos());
+        Entity entityNMS = pos.getEntity();
+        onEntityHit(entityNMS.getBukkitEntity(), CraftVector.toBukkit(pos.getPos()));
     }
 
     @Override
     public void a(MovingObjectPositionBlock pos) {
         BlockPosition blockPos = pos.getBlockPosition();
-        onBlockHit(pos.getPos(), pos.getDirection(), blockPos);
+        org.bukkit.World bukkitWorld = t.getWorld();
+        EnumDirection direction = pos.getDirection();
+        BaseBlockPosition bbp = direction.p();
+
+        onBlockHit(CraftVector.toBukkit(pos.getPos()),
+                MathFG.toCardinalDirection(bbp.getX(), bbp.getY(), bbp.getZ()),
+                bukkitWorld.getBlockAt(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
     }
+
+
+    @Override
+    public void setVelocity(double x, double y, double z) {
+        this.setMot(x,y,z);
+    }
+
+    @Override
+    public void addToWorld(org.bukkit.World world) {
+        ((CraftWorld)world).getHandle().addEntity(this);
+    }
+
 }

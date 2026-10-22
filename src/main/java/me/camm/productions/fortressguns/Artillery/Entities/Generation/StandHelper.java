@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.WorldServer;
@@ -21,55 +22,6 @@ import org.bukkit.util.Vector;
 
 public class StandHelper
 {
-
-    ///this is crude collision detection; it only works most of the time
-    //cause the armorstand hitbox is a box, not a point
-    //we may want to refine this.
-    public static boolean isPosClear(Location loc) {
-        return loc.getBlock().isPassable();
-    }
-
-
-    public static boolean isPosObstructedRaw(Location rawLoc) {
-
-        /*
-        0  --> 1.975
-        1.725 is base of head
-
-        + 0.25 in x, z
-        - 0.25 in x, z
-
-         */
-
-
-        double heightLow = 1.725;
-        double heightHigh = 1.975;
-        double horOffset = 0.25;
-
-        Vector[] offsets = new Vector[]{
-                new Vector(horOffset, heightLow, horOffset),
-                new Vector(-horOffset, heightLow, horOffset),
-                new Vector(horOffset, heightLow, -horOffset),
-                new Vector(-horOffset, heightLow, -horOffset),
-
-                new Vector(horOffset, heightHigh, horOffset),
-                new Vector(-horOffset, heightHigh, horOffset),
-                new Vector(horOffset, heightHigh, -horOffset),
-                new Vector(-horOffset, heightHigh, -horOffset)
-        };
-
-        boolean clear = true;
-        for (Vector offset: offsets) {
-            Location current = new Location(rawLoc.getWorld(), rawLoc.getX(), rawLoc.getY(),rawLoc.getZ());
-            current.add(offset);
-            clear = clear && isPosClear(current);
-        }
-
-        return !clear;
-    }
-
-
-
 
     //Returns the player's horizontal rotation in a language that armorstands understand
     //and will happily and accurately flipping orient themselves to. (Feel the frustration!)
@@ -125,22 +77,17 @@ public class StandHelper
     //does not spawn into the world - you need to do that.
     public static ArtilleryPart createInvisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery){
      ArtilleryPart part = createVisiblePart(loc, head, rotation, world, artillery);
-     if (part == null)
-         return null;
-
       return setInvisible(part);
     }
 
     ////does not spawn into the world - you need to do that.
     public static FireTrigger createTrigger(Location loc, World world, Artillery body) {
 
-        if (isPosObstructedRaw(loc))
-            return null;
+
 
         WorldServer nms = ((CraftWorld)world).getHandle();
         FireTrigger trigger = new FireTrigger(nms, body, loc);
         trigger.teleportAndSync(loc.getX(), loc.getY(), loc.getZ());
-       // nms.addEntity(trigger);
 
         trigger.setNoGravity(true);
         trigger.setInvisible(true);
@@ -154,10 +101,6 @@ public class StandHelper
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryPart part = new ArtilleryPart(nms, artillery, loc);
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
-
-        ///if the position is in a block you should return null
-        if (isPosObstructedRaw(loc))
-            return null;
 
         if (rotation != null)
          setRotation(part, rotation);
@@ -190,12 +133,10 @@ public class StandHelper
         //one possibility is if there is a fallingblock -i.e sand.
         // ^ account for this
 
-        if (isPosObstructedRaw(loc))
-            return null;
-
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryCore part = new ArtilleryCore(nms, artillery, loc.getX(),loc.getY(),loc.getZ());
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
+
         setRotation(part, rotation);
         setHead(head, part);
         part.setNoGravity(true);
@@ -203,33 +144,4 @@ public class StandHelper
       //  nms.addEntity(part);
         return part;
     }
-
-
-
-
-    /*
-    Rotates the armorstand head such that the headpiece rotates as if the pivot point is the center of the head.
-    may move the armorstand location slightly.
-
-    Note: should we return the armorstand's original data so that we can return to the original orientation?
-     */
-    public static void rotateInPlace() {
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

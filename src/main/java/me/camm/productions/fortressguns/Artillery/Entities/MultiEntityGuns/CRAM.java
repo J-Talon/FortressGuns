@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
@@ -47,8 +48,8 @@ public class CRAM extends Artillery implements AutoTracking {
         interactionInv = new InventoryGroup.RapidGroupIdeal(this);
     }
 
-    public List<ArtilleryPart> getParts() {
-        List<ArtilleryPart> parts = new ArrayList<>();
+    public List<Component> getParts() {
+        List<Component> parts = new ArrayList<>();
         parts.add(pivot);
         return parts;
     }
@@ -56,10 +57,8 @@ public class CRAM extends Artillery implements AutoTracking {
     public static void setMaxHealth(double max) {
         maxHealth = max;
     }
-    @Override
-    protected boolean spawnTurretParts() {
-        return false;
-    }
+
+
 
     @Override
     public int getMaxAmmo() {
@@ -68,14 +67,16 @@ public class CRAM extends Artillery implements AutoTracking {
 
 
     @Override
-    protected boolean instantiateParts() {
+    protected void instantiateParts() {
         pivot = StandHelper.createCore(initialLoc ,new ItemStack(Material.STONE),aim,world,this);
-        return true;
     }
 
     @Override
-    protected boolean spawnBaseParts() {
-        return true;
+    protected void spawnBaseParts() {
+    }
+
+    @Override
+    protected void spawnTurretParts() {
     }
 
 

@@ -2,10 +2,12 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +30,7 @@ public interface Component {
 
    public void setRotation(float x, float y);
 
-
+   public boolean spawn();
 
    public void onRightClick(ItemStack mainHand, Player clicked);
 
@@ -37,13 +39,19 @@ public interface Component {
     //return false: whether the entity took no damage
    public boolean onLeftClick(ItemStack mainHand, Player clicked);
 
+   //enough space in the next area
+   public boolean enoughSpace(Vector nextPosition);
+
+
+   public boolean enoughSpace();
+
     /*
 
     I think the way forward is this:
 
     Interface Component
-        v             v
- ComponentAS1.17.1    ComponentDE1.17.1 ....
+        v             v                       v                    v
+ ComponentAS1.17.1    ComponentDE1.17.1 .... ComponentAS 1.19.1   ComponentDE1.19.1 ...
  v                    v
  ASCore1.17.1         DECore1.17.1
  ASPart1.17.1         DECore.1.17.1

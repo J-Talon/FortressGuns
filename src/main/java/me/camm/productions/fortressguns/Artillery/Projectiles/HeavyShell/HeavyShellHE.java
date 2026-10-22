@@ -8,9 +8,13 @@ import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -51,25 +55,25 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         explode(exactHitPosition);
         return true;
     }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(Entity hitEntity, Vector entityPosition) {
         super.onEntityHit(hitEntity, entityPosition);
 
         if (hitEntity instanceof ProjectileFG) {
             ((ProjectileFG) hitEntity).remove();
         }
 
-        explode(getPositionVector());
+        explode(CraftVector.toBukkit(getPositionVector()));
         return true;
     }
 
     @Override
-    public void explode(@Nullable Vec3D hit) {
+    public void explode(@Nullable Vector hit) {
 
         //we'll worry about this in the future but
         //for a better explosion use a penetration value.
@@ -88,8 +92,4 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
     }
 
 
-    @Override
-    public void remove() {
-        this.die();
-    }
 }

@@ -60,19 +60,17 @@ public class TestGun extends Artillery {
     }
 
     @Override
-    protected boolean instantiateParts() {
+    protected void instantiateParts() {
         this.pivot = StandHelper.createCore(getCurrentLocation(), new ItemStack(Material.RED_TERRACOTTA),aim,world,this);
-        return true;
     }
 
     @Override
-    protected boolean spawnBaseParts() {
-        return true;
+    protected void spawnBaseParts() {
+
     }
 
     @Override
-    protected boolean spawnTurretParts() {
-        return true;
+    protected void spawnTurretParts() {
     }
 
     @Override

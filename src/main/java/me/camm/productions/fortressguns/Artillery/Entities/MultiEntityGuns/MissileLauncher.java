@@ -7,14 +7,15 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
@@ -138,20 +139,25 @@ public class MissileLauncher extends ArtilleryRideable {
         return 2;
     }
 
+
     public void setTarget(Entity target) {
         this.target = target;
     }
 
 
-    //todo replace with projectile factory
+
     @Override
-    protected @Nullable HeatseekingMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    protected @Nullable AbstractRocket createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+        if (loadedAmmoType == null) return null;
+        ProjectileFG projectile = loadedAmmoType.create(world, x,y,z, shooter, this);
 
+        if (!(projectile instanceof AbstractRocket rocket))
+            return null;
 
-        HeatseekingMissile missile = (HeatseekingMissile) super.createProjectile(world, x, y, z, shooter, source);
-        if (missile != null)
-            missile.setTarget(target);
-        return missile;
+        if (projectile instanceof ProjectileSeeking seeking)
+            seeking.setTarget(target);
+
+        return rocket;
     }
 
 
@@ -182,11 +188,13 @@ public class MissileLauncher extends ArtilleryRideable {
         Artillery construct = this;
 
         EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-        HeatseekingMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
+        AbstractRocket missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
+
         if (missile == null) {
             plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
             return;
         }
+
 
         new BukkitRunnable() {
             public void run() {
@@ -202,9 +210,12 @@ public class MissileLauncher extends ArtilleryRideable {
                 }
 
                 double vecPow = getVectorPower();
+                missile.setVelocity(dir.getX() * vecPow, dir.getY() * vecPow, dir.getZ() * vecPow);
 
-                missile.setMot(new Vec3D(dir.getX() * vecPow, dir.getY() * vecPow, dir.getZ() * vecPow));
+
                 nmsWorld.addEntity(missile);
+
+
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
                 //may want to change this to make the stuff more visible
@@ -286,36 +297,25 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
 
-    //=======================================================
-
-
     //=========== parts ====================================
 
 
-
-
-
-
-
-
     @Override
-    protected boolean instantiateParts() {
+    protected void instantiateParts() {
         pivot = StandHelper.createCore(initialLoc, BODY, new EulerAngle(0, aim.getY(), 0), world,this);
 
-        if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
-            return false;
+        spawnTurretParts();
+        spawnBaseParts();
 
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (health <= 0)
             setHealth(maxHealth);
         calculateOccupiedChunks();
-
-        return true;
     }
 
     @Override
-    protected boolean spawnBaseParts() {
+    protected void spawnBaseParts() {
 
         Location piv = pivot.getLocation(world);
         double rads = 0;
@@ -328,26 +328,19 @@ public class MissileLauncher extends ArtilleryRideable {
                         basePos[1] * LARGE_BLOCK_LENGTH + slot * basePos[1]);
 
                 row[slot] = StandHelper.createInvisiblePart(spawn, BASE, null, world, this);
-                if (row[slot] == null)
-                    return false;
             }
             rads += 2 * Math.PI / 4; //90* offsets
         }
-        return true;
     }
 
     @Override
-    protected boolean spawnTurretParts() {
+    protected void spawnTurretParts() {
         EulerAngle horizontal = new EulerAngle(0, aim.getY(), 0);
-
 
         Location nextStemLoc;
         for (int slot = 0; slot < stem.length; slot ++) {
             nextStemLoc = initialLoc.clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
             stem[slot] = StandHelper.createInvisiblePart(nextStemLoc, BODY, horizontal,world, this);
-
-            if (stem[slot] == null)
-                return false;
         }
 
         Location[] barrelLocs = getBarrelLocations();
@@ -355,17 +348,13 @@ public class MissileLauncher extends ArtilleryRideable {
         for (int slot = 0; slot < midpoint; slot ++) {
             barrel[slot] = StandHelper.createInvisiblePart(barrelLocs[slot], BARREL, aim,world, this);
             barrel[slot + midpoint] = StandHelper.createInvisiblePart(barrelLocs[slot+midpoint], BARREL, aim, world, this);
-
-            if (barrel[slot] == null || barrel[slot + midpoint] == null)
-                return false;
         }
 
-        return true;
     }
 
 
     @Override
-    public synchronized void pivot(double vertAngle, double horAngle) {
+    public synchronized boolean pivot(double vertAngle, double horAngle) {
 
 
         horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
@@ -373,11 +362,22 @@ public class MissileLauncher extends ArtilleryRideable {
 
         aim = new EulerAngle(vertAngle, horAngle, 0);
 
+
+        //rotation is fine without collision checks
         stem[stem.length-1].setRotation(new EulerAngle(0,horAngle, 0));
 
         Location[] aimPos = getBarrelLocations();
 
         int midpoint = barrel.length / 2;
+        for (int slot = 0; slot < midpoint; slot ++) {
+            if (!barrel[slot].enoughSpace(aimPos[slot].toVector())) return false;
+            if (!barrel[slot + midpoint].enoughSpace(aimPos[slot + midpoint].toVector())) return false;
+        }
+
+        if (!positionSeat()) {
+            return false;
+        }
+
         for (int slot = 0; slot < midpoint; slot ++) {
             barrel[slot].teleport(aimPos[slot]);
             barrel[slot].setRotation(aim);
@@ -386,7 +386,11 @@ public class MissileLauncher extends ArtilleryRideable {
             barrel[slot + midpoint].setRotation(aim);
         }
 
-        positionSeat();
+
+
+
+
+        return true;
     }
 
     private void trackingUpdate() {
@@ -669,8 +673,9 @@ public class MissileLauncher extends ArtilleryRideable {
         return maxHealth;
     }
 
-    public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = super.getParts();
+    @Override
+    public List<Component> getParts(){
+        List<Component> parts = super.getParts();
         parts.addAll(Arrays.asList(stem));
         parts.add(rotatingSeat);
         parts.add(pivot);
@@ -678,8 +683,8 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     @Override
-    public void positionSeat() {
-        posSeatAbsoluteHorizon(rotatingSeat,HOR_OFFSET,Y_OFFSET,0,Math.PI*1.5);
+    public boolean positionSeat() {
+        return posSeatAbsoluteHorizon(rotatingSeat,HOR_OFFSET,Y_OFFSET,0,Math.PI*1.5);
     }
 
 }

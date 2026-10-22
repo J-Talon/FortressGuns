@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
@@ -23,7 +24,7 @@ public abstract class Construct {
 
 
 
-    public abstract boolean spawn();
+    public abstract boolean spawn(boolean ignoreSpaceRequirement);
 
     public abstract void setChunkLoaded(boolean loaded);
 
@@ -77,10 +78,21 @@ public abstract class Construct {
 
    public abstract ConstructType getType();
 
+   public abstract List<Component> getParts();
+
+
+
+   public boolean enoughSpace() {
+       for (Component component: getParts()) {
+           if (!component.enoughSpace()) return false;
+       }
+       return true;
+   }
 
    public UUID getUUID() {
        return id;
    }
+
 
    public String toString() {
        Location loc = getCoreEntity().getLocation();

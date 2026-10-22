@@ -25,6 +25,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -179,6 +180,25 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
 
         return body.damage(damage);
 
+    }
+
+
+    @Override
+    public boolean enoughSpace(Vector nextPosition) {
+        boolean res = ConstructUtils.isInBlock(this, nextPosition);
+        return ! res;
+    }
+
+
+    @Override
+    public boolean enoughSpace() {
+        return ! ConstructUtils.isInBlock(this);
+    }
+
+
+    @Override
+    public boolean spawn() {
+        return this.t.addEntity(this);
     }
 
 

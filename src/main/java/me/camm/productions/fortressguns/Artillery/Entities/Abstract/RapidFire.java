@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -13,7 +14,6 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 
 import org.bukkit.entity.Player;
@@ -95,8 +95,9 @@ public abstract class RapidFire extends ArtilleryRideable {
         lastInteractionTime = 0;
     }
 
-    public List<ArtilleryPart> getParts() {
-        List<ArtilleryPart> parts = new ArrayList<>(Arrays.asList(barrel));
+    @Override
+    public List<Component> getParts() {
+        List<Component> parts = new ArrayList<>(Arrays.asList(barrel));
         parts.add(pivot);
         parts.add(triggerHandle);
         parts.addAll(Arrays.asList(base[0]));
@@ -111,7 +112,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     }
 
     @Override
-    protected boolean spawnTurretParts() {
+    protected void spawnTurretParts() {
 
         for (int slot = 0;slot < barrel.length;slot++) {
             double totalDistance = (0.5 * LARGE_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
@@ -127,31 +128,32 @@ public abstract class RapidFire extends ArtilleryRideable {
 
             //if it is small, add 0.75 so that it is high enough
             stand = StandHelper.createInvisiblePart(centre.add(x, height + 0.75, z), MUZZLE_ITEM, aim, world, this);
-            if (stand == null)
-                return false;
-
             stand.setSmall(true);
 
             barrel[slot] = stand;
         }
-        return true;
     }
 
     @Override
-    public void positionSeat() {
+    public boolean positionSeat() {
 
         // aim = new EulerAngle(vertAngle,horAngle,0);
-        Location rotatingSeat = base[0][0].getLocation(world);
+        Location seatPos = base[0][0].getLocation(world);
         EulerAngle aim = this.getAim();
         double horAngle = aim.getY();
 
         double rotSeatZ = -Math.cos(horAngle);
         double rotSeatX = Math.sin(horAngle);
 
-        rotatingSeat.add(rotSeatX,0,rotSeatZ);
-        this.rotatingSeat.teleport(rotatingSeat.getX(),rotatingSeat.getY(), rotatingSeat.getZ());
-        this.rotatingSeat.setRotation(0,(float)horAngle);
-        this.triggerHandle.teleport(rotatingSeat.add(0,1,0));
+        seatPos.add(rotSeatX,0,rotSeatZ);
+        if (this.rotatingSeat.enoughSpace(seatPos.toVector())) {
+
+            this.rotatingSeat.teleport(seatPos.getX(), seatPos.getY(), seatPos.getZ());
+            this.rotatingSeat.setRotation(0, (float) horAngle);
+            this.triggerHandle.teleport(seatPos.add(0, 1, 0));
+            return true;
+        }
+        return false;
 
     }
 
@@ -160,14 +162,11 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
     @Override
-    protected boolean instantiateParts(){
+    protected void instantiateParts(){
 
         pivot = StandHelper.createCore(initialLoc, BARREL_ITEM,aim,world, this);
-        if (pivot == null)
-            return false;
 
-        if (!spawnBaseParts())
-            return false;
+        spawnBaseParts();
 
         ArtilleryPart support = base[0][0];
 
@@ -177,64 +176,48 @@ public abstract class RapidFire extends ArtilleryRideable {
         this.rotatingSeat = StandHelper.createInvisiblePart(seatPos, SEAT_ITEM,new EulerAngle(0,aim.getX(), 0),world,this);
         this.triggerHandle = StandHelper.createTrigger(seatPos.clone().add(0,1,0),world, this);
 
-        if (rotatingSeat == null || triggerHandle == null)
-            return false;
-
-
-        if (!spawnTurretParts())
-            return false;
-
+        spawnTurretParts();
 
         calculateOccupiedChunks();
         if (health <= 0)
             setHealth(getMaxHealth());
-
-        return true;
     }
 
 
 
     @Override
-    protected boolean spawnBaseParts() {
+    protected void spawnBaseParts() {
         ArtilleryPart support;
-
         support = StandHelper.createVisiblePart(initialLoc.clone().subtract(0,0.5,0),null,new EulerAngle(0,0,0), world,this);
-
-        if (support == null)
-            return false;
-
 
         support.setArms(true);
         support.setPose(rightArm, leftArm, body, rightLeg, leftLeg);
         base[0][0] = support;
-        return true;
     }
 
 
     @Override
-    public synchronized void pivot(double vertAngle, double horAngle)
+    public synchronized boolean pivot(double vertAngle, double horAngle)
     {
         if (dead)
-            return;
+            return false;
 
         if (isInvalid()) {
             destroy(false, true);
             dead = true;
-            return;
+            return false;
         }
 
-        positionSeat();
+        Vector[] nextLocations = new Vector[barrel.length];
 
-
+        double totalDistance;
         //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
         {
             ArtilleryPart stand = barrel[slot];
 
-            double totalDistance;
 
             //getting the distance from the pivot
-
             totalDistance = (0.5*LARGE_BLOCK_LENGTH) + (slot * smallBlockDist);
 
             //height of the aim
@@ -243,28 +226,40 @@ public abstract class RapidFire extends ArtilleryRideable {
             //hor dist of the aim component
             double horizontalDistance = totalDistance*Math.cos(vertAngle);
 
-
             //x and z distances relative to the pivot from total hor distance
             double z = horizontalDistance*Math.cos(horAngle);
             double x = -horizontalDistance*Math.sin(horAngle);
 
 
-
-
-            aim = new EulerAngle(vertAngle,horAngle,0);
-            //setting the rotation of all of the barrel armorstands.
-
-
-            stand.setRotation(aim);
-            pivot.setRotation(aim);
-
             Location centre = pivot.getLocation(world).clone();
 
             //teleporting the armorstands to be in line with the pivot
             Location teleport = centre.add(x, height + 0.75, z);
-            stand.teleport(teleport.getX(),teleport.getY(),teleport.getZ());
-
+            Vector vec = teleport.toVector();
+            if (!stand.enoughSpace(vec)) return false;
+            nextLocations[slot] = vec;
         }
+
+
+        if (!positionSeat()) {
+            return false;
+        }
+
+        aim = new EulerAngle(vertAngle,horAngle,0);
+        pivot.setRotation(aim);
+
+        for (int slot=0;slot< barrel.length;slot++) {
+            ArtilleryPart stand = barrel[slot];
+            Vector teleport = nextLocations[slot];
+
+            stand.teleport(teleport.getX(), teleport.getY(), teleport.getZ());
+            stand.setRotation(aim);
+        }
+
+
+
+
+        return true;
     }
 
     public synchronized double getBarrelHeat() {

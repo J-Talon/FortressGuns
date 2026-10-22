@@ -1,20 +1,19 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -26,11 +25,8 @@ import java.util.Set;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
-public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, ProjectileExplosive {
+public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking {
 
-    private final org.bukkit.World bukkitWorld;
-    private int fueledFlightAge;
-    private Vec3D direction;
 
     private static final double ACCELERATION = 0.2;
     private static final double MAX_ACCELERATION = 0.3;
@@ -38,24 +34,26 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     private static final double MAX_SPEED;
     private static final double ORBIT_DIST = 17;
     private static final int DIST_EXPLODE_SQUARED = 10;  //slightly more than 3b
-    private int readyTime;
     private static final int FUEL = 600;  //
     private static final int PRIME = 5; //1/2 sec
 
-    private static final Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
 
-    private final Vec3D initialVelocity;
-    private final boolean hadTarget;
-    private final double sineOffset;
-
-    private float initialXRot, initialYRot;
-    private Vector targetOrthogonal;
 
     private final MissileLockNotifier notifier;
-
-
     private static float explosionPower; //4
     private static float difficulty;
+    private static final Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
+
+
+    private int readyTime;
+    private final Vec3D initialVelocity;
+    private final double sineOffset;
+    private int fueledFlightAge;
+    private Vec3D direction;
+    protected Entity target;
+    protected boolean hadTarget;
+    private float initialXRot, initialYRot;
+    private Vector targetOrthogonal;
 
 
     private Vec3D terminalVel = null;
@@ -76,8 +74,6 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
         Vector initial = source == null ? new Vector(1, 0, 0) : MathFG.eulerToVec(source.getAim());
         initialVelocity = new Vec3D(initial.getX(),initial.getY(),initial.getZ());
         hadTarget = false;
-        bukkitWorld = world.getWorld();
-
         sineOffset = rand.nextDouble() * Math.PI * 2; // 2PI = period of sine function
         initialYRot = initialXRot = Float.NaN;
         notifier = MissileLockNotifier.get(FortressGuns.getInstance());
@@ -111,14 +107,13 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
 
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        explode(getPositionVector());
+    public boolean onEntityHit(Entity hitEntity, Vector entityPosition) {
+        explode(CraftVector.toBukkit(getPositionVector()));
         return true;
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
-
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
 
         Block hit = bukkitWorld.getBlockAt(hitBlock.getX(), hitBlock.getY(), hitBlock.getZ());
         if (hit.getType().isAir())
@@ -140,7 +135,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     }
 
     @Override
-    public void explode(@Nullable Vec3D hit) {
+    public void explode(@Nullable Vector hit) {
 
         if (target != null && (target instanceof Player || target instanceof SimpleFlare)) {
             notifier.exitNotification(target.getUniqueId());
@@ -163,49 +158,8 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
     private void playEffects(Location loc) {
 
         Vec3D motion = getMot();
-        motion = motion.e();  ///e() --> multiply(-1)
+        motion = motion.e();  //e() --> multiply(-1)
 
-        //0.00015x^{2}
-
-        //maybe this should be an option
-        // I know some peeps want the small explode particles instead
-//        final ParticleParam PARAM = Particles.v;  //end rod particle
-//        bukkitWorld.getPlayers().forEach(player -> {
-//
-//            double distSquared = loc.distanceSquared(player.getLocation());
-//            double glow = Math.max((-0.0008 * distSquared) + 5, 1);
-//
-//            PacketPlayOutWorldParticles packet;
-//            EntityPlayer nms = ((CraftPlayer)player).getHandle();
-//
-//            for (double angle = 0; angle < 2*Math.PI; angle += Math.PI / 2) {
-//                Location next = loc.clone();
-//                double z = Math.cos(angle);
-//                double x = -Math.sin(angle);
-//
-//                for (int num = 0; num < glow; num ++) {
-//                    packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
-//                    nms.b.sendPacket(packet);
-//                    next.add(x * 0.1 * num,0,z * 0.1 * num); /// 0.1 is arbitrary dist
-//                }
-//            }
-//
-//            for (int num = 0; num < glow; num ++) {
-//                Location next = loc.clone();
-//
-//                next.add(0,0.1 * num,0);
-//                packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
-//                nms.b.sendPacket(packet);
-//
-//                next.add(0,-0.2 * num,0);
-//                packet = new PacketPlayOutWorldParticles(PARAM, true, next.getX(),next.getY(), next.getZ(), (float)9.9E5, 0,0,1,0);
-//                nms.b.sendPacket(packet);
-//            }
-//
-//        });
-
-
-        //some people like this more???
         double x = motion.getX(), y = motion.getY(), z = motion.getZ();
 
         bukkitWorld.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE,loc,0,x, y, z,0.2,null,true);
@@ -415,6 +369,23 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileFG, 
         setMot(motion);
         this.C = true;
     }
+
+
+
+    public void setTarget(Entity target) {
+
+        if (hadTarget && this.target instanceof Player) {
+            notifier.exitNotification(this.target.getUniqueId());
+        }
+
+        if (target instanceof Player) {
+            notifier.addNotification(target.getUniqueId(), getFuelTicks());
+        }
+
+        this.target = target;
+        hadTarget = true;
+    }
+
 
 
 

@@ -15,8 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class ArtilleryPart extends ComponentAS
-{
+public class ArtilleryPart extends ComponentAS {
     protected Artillery body;
     public ArtilleryPart(World world, Artillery body, double d0, double d1, double d2) {
         super(world, d0, d1, d2, body);
