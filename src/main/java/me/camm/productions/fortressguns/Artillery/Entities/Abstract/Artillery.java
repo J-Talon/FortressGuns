@@ -363,7 +363,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
                 if (!pivot(x,y)) {
                     world.playSound(pivot.getEyeLocation(),Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,0.5f,0);
-//                    interpolatedAim = aim;
+                    interpolatedAim = aim;
                     setInterpolating(false);
                     cancel();
                 }

@@ -113,11 +113,11 @@ public class ChunkLoader implements Listener {
                     activePieces.add(next.getConstruct());
                     iter.remove();
                     continue;
-
                     }
                     catch (NullPointerException ignored) {
                         logger.warning("Unable to spawn turret from ticket "+next.getUUID() +", ["+next+"] since it's reference is bad. Skipping, sorry!");
                         iter.remove();
+                        continue;
                     }
                 }
 
