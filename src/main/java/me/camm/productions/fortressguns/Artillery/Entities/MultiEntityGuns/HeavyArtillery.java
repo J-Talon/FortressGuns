@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -51,8 +52,8 @@ public class HeavyArtillery extends FieldArtillery
     }
 
     @Override
-    public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = super.getParts();
+    public List<Component> getParts(){
+        List<Component> parts = super.getParts();
         parts.add(pivot);
         parts.add(rotatingSeat);
         return parts;
@@ -66,21 +67,16 @@ public class HeavyArtillery extends FieldArtillery
 
 
     @Override
-    protected synchronized void incrementSmallDistance(double increment) {
-        super.incrementSmallDistance(increment);
-    }
-
-    @Override
     public double getMaxHealth() {
         return maxHealth;
     }
 
 
     @Override
-    protected boolean spawnBaseParts() {
+    protected void spawnBaseParts() {
         double rads = 0;
         int bar = 0;
-        return super.spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
+        spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
     }
 
 

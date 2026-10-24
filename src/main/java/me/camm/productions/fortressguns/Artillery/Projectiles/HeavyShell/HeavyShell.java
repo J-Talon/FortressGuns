@@ -15,6 +15,9 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.EntityType;
+import org.bukkit.util.Vector;
 
 
 import javax.annotation.Nullable;
@@ -44,8 +47,8 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
     }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        if (hitEntity.getEntityType() == EntityTypes.w) {   //enderman
+    public boolean onEntityHit(org.bukkit.entity.Entity hitEntity, Vector entityPosition) {
+        if (hitEntity.getType() == EntityType.ENDERMAN) {   //enderman
             return false;
         }
 
@@ -56,8 +59,9 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
 
         //deflect
         if (hitEntity instanceof IProjectile) {
+
             Vec3D current = this.getPositionVector();
-            Vec3D other = hitEntity.getPositionVector();
+            Vec3D other = CraftVector.toNMS(hitEntity.getLocation().toVector());
             float otherWeight = 0.05f;
 
             Vec3D thisDeflection;
@@ -74,7 +78,7 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
 
             Vec3D otherDeflection = thisDeflection.a(-1F);
             otherDeflection = otherDeflection.a(getWeight());
-            hitEntity.setMot(hitEntity.getMot().add(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ()));
+            hitEntity.setVelocity(hitEntity.getVelocity().clone().add(new Vector(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ())));
 
             thisDeflection = thisDeflection.a(otherWeight);
             setMot(getMot().add(thisDeflection.getX(), thisDeflection.getY(), thisDeflection.getZ()));
@@ -93,11 +97,6 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
     }
 
     @Override
-    public void remove() {
-        this.die();
-    }
-
-    @Override
     public void inactiveTick() {
         remove();
     }
@@ -106,7 +105,6 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
     public float getWeight() {
         return 0.1F;
     }
-
 
 
 }

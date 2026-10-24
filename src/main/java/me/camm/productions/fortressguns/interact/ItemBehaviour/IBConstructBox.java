@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour;
+package me.camm.productions.fortressguns.interact.ItemBehaviour;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructFactory;
@@ -70,7 +70,7 @@ public class IBConstructBox implements InteractionBehaviourItem {
         Construct cons = factory.create(player.getLocation().add(0,offsetY,0), type.ordinal(),x,z, 0);
 
         if (cons != null) {
-            boolean success = cons.spawn();
+            boolean success = cons.spawn(true);
             ChunkLoader.addActivePiece(cons);
             if (!success)
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this.");

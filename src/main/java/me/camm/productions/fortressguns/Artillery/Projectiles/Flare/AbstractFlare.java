@@ -10,6 +10,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +26,19 @@ public abstract class AbstractFlare extends ProjectileSnowballFG {
         super(world, x,y,z, shooter);
         rand = new Random();
     }
+
+
+    @Override
+    public void setVelocity(double x, double y, double z) {
+        this.setMot(x,y,z);
+    }
+
+
+    @Override
+    public void addToWorld(org.bukkit.World world) {
+        ((CraftWorld)world).getHandle().addEntity(this);
+    }
+
 
     //you probably don't need this
 //

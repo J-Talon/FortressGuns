@@ -1,10 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -20,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
-    protected ArtilleryPart rotatingSeat = null;  //artillery may have multiple seats in the future
+    protected Component rotatingSeat = null;  //artillery may have multiple seats in the future
     protected Player operator = null;
 
     public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
@@ -72,7 +70,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
                     return;
                 }
 
-                if (!vehicle.getUniqueId().equals(rotatingSeat.getUniqueID())) {
+                if (!vehicle.getUniqueId().equals(rotatingSeat.getUUID())) {
                     artillery.kickOperator();
                     cancel();
                     return;
@@ -118,11 +116,11 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
-    protected void posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
-
+    protected boolean posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
 
         EulerAngle aim = this.getAim();
         Location next = getSeatLocation( xOffset, yOffset, angAroundY);
+
 
         final double MAX_VIB = 0.25;  //artistic choice. too much makes it look bad, too little and they don't feel it
         if (operator != null) {
@@ -130,9 +128,15 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
             next.add(0, amount, 0);
         }
 
+        if (!seat.enoughSpace(next.toVector())) {
+            return false;
+        }
+
         EulerAngle seatFacing = new EulerAngle(0,aim.getY(),0);
         seat.setRotation(seatFacing);
         seat.teleport(next);
+
+        return true;
     }
 
 

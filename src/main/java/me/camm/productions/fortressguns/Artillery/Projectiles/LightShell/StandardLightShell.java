@@ -6,8 +6,6 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -17,8 +15,10 @@ import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Projectile;
+import org.bukkit.util.Vector;
 
 
 public class StandardLightShell extends LightShell {
@@ -32,8 +32,11 @@ public class StandardLightShell extends LightShell {
     }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(org.bukkit.entity.Entity bukkit, Vector entityPosition) {
         this.a(GameEvent.I, this.getShooter());
+
+        Entity hitEntity = ((CraftEntity)bukkit).getHandle();
+
 
         if (shooter != null) {
             DamageSource source = GunSource.gunShot(shooter,this);
@@ -68,7 +71,6 @@ public class StandardLightShell extends LightShell {
         }
 
 
-        org.bukkit.entity.Entity bukkit = hitEntity.getBukkitEntity();
         org.bukkit.World bukkitWorld = getWorld().getWorld();
 
         if (bukkit instanceof Explosive) {
@@ -94,15 +96,11 @@ public class StandardLightShell extends LightShell {
         return true;
     }
 
-    @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
-        return super.onBlockHit(exactHitPosition, blockFace, hitBlock);
-    }
 
 
     @Override
     public void onWaterEnter() {
-        ExplosionFactory.smallSplashExplosion(bukkitWorld(),locX(), locY(), locZ());
+        ExplosionFactory.smallSplashExplosion(bukkitWorld,locX(), locY(), locZ());
     }
 
     @Override

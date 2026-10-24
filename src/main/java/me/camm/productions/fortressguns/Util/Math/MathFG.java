@@ -1,6 +1,9 @@
 package me.camm.productions.fortressguns.Util.Math;
 
+
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
@@ -14,14 +17,61 @@ public class MathFG {
 
 
 
+    /*
+    returns either N, S, E, W , Up or Down
+     */
+    public static BlockFace toCardinalDirection(int x, int y, int z) {
+        if (Math.abs(x) + Math.abs(y) + Math.abs(z) != 1)
+            return BlockFace.SELF;
+
+        if (x == 1) return BlockFace.EAST;
+        if (x == -1) return BlockFace.WEST;
+
+        if (z == 1) return BlockFace.SOUTH;
+        if (z == -1) return BlockFace.NORTH;
+
+        if (y == 1) return BlockFace.UP;
+        return BlockFace.DOWN;
+
+    }
+
+
+
     public static double linearInterpolate(double increment, double start, double end) {
         return start + increment * (end - start);
     }
 
 
+    public static boolean AABBIntersects(BoundingBox a, BoundingBox b) {
+        return a.overlaps(b);
+    }
+
+
+
     public static double randomDouble() {
         return rand.nextDouble();
     }
+
+
+
+
+    public static Vector getReflectionVector(BlockFace blockFace, Vector in) {
+        return getReflectionVector(blockFace, in.getX(), in.getY(), in.getZ());
+    }
+
+
+    public static Vector getReflectionVector(BlockFace blockFace, double vX, double vY, double vZ) {
+        Vector vector = blockFace.getDirection();
+        double x,y,z;
+        x = vector.getX() != 0 ? vX * -1 : vX;
+        y = vector.getY() != 0 ? vY * -1 : vY;
+        z = vector.getZ() != 0 ? vZ * -1 : vZ;
+        return new Vector(x,y,z);
+    }
+
+
+
+
 
 
 
@@ -31,7 +81,7 @@ public class MathFG {
      */
     public static Vector randomOrthagonal(Vector other) {
         double denom = Double.NaN;
-        double linComb = Double.NaN;  ///linear combination method to get orthagonal
+        double linComb = Double.NaN;  //linear combination method to get orthagonal
         double mult1, mult2;
         mult1 = rand.nextDouble() - 0.5;
         mult2 = rand.nextDouble() - 0.5;

@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour;
+package me.camm.productions.fortressguns.interact.ItemBehaviour;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;

@@ -15,7 +15,7 @@ public interface Rideable {
 
     Component getSeat();
 
-    void positionSeat();
+    boolean positionSeat();
 
     void rideTick(Player human);
     //returns whether the seat cannot be interacted with independent of
