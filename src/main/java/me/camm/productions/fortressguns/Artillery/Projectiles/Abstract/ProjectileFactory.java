@@ -8,9 +8,9 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShe
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
@@ -19,7 +19,14 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 @FunctionalInterface
 public interface ProjectileFactory<T extends ProjectileFG> {
 
-    @NotNull T create(World world, double x, double y, double z, @Nullable Player shooter, Artillery source);
+    @NotNull T create(World world, double x, double y, double z, @Nullable Player shooter, @Nullable Artillery source);
+
+    default T create(World world, double x, double y, double z, Vector velocity, @Nullable Player shooter, @Nullable Artillery source) {
+        T projectile = this.create(world, x,y,z, shooter, source);
+        projectile.setVelocity(velocity.getX(), velocity.getY(), velocity.getZ());
+        return projectile;
+    }
+
 
     /*
 
@@ -56,56 +63,59 @@ public interface ProjectileFactory<T extends ProjectileFG> {
     }
 
 
-    class FactoryStandardLight implements ProjectileFactory<StandardLightShell> {
+    class FactoryStandardLight implements ProjectileFactory<ProjectileType.ISolidLightShell> {
         @Override
-        public @NotNull StandardLightShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.ISolidLightShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new StandardLightShell(world, x, y, z, shooter, source);
         }
     }
 
-    class FactoryExplosiveHeavy implements ProjectileFactory<HeavyShellHE> {
+    class FactoryExplosiveHeavy implements ProjectileFactory<ProjectileType.IHeavyShellHE> {
         @Override
-        public @NotNull HeavyShellHE create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.IHeavyShellHE create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new HeavyShellHE(world, x, y, z, shooter, source);
         }
     }
 
 
-    class FactoryFlakLight implements ProjectileFactory<FlakLightShell> {
+    class FactoryFlakLight implements ProjectileFactory<ProjectileType.IFlakLightShell> {
         @Override
-        public @NotNull FlakLightShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.IFlakLightShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new FlakLightShell(world, x, y, z, shooter, source);
         }
     }
 
-    class FactoryFlakHeavy implements ProjectileFactory<FlakHeavyShell> {
+    class FactoryFlakHeavy implements ProjectileFactory<ProjectileType.IFlakHeavyShell> {
         @Override
-        public @NotNull FlakHeavyShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.IFlakHeavyShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new FlakHeavyShell(world, x, y, z, shooter, source);
         }
     }
 
 
-    class FactoryMissile implements ProjectileFactory<HeatseekingMissile> {
+    class FactoryMissile implements ProjectileFactory<ProjectileType.IHeatSeekingRocket> {
         @Override
-        public @NotNull HeatseekingMissile create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.IHeatSeekingRocket create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new HeatseekingMissile(world, x, y, z, shooter, source);
         }
     }
 
-    class FactoryCRAM implements ProjectileFactory<CRAMShell> {
+    class FactoryCRAM implements ProjectileFactory<ProjectileType.ICRAMShell> {
         @Override
-        public @NotNull CRAMShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.ICRAMShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new CRAMShell(world, x, y, z, shooter, source);
         }
 
     }
 
-    class FactoryFlare implements ProjectileFactory<SimpleFlare> {
+    class FactoryFlare implements ProjectileFactory<ProjectileType.ISimpleFlare> {
         @Override
-        public @NotNull SimpleFlare create(World world, double x, double y, double z, Player shooter, Artillery source) {
+        public @NotNull ProjectileType.ISimpleFlare create(World world, double x, double y, double z, Player shooter, Artillery source) {
             return new SimpleFlare(world, x, y, z, shooter);
         }
+
+
+
     }
 
 }

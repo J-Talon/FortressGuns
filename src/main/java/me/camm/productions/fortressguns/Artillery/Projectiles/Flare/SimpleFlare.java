@@ -12,7 +12,6 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.material.FluidType;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
