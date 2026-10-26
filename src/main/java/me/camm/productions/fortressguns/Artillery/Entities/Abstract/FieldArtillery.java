@@ -1,9 +1,10 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
@@ -11,12 +12,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryM
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
@@ -55,15 +53,13 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
     @Override
-    protected @Nullable HeavyShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
-        HeavyShell shell = (HeavyShell)super.createProjectile(world, x, y, z, shooter, source);
+    protected @Nullable ProjectileFG createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
+        ProjectileFG shell = super.createProjectile(world, x, y, z, shooter, source);
         if (shell == null)
             return null;
 
         Vector vec = MathFG.eulerToVec(aim).normalize().multiply(getVectorPower());
-
-        final Vec3D vector = new Vec3D(vec.getX(), vec.getY(), vec.getZ());
-        shell.setMot(vector);
+        shell.setVelocity(vec.getX(), vec.getY(), vec.getZ());
         return shell;
     }
 
@@ -81,9 +77,8 @@ public abstract class FieldArtillery extends ArtilleryRideable
         else
             return;
 
-        EntityPlayer player = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
         final Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
-        HeavyShell shell = createProjectile(getNMSWorld(),muzzle.getX(), muzzle.getY(), muzzle.getZ(),player, this);
+        ProjectileFG shell = createProjectile(world,muzzle.getX(), muzzle.getY(), muzzle.getZ(),shooter, this);
 
         //warning here cause canFire() should check whether the gun has ammo
         if (shell == null) {
@@ -93,8 +88,8 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
         //make a flash
-        createFlash(muzzle);
-        createShotParticles(muzzle);
+        FG_VFX.createFlash(muzzle, world);
+        FG_VFX.gunFire(muzzle, world);
         shockwaveParticles();
 
         setSmallDistance(0.1);
@@ -116,7 +111,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                 if (!shot) {
                     shot = true;
 
-                    ((CraftWorld) world).addEntity(shell, CreatureSpawnEvent.SpawnReason.CUSTOM);
+                    shell.addToWorld(world);
 
                     if (requiresReloading())
                         setAmmo(Math.max(0, getAmmo() - 1));

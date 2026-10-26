@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;
@@ -171,7 +172,7 @@ public class LightFlak extends RapidFire {
             return;
         }
 
-        createFlash(muzzle);
+        FG_VFX.createFlash(muzzle, world);
 
         if (requiresReloading())
             setAmmo(Math.max(0, getAmmo() - 1));

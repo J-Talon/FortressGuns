@@ -428,7 +428,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     }
 
 
-    protected @Nullable LightShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    protected @Nullable LightShell createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
         AmmoItem item = getLoadedAmmoType();
         if (item == null) {
             return null;

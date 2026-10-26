@@ -5,13 +5,15 @@ import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.projectile.EntitySnowball;
-import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
 
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ProjectileSnowballFG extends EntitySnowball implements ProjectileFG {
@@ -22,9 +24,12 @@ public abstract class ProjectileSnowballFG extends EntitySnowball implements Pro
     protected boolean enteredLava;
     protected org.bukkit.World bukkitWorld;
 
-    public ProjectileSnowballFG(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human) {
-        super(world,x,y,z);
-        this.shooter = human;
+    public ProjectileSnowballFG(World world, double x, double y, double z, @Nullable Player human) {
+        super(((CraftWorld)world).getHandle(),x,y,z);
+
+        if (human != null)
+            this.shooter = ((CraftPlayer)human).getHandle();
+
         enteredLava = false;
         enteredWater = false;
         this.bukkitWorld = t.getWorld();

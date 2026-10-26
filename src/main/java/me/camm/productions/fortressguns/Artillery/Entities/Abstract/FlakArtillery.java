@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Tuneable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
 
@@ -24,7 +23,7 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
+public abstract class FlakArtillery extends HeavyArtillery
 {
 
     protected Entity target;
@@ -60,13 +59,13 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
 
 
     @Override
-    protected @Nullable HeavyShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    protected @Nullable HeavyShell createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
         FlakHeavyShell shell = (FlakHeavyShell)super.createProjectile(world, x, y, z, shooter, source);
         if (shell == null)
             return null;
 
         if (target == null && shooter != null) {
-            double time = action.getTime(shooter.getUniqueID()).getA();
+            double time = action.getTime(shooter.getUniqueId()).getA();
             shell.setExplodeTime(time);
         }
         else

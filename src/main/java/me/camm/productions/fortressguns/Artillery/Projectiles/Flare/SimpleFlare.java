@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Flare;
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
 import net.minecraft.core.BlockPosition;
@@ -23,7 +24,7 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class SimpleFlare extends AbstractFlare implements ProjectileFG {
+public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimpleFlare {
     private static final double directionVariance = 0.5;
     private static final ItemStack SPRITE = new ItemStack(Items.rA);
 
@@ -35,14 +36,13 @@ public class SimpleFlare extends AbstractFlare implements ProjectileFG {
     private static final double MAX_SPEED = 1;
     private final Set<ProjectileSeeking> affectedMissiles = new HashSet<>();
 
-    public SimpleFlare(World world, double x, double y, double z, EntityPlayer shooter) {
+    public SimpleFlare(org.bukkit.World world, double x, double y, double z, Player shooter) {
         super(world, x, y, z, shooter);
 
         this.lifespan = 10 * 20;
 
         if (shooter != null) {
-            Player player = shooter.getBukkitEntity();
-            Location loc = player.getLocation();
+            Location loc = shooter.getLocation();
             Vector forward = loc.getDirection();
             Location upLoc = loc.clone();
             upLoc.setPitch(loc.getPitch() - 90.0F);

@@ -17,6 +17,9 @@ public abstract class Construct {
 
     private final UUID id;
 
+    protected boolean dead;
+    protected boolean loaded;
+
     public Construct() {
         this.id = UUID.randomUUID();
     }

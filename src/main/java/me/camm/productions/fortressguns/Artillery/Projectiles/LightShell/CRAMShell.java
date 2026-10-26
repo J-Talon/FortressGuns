@@ -2,11 +2,11 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.particles.Particles;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.projectile.ProjectileHelper;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.TileEntity;
 import net.minecraft.world.level.block.entity.TileEntityEndGateway;
@@ -14,16 +14,18 @@ import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.phys.MovingObjectPosition;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class CRAMShell extends LightShell implements ProjectileExplosive {
+public class CRAMShell extends LightShell implements ProjectileExplosive, ProjectileType.ICRAMShell {
 
     private static float hitDamage = 10;
 
 
 
-    public CRAMShell(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human, Artillery source) {
+    public CRAMShell(@Nullable World world, double x, double y, double z, @Nullable Player human, Artillery source) {
         super(world, x, y, z, human, source);
     }
 
