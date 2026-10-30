@@ -32,6 +32,8 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
     private static double jamPercent, overheat, maxHealth;
     private static long inactiveHeatTicks;
     private static double heatDissipation;
+    private static boolean infinite;
+
     private static boolean configApplied;
 
 
@@ -55,6 +57,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         overheat = 1;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        infinite = false;
         configApplied = false;
     }
 
@@ -70,34 +73,13 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         overheat = data.getOverheat();
         inactiveHeatTicks = data.getHeatTicks();
         heatDissipation = data.getDissipation();
+        infinite = data.infinite();
+
     }
 
-    public static void setCooldown(long cooldown) {
-        LightFlak.cooldown = cooldown;
-    }
-
-    public static void setMaxHealth(double maxHealth) {
-        LightFlak.maxHealth = maxHealth;
-    }
-
-    public static void setMagSize(int magSize) {
-        LightFlak.magSize = magSize;
-    }
-
-    public static void setJamPercent(double jamPercent) {
-        LightFlak.jamPercent = jamPercent;
-    }
-
-    public static void setOverheat(double overheat) {
-        LightFlak.overheat = overheat;
-    }
-
-    public static void setInactiveHeatTicks(long inactiveHeatTicks) {
-        LightFlak.inactiveHeatTicks = inactiveHeatTicks;
-    }
-
-    public static void setHeatDissipation(double heatDissipation) {
-        LightFlak.heatDissipation = heatDissipation;
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     public double getVectorPower() {

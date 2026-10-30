@@ -19,6 +19,8 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking, Configurat
     private static final int SMALL_THRESH = 3;
     private static double maxHealth;
     private static long fireCooldown;
+    private static boolean infinite;
+
     private static boolean configApplied;
 
 
@@ -44,12 +46,20 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking, Configurat
         if (heavy == null) return;
         maxHealth = heavy.getHealth();
         fireCooldown = heavy.getCooldown();
+        infinite = heavy.isInfinite();
     }
 
     static {
         maxHealth = 100;
+        infinite = false;
         fireCooldown = 5000;
         configApplied = false;
+    }
+
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     public static void setMaxHealth(double health) {

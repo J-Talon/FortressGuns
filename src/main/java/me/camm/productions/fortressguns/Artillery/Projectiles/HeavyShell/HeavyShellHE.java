@@ -88,9 +88,9 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive, Con
         //for a better explosion use a penetration value.
         //so if you trace and you find air, then go forwards. else go backwards.
         if (hit == null)
-            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower());
+            ExplosionFactory.get().heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower());
         else
-            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower());
+            ExplosionFactory.get().heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower());
     remove();
     }
 

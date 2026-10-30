@@ -193,9 +193,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected abstract void initInventories();
 
 
-    public boolean requiresReloading() {
-        return requiresReloading;
-    }
+    public abstract boolean requiresReloading();
 
 
     public int getAmmo() {

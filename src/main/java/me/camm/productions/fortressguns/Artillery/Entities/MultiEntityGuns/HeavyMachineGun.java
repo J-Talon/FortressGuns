@@ -37,6 +37,7 @@ public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<Se
     private static long inactiveHeatTicks;
     private static double heatDissipation;
     private static boolean configApplied;
+    private static boolean infiniteAmmo;
 
     static {
 
@@ -46,6 +47,7 @@ public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<Se
         overheat = 0;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        infiniteAmmo = false;
         configApplied = false;
 
     }
@@ -72,31 +74,15 @@ public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<Se
         overheat = data.getOverheat();
         inactiveHeatTicks = data.getHeatTicks();
         heatDissipation = data.getDissipation();
+        infiniteAmmo = data.getInfinite();
     }
 
-    public static void setMaxHealth(double max) {
-        maxHealth = max;
+
+    @Override
+    public boolean requiresReloading() {
+        return !infiniteAmmo;
     }
 
-    public static void setMagSize(int magSize) {
-        HeavyMachineGun.magSize = magSize;
-    }
-
-    public static void setOverheat(double overheat) {
-        HeavyMachineGun.overheat = overheat;
-    }
-
-    public static void setJamPercent(double jamPercent) {
-        HeavyMachineGun.jamPercent = jamPercent;
-    }
-
-    public static void setInactiveHeatTicks(long inactiveHeatTicks) {
-        HeavyMachineGun.inactiveHeatTicks = inactiveHeatTicks;
-    }
-
-    public static void setHeatDissipation(double heatDissipation) {
-        HeavyMachineGun.heatDissipation = heatDissipation;
-    }
 
     @Override
     public double getVectorPower() {

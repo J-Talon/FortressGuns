@@ -63,4 +63,8 @@ public class SectionMissileLauncher extends ConfigSection {
     public Integer getMissiles() {
         return missiles;
     }
+
+    public Boolean infinite() {
+        return infinite;
+    }
 }

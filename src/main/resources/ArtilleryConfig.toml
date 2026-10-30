@@ -132,11 +132,10 @@ enableFlares = true
 
 #Whether the explosions from the artillery should be
 #vanilla explosions which call Spigot/Bukkit/Paper API events using world.createExplosion(...)
-#or a custom explosion which might not
 useVanillaExplosions = false
 
-#Whether artillery destroys blocks
-#this does not apply to falling blocks
+#Whether artillery explosions destroys blocks
+#some shells may still break blocks via non-explosive means
 destructiveExplosions = true
 
 

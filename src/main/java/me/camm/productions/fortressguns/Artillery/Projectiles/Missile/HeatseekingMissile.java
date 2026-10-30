@@ -156,7 +156,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
             notifier.exitNotification(target.getUniqueId());
         }
         org.bukkit.World world = getWorld().getWorld();
-        ExplosionFactory.missileExplosion(world, shooter.getBukkitEntity(),locX(), locY(),locZ(),explosionPower);
+        ExplosionFactory.get().missileExplosion(world, shooter.getBukkitEntity(),locX(), locY(),locZ(),explosionPower);
 
        // world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
         ACTIVE_MISSILES.remove(this);

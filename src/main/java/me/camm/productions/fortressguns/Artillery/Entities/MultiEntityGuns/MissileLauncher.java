@@ -57,7 +57,9 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
     private static int maxRockets;
     private static long cooldown;
     private static double maxHealth;
+    private static boolean infinite;
     private static boolean configApplied;
+
 
     static final int TRACK_REQUIRED = 65;
     static final int MAX_TRACK = 100;
@@ -124,7 +126,14 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         maxRockets = data.getMissiles();
         cooldown = data.getCooldown();
         maxHealth = data.getHealth();
+        infinite = data.infinite();
 
+    }
+
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     @Override

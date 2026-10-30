@@ -126,6 +126,6 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, C
             z = hit.getZ();
         }
 
-        ExplosionFactory.flakLightExplosion(bukkitWorld,getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
+        ExplosionFactory.get().flakLightExplosion(bukkitWorld,getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
     }
 }

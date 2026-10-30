@@ -8,12 +8,13 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class CommandCheckConfig extends CommandHandler {
 
 
-    private List<String> sections;
-    private List<String> params;
+    private final List<String> sections;
+    private final List<String> params;
 
 
 
@@ -35,9 +36,28 @@ public class CommandCheckConfig extends CommandHandler {
             return true;
         }
 
+        Predicate<String> pred = new Predicate<String>() {
+            @Override
+            public boolean test(String s) {
+                return sections.contains(s) || params.contains(s);
+            }
+        };
+
+
+        boolean allMatch = Arrays.stream(args).allMatch(pred);
+        if (!allMatch) {
+            sender.sendMessage("No config exists that conforms to parameters");
+            return false;
+        }
+
+
+
+
         StringBuilder builder = new StringBuilder();
-        for (String s: args) {
-            builder.append(s).append(".");
+        for (int s = 0; s < args.length; s ++) {
+            builder.append(args[s]);
+            if (s >= args.length - 1) break;
+            builder.append(".");
         }
         String value = manager.getRawValue(builder.toString());
         if (value == null) {

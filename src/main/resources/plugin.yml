@@ -5,14 +5,14 @@ api-version: 1.17
 authors: [ CAMM_H87 ]
 description: Gun Plugin version 3, with new Artillery and guns.
 commands:
-  ct:
+  fgticket:
     description: Check chunk ticket
     usage: /ct <uuid>
     permission-message: You do not have permission to use this command
     permission: fg.debug
 
 
-  cs:
+  fgstatus:
     description: check chunk status in current world (or default)
     usage: /cs <x> <z>
     permission-message: You do not have permission to use this command

@@ -118,7 +118,7 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
             hitPos.add(direction);
         }
 
-        ExplosionFactory.solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir, context);
+        ExplosionFactory.get().solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir, context);
 
 
         for (Block block : penBlocks) {

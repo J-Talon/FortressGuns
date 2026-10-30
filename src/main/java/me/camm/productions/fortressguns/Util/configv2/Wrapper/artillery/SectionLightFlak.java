@@ -110,4 +110,8 @@ public class SectionLightFlak extends ConfigSection {
     public Long getHeatTicks() {
         return heatTicks;
     }
+
+    public Boolean infinite() {
+        return infinite;
+    }
 }

@@ -49,24 +49,24 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
 
 
 
-    public static void vanillaExplosion(World w, Entity source, double x, double y, double z, float radius) {
+    public void vanillaExplosion(World w, Entity source, double x, double y, double z, float radius) {
         w.createExplosion(x,y,z,radius,false,destructiveExplosions, source);
     }
 
 
-    public static void heavyShellExplosion(World w, Entity source, double x, double y, double z, float radius) {
+    public void heavyShellExplosion(World w, Entity source, double x, double y, double z, float radius) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
 
-        ExplosionShellHE e = new ExplosionShellHE(x,y,z,w,radius,source, true);
+        ExplosionShellHE e = new ExplosionShellHE(x,y,z,w,radius,source, destructiveExplosions);
         e.perform();
 
     }
 
 
-    public static void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius, Vector direction, @Nullable Block context) {
+    public void solidShellExplosion(World w, @NotNull Entity source, double x, double y, double z, float radius, Vector direction, @Nullable Block context) {
 
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
@@ -79,7 +79,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
     }
 
 
-    public static void flakHeavyExplosion(World w, Entity source, double x, double y, double z, float radius) {
+    public void flakHeavyExplosion(World w, Entity source, double x, double y, double z, float radius) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
@@ -89,7 +89,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
         explosion.perform();
     }
 
-    public static void flakLightExplosion(World w, Entity source, Player shooter, double x, double y, double z, @Nullable Entity ignore) {
+    public void flakLightExplosion(World w, Entity source, Player shooter, double x, double y, double z, @Nullable Entity ignore) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,1);
             return;
@@ -100,7 +100,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
     }
 
 
-    public static void missileExplosion(World w, Entity source, double x, double y, double z, float radius) {
+    public void missileExplosion(World w, Entity source, double x, double y, double z, float radius) {
         if (useVanillaExplosions) {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
@@ -110,7 +110,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
     }
 
 
-    public static void smallSplashExplosion(World w, double x, double y, double z) {
+    public void smallSplashExplosion(World w, double x, double y, double z) {
         ExplosionSplash splash = new ExplosionSplash(x,y,z, w);
         splash.perform();
     }

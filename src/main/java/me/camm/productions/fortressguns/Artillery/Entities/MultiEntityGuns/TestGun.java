@@ -30,6 +30,11 @@ public class TestGun extends Artillery {
     }
 
     @Override
+    public boolean requiresReloading() {
+        return false;
+    }
+
+    @Override
     public int getMaxAmmo() {
         return 0;
     }

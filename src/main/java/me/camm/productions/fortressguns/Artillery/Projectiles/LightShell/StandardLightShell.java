@@ -119,7 +119,7 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
 
     @Override
     public void onWaterEnter() {
-        ExplosionFactory.smallSplashExplosion(bukkitWorld,locX(), locY(), locZ());
+        ExplosionFactory.get().smallSplashExplosion(bukkitWorld,locX(), locY(), locZ());
     }
 
     @Override

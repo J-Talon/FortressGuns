@@ -72,12 +72,30 @@ public class ConfigManager {
 
     public @Nullable String getRawValue(String keyList) {
         if (keyList == null) return null;
-        keyList = keyList.replace(" ", ".");
+        keyList = keyList.strip().replace(" ", ".");
         try {
-            return configParseResult.getString(keyList);
+            if (configParseResult.isString(keyList)) {
+                return configParseResult.getString(keyList);
+            }
+
+            if (configParseResult.isDouble(keyList)) {
+                Double d = configParseResult.getDouble(keyList);
+                return d == null ? null :  d + "";
+            }
+
+            if (configParseResult.isBoolean(keyList)) {
+                Boolean b = configParseResult.getBoolean(keyList);
+                return b == null ? null : b + "";
+            }
+
+            if (configParseResult.isLong(keyList)) {
+                Long l = configParseResult.getLong(keyList);
+                return l == null ? null : l + "";
+            }
+
+            return null;
         }
         catch (IllegalArgumentException | TomlInvalidTypeException e) {
-            e.printStackTrace();  //temporary
             return null;
         }
     }

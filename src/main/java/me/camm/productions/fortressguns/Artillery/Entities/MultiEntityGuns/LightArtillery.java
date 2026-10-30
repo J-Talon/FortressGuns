@@ -24,6 +24,7 @@ public class LightArtillery extends FieldArtillery implements ConfigurationHolde
 
     private static double maxHealth;
     private static long fireCooldown;
+    private static boolean infinite;
     private static boolean configApplied;
 
     public LightArtillery(Location loc, World world, EulerAngle aim) {
@@ -42,6 +43,7 @@ public class LightArtillery extends FieldArtillery implements ConfigurationHolde
     static {
         maxHealth = 20;
         fireCooldown = 3000;
+        infinite = false;
         configApplied = false;
     }
 
@@ -53,23 +55,20 @@ public class LightArtillery extends FieldArtillery implements ConfigurationHolde
 
         fireCooldown = data.getCooldown();
         maxHealth = data.getHealth();
+        infinite = data.isInfinite();
 
     }
 
 
-
-
-    public static void setMaxHealth(double maxHealth) {
-        LightArtillery.maxHealth = maxHealth;
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
+
 
     @Override
     public boolean acceptsAmmo(AmmoItem item) {
         return AmmoItem.STANDARD_HEAVY == item;
-    }
-
-    public static void setCooldown(long fireCooldown) {
-        LightArtillery.fireCooldown = fireCooldown;
     }
 
     public synchronized boolean canFire(){

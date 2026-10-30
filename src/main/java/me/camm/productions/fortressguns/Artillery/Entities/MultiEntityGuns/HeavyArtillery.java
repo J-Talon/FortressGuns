@@ -22,6 +22,7 @@ public class HeavyArtillery extends FieldArtillery implements ConfigurationHolde
     private static double maxHealth;
     private static long cooldown;
     private static boolean configApplied;
+    private static boolean infinite;
 
     public HeavyArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
@@ -39,6 +40,7 @@ public class HeavyArtillery extends FieldArtillery implements ConfigurationHolde
         configApplied = false;
         maxHealth = 80;
         cooldown = 5000;
+        infinite = false;
     }
 
 
@@ -47,7 +49,14 @@ public class HeavyArtillery extends FieldArtillery implements ConfigurationHolde
         if (heavy == null) return;
         maxHealth = heavy.getHealth();
         cooldown = heavy.getCooldown();
+        infinite = heavy.isInfinite();
 
+    }
+
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
 
