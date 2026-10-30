@@ -4,6 +4,8 @@ import me.camm.productions.fortressguns.Util.configv2.Wrapper.Etc.SectionGeneral
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.*;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.*;
 import me.camm.productions.fortressguns.Util.configv2.builder.Section;
+import org.jetbrains.annotations.Nullable;
+import org.tomlj.TomlInvalidTypeException;
 import org.tomlj.TomlParseResult;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,6 +18,7 @@ public class ConfigManager {
 
     private static ConfigManager manager = null;
     private static final AtomicBoolean isLoaded = new AtomicBoolean(false);
+    private TomlParseResult configParseResult;
 
     //--------
 
@@ -46,6 +49,8 @@ public class ConfigManager {
     }
 
     public void load(Logger logger, TomlParseResult res) {
+        configParseResult = res;
+
         fieldHeavy = (SectionFieldHeavy) Section.FIELD_HEAVY.build(res,logger);
         fieldLight = (SectionFieldLight) Section.FIELD_LIGHT.build(res,logger);
         heavyFlak = (SectionHeavyFlak) Section.HEAVY_FLAK.build(res, logger);
@@ -62,6 +67,18 @@ public class ConfigManager {
 
         general = (SectionGeneral) Section.GENERAL.build(res, logger);
         isLoaded.set(true);
+    }
+
+
+    public @Nullable String getRawValue(String keyList) {
+        if (keyList == null) return null;
+        keyList = keyList.replace(" ", ".");
+        try {
+            return configParseResult.getString(keyList);
+        }
+        catch (IllegalArgumentException | TomlInvalidTypeException e) {
+            return null;
+        }
     }
 
 

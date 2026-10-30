@@ -32,4 +32,11 @@ commands:
     permission: fg.admin
     permission-message: You do not have permission to use this command
 
+
+  fgcheckconf:
+    description: Read a value from config folder
+    usage: /fgcheckconf <section> <value>
+    permission: fg.debug
+    permission-message: You do not have permission to use this command
+
 default-permission: op
