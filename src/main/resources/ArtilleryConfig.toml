@@ -81,7 +81,7 @@ inactiveHeatTicks = 2000
 [missileLauncher]
 health = 35
 cooldown = 10000
-missiles = 6
+magSize = 6
 infiniteAmmo = false
 
 
@@ -92,7 +92,7 @@ weight = 0.1
 damage = 5
 
 
-[LightFlakBullet]
+[lightFlakBullet]
 weight = 0.1
 damage = 5
 

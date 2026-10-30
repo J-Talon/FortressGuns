@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile;
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
 /*
 [shellHE]
@@ -11,11 +12,11 @@ damage = 10
  */
 public class SectionShellHE extends ConfigSection {
 
-    private double explosionPower;
-    private double explosionDamage;
-    private double damage;
+    private Double explosionPower;
+    private Double explosionDamage;
+    private Double damage;
 
-    public SectionShellHE(double explosionPower, double explosionDamage, double damage) {
+    public SectionShellHE(Double explosionPower, Double explosionDamage, Double damage) {
         this.explosionPower = explosionPower;
         this.explosionDamage = explosionDamage;
         this.damage = damage;
@@ -23,18 +24,23 @@ public class SectionShellHE extends ConfigSection {
 
     @Override
     public boolean isValid() {
-        return false;
+        try {
+            ConfigHelper.checkProjExplodes3(explosionPower, explosionDamage, damage);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
-    public double getExplosionPower() {
+    public Double getExplosionPower() {
         return explosionPower;
     }
 
-    public double getExplosionDamage() {
+    public Double getExplosionDamage() {
         return explosionDamage;
     }
 
-    public double getDamage() {
+    public Double getDamage() {
         return damage;
     }
 }

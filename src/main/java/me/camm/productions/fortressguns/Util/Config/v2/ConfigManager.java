@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.Util.Config.v2;
 import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Etc.SectionGeneral;
 import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile.*;
 import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.*;
+import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionFlak;
 import org.bukkit.plugin.Plugin;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,10 +24,10 @@ public class ConfigManager {
     private SectionHeavyFlak heavyFlak = null;
     private SectionHMG hmg = null;
     private SectionLightFlak lightFlak = null;
-    private SectionMissileLauncher launcher = null;
+    private SectionFlak launcher = null;
 
 
-    private SectionFlak flakShell = null;
+    private me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile.SectionFlak flakShell = null;
     private SectionHeatMissile heatMissile = null;
     private SectionHMGBullet hmgBullet = null;
     private SectionShellHE shellHE = null;

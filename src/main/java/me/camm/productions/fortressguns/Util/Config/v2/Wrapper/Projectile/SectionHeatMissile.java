@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile;
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
 /*
 [heatSeekerMissile]
@@ -16,16 +17,16 @@ maxAcceleration = 0.3
  */
 public class SectionHeatMissile extends ConfigSection {
 
-    private double explosionPower;
-    private double explosionDamage;
-    private double orbitDist;
-    private double proximity;
-    private double fuelTicks;
-    private double maxSpeed;
-    private double acceleration;
-    private double maxAcceleration;
+    private Double explosionPower;
+    private Double explosionDamage;
+    private Double orbitDist;
+    private Double proximity;
+    private Long fuelTicks;
+    private Double maxSpeed;
+    private Double acceleration;
+    private Double maxAcceleration;
 
-    public SectionHeatMissile(double explosionPower, double explosionDamage, double orbitDist, double proximity, double fuelTicks, double maxSpeed, double acceleration, double maxAcceleration) {
+    public SectionHeatMissile(Double explosionPower, Double explosionDamage, Double orbitDist, Double proximity, Long fuelTicks, Double maxSpeed, Double acceleration, Double maxAcceleration) {
         this.explosionPower = explosionPower;
         this.explosionDamage = explosionDamage;
         this.orbitDist = orbitDist;
@@ -38,38 +39,44 @@ public class SectionHeatMissile extends ConfigSection {
 
     @Override
     public boolean isValid() {
-        return false;
+        try {
+            ConfigHelper.checkMissile(orbitDist, proximity, fuelTicks, maxSpeed, acceleration, maxAcceleration);
+            ConfigHelper.checkProjExplodes2(explosionPower, explosionDamage);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
-    public double getExplosionPower() {
+    public Double getExplosionPower() {
         return explosionPower;
     }
 
-    public double getExplosionDamage() {
+    public Double getExplosionDamage() {
         return explosionDamage;
     }
 
-    public double getOrbitDist() {
+    public Double getOrbitDist() {
         return orbitDist;
     }
 
-    public double getProximity() {
+    public Double getProximity() {
         return proximity;
     }
 
-    public double getFuelTicks() {
+    public Long getFuelTicks() {
         return fuelTicks;
     }
 
-    public double getMaxSpeed() {
+    public Double getMaxSpeed() {
         return maxSpeed;
     }
 
-    public double getAcceleration() {
+    public Double getAcceleration() {
         return acceleration;
     }
 
-    public double getMaxAcceleration() {
+    public Double getMaxAcceleration() {
         return maxAcceleration;
     }
 }

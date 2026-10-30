@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
 
 /*
@@ -14,14 +15,14 @@ health = 15
 #set to -1 to allow arbitrary length belt feeding
 magSize = -1
 
-#The percent chance for any one shot to jam the gun. float value, [0-1]
+#The percent chance for any one shot to jam the gun. Double value, [0-1]
 jamPercent = 0.01
 
 #the amount of heat which should be incurred per shot.
-#float value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
+#Double value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
 overheat = 0.8
 
-#the rate at which the gun cools down. float [0-100]
+#the rate at which the gun cools down. Double [0-100]
 heatDissipationRate = 1
 
 #The amount of time in milliseconds after shooting to wait before the gun starts cooling down
@@ -32,15 +33,15 @@ inactiveHeatTicks = 2000
 
 public class SectionHMG extends ConfigSection {
 
-    private double health;
-    private int magSize;
-    private float jamPercent;
-    private float overheat;
-    private float dissipation;
-    private float heatTicks;
-    private boolean infinite;
+    private Double health;
+    private Integer magSize;
+    private Double jamPercent;
+    private Double overheat;
+    private Double dissipation;
+    private Long heatTicks;
+    private Boolean infinite;
 
-    public SectionHMG(double health, int magSize, float jamPercent, float overheat, float dissipation, float heatTicks, boolean infinite) {
+    public SectionHMG(Double health, Integer magSize, Double jamPercent, Double overheat, Double dissipation, Long heatTicks, Boolean infinite) {
         this.health = health;
         this.magSize = magSize;
         this.jamPercent = jamPercent;
@@ -53,31 +54,43 @@ public class SectionHMG extends ConfigSection {
 
     @Override
     public boolean isValid() {
-        return false;
+        try {
+            ConfigHelper.checkHeats(overheat, dissipation, heatTicks);
+            ConfigHelper.checkMI(magSize, infinite);
+            ConfigHelper.checkHealth(health);
+            ConfigHelper.checkJam(jamPercent);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
 
-    public double getHealth() {
+    public Double getHealth() {
         return health;
     }
 
-    public int getMagSize() {
+    public Integer getMagSize() {
         return magSize;
     }
 
-    public float getJamPercent() {
+    public Double getJamPercent() {
         return jamPercent;
     }
 
-    public float getOverheat() {
+    public Double getOverheat() {
         return overheat;
     }
 
-    public float getDissipation() {
+    public Double getDissipation() {
         return dissipation;
     }
 
-    public float getHeatTicks() {
+    public Long getHeatTicks() {
         return heatTicks;
+    }
+
+    public Boolean getInfinite() {
+        return infinite;
     }
 }

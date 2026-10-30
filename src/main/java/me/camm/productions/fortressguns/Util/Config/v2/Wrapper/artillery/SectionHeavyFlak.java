@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
 /*
 #Heavy flak
@@ -14,25 +15,35 @@ cooldown = 5000
  */
 public class SectionHeavyFlak extends ConfigSection {
 
-    private double health;
-    private long cooldown;
-    private boolean infinite;
+    private Double health;
+    private Long cooldown;
+    private Boolean infinite;
 
-    public SectionHeavyFlak(double health, long cooldown, boolean infinite) {
+    public SectionHeavyFlak(Double health, Long cooldown, Boolean infinite) {
         this.health = health;
         this.cooldown = cooldown;
         this.infinite = infinite;
     }
 
-    public boolean isInfinite() {
+    public Boolean isInfinite() {
         return infinite;
     }
 
-    public double getHealth() {
+    public Double getHealth() {
         return health;
     }
 
-    public long getCooldown() {
+    public Long getCooldown() {
         return cooldown;
+    }
+
+    @Override
+    public boolean isValid() {
+        try {
+            ConfigHelper.checkHCDI(health, cooldown, infinite);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 }

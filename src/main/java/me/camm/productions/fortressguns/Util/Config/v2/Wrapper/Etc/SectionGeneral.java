@@ -20,12 +20,12 @@ destructiveExplosions = true
  */
 public class SectionGeneral extends ConfigSection {
 
-    private boolean enableFlares;
-    private boolean useVanillaExplosions;
-    private double destructiveExplosions;
+    private Boolean enableFlares;
+    private Boolean useVanillaExplosions;
+    private Boolean destructiveExplosions;
 
 
-    public SectionGeneral(boolean enableFlares, boolean useVanillaExplosions, double destructiveExplosions) {
+    public SectionGeneral(Boolean enableFlares, Boolean useVanillaExplosions, Boolean destructiveExplosions) {
         this.enableFlares = enableFlares;
         this.useVanillaExplosions = useVanillaExplosions;
         this.destructiveExplosions = destructiveExplosions;
@@ -36,15 +36,15 @@ public class SectionGeneral extends ConfigSection {
         return false;
     }
 
-    public boolean isEnableFlares() {
+    public Boolean isEnableFlares() {
         return enableFlares;
     }
 
-    public boolean isUseVanillaExplosions() {
+    public Boolean isUseVanillaExplosions() {
         return useVanillaExplosions;
     }
 
-    public double getDestructiveExplosions() {
+    public Boolean getDestructiveExplosions() {
         return destructiveExplosions;
     }
 }

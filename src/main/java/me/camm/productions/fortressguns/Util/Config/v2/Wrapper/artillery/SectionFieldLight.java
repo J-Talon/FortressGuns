@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
 
 /*
@@ -14,11 +15,11 @@ cooldown = 3000
 
  */
 public class SectionFieldLight extends ConfigSection {
-    private double health;
-    private long cooldown;
-    private boolean infinite;
+    private Double health;
+    private Long cooldown;
+    private Boolean infinite;
 
-    public SectionFieldLight(double health, long cooldown, boolean infinite) {
+    public SectionFieldLight(Double health, Long cooldown, Boolean infinite) {
         this.health = health;
         this.cooldown = cooldown;
         this.infinite = infinite;
@@ -26,11 +27,16 @@ public class SectionFieldLight extends ConfigSection {
 
     @Override
     public boolean isValid() {
-        return false;
+        try {
+            ConfigHelper.checkHCDI(health, cooldown, infinite);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
 
-    public boolean isInfinite() {
+    public Boolean isInfinite() {
         return infinite;
     }
 

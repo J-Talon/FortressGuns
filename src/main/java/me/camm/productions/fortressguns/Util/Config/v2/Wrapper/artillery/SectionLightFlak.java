@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
 /*
 #Light flak
@@ -13,15 +14,15 @@ cooldown = 500
 #set to -1 to allow arbitrary length belt feeding
 magSize = 40
 
-#The percent chance for any one shot to jam the gun. float value, 0 to 1.
+#The percent chance for any one shot to jam the gun. Double value, 0 to 1.
 jamPercent = 0
 
 #the amount of heat which should be incurred per shot.
-#float value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
+#Double value, [0-100], where 100 is max heat. If the gun is fired beyond max heat it will take damage.
 overheat = 1
 
 
-#the rate at which the gun cools down. float [0-100]
+#the rate at which the gun cools down. Double [0-100]
 heatDissipationRate = 1
 
 #The amount of time in ticks after shooting to wait before the gun starts cooling down
@@ -29,22 +30,22 @@ inactiveHeatTicks = 2000
  */
 public class SectionLightFlak extends ConfigSection {
 
-    private double health;
-    private long cooldown;
-    private int magSize;
-    private float jamChance;
-    private float overheat;
-    private float headDissipation;
-    private long heatTicks;
-    private boolean infinite;
+    private Double health;
+    private Long cooldown;
+    private Integer magSize;
+    private Double jamChance;
+    private Double overheat;
+    private Double dissipation;
+    private Long heatTicks;
+    private Boolean infinite;
 
-    public SectionLightFlak(double health, long cooldown, int magSize, float jamChance, float overheat, float headDissipation, long heatTicks, boolean infinite) {
+    public SectionLightFlak(Double health, Long cooldown, Integer magSize, Double jamChance, Double overheat, Double headDissipation, Long heatTicks, Boolean infinite) {
         this.health = health;
         this.cooldown = cooldown;
         this.magSize = magSize;
         this.jamChance = jamChance;
         this.overheat = overheat;
-        this.headDissipation = headDissipation;
+        this.dissipation = headDissipation;
         this.heatTicks = heatTicks;
         this.infinite = infinite;
     }
@@ -52,36 +53,44 @@ public class SectionLightFlak extends ConfigSection {
 
     @Override
     public boolean isValid() {
-        return false;
+        try {
+            ConfigHelper.checkHeats(overheat, dissipation, heatTicks);
+            ConfigHelper.checkMI(magSize, infinite);
+            ConfigHelper.checkHealth(health);
+            ConfigHelper.checkJam(jamChance);
+            ConfigHelper.checkCD(cooldown);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
 
-
-    public double getHealth() {
+    public Double getHealth() {
         return health;
     }
 
-    public long getCooldown() {
+    public Long getCooldown() {
         return cooldown;
     }
 
-    public int getMagSize() {
+    public Integer getMagSize() {
         return magSize;
     }
 
-    public float getJamChance() {
+    public Double getJamChance() {
         return jamChance;
     }
 
-    public float getOverheat() {
+    public Double getOverheat() {
         return overheat;
     }
 
-    public float getHeadDissipation() {
-        return headDissipation;
+    public Double getDissipation() {
+        return dissipation;
     }
 
-    public long getHeatTicks() {
+    public Long getHeatTicks() {
         return heatTicks;
     }
 }
