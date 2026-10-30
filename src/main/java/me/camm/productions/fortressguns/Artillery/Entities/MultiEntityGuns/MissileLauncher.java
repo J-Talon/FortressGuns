@@ -10,6 +10,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionMissileLauncher;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
@@ -36,7 +39,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 
-public class MissileLauncher extends ArtilleryRideable {
+public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher> {
 
     boolean fireRight;
     private Entity target;
@@ -49,11 +52,14 @@ public class MissileLauncher extends ArtilleryRideable {
     static final int PROGRESS_LENGTH = 50;
     static final String PROGRESS_BAR;
 
-    static final double DISTANCE = 200;
+    private static final double DISTANCE = 200;
 
-    static int maxRockets;
-    static long cooldown;
-    static double maxHealth;
+    private static int maxRockets;
+    private static long cooldown;
+    private static double maxHealth;
+    private static boolean infinite;
+    private static boolean configApplied;
+
 
     static final int TRACK_REQUIRED = 65;
     static final int MAX_TRACK = 100;
@@ -72,9 +78,10 @@ public class MissileLauncher extends ArtilleryRideable {
         BARREL = new ItemStack(Material.GREEN_TERRACOTTA);
         RANDOM = new Random();
 
-        maxHealth = 100;
+        maxHealth = 35;
         cooldown = 10000;
         maxRockets = 6;
+        configApplied = false;
 
         PROGRESS_BAR = "|".repeat(PROGRESS_LENGTH);
 
@@ -102,6 +109,31 @@ public class MissileLauncher extends ArtilleryRideable {
 
         lastFireTime = System.currentTimeMillis();
 
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getLauncher());
+
+    }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionMissileLauncher data) {
+        configApplied = true;
+        if (data == null) return;
+
+        maxRockets = data.getMissiles();
+        cooldown = data.getCooldown();
+        maxHealth = data.getHealth();
+        infinite = data.infinite();
+
+    }
+
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     @Override

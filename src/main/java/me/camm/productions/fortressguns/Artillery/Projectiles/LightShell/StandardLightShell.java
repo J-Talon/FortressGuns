@@ -5,7 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionHMGBullet;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -19,16 +22,32 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 
-public class StandardLightShell extends LightShell {
+public class StandardLightShell extends LightShell implements ConfigurationHolder<SectionHMGBullet> {
 
     private static float hitDamage = 5;
     private static float weight = 0.1f;
-
+    private static boolean configApplied = false;
 
     public StandardLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
         super(world, x, y, z, human, source);
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+    }
+
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionHMGBullet data) {
+        configApplied = true;
+        if (data==null) return;
+
+        hitDamage = data.getDamage().floatValue();
+        weight = data.getWeight().floatValue();
+
     }
 
     @Override
@@ -100,7 +119,7 @@ public class StandardLightShell extends LightShell {
 
     @Override
     public void onWaterEnter() {
-        ExplosionFactory.smallSplashExplosion(bukkitWorld,locX(), locY(), locZ());
+        ExplosionFactory.get().smallSplashExplosion(bukkitWorld,locX(), locY(), locZ());
     }
 
     @Override
@@ -108,13 +127,13 @@ public class StandardLightShell extends LightShell {
         return weight;
     }
 
-    public static void setHitDamage(float hitDamage) {
-        StandardLightShell.hitDamage = hitDamage;
-    }
-
-    public static void setWeight(float weight) {
-        StandardLightShell.weight = weight;
-    }
+//    public static void setHitDamage(float hitDamage) {
+//        StandardLightShell.hitDamage = hitDamage;
+//    }
+//
+//    public static void setWeight(float weight) {
+//        StandardLightShell.weight = weight;
+//    }
 
 
     @Override

@@ -7,9 +7,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionHMG;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -22,22 +24,20 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-
-import java.util.List;
-
 /*
 Class that models a heavy machine gun which players can shoot and operate
  * @author CAMM
  *
  */
-public class HeavyMachineGun extends RapidFire {
+public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<SectionHMG> {
 
     private static int magSize;
     private static double overheat, jamPercent, maxHealth;
 
     private static long inactiveHeatTicks;
     private static double heatDissipation;
-
+    private static boolean configApplied;
+    private static boolean infiniteAmmo;
 
     static {
 
@@ -47,35 +47,42 @@ public class HeavyMachineGun extends RapidFire {
         overheat = 0;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        infiniteAmmo = false;
+        configApplied = false;
 
     }
 
     public HeavyMachineGun(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-    }
-    public static void setMaxHealth(double max) {
-        maxHealth = max;
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHmg());
+
     }
 
-    public static void setMagSize(int magSize) {
-        HeavyMachineGun.magSize = magSize;
+    @Override
+    public void setStaticDefaults(@Nullable SectionHMG data) {
+        configApplied = true;
+        if (data == null) return;
+
+        maxHealth = data.getHealth();
+        magSize = data.getMagSize();
+        jamPercent = data.getJamPercent();
+        overheat = data.getOverheat();
+        inactiveHeatTicks = data.getHeatTicks();
+        heatDissipation = data.getDissipation();
+        infiniteAmmo = data.getInfinite();
     }
 
-    public static void setOverheat(double overheat) {
-        HeavyMachineGun.overheat = overheat;
+
+    @Override
+    public boolean requiresReloading() {
+        return !infiniteAmmo;
     }
 
-    public static void setJamPercent(double jamPercent) {
-        HeavyMachineGun.jamPercent = jamPercent;
-    }
-
-    public static void setInactiveHeatTicks(long inactiveHeatTicks) {
-        HeavyMachineGun.inactiveHeatTicks = inactiveHeatTicks;
-    }
-
-    public static void setHeatDissipation(double heatDissipation) {
-        HeavyMachineGun.heatDissipation = heatDissipation;
-    }
 
     @Override
     public double getVectorPower() {

@@ -48,6 +48,11 @@ public class CRAM extends Artillery implements AutoTracking {
         interactionInv = new InventoryGroup.RapidGroupIdeal(this);
     }
 
+    @Override
+    public boolean requiresReloading() {
+        return false;
+    }
+
     public List<Component> getParts() {
         List<Component> parts = new ArrayList<>();
         parts.add(pivot);
@@ -57,6 +62,8 @@ public class CRAM extends Artillery implements AutoTracking {
     public static void setMaxHealth(double max) {
         maxHealth = max;
     }
+
+
 
 
 

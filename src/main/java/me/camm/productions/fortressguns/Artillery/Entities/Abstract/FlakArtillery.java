@@ -24,7 +24,7 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
+public abstract class FlakArtillery extends FieldArtillery implements Tuneable
 {
 
     protected Entity target;

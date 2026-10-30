@@ -33,6 +33,8 @@ import org.bukkit.inventory.meta.CrossbowMeta;
 
 import static me.camm.productions.fortressguns.interact.item.classification.FGItems.FLARE;
 
+
+//todo handle config after agnostics
 public class IBFlare implements InteractionBehaviourItem {
 
     private static final String FLARE_NAME = ChatColor.GRAY + "Flares";
@@ -207,6 +209,7 @@ public class IBFlare implements InteractionBehaviourItem {
 
     @Override
     public void onDispense(BlockDispenseEvent event) {
+
         if (!accept(new Tuple2<>(null, event.getItem()))) {
             return;
         }
