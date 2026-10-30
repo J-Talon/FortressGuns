@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Serialization.Config.*;
+import me.camm.productions.fortressguns.Util.Config.*;
 import org.bukkit.plugin.Plugin;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
@@ -129,8 +129,6 @@ public class FileManager {
             File file = initResource(ResourceFile.CONFIG);
             Path path = Paths.get(file.getPath());
             TomlParseResult res = Toml.parse(path);
-
-
 
             if (res.hasErrors()) {
                 logger.warning("Artillery config failed to load due to TOML errors in the file, using defaults...");

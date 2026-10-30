@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Serialization.Config;
+package me.camm.productions.fortressguns.Util.Config;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.jetbrains.annotations.NotNull;
