@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Util.configv2.builder;
 
 import me.camm.productions.fortressguns.Util.configv2.ConfigSection;
 import org.jetbrains.annotations.Nullable;
+import org.tomlj.TomlInvalidTypeException;
 import org.tomlj.TomlParseResult;
 
 import java.util.logging.Logger;
@@ -42,10 +43,16 @@ public enum Section {
     }
 
     public @Nullable ConfigSection build(TomlParseResult res, Logger logger) {
-        ConfigSection section = builder.build(res, this.section);
-        if (section.isValid(logger)) return section;
-
-        logger.warning("Failed to load config section "+this.section+" due to invalid parameters, using defaults!");
+        try {
+            ConfigSection section = builder.build(res, this.section);
+            if (section.isValid(logger)) return section;
+        }
+        catch (IllegalArgumentException | NullPointerException e) {
+            logger.warning("Failed to load config section "+this.section+" due to invalid value for parameter "+e +", using defaults!");
+        }
+        catch (TomlInvalidTypeException e) {
+            logger.warning("Failed to load config section "+this.section+" due to invalid type for parameter "+e+", using defaults!");
+        }
         return null;
     }
 
