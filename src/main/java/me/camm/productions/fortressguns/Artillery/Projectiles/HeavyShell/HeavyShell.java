@@ -5,29 +5,32 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.IProjectile;
-import net.minecraft.world.level.World;
+
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 
 import javax.annotation.Nullable;
 
 
-public abstract class HeavyShell extends ProjectileArrowFG  {
+public abstract class HeavyShell extends ProjectileArrowFG {
 
 
     protected Artillery source;
-    public HeavyShell(World world, double locX, double locY, double locZ, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeavyShell(World world, double locX, double locY, double locZ, @Nullable Player shooter, Artillery source) {
         super(world, locX, locY, locZ, shooter);
         this.source = source;
         setCritical(true);

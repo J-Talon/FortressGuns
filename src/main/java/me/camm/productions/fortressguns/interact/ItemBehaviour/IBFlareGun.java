@@ -6,12 +6,10 @@ import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.level.WorldServer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -69,22 +67,11 @@ public class IBFlareGun implements InteractionBehaviourItem {
     }
 
     private void fireProjectile(Player player) {
-        CraftPlayer craftPlayer = (CraftPlayer) player;
-        EntityPlayer nmsPlayer = craftPlayer.getHandle();
-
-        WorldServer world = (WorldServer) nmsPlayer.getWorld();
-
         org.bukkit.Location location = player.getEyeLocation().clone();
+        World world = player.getWorld();
 
-        SimpleFlare flare = new SimpleFlare(
-                world,
-                location.getX(),
-                location.getY(),
-                location.getZ(),
-                nmsPlayer
-        );
-
-        world.addEntity(flare);
+        SimpleFlare flare = new SimpleFlare(world, location.getX(), location.getY(), location.getZ(), player);
+        flare.addToWorld(world);
     }
 
     @Override

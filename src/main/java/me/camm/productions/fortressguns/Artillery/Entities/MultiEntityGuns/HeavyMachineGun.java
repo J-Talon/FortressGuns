@@ -4,10 +4,12 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
@@ -174,11 +176,7 @@ public class HeavyMachineGun extends RapidFire {
         }
 
 
-        EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
-        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
-        LightShell shell = createProjectile(nms, muzzle.getX(),muzzle.getY(), muzzle.getZ(),nmsOperator,this);
-        if (shell == null)
-            return;
+        ProjectileFG shell = loadedAmmoType.create(world,muzzle.getX(), muzzle.getY(), muzzle.getZ(), operator, this);
 
         setBarrelHeat(Math.min(100, overheat + getBarrelHeat()));
 
@@ -191,7 +189,7 @@ public class HeavyMachineGun extends RapidFire {
         if (requiresReloading())
             setAmmo(Math.max(0, getAmmo() - 1));
 
-        createFlash(muzzle);
+        FG_VFX.createFlash(muzzle, world);
         world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,1f,2f);
 
 
@@ -208,9 +206,8 @@ public class HeavyMachineGun extends RapidFire {
         }
 
         direction.add(addition);
-
-        shell.setMot(direction.getX(), direction.getY(), direction.getZ());
-        nms.addEntity(shell);
+        shell.setVelocity(direction.getX(), direction.getY(), direction.getZ());
+        shell.addToWorld(world);
         lastFireTime = System.currentTimeMillis();
 
     }

@@ -5,6 +5,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -84,14 +86,11 @@ public class IBAmmoItem implements InteractionBehaviourItem {
             if (ride == null || !ride.isValid() || ride.isDead())
                 return;
 
-            Entity nms = ((CraftEntity)ride).getHandle();
 
+            Component comp = ConstructUtils.getComponentRef(ride);
+            if (comp == null) return;
 
-            if (!(nms instanceof Component)) {
-                return;
-            }
-
-            Construct cons = ((Component) nms).getBody();
+            Construct cons = comp.getBody();
 
             if (!(cons instanceof ArtilleryRideable rideable)) {
                 return;

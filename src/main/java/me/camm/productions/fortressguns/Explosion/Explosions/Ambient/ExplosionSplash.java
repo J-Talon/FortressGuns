@@ -1,10 +1,9 @@
 package me.camm.productions.fortressguns.Explosion.Explosions.Ambient;
 
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionAmbient;
-import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFG;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectSplashSmall;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
+
 
 public class ExplosionSplash extends ExplosionAmbient {
 

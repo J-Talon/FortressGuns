@@ -3,6 +3,7 @@ package me.camm.productions.fortressguns.interact.ItemBehaviour;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
@@ -71,11 +72,11 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
 
         net.minecraft.world.entity.Entity nms = ((CraftEntity)hit).getHandle();
 
-        if (!(nms instanceof Component comp)) {
+        Component comp = ConstructUtils.getComponentRef(hit);
+        if (comp == null) {
             notifNoTarget(player);
             return;
         }
-
 
         Construct cons = comp.getBody();
         if (cons.getType() == ConstructType.MISSILE_LAUNCHER) {

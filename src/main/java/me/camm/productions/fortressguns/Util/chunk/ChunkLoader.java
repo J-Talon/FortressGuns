@@ -2,15 +2,13 @@ package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -134,10 +132,8 @@ public class ChunkLoader implements Listener {
 
     @EventHandler
     public void onEntityPortal(EntityPortalEvent event) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)event.getEntity()).getHandle();
-        if (nms instanceof Component || nms instanceof ProjectileFG) {
-            event.setCancelled(true);
-        }
+        Entity entity = event.getEntity();
+        if (ConstructUtils.getComponentRef(entity) != null || ConstructUtils.isProjectileFG(entity)) event.setCancelled(true);
     }
 
 
@@ -237,10 +233,8 @@ public class ChunkLoader implements Listener {
 
     private void removeFGProjectiles(Chunk chunk) {
         for (Entity entity : chunk.getEntities()) {
-            net.minecraft.world.entity.Entity nms = ((CraftEntity) entity).getHandle();
-            if (nms instanceof ProjectileFG p) {
-                p.remove();
-            }
+            if (ConstructUtils.isProjectileFG(entity))
+                entity.remove();
         }
     }
 
@@ -249,10 +243,8 @@ public class ChunkLoader implements Listener {
         //discover on unload
         for (Entity entity: chunk.getEntities()) {
 
-            //will require a translator
-            net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
-            if (!(nms instanceof ComponentAS component))
-                continue;
+            Component component = ConstructUtils.getComponentRef(entity);
+            if (component == null) continue;
 
             if (entity.getPersistentDataContainer().has(key,PersistentDataType.INTEGER_ARRAY))
                 continue;

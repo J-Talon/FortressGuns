@@ -10,8 +10,8 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
-import me.camm.productions.fortressguns.Explosion.Effect.EffectExplosionStandalone;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
@@ -70,9 +70,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected volatile double health;//--
     private final List<IntTuple2> occupiedChunks;//
     protected World world;//
-
-    protected boolean dead;//
-    protected boolean loaded;
 
     protected volatile double largeBlockDist;//
     protected volatile boolean lengthChanged;
@@ -350,7 +347,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                 y = interpolatedAim.getY();
 
                 //
-                boolean closeEnough = pivotIsCloseEnough(x, y);
+                boolean closeEnough = MathFG.aimIsCloseEnough(aim, x, y);
 
                 if (closeEnough && !lengthChanged) {
                     setInterpolating(false);
@@ -377,22 +374,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     }
 
-    //returns whether the current aim is close enough to the target angle
-    protected boolean pivotIsCloseEnough(double x, double y) {
-        final double POINT_ZERO_RAD = 0.00017;   //0.01 degrees -> rads = ~0.0017
 
-        double currX = aim.getX();
-        final double TWO_PI = 2*Math.PI;
-
-        double diffX = Math.abs(x - currX) % TWO_PI;
-        double accX = 1 - Math.abs(x - currX) / TWO_PI;
-
-        double diffY = Math.abs((y - aim.getY())) % TWO_PI;
-        double accY = 1 - Math.abs(y - aim.getY()) / TWO_PI;
-
-        return (diffX < POINT_ZERO_RAD && diffY < POINT_ZERO_RAD)
-                || (accX < 0.01 && accY < 0.01);
-    }
 
     /*
     @param vertAngle, horAngle
@@ -402,8 +384,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
      */
     public synchronized boolean pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
     {
-        if (dead)
-            return false;
 
         if (isInvalid()) {
             destroy(false, true);
@@ -487,6 +467,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
                 teleport = centre.add(x, height, z).toVector();
 
 
+            //is at resting state
             if (!(smallBlockDist < SMALL_BLOCK_LENGTH || largeBlockDist < LARGE_BLOCK_LENGTH)) {
                 if (ConstructUtils.isInBlock(barrelComponent, teleport)) {
                     return false;
@@ -510,6 +491,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return true;
     }
 
+
+
+
     public abstract void fire(@Nullable Player shooter);
 
 
@@ -520,10 +504,12 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return new double[]{x,z};
     }
 
+    @Override
     public boolean chunkLoaded(){
         return loaded;
     }
 
+    @Override
     public synchronized void setChunkLoaded(boolean loaded){
         this.loaded = loaded;
     }
@@ -629,8 +615,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
                 offset *= magnitude;
 
-
-
                 EntityPlayer nms = ((CraftPlayer)observer).getHandle();
 
                 PacketPlayOutPosition packet = new PacketPlayOutPosition(0,0,0,
@@ -659,11 +643,16 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
 
-
+    /**
+     * If it's dead, health <= 0, or pivot is invalid, returns true
+     * @return whether the artillery is valid
+     */
+    @Override
     public final boolean isInvalid() {
         return (pivot == null || (!pivot.isValid()) || health <= 0 || dead);
     }
 
+    @Override
     public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
 
         getInventoryGroup().close();
@@ -683,7 +672,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         else return;
 
         if (exploded) {
-            EffectExplosionStandalone.explodeArtillery(loc, world);
+            FG_VFX.constructDestroy(loc, world);
         }
 
         if (dropItem) {
@@ -695,42 +684,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public org.bukkit.entity.Entity getCoreEntity(){
         return pivot.getEntity();
-    }
-
-
-    public final void createFlash(Location origin) {
-
-
-       List<Player> players = world.getPlayers();
-       BlockData lightData = Material.LIGHT.createBlockData();
-       BlockData airData = Material.AIR.createBlockData();
-       final Location flash = origin.clone();
-
-        world.spawnParticle(Particle.FLASH,origin.getX(),origin.getY(), origin.getZ(),1,0,0,0,0.2);
-
-
-       players.forEach(player -> player.sendBlockChange(flash, lightData));
-
-
-       new BukkitRunnable() {
-           public void run() {
-               players.forEach(player -> player.sendBlockChange(flash, airData));
-
-           }
-       }.runTaskLater(FortressGuns.getInstance(), 5);
-
-
-    }
-
-
-    public void createShotParticles(Location muzzle){
-        world.spawnParticle(Particle.SMOKE_LARGE,muzzle.getX(),muzzle.getY(), muzzle.getZ(),30,0,0,0,0.2);
-        world.spawnParticle(Particle.FLASH,muzzle.getX(),muzzle.getY(), muzzle.getZ(),1,0,0,0,0.2);
-
-        world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR,SoundCategory.BLOCKS,2,0.2f);
-        world.playSound(muzzle, Sound.ENTITY_LIGHTNING_BOLT_THUNDER,SoundCategory.BLOCKS,0.2f,0.2f);
-        world.playSound(muzzle, Sound.ITEM_ARMOR_EQUIP_GENERIC,SoundCategory.BLOCKS,1f,0.2f);
-
     }
 
 
@@ -856,7 +809,7 @@ see: loadPieces()
     }
 
 
-    protected @Nullable ProjectileFG createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    protected @Nullable ProjectileFG createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
         AmmoItem item = getLoadedAmmoType();
         if (item == null) {
             return null;

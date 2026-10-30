@@ -2,12 +2,12 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -25,7 +25,7 @@ import java.util.Set;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
-public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking {
+public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking, ProjectileType.IHeatSeekingRocket {
 
 
     private static final double ACCELERATION = 0.2;
@@ -41,7 +41,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
 
     private final MissileLockNotifier notifier;
     private static float explosionPower; //4
-    private static float difficulty;
+    private static float difficulty;  //todo put into config
     private static final Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
 
 
@@ -66,7 +66,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
         difficulty = 100;
     }
 
-    public HeatseekingMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeatseekingMissile(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
         fueledFlightAge = 0;
         direction = null;
