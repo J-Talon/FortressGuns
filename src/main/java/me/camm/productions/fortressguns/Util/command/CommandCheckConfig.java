@@ -51,11 +51,11 @@ public class CommandCheckConfig extends CommandHandler {
 
     @Override
     public List<String> getTabCompletes(CommandSender sender, String[] in) {
-        if (in.length == 0) {
+        if (in.length == 1) {
             return sections;
         }
 
-        if (in.length == 1) {
+        if (in.length == 2) {
             return params;
         }
         return List.of();

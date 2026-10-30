@@ -77,6 +77,7 @@ public class ConfigManager {
             return configParseResult.getString(keyList);
         }
         catch (IllegalArgumentException | TomlInvalidTypeException e) {
+            e.printStackTrace();  //temporary
             return null;
         }
     }
