@@ -45,6 +45,7 @@ public class SectionHeavyFlak extends ConfigSection {
         try {
             ConfigHelper.checkHCDI(health, cooldown, infinite);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

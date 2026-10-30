@@ -63,6 +63,7 @@ public class SectionHMG extends ConfigSection {
             ConfigHelper.checkHealth(health);
             ConfigHelper.checkJam(jamPercent);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

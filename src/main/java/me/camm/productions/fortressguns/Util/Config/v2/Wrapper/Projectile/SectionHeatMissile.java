@@ -46,6 +46,7 @@ public class SectionHeatMissile extends ConfigSection {
             ConfigHelper.checkMissile(orbitDist, proximity, fuelTicks, maxSpeed, acceleration, maxAcceleration);
             ConfigHelper.checkProjExplodes2(explosionPower, explosionDamage);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

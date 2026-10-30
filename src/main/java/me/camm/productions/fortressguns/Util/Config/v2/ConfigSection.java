@@ -11,4 +11,9 @@ public abstract class ConfigSection {
 
     public abstract boolean isValid(Logger logger);
 
+
+    protected void log(String variable, String key, Logger logger) {
+        logger.warning("Parameter " +variable +" in section  "+key+" failed validation");
+    }
+
 }

@@ -27,6 +27,7 @@ public class SectionShellSolid extends ConfigSection {
         try {
             ConfigHelper.checkProjWD(weight,damage);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

@@ -63,6 +63,7 @@ public class SectionLightFlak extends ConfigSection {
             ConfigHelper.checkJam(jamChance);
             ConfigHelper.checkCD(cooldown);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

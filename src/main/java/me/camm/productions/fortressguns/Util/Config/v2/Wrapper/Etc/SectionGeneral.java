@@ -28,6 +28,7 @@ public class SectionGeneral extends ConfigSection {
         try {
             ConfigHelper.checkGeneral(enableFlares, useVanillaExplosions, destructiveExplosions);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

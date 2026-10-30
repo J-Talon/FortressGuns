@@ -30,6 +30,7 @@ public class SectionShellHE extends ConfigSection {
         try {
             ConfigHelper.checkProjExplodes3(explosionPower, explosionDamage, damage);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;

@@ -37,6 +37,7 @@ public class SectionMissileLauncher extends ConfigSection {
             ConfigHelper.checkHCDI(health, cooldown, infinite);
             ConfigHelper.checkMI(missiles, infinite);
         } catch (IllegalArgumentException e) {
+            super.log(e.getMessage(), key, logger);
             return false;
         }
         return true;
