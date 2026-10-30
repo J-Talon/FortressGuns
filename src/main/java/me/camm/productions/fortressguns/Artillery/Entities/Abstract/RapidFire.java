@@ -3,7 +3,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
@@ -13,7 +12,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelpe
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.core.Vector3f;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
 
 import org.bukkit.entity.Player;
@@ -68,7 +66,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     protected static final Random random = new Random();
 
 
-    protected FireTrigger triggerHandle;
+    protected Component triggerHandle;
 
     protected static Map<Byte, net.md_5.bungee.api.ChatColor> heatColours;
 

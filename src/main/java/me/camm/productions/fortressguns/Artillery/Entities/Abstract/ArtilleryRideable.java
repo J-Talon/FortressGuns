@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -156,12 +155,8 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     }
 
 
-
-
-
-     Location getSeatLocation(ArtilleryPart referencePos) {
-
-        Location reference = referencePos.getLocation(getWorld());
+     Location getSeatLocation(Component referencePos) {
+        Location reference = referencePos.getLocation();
         EulerAngle aim = getAim();
         double rotSeatZ = -Math.cos(aim.getY());
         double rotSeatX = Math.sin(aim.getY());

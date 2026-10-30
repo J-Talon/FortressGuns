@@ -14,7 +14,6 @@ import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.ItemBehaviour.IBTacticalPointer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
