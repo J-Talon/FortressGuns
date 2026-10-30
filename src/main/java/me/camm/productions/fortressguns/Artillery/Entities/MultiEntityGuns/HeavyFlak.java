@@ -5,9 +5,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
-import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionHeavyFlak;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionHeavyFlak;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;

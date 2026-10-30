@@ -7,10 +7,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
-import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionHMG;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionHMG;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
 

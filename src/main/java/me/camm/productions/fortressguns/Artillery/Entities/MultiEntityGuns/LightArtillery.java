@@ -5,9 +5,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
-import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionFieldLight;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionFieldLight;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.EulerAngle;

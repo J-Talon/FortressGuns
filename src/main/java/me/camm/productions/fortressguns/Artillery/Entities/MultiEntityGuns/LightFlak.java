@@ -6,9 +6,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
-import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionLightFlak;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionLightFlak;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import net.minecraft.server.level.EntityPlayer;

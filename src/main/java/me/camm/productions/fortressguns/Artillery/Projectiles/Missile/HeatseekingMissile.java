@@ -5,10 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
-import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile.SectionHeatMissile;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionHeatMissile;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
