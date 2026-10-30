@@ -13,7 +13,7 @@ public abstract class ConfigSection {
 
 
     protected void log(String variable, String key, Logger logger) {
-        logger.warning("Parameter " +variable +" in section  "+key+" failed validation");
+        logger.warning("Section "+key+" failed validation. Reason: " +variable+" . Will use defaults!");
     }
 
 }
