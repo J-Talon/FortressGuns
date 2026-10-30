@@ -12,9 +12,9 @@ public class ProjectileBuilder {
         
         @Override
         public SectionFlak build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Double ep = result.getDouble(ConfigHelper.Field.EP.build(key));
-            Double ed = result.getDouble(ConfigHelper.Field.ED.build(key));
-            Double dam = result.getDouble(ConfigHelper.Field.DAM.build(key));
+            Double ep = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.EP.build(key));
+            Double ed = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.ED.build(key));
+            Double dam = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.DAM.build(key));
             return new SectionFlak(ep, ed, dam, key);
 
         }
@@ -23,14 +23,14 @@ public class ProjectileBuilder {
     static class HeatMissileBuilder implements SectionBuilder<SectionHeatMissile> {
         @Override
         public SectionHeatMissile build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Double ep = result.getDouble(ConfigHelper.Field.EP.build(key));
-            Double ed = result.getDouble(ConfigHelper.Field.ED.build(key));
-            Double orb = result.getDouble(ConfigHelper.Field.ORBIT.build(key));
-            Double prox = result.getDouble(ConfigHelper.Field.PROX.build(key));
+            Double ep = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.EP.build(key));
+            Double ed = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.ED.build(key));
+            Double orb = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.ORBIT.build(key));
+            Double prox = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.PROX.build(key));
             Long fuel = result.getLong(ConfigHelper.Field.FUEL.build(key));
-            Double maxSpd = result.getDouble(ConfigHelper.Field.MAX_SPD.build(key));
-            Double acc = result.getDouble(ConfigHelper.Field.ACC.build(key));
-            Double maxAcc = result.getDouble(ConfigHelper.Field.MAX_ACC.build(key));
+            Double maxSpd = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.MAX_SPD.build(key));
+            Double acc = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.ACC.build(key));
+            Double maxAcc = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.MAX_ACC.build(key));
             return new SectionHeatMissile(ep,ed,orb,prox,fuel, maxSpd, acc,maxAcc, key);
         }
     }
@@ -40,8 +40,8 @@ public class ProjectileBuilder {
 
         @Override
         public SectionHMGBullet build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Double weight = result.getDouble(ConfigHelper.Field.WEIGHT.build(key));
-            Double dam = result.getDouble(ConfigHelper.Field.DAM.build(key));
+            Double weight = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.WEIGHT.build(key));
+            Double dam = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.DAM.build(key));
             return new SectionHMGBullet(weight, dam, key);
         }
     }
@@ -52,8 +52,8 @@ public class ProjectileBuilder {
 
         @Override
         public SectionLightFlakBullet build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Double weight = result.getDouble(ConfigHelper.Field.WEIGHT.build(key));
-            Double dam = result.getDouble(ConfigHelper.Field.DAM.build(key));
+            Double weight = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.WEIGHT.build(key));
+            Double dam = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.DAM.build(key));
             return new SectionLightFlakBullet(weight, dam, key);
         }
     }
@@ -63,9 +63,9 @@ public class ProjectileBuilder {
 
         @Override
         public SectionShellHE build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Double ep = result.getDouble(ConfigHelper.Field.EP.build(key));
-            Double ed = result.getDouble(ConfigHelper.Field.ED.build(key));
-            Double dam = result.getDouble(ConfigHelper.Field.DAM.build(key));
+            Double ep = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.EP.build(key));
+            Double ed = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.ED.build(key));
+            Double dam = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.DAM.build(key));
             return new SectionShellHE(ep, ed, dam, key);
 
         }
@@ -75,8 +75,8 @@ public class ProjectileBuilder {
 
         @Override
         public SectionShellSolid build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Double weight = result.getDouble(ConfigHelper.Field.WEIGHT.build(key));
-            Double dam = result.getDouble(ConfigHelper.Field.DAM.build(key));
+            Double weight = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.WEIGHT.build(key));
+            Double dam = SectionBuilder.getDoubleOrInt(result,ConfigHelper.Field.DAM.build(key));
             return new SectionShellSolid(weight, dam, key);
 
         }
