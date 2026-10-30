@@ -37,7 +37,8 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive, Con
 
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
-        if (!manager.isLoaded()) return;
+        if (!manager.isLoaded())
+            return;
         setStaticDefaults(manager.getShellHE());
 
     }

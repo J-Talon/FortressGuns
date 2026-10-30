@@ -94,7 +94,7 @@ public abstract class HeavyShell extends ProjectileArrowFG {
     @Override
     public void onWaterEnter() {
         Vec3D motion = getMot();
-        ExplosionFactory.largeSplashExplosion(bukkitWorld,locX()-(0.25* motion.getX()), locY()-(0.25*motion.getY()), locZ()-(0.25*motion.getZ()));
+        ExplosionFactory.get().largeSplashExplosion(bukkitWorld,locX()-(0.25* motion.getX()), locY()-(0.25*motion.getY()), locZ()-(0.25*motion.getZ()));
         remove();
     }
 

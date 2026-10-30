@@ -33,7 +33,7 @@ public class ExplosionShellHE extends ExplosionFunctional {
 
 
     public ExplosionShellHE(double x, double y, double z, World world, float radius, @NotNull Entity source, boolean destructive) {
-        super(x, y, z, world, radius,destructive, source);
+        super(x, y, z, world, radius, destructive, source);
         explosionDrops = new HashMap<>();
     }
 
@@ -114,7 +114,6 @@ public class ExplosionShellHE extends ExplosionFunctional {
                         cancel();
                         return;
                     }
-
 
                     List<Block> dropped = new ArrayList<>();
                     List<Block> thrown = new ArrayList<>();

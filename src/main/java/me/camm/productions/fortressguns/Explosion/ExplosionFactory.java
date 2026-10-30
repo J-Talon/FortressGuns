@@ -29,7 +29,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
 
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
-        if (manager.isLoaded()) return;
+        if (!manager.isLoaded()) return;
         setStaticDefaults(manager.getGeneral());
     }
 
@@ -59,7 +59,6 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
-
         ExplosionShellHE e = new ExplosionShellHE(x,y,z,w,radius,source, destructiveExplosions);
         e.perform();
 
@@ -116,7 +115,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
     }
 
 
-    public static void largeSplashExplosion(World w, double x, double y, double z) {
+    public void largeSplashExplosion(World w, double x, double y, double z) {
         ExplosionSplashLarge splash = new ExplosionSplashLarge(x,y,z,w);
         splash.perform();
 
