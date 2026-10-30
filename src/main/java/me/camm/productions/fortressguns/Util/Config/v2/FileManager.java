@@ -1,6 +1,4 @@
 package me.camm.productions.fortressguns.Util.Config.v2;
-
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Config.v1.*;
 import org.bukkit.plugin.Plugin;
@@ -11,8 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 public class FileManager {
