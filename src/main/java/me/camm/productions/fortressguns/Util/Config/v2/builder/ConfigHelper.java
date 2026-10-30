@@ -1,5 +1,7 @@
 package me.camm.productions.fortressguns.Util.Config.v2.builder;
 
+import java.util.logging.Logger;
+
 public class ConfigHelper {
 
     public static enum Field {
@@ -43,7 +45,13 @@ public class ConfigHelper {
         }
     }
 
+    public static void log(String variable, String key, Logger logger) {
+        logger.warning("Parameter " +variable +" in section  "+key+" failed validation");
+    }
 
+
+    //perfect is the enemy of the done
+    //I don't like this, but I'm rolling with it for now
 
     public static void checkHCDI(Double health, Long cd, Boolean inf) throws IllegalArgumentException {
         if (health == null || health < 0) throw new IllegalArgumentException(Field.HEALTH.toString());

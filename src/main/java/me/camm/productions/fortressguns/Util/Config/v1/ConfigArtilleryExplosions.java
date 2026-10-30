@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -21,10 +21,10 @@ public class ConfigArtilleryExplosions implements ConfigObject {
         if (!new ValidatorExplosions().validate(this))
             return false;
 
-        HeavyShellHE.setExplosionPower(heavyHighExplosive);
-        FlakHeavyShell.setExplosionPower(heavyFlak);
-        StandardHeavyShell.setExplosionPower(standard);
-        HeatseekingMissile.setExplosionPower(missile);
+//        HeavyShellHE.setExplosionPower(heavyHighExplosive);
+//        FlakHeavyShell.setExplosionPower(heavyFlak);
+//        StandardHeavyShell.setExplosionPower(standard);
+//        HeatseekingMissile.setExplosionPower(missile);
 
         return true;
     }

@@ -1,6 +1,10 @@
 package me.camm.productions.fortressguns.Util.Config.v2.builder;
 
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
+import org.jetbrains.annotations.Nullable;
+import org.tomlj.TomlParseResult;
+
+import java.util.logging.Logger;
 
 public enum Section {
 
@@ -16,7 +20,9 @@ public enum Section {
     HMG_BULLET("HMGBullet", new ProjectileBuilder.HMGBulletBuilder()),
     BIG_SOLID_SHELL("solidShell", new ProjectileBuilder.ShellSolidBuilder()),
     BIG_HE_SHELL("shellHE", new ProjectileBuilder.ShellHeBuilder()),
-    HEAT_MISSILE("heatSeekerMissile", new ProjectileBuilder.HeatMissileBuilder());
+    HEAT_MISSILE("heatSeekerMissile", new ProjectileBuilder.HeatMissileBuilder()),
+
+    GENERAL("general", new EtcBuilder.GeneralConfigBuilder());
 
 
     private final String section;
@@ -34,4 +40,13 @@ public enum Section {
     public SectionBuilder<? extends ConfigSection> getBuilder() {
         return builder;
     }
+
+    public @Nullable ConfigSection build(TomlParseResult res, Logger logger) {
+        ConfigSection section = builder.build(res, this.section);
+        if (section.isValid(logger)) return section;
+
+        logger.warning("Failed to load config section "+this.section+" due to invalid parameters, using defaults!");
+        return null;
+    }
+
 }

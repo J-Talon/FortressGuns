@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
@@ -10,9 +10,9 @@ public class ConfigHeavyArtillery extends ConfigArtilleryCommon {
     public boolean apply() {
         if (!super.apply())
                 return false;
-
-        HeavyArtillery.setFireCooldown(cooldown);
-        HeavyArtillery.setMaxHealth(health);
+//
+//        HeavyArtillery.setFireCooldown(cooldown);
+//        HeavyArtillery.setMaxHealth(health);
         return true;
     }
 }

@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -20,8 +20,8 @@ public class ConfigArtilleryProjectiles implements ConfigObject {
             return false;
         }
 
-        StandardHeavyShell.setWeight(solidShellWeight);
-        StandardLightShell.setWeight(solidLightShellWeight);
+  //      StandardHeavyShell.setWeight(solidShellWeight);
+//        StandardLightShell.setWeight(solidLightShellWeight);
 
         return true;
     }

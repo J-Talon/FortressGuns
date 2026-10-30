@@ -3,6 +3,8 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile;
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 /*
 [solidShell]
 weight = 1.2
@@ -14,13 +16,14 @@ public class SectionShellSolid extends ConfigSection {
     private Double damage;
 
 
-    public SectionShellSolid(Double weight, Double damage) {
+    public SectionShellSolid(Double weight, Double damage, String key) {
+        super(key);
         this.weight = weight;
         this.damage = damage;
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkProjWD(weight,damage);
         } catch (IllegalArgumentException e) {

@@ -5,7 +5,7 @@ import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
-import me.camm.productions.fortressguns.Util.Serialization.FileManager;
+import me.camm.productions.fortressguns.Util.Config.v2.FileManager;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.Util.command.CommandListener;
 import org.bukkit.plugin.Plugin;

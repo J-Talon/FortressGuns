@@ -18,15 +18,15 @@ import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 
-import javax.annotation.Nullable;
-
-
-public abstract class HeavyShell extends ProjectileArrowFG  {
+public abstract class HeavyShell extends ProjectileArrowFG {
 
 
     protected Artillery source;
+
+
     public HeavyShell(World world, double locX, double locY, double locZ, @Nullable EntityPlayer shooter, Artillery source) {
         super(world, locX, locY, locZ, shooter);
         this.source = source;
@@ -34,7 +34,9 @@ public abstract class HeavyShell extends ProjectileArrowFG  {
     }
 
 
-    ///code to allow projectile-projectile collisions
+
+
+    //code to allow projectile-projectile collisions
     @Override
     protected boolean a(Entity entity) {
 

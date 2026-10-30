@@ -14,14 +14,17 @@ missiles = 6
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
-public class SectionFlak extends ConfigSection {
+import java.util.logging.Logger;
+
+public class SectionMissileLauncher extends ConfigSection {
 
     private Double health;
     private Long cooldown;
     private Integer missiles;
     private Boolean infinite;
 
-    public SectionFlak(Double health, Long cooldown, Integer missiles, Boolean infinite) {
+    public SectionMissileLauncher(Double health, Long cooldown, Integer missiles, Boolean infinite, String key) {
+        super(key);
         this.health = health;
         this.cooldown = cooldown;
         this.missiles = missiles;
@@ -29,7 +32,7 @@ public class SectionFlak extends ConfigSection {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkHCDI(health, cooldown, infinite);
             ConfigHelper.checkMI(missiles, infinite);

@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 public interface ConfigObject {
 

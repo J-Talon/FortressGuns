@@ -3,6 +3,8 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 
 /*
 [fieldLight]
@@ -19,14 +21,15 @@ public class SectionFieldLight extends ConfigSection {
     private Long cooldown;
     private Boolean infinite;
 
-    public SectionFieldLight(Double health, Long cooldown, Boolean infinite) {
+    public SectionFieldLight(Double health, Long cooldown, Boolean infinite, String key) {
+        super(key);
         this.health = health;
         this.cooldown = cooldown;
         this.infinite = infinite;
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkHCDI(health, cooldown, infinite);
         } catch (IllegalArgumentException e) {

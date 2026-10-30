@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;

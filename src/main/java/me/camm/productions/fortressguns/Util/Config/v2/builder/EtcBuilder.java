@@ -29,7 +29,7 @@ destructiveExplosions = true
             Boolean flare = result.getBoolean(ConfigHelper.Field.FLARES.build(key));
             Boolean vanilla = result.getBoolean(ConfigHelper.Field.VANILLA.build(key));
             Boolean dest = result.getBoolean(ConfigHelper.Field.DESTRUCTIVE.build(key));
-            return new SectionGeneral(flare, vanilla, dest);
+            return new SectionGeneral(flare, vanilla, dest, key);
         }
     }
 

@@ -4,26 +4,24 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
+import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile.SectionFlak;
+import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.World;
-
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-
-import javax.annotation.Nullable;
-
-public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
+public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionFlak> {
 
 
     private static float hitDamage = 10;
     private static float explosionPower = 4;
+    private static boolean configApplied;
 
 
     int flightTime;
@@ -33,7 +31,23 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive {
         super(world, d0, d1, d2, shooter, source);
         flightTime = 0;
         explodeTime = 1;
+
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+
+        setStaticDefaults(manager.getFlakShell());
     }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionFlak data) {
+        configApplied = true;
+        if (data == null) return;
+        hitDamage = data.getDamage().floatValue();
+        explosionPower = data.getExplosionPower().floatValue();
+    }
+
 
     @Override
     public float getWeight() {

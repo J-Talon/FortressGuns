@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -68,9 +68,6 @@ public class ConfigGeneral implements ConfigObject {
         }
 
         Artillery.setRequiresReloading(requireReloading);
-        HeatseekingMissile.setDifficulty(missileDifficulty);
-        ExplosionFactory.setUseVanillaExplosions(useVanillaExplosions);
-        ExplosionFactory.setDestructiveExplosions(destructiveExplosions);
         return true;
     }
 

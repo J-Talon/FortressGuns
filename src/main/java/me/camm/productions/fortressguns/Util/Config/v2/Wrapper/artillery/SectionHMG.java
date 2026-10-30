@@ -3,6 +3,8 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 
 /*
 
@@ -41,7 +43,8 @@ public class SectionHMG extends ConfigSection {
     private Long heatTicks;
     private Boolean infinite;
 
-    public SectionHMG(Double health, Integer magSize, Double jamPercent, Double overheat, Double dissipation, Long heatTicks, Boolean infinite) {
+    public SectionHMG(Double health, Integer magSize, Double jamPercent, Double overheat, Double dissipation, Long heatTicks, Boolean infinite, String key) {
+        super(key);
         this.health = health;
         this.magSize = magSize;
         this.jamPercent = jamPercent;
@@ -53,7 +56,7 @@ public class SectionHMG extends ConfigSection {
 
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkHeats(overheat, dissipation, heatTicks);
             ConfigHelper.checkMI(magSize, infinite);

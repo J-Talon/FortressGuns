@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.Config;
+package me.camm.productions.fortressguns.Util.Config.v1;
 
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -27,12 +27,12 @@ public class ConfigArtilleryContact implements ConfigObject {
         if (!contact.validate(this))
                 return false;
 
-        HeavyShellHE.setHitDamage(heavyHighExplosive);
-        FlakHeavyShell.setHitDamage(heavyFlak);
-        StandardHeavyShell.setHitDamage(solid);
-
-        StandardLightShell.setHitDamage(lightSolid);
-        FlakLightShell.setHitDamage(lightFlak);
+//        HeavyShellHE.setHitDamage(heavyHighExplosive);
+//        FlakHeavyShell.setHitDamage(heavyFlak);
+//        StandardHeavyShell.setHitDamage(solid);
+//
+//        StandardLightShell.setHitDamage(lightSolid);
+//        FlakLightShell.setHitDamage(lightFlak);
 
 
         //   CRAMShell.setHitDamage(cram);

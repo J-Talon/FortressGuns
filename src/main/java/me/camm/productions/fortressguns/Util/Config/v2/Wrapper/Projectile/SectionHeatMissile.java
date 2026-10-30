@@ -3,6 +3,8 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile;
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 /*
 [heatSeekerMissile]
 explosionPower = 4
@@ -26,7 +28,8 @@ public class SectionHeatMissile extends ConfigSection {
     private Double acceleration;
     private Double maxAcceleration;
 
-    public SectionHeatMissile(Double explosionPower, Double explosionDamage, Double orbitDist, Double proximity, Long fuelTicks, Double maxSpeed, Double acceleration, Double maxAcceleration) {
+    public SectionHeatMissile(Double explosionPower, Double explosionDamage, Double orbitDist, Double proximity, Long fuelTicks, Double maxSpeed, Double acceleration, Double maxAcceleration, String key) {
+        super(key);
         this.explosionPower = explosionPower;
         this.explosionDamage = explosionDamage;
         this.orbitDist = orbitDist;
@@ -38,7 +41,7 @@ public class SectionHeatMissile extends ConfigSection {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkMissile(orbitDist, proximity, fuelTicks, maxSpeed, acceleration, maxAcceleration);
             ConfigHelper.checkProjExplodes2(explosionPower, explosionDamage);

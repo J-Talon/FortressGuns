@@ -65,25 +65,6 @@ enum ItemBehaviour {
 }
 
 
-
-//enum ConstructBehaviour {
-//    GLOBAL_STANDING(new CBGlobalInteractStanding()),
-//    GLOBAL_POINTER(new CBGlobalPointer()),
-//    GLOBAL_RIDING(new CBGlobalRiding());
-//
-//    private final InteractionBehaviourCons behaviour;
-//
-//    private ConstructBehaviour(InteractionBehaviourCons cons) {
-//        this.behaviour = cons;
-//    }
-//
-//    public InteractionBehaviourCons getBehaviour() {
-//        return behaviour;
-//    }
-//}
-
-
-
 public class ItemInteractionHandler implements Listener
 {
     //there are both pros and cons to using material

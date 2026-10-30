@@ -7,9 +7,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
+import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionHMG;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
 
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
@@ -22,22 +24,19 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-
-import java.util.List;
-
 /*
 Class that models a heavy machine gun which players can shoot and operate
  * @author CAMM
  *
  */
-public class HeavyMachineGun extends RapidFire {
+public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<SectionHMG> {
 
     private static int magSize;
     private static double overheat, jamPercent, maxHealth;
 
     private static long inactiveHeatTicks;
     private static double heatDissipation;
-
+    private static boolean configApplied;
 
     static {
 
@@ -47,12 +46,34 @@ public class HeavyMachineGun extends RapidFire {
         overheat = 0;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        configApplied = false;
 
     }
 
     public HeavyMachineGun(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHmg());
+
     }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionHMG data) {
+        configApplied = true;
+        if (data == null) return;
+
+        maxHealth = data.getHealth();
+        magSize = data.getMagSize();
+        jamPercent = data.getJamPercent();
+        overheat = data.getOverheat();
+        inactiveHeatTicks = data.getHeatTicks();
+        heatDissipation = data.getDissipation();
+    }
+
     public static void setMaxHealth(double max) {
         maxHealth = max;
     }

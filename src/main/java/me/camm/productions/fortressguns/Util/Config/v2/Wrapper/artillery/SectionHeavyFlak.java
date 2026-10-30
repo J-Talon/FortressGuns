@@ -4,6 +4,8 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 /*
 #Heavy flak
 
@@ -19,7 +21,8 @@ public class SectionHeavyFlak extends ConfigSection {
     private Long cooldown;
     private Boolean infinite;
 
-    public SectionHeavyFlak(Double health, Long cooldown, Boolean infinite) {
+    public SectionHeavyFlak(Double health, Long cooldown, Boolean infinite, String key) {
+        super(key);
         this.health = health;
         this.cooldown = cooldown;
         this.infinite = infinite;
@@ -38,7 +41,7 @@ public class SectionHeavyFlak extends ConfigSection {
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkHCDI(health, cooldown, infinite);
         } catch (IllegalArgumentException e) {

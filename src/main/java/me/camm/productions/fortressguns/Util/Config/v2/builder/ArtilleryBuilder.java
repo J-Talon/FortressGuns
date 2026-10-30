@@ -15,7 +15,7 @@ public class ArtilleryBuilder {
             Double health = result.getDouble(ConfigHelper.Field.HEALTH.build(key));
             Long cd = result.getLong(ConfigHelper.Field.CD.build(key));
             Boolean inf = result.getBoolean(ConfigHelper.Field.INF.build(key));
-            return new SectionFieldHeavy(health, cd, inf);
+            return new SectionFieldHeavy(health, cd, inf, key);
         }
     }
 
@@ -28,7 +28,7 @@ public class ArtilleryBuilder {
             Double health = result.getDouble(ConfigHelper.Field.HEALTH.build(key));
             Long cd = result.getLong(ConfigHelper.Field.CD.build(key));
             Boolean inf = result.getBoolean(ConfigHelper.Field.INF.build(key));
-            return new SectionFieldLight(health, cd, inf);
+            return new SectionFieldLight(health, cd, inf, key);
         }
     }
 
@@ -40,7 +40,7 @@ public class ArtilleryBuilder {
             Double health = result.getDouble(ConfigHelper.Field.HEALTH.build(key));
             Long cd = result.getLong(ConfigHelper.Field.CD.build(key));
             Boolean inf = result.getBoolean(ConfigHelper.Field.INF.build(key));
-            return new SectionHeavyFlak(health, cd, inf);
+            return new SectionHeavyFlak(health, cd, inf, key);
         }
     }
 
@@ -61,7 +61,7 @@ public class ArtilleryBuilder {
 
             Long ticks = result.getLong(ConfigHelper.Field.HEAT_TICKS.build(key));
 
-            return new SectionHMG(health, iMag,jam, heatIn, heatOut, ticks, inf);
+            return new SectionHMG(health, iMag,jam, heatIn, heatOut, ticks, inf, key);
 
         }
     }
@@ -84,22 +84,22 @@ public class ArtilleryBuilder {
 
             Long ticks = result.getLong(ConfigHelper.Field.HEAT_TICKS.build(key));
 
-            return new SectionLightFlak(health, cd, iMag, jam, heatIn, heatOut, ticks, inf);
+            return new SectionLightFlak(health, cd, iMag, jam, heatIn, heatOut, ticks, inf, key);
         }
     }
 
 
-    static class MissileLauncherBuilder implements SectionBuilder<SectionFlak> {
+    static class MissileLauncherBuilder implements SectionBuilder<SectionMissileLauncher> {
 
         @Override
-        public SectionFlak build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
+        public SectionMissileLauncher build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
             Double health = result.getDouble(ConfigHelper.Field.HEALTH.build(key));
             Long cd = result.getLong(ConfigHelper.Field.CD.build(key));
             Boolean inf = result.getBoolean(ConfigHelper.Field.INF.build(key));
             Long mag = result.getLong(ConfigHelper.Field.MAG.build(key));
             if (mag == null) throw new NullPointerException(ConfigHelper.Field.MAG.toString());
             int iMag = mag.intValue();
-            return new SectionFlak(health, cd, iMag, inf);
+            return new SectionMissileLauncher(health, cd, iMag, inf, key);
         }
     }
 

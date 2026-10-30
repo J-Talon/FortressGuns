@@ -4,6 +4,8 @@ package me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery;
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 /*
 #Light flak
 [lightFlak]
@@ -39,7 +41,8 @@ public class SectionLightFlak extends ConfigSection {
     private Long heatTicks;
     private Boolean infinite;
 
-    public SectionLightFlak(Double health, Long cooldown, Integer magSize, Double jamChance, Double overheat, Double headDissipation, Long heatTicks, Boolean infinite) {
+    public SectionLightFlak(Double health, Long cooldown, Integer magSize, Double jamChance, Double overheat, Double headDissipation, Long heatTicks, Boolean infinite, String key) {
+        super(key);
         this.health = health;
         this.cooldown = cooldown;
         this.magSize = magSize;
@@ -52,7 +55,7 @@ public class SectionLightFlak extends ConfigSection {
 
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkHeats(overheat, dissipation, heatTicks);
             ConfigHelper.checkMI(magSize, infinite);

@@ -3,6 +3,9 @@ package me.camm.productions.fortressguns.Explosion;
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplash;
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplashLarge;
 import me.camm.productions.fortressguns.Explosion.Explosions.Functional.*;
+import me.camm.productions.fortressguns.Util.Config.v2.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Etc.SectionGeneral;
+import me.camm.productions.fortressguns.Util.Config.v2.ConfigurationHolder;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -11,22 +14,39 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ExplosionFactory {
+public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
 
     private static boolean destructiveExplosions = true;
     private static boolean useVanillaExplosions = false;
 
-    public static void setDestructiveExplosions(boolean destructive) {
-        destructiveExplosions = destructive;
+    private static boolean configApplied = false;
+
+
+    private static ExplosionFactory instance = null;
+
+
+    private ExplosionFactory() {
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (manager.isLoaded()) return;
+        setStaticDefaults(manager.getGeneral());
     }
 
-    public static boolean allowDestructiveExplosions() {
-        return destructiveExplosions;
+    public static ExplosionFactory get() {
+        if (instance == null) instance = new ExplosionFactory();
+        return instance;
     }
 
-    public static void setUseVanillaExplosions(boolean useVanillaExplosions) {
-        ExplosionFactory.useVanillaExplosions = useVanillaExplosions;
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionGeneral data) {
+        configApplied = true;
+        if (data == null) return;
+        useVanillaExplosions = data.isUseVanillaExplosions();
+        destructiveExplosions = data.getDestructiveExplosions();
     }
+
 
 
     public static void vanillaExplosion(World w, Entity source, double x, double y, double z, float radius) {
@@ -85,8 +105,7 @@ public class ExplosionFactory {
             vanillaExplosion(w,source,x,y,z,radius);
             return;
         }
-
-        ExplosionFuel fuel = new ExplosionFuel(x,y,z,w,radius, source, allowDestructiveExplosions());
+        ExplosionFuel fuel = new ExplosionFuel(x,y,z,w,radius, source, destructiveExplosions);
         fuel.perform();
     }
 

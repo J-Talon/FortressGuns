@@ -3,8 +3,10 @@ package me.camm.productions.fortressguns.Util.Config.v2;
 import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Etc.SectionGeneral;
 import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile.*;
 import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.*;
-import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionFlak;
+import me.camm.productions.fortressguns.Util.Config.v2.Wrapper.artillery.SectionMissileLauncher;
+import me.camm.productions.fortressguns.Util.Config.v2.builder.Section;
 import org.bukkit.plugin.Plugin;
+import org.tomlj.TomlParseResult;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -24,10 +26,11 @@ public class ConfigManager {
     private SectionHeavyFlak heavyFlak = null;
     private SectionHMG hmg = null;
     private SectionLightFlak lightFlak = null;
-    private SectionFlak launcher = null;
+    private SectionMissileLauncher launcher = null;
 
 
-    private me.camm.productions.fortressguns.Util.Config.v2.Wrapper.Projectile.SectionFlak flakShell = null;
+    private SectionFlak flakShell = null;
+    private SectionLightFlakBullet lightFlakBullet = null;
     private SectionHeatMissile heatMissile = null;
     private SectionHMGBullet hmgBullet = null;
     private SectionShellHE shellHE = null;
@@ -38,18 +41,29 @@ public class ConfigManager {
     //-------
 
 
-
-
     public static ConfigManager getInstance() {
         if (manager == null)
             manager = new ConfigManager();
         return manager;
     }
 
-    public void load(Plugin plugin, Logger logger) {
+    public void load(Logger logger, TomlParseResult res) {
+        fieldHeavy = (SectionFieldHeavy) Section.FIELD_HEAVY.build(res,logger);
+        fieldLight = (SectionFieldLight) Section.FIELD_LIGHT.build(res,logger);
+        heavyFlak = (SectionHeavyFlak) Section.HEAVY_FLAK.build(res, logger);
+        hmg = (SectionHMG) Section.HMG.build(res, logger);
+        lightFlak = (SectionLightFlak) Section.LIGHT_FLAK.build(res, logger);
+        launcher = (SectionMissileLauncher) Section.MISSILE_LAUNCHER.build(res, logger);
 
+        flakShell = (SectionFlak) Section.BIG_FLAK_SHELL.build(res, logger);
+        heatMissile = (SectionHeatMissile) Section.HEAT_MISSILE.build(res, logger);
+        hmgBullet = (SectionHMGBullet) Section.HMG_BULLET.build(res, logger);
+        shellHE = (SectionShellHE) Section.BIG_HE_SHELL.build(res, logger);
+        shellSolid = (SectionShellSolid) Section.BIG_SOLID_SHELL.build(res, logger);
+        lightFlakBullet = (SectionLightFlakBullet)Section.SMALL_FLAK_SHELL.build(res, logger);
 
-
+        general = (SectionGeneral) Section.GENERAL.build(res, logger);
+        isLoaded.set(true);
     }
 
 
@@ -57,4 +71,56 @@ public class ConfigManager {
         return isLoaded.get();
     }
 
+
+    public SectionFieldHeavy getFieldHeavy() {
+        return fieldHeavy;
+    }
+
+    public SectionFieldLight getFieldLight() {
+        return fieldLight;
+    }
+
+    public SectionHeavyFlak getHeavyFlak() {
+        return heavyFlak;
+    }
+
+    public SectionHMG getHmg() {
+        return hmg;
+    }
+
+    public SectionLightFlak getLightFlak() {
+        return lightFlak;
+    }
+
+    public SectionMissileLauncher getLauncher() {
+        return launcher;
+    }
+
+    public SectionFlak getFlakShell() {
+        return flakShell;
+    }
+
+    public SectionHeatMissile getHeatMissile() {
+        return heatMissile;
+    }
+
+    public SectionHMGBullet getHmgBullet() {
+        return hmgBullet;
+    }
+
+    public SectionShellHE getShellHE() {
+        return shellHE;
+    }
+
+    public SectionShellSolid getShellSolid() {
+        return shellSolid;
+    }
+
+    public SectionGeneral getGeneral() {
+        return general;
+    }
+
+    public SectionLightFlakBullet getLightFlakBullet() {
+        return lightFlakBullet;
+    }
 }

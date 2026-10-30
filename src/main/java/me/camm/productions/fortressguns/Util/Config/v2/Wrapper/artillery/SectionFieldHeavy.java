@@ -10,6 +10,8 @@ cooldown = 5000
 import me.camm.productions.fortressguns.Util.Config.v2.ConfigSection;
 import me.camm.productions.fortressguns.Util.Config.v2.builder.ConfigHelper;
 
+import java.util.logging.Logger;
+
 public class SectionFieldHeavy extends ConfigSection {
 
 
@@ -17,14 +19,15 @@ public class SectionFieldHeavy extends ConfigSection {
     private Long cooldown;
     private Boolean infinite;
 
-    public SectionFieldHeavy(Double health, Long cooldown, Boolean infinite) {
+    public SectionFieldHeavy(Double health, Long cooldown, Boolean infinite, String key) {
+        super(key);
         this.health = health;
         this.cooldown = cooldown;
         this.infinite = infinite;
     }
 
     @Override
-    public boolean isValid() {
+    public boolean isValid(Logger logger) {
         try {
             ConfigHelper.checkHCDI(health, cooldown, infinite);
         } catch (IllegalArgumentException e) {
