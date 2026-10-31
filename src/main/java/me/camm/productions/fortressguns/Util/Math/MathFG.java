@@ -12,6 +12,7 @@ import java.util.Random;
 public class MathFG {
 
     static Random rand = new Random();
+    public static final double POINT_ZERO_RAD = 0.00017;   //0.01 degrees -> rads = ~0.0017
     public static final double RAD = 0.017;
     public static final double FULL_CIRCLE_DEG = 360;
 
@@ -207,6 +208,29 @@ the angles in question in the format of radians
         return Math.toRadians(currentAngle);
 
     }
+
+
+    //returns whether the current aim is close enough to the target angle (x,y)
+    public static boolean aimIsCloseEnough(EulerAngle aim, double x, double y) {
+        return aimIsCloseEnough(aim, x,y, POINT_ZERO_RAD, 0.01);
+
+    }
+
+    public static boolean aimIsCloseEnough(EulerAngle aim, double x, double y, double thresholdRads, double magnitude) {
+        double currX = aim.getX();
+        final double TWO_PI = 2*Math.PI;
+
+        double diffX = Math.abs(x - currX) % TWO_PI;
+        double accX = 1 - Math.abs(x - currX) / TWO_PI;
+
+        double diffY = Math.abs((y - aim.getY())) % TWO_PI;
+        double accY = 1 - Math.abs(y - aim.getY()) / TWO_PI;
+
+        return (diffX < thresholdRads && diffY < thresholdRads)
+                || (accX < magnitude && accY < magnitude);
+    }
+
+
 
 
 

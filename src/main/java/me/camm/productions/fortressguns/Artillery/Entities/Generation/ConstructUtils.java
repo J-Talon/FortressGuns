@@ -48,6 +48,14 @@ public class ConstructUtils {
     }
 
 
+    public static boolean isComponentOf(Construct construct, Entity entity) {
+        Component comp = getComponentRef(entity);
+        if (comp == null) return true;
+
+        return comp.getBody().equals(construct);
+    }
+
+
 
     public static @Nullable Rideable getRideableRef(Entity entity) {
         if (entity == null) return null;

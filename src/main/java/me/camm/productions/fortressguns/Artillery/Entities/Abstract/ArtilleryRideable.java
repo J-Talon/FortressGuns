@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -116,7 +115,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
-    protected boolean posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
+    protected boolean posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double shakeOffsetY, double angAroundY) {
 
         EulerAngle aim = this.getAim();
         Location next = getSeatLocation( xOffset, yOffset, angAroundY);
@@ -124,7 +123,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
         final double MAX_VIB = 0.25;  //artistic choice. too much makes it look bad, too little and they don't feel it
         if (operator != null) {
-            double amount = Math.abs(vibrationOffsetY) > MAX_VIB ? (vibrationOffsetY > 0 ? MAX_VIB : -MAX_VIB) : vibrationOffsetY;
+            double amount = Math.abs(shakeOffsetY) > MAX_VIB ? (shakeOffsetY > 0 ? MAX_VIB : -MAX_VIB) : shakeOffsetY;
             next.add(0, amount, 0);
         }
 
@@ -156,12 +155,8 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     }
 
 
-
-
-
-     Location getSeatLocation(ArtilleryPart referencePos) {
-
-        Location reference = referencePos.getLocation(getWorld());
+     Location getSeatLocation(Component referencePos) {
+        Location reference = referencePos.getLocation();
         EulerAngle aim = getAim();
         double rotSeatZ = -Math.cos(aim.getY());
         double rotSeatX = Math.sin(aim.getY());

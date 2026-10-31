@@ -5,9 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFactory;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.item.classification.FGSingleConsumable;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.level.World;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 public enum AmmoItem {
@@ -42,8 +43,12 @@ public enum AmmoItem {
         return item;
     }
 
-    public ProjectileFG create(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public ProjectileFG create(World world, double x, double y, double z, @Nullable Player shooter, @Nullable Artillery source) {
         return factory.create(world, x,y,z, shooter, source);
+    }
+
+    public ProjectileFG create(World world, double x, double y, double z, Vector velocity, @Nullable Player shooter, @Nullable Artillery source) {
+        return factory.create(world, x,y,z, velocity, shooter, source);
     }
 
 }
