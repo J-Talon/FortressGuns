@@ -1,28 +1,28 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
-
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
-import me.camm.productions.fortressguns.interact.item.classification.FGItems;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-
 import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.ItemBehaviour.IBTacticalPointer;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class FlakArtillery extends HeavyArtillery
+public abstract class FlakArtillery extends FieldArtillery
 {
 
     protected Entity target;
