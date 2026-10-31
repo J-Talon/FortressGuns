@@ -58,7 +58,6 @@ public abstract class ExplosionFunctional extends ExplosionFG {
         double falloff = damageFalloff(distanceSquared);
         falloff *= exposure;
 
-
         net.minecraft.world.entity.Entity nms = ((CraftEntity)affected).getHandle();
         nms.damageEntity(getDamageSource(), (float)falloff);
 

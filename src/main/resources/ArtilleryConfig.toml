@@ -9,6 +9,7 @@ health = 20
 #if cooldown is disabled the firing speed is still gated by the time required to play out
 #the current animation and current shot being fired. Time in milliseconds.
 cooldown = 3000
+infiniteAmmo = false
 
 
 #==============================
@@ -16,6 +17,7 @@ cooldown = 3000
 [fieldHeavy]
 health = 80
 cooldown = 5000
+infiniteAmmo = false
 
 #==============================
 #Heavy flak
@@ -23,12 +25,14 @@ cooldown = 5000
 [heavyFlak]
 health = 100
 cooldown = 5000
+infiniteAmmo = false
 
 #==============================
 #Light flak
 [lightFlak]
 health = 15
 cooldown = 500
+infiniteAmmo = false
 
 #ammo drum size of the light flak before needing reload
 #set to -1 to allow arbitrary length belt feeding
@@ -52,6 +56,7 @@ inactiveHeatTicks = 2000
 
 [heavyMachineGun]
 health = 15
+infiniteAmmo = false
 
 #ammo drum size of the machine gun before needing reload.
 #set to -1 to allow arbitrary length belt feeding
@@ -76,77 +81,61 @@ inactiveHeatTicks = 2000
 [missileLauncher]
 health = 35
 cooldown = 10000
-missiles = 6
+magSize = 6
+infiniteAmmo = false
 
-#==============================
-#Railgun
-[railGun]
-health = 50
-cooldown = 1000
-chargeTime = 1000
-#max range of the railgun
-range = 500
-
-penetration = 0
-#==============================
-
-[cram]
-health = 30
-cooldown = 500
 
 #==============================
 
-[projectiles]
-solidShellWeight = 1.2
-solidLightShellWeight = 0.1
+[HMGBullet]
+weight = 0.1
+damage = 5
 
 
-
-[explosions]
-#Explosion power of the ammo (How big and how much damage the shell should do)
-#Because of vanilla limitations with particles, explosion power above the recommended may result in
-#custom explosions looking undersized
-
-#recommended power: 4
-heavyHighExplosive = 4
-heavyFlak = 4
-missile = 4
-standard = 4
-#light flak always explodes with an explosion power of 1
-#same with CRAM
-
-# If a shell hits the target directly, how much damage the target should receive.
-# this damage is applied before explosion damage if the shell is explosive.
-[contactDamage]
-heavyHighExplosive = 10
-heavyFlak = 10
-solid = 25
-lightSolid = 5
-lightFlak = 5
-cram = 10
-railgun = 150
+[lightFlakBullet]
+weight = 0.1
+damage = 5
 
 
+[solidShell]
+weight = 1.2
+damage = 25
 
+
+[shellHE]
+explosionPower = 4
+explosionDamage = 25
+damage = 10
+
+[shellFlak]
+explosionPower = 4
+explosionDamage = 30
+damage = 5
+
+
+[heatSeekerMissile]
+explosionPower = 4
+explosionDamage = 30
+orbitDist = 17
+explosionProximity = 3.16
+fuelTicks = 600
+maxSpeed = 2.44
+acceleration = 0.2
+maxAcceleration = 0.3
+
+
+#==============================
 
 [general]
-#whether artillery need to reload
-requireReloading = false
-
-#difficulty to dodge missiles. float value from [0-100]
-missileDifficulty = 100
-
 #whether flares should be enabled to help players survive barrages of missiles
 enableFlares = true
 
-
 #Whether the explosions from the artillery should be
 #vanilla explosions which call Spigot/Bukkit/Paper API events using world.createExplosion(...)
-#or a custom explosion which might not
 useVanillaExplosions = false
 
-#Whether artillery destroys blocks
-#this does not apply to falling blocks
+#Whether artillery explosions destroys blocks
+#some shells may still break blocks via non-explosive means
 destructiveExplosions = true
 
 

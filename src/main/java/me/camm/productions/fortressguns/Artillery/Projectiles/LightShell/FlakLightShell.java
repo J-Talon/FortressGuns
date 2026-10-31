@@ -4,9 +4,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionLightFlakBullet;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3D;
@@ -24,19 +25,36 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author CAMM
  */
-public class FlakLightShell extends LightShell implements ProjectileExplosive, ProjectileType.IFlakLightShell
+public class FlakLightShell extends LightShell implements ProjectileExplosive, ConfigurationHolder<SectionLightFlakBullet>, ProjectileType.IFlakLightShell
 {
 
     private static float hitDamage = 10;
+    private static float weight = 0.015f;
+
     private org.bukkit.entity.Entity ignore;
+    private static boolean configApplied = false;
 
 
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
     public FlakLightShell(World world, double x, double y, double z, Player human, Artillery source) {
         super(world,x,y,z, human, source);
         ignore = null;
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getLightFlakBullet());
     }
 
+    @Override
+    public void setStaticDefaults(@Nullable SectionLightFlakBullet data) {
+        configApplied = true;
+        if (data==null) return;
+        hitDamage = data.getDamage().floatValue();
+        weight = data.getWeight().floatValue();
+
+
+    }
 
     @Override
     public boolean onEntityHit(Entity bukkit, Vector entityPosition) {
@@ -90,7 +108,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, P
 
     @Override
     public float getWeight() {
-        return 0.015F;
+        return weight;
     }
 
 
@@ -110,6 +128,6 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, P
             z = hit.getZ();
         }
 
-        ExplosionFactory.flakLightExplosion(bukkitWorld,getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
+        ExplosionFactory.get().flakLightExplosion(bukkitWorld,getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
     }
 }

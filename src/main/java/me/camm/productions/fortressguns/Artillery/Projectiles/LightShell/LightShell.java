@@ -155,10 +155,9 @@ public abstract class LightShell extends ProjectileSnowballFG {
             bukkit.spawnParticle(Particle.REDSTONE,effectLoc, 17,0.3,0.3,0.3,1,options);
         }
 
-        if (!ExplosionFactory.allowDestructiveExplosions()) {
-            bukkit.playSound(effectLoc, Sound.BLOCK_WET_GRASS_BREAK,1,0);
-            return true;
-        }
+
+        bukkit.playSound(effectLoc, Sound.BLOCK_WET_GRASS_BREAK,1,0);
+
 
         if (mat == Material.TNT) {
             block.setType(Material.AIR);

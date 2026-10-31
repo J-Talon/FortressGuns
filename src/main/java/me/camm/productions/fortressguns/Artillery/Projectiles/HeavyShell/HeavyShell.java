@@ -21,9 +21,7 @@ import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 
 public abstract class HeavyShell extends ProjectileArrowFG {
@@ -37,7 +35,9 @@ public abstract class HeavyShell extends ProjectileArrowFG {
     }
 
 
-    ///code to allow projectile-projectile collisions
+
+
+    //code to allow projectile-projectile collisions
     @Override
     protected boolean a(Entity entity) {
 
@@ -95,7 +95,7 @@ public abstract class HeavyShell extends ProjectileArrowFG {
     @Override
     public void onWaterEnter() {
         Vec3D motion = getMot();
-        ExplosionFactory.largeSplashExplosion(bukkitWorld,locX()-(0.25* motion.getX()), locY()-(0.25*motion.getY()), locZ()-(0.25*motion.getZ()));
+        ExplosionFactory.get().largeSplashExplosion(bukkitWorld,locX()-(0.25* motion.getX()), locY()-(0.25*motion.getY()), locZ()-(0.25*motion.getZ()));
         remove();
     }
 

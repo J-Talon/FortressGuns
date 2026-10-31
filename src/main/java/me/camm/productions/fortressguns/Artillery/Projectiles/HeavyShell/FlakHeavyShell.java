@@ -5,8 +5,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionFlak;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
 
@@ -18,15 +19,14 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
-
-import javax.annotation.Nullable;
-
-public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, ProjectileType.IFlakHeavyShell {
+public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionFlak> {
 
 
     private static float hitDamage = 10;
     private static float explosionPower = 4;
+    private static boolean configApplied;
 
 
     int flightTime;
@@ -36,7 +36,23 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, P
         super(world, d0, d1, d2, shooter, source);
         flightTime = 0;
         explodeTime = 1;
+
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+
+        setStaticDefaults(manager.getFlakShell());
     }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionFlak data) {
+        configApplied = true;
+        if (data == null) return;
+        hitDamage = data.getDamage().floatValue();
+        explosionPower = data.getExplosionPower().floatValue();
+    }
+
 
     @Override
     public float getWeight() {
@@ -100,9 +116,9 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, P
     public void explode(@Nullable Vector hit) {
         this.die();
         if (hit == null)
-            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower());
+            ExplosionFactory.get().flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower());
         else
-            ExplosionFactory.flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(),hit.getY(),hit.getZ(), getExplosionPower());
+            ExplosionFactory.get().flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(),hit.getY(),hit.getZ(), getExplosionPower());
     }
 
 

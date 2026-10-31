@@ -6,7 +6,10 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionHeatMissile;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -25,24 +28,24 @@ import java.util.Set;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
-public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking, ProjectileType.IHeatSeekingRocket {
+public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking, ConfigurationHolder<SectionHeatMissile>, ProjectileType.IHeatSeekingRocket {
 
 
-    private static final double ACCELERATION = 0.2;
-    private static final double MAX_ACCELERATION = 0.3;
-    private static final double MAX_SPEED_SQUARED = 6; //slightly faster than max spd elytra
-    private static final double MAX_SPEED;
-    private static final double ORBIT_DIST = 17;
-    private static final int DIST_EXPLODE_SQUARED = 10;  //slightly more than 3b
-    private static final int FUEL = 600;  //
-    private static final int PRIME = 5; //1/2 sec
+    private static double ACCELERATION = 0.2;
+    private static double MAX_ACCELERATION = 0.3;
+    private static double MAX_SPEED_SQUARED = 6; //slightly faster than max spd elytra
+    private static double MAX_SPEED;
+    private static double ORBIT_DIST = 17;
+    private static double DIST_EXPLODE_SQUARED = 10;  //slightly more than 3b
+    private static long FUEL = 600;  //
 
-
+    private static float explosionPower = 4;
 
     private final MissileLockNotifier notifier;
-    private static float explosionPower; //4
-    private static float difficulty;  //todo put into config
     private static final Set<HeatseekingMissile> ACTIVE_MISSILES = new HashSet<>();
+    private static final int PRIME = 5; //1/2 sec
+    private static boolean configApplied = false;
+
 
 
     private int readyTime;
@@ -58,12 +61,8 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
 
     private Vec3D terminalVel = null;
 
-
-
     static {
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
-        explosionPower = 4;
-        difficulty = 100;
     }
 
     public HeatseekingMissile(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
@@ -79,14 +78,30 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
         notifier = MissileLockNotifier.get(FortressGuns.getInstance());
         //velocity is in blocks/tick
         ACTIVE_MISSILES.add(this);
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHeatMissile());
     }
 
-    public static void setExplosionPower(float explosionPower) {
-        HeatseekingMissile.explosionPower = explosionPower;
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionHeatMissile data) {
+        configApplied = true;
+        if (data == null) return;
+        ACCELERATION = data.getAcceleration();
+        MAX_ACCELERATION = data.getMaxAcceleration();
+
+        MAX_SPEED = data.getMaxSpeed();
+        MAX_SPEED_SQUARED = MAX_SPEED * MAX_SPEED;
+        ORBIT_DIST = data.getOrbitDist();
+        DIST_EXPLODE_SQUARED = data.getProximity() * data.getProximity();
+        FUEL = data.getFuelTicks();
+        explosionPower = data.getExplosionPower().floatValue();
+
     }
-    public static void setDifficulty(float difficulty) {
-        HeatseekingMissile.difficulty = difficulty;
-    }
+
 
     public static Set<HeatseekingMissile> getActiveMissiles() {
         return ACTIVE_MISSILES;
@@ -130,7 +145,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
     }
 
 
-    public int getFuelTicks(){
+    public long getFuelTicks(){
         return FUEL;
     }
 
@@ -141,11 +156,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
             notifier.exitNotification(target.getUniqueId());
         }
         org.bukkit.World world = getWorld().getWorld();
-
-        //this.getWorld().createExplosion(this, locX(), locY(), locZ(), getDamageStrength(), false, Explosion.Effect.c);
-        //change this to use our custom explosion stuff later
-
-        ExplosionFactory.missileExplosion(world, shooter.getBukkitEntity(),locX(), locY(),locZ(),4);
+        ExplosionFactory.get().missileExplosion(world, shooter.getBukkitEntity(),locX(), locY(),locZ(),explosionPower);
 
        // world.spawnParticle(Particle.EXPLOSION_HUGE,explosionLoc,1,0,0,0,0,null, true);
         ACTIVE_MISSILES.remove(this);

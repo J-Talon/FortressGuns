@@ -4,8 +4,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionShellSolid;
 import me.camm.productions.fortressguns.Util.DamageSource.ShellSource;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
@@ -26,30 +29,31 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StandardHeavyShell extends HeavyShell implements ProjectileType.ISolidHeavyShell {
+public class StandardHeavyShell extends HeavyShell implements ConfigurationHolder<SectionShellSolid>, ProjectileType.ISolidHeavyShell {
 
+    private static final float explosionPower = 2;
 
     private static float hitDamage = 10;
-    private static float explosionPower = 2;
     private static float weight = 1.2F;
+    private static boolean configApplied = false;
 
     public StandardHeavyShell(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getShellSolid());
     }
 
 
-    public static void setHitDamage(float hitDamage) {
-        StandardHeavyShell.hitDamage = hitDamage;
+    @Override
+    public void setStaticDefaults(@Nullable SectionShellSolid data) {
+        configApplied = true;
+        if (data == null) return;
+        hitDamage = data.getDamage().floatValue();
+        weight = data.getWeight().floatValue();
     }
-
-    public static void setExplosionPower(float explosionPower) {
-        StandardHeavyShell.explosionPower = explosionPower;
-    }
-
-    public static void setWeight(float w) {
-        weight = w;
-    }
-
 
 
     @Override
@@ -111,13 +115,13 @@ public class StandardHeavyShell extends HeavyShell implements ProjectileType.ISo
             hitPos.add(direction);
         }
 
-        ExplosionFactory.solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir, context);
+        ExplosionFactory.get().solidShellExplosion(bukkitWorld, this.getBukkitEntity(),hitPos.getX(), hitPos.getY(), hitPos.getZ(),explosionPower, explosionDir, context);
 
-        if (ExplosionFactory.allowDestructiveExplosions()) {
-            for (Block block : penBlocks) {
-                block.breakNaturally();
-            }
+
+        for (Block block : penBlocks) {
+            block.breakNaturally();
         }
+
 
         if (penPower <= 0) {
             this.die();

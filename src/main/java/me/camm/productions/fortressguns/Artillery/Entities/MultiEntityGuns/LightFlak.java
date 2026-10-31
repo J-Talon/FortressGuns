@@ -6,6 +6,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionLightFlak;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
@@ -18,20 +21,19 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-
-import java.util.List;
-
 /*
  * @author CAMM
  */
-public class LightFlak extends RapidFire {
+public class LightFlak extends RapidFire implements ConfigurationHolder<SectionLightFlak> {
     private  static long cooldown;
     private static int magSize;
 
     private static double jamPercent, overheat, maxHealth;
     private static long inactiveHeatTicks;
     private static double heatDissipation;
+    private static boolean infinite;
 
+    private static boolean configApplied;
 
 
 
@@ -39,6 +41,12 @@ public class LightFlak extends RapidFire {
 
     public LightFlak(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getLightFlak());
     }
 
     static {
@@ -48,36 +56,29 @@ public class LightFlak extends RapidFire {
         overheat = 1;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        infinite = false;
+        configApplied = false;
     }
 
 
+    @Override
+    public void setStaticDefaults(@Nullable SectionLightFlak data) {
+        configApplied = true;
+        if (data == null) return;
 
-    public static void setCooldown(long cooldown) {
-        LightFlak.cooldown = cooldown;
+        maxHealth = data.getHealth();
+        cooldown = data.getCooldown();
+        jamPercent = data.getJamChance();
+        overheat = data.getOverheat();
+        inactiveHeatTicks = data.getHeatTicks();
+        heatDissipation = data.getDissipation();
+        infinite = data.infinite();
+
     }
 
-    public static void setMaxHealth(double maxHealth) {
-        LightFlak.maxHealth = maxHealth;
-    }
-
-    public static void setMagSize(int magSize) {
-        LightFlak.magSize = magSize;
-    }
-
-    public static void setJamPercent(double jamPercent) {
-        LightFlak.jamPercent = jamPercent;
-    }
-
-    public static void setOverheat(double overheat) {
-        LightFlak.overheat = overheat;
-    }
-
-    public static void setInactiveHeatTicks(long inactiveHeatTicks) {
-        LightFlak.inactiveHeatTicks = inactiveHeatTicks;
-    }
-
-    public static void setHeatDissipation(double heatDissipation) {
-        LightFlak.heatDissipation = heatDissipation;
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     public double getVectorPower() {

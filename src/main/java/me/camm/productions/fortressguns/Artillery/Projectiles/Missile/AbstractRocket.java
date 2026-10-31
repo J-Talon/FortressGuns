@@ -52,7 +52,7 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
 
 
 
-    public abstract int getFuelTicks();
+    public abstract long getFuelTicks();
 
 
 

@@ -4,6 +4,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtille
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
+import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionFieldHeavy;
+import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.EulerAngle;
@@ -11,34 +14,51 @@ import org.bukkit.util.EulerAngle;
 import java.util.List;
 
 
-public class HeavyArtillery extends FieldArtillery
+public class HeavyArtillery extends FieldArtillery implements ConfigurationHolder<SectionFieldHeavy>
 {
 
     private static final int SMALL_THRESH = 1;
+
     private static double maxHealth;
     private static long cooldown;
-
+    private static boolean configApplied;
+    private static boolean infinite;
 
     public HeavyArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
         barrel = new ArtilleryPart[8];
         base = new ArtilleryPart[4][3];
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getFieldHeavy());
     }
 
     static {
         //default values
+        configApplied = false;
         maxHealth = 80;
         cooldown = 5000;
+        infinite = false;
     }
 
 
-    public static void setMaxHealth(double health) {
-        maxHealth = health;
+    public void setStaticDefaults(SectionFieldHeavy heavy) {
+        configApplied = true;
+        if (heavy == null) return;
+        maxHealth = heavy.getHealth();
+        cooldown = heavy.getCooldown();
+        infinite = heavy.isInfinite();
+
     }
 
-    public static void setFireCooldown(long cooldown) {
-        HeavyArtillery.cooldown = cooldown;
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
+
 
     @Override
     public double getVectorPower() {
