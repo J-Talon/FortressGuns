@@ -2,7 +2,6 @@ package me.camm.productions.fortressguns.interact.ItemBehaviour;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
@@ -29,6 +28,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.inventory.meta.CrossbowMeta;
+import org.bukkit.util.Vector;
 
 import static me.camm.productions.fortressguns.interact.item.classification.FGItems.FLARE;
 
@@ -62,19 +62,20 @@ public class IBFlare implements InteractionBehaviourItem {
 
         World world = block.getWorld();
 
-
-        //todo agnostify
-       // ProjectileFG proj = AmmoItem.FLARE.create(world, location.getX(), location.getY(), location.getZ(), null, null);
-
-        SimpleFlare flare = new SimpleFlare(
+        ProjectileFG flare = AmmoItem.FLARE.create(
                 world,
                 location.getX(),
                 location.getY(),
                 location.getZ(),
-                face.getModX() * 0.5,
-                face.getModY() * 0.5,
-                face.getModZ() * 0.5
+                new Vector(
+                        face.getModX() * 0.5,
+                        face.getModY() * 0.5,
+                        face.getModZ() * 0.5
+                ),
+                null,
+                null
         );
+        flare.addToWorld(world);
 
     }
 
