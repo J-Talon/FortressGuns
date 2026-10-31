@@ -94,10 +94,10 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
 
         canFire = false;
-
-
-
         final List<Player> vibrateFor = getShakenPlayers();
+        final Artillery artillery = this;
+
+
         new BukkitRunnable()
         {
             boolean shot = false;
@@ -125,7 +125,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     pivot(aim.getX(), aim.getY());
                 }
 
-                shakeAnimation(vibrateFor,ticks);
+                FG_VFX.shakeAnimation(vibrateFor,artillery, ticks);
 
                 if (smallBlockDist < SMALL_BLOCK_LENGTH) {
                     ticks ++;

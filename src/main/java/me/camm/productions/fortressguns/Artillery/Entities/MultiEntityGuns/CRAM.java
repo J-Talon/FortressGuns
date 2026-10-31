@@ -2,30 +2,26 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IAutoTracking;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CRAM extends Artillery implements AutoTracking {
+public class CRAM extends Artillery implements IAutoTracking {
     private boolean aiming;
     private static double maxHealth;
     private Entity target;
@@ -206,15 +202,7 @@ public class CRAM extends Artillery implements AutoTracking {
         return aiming;
     }
 
-    @Override
-    public boolean setTarget(Entity target) {
-        if (target instanceof ArtilleryPart && this.getParts().contains(target)) {
-            return false;
-        }
 
-        this.target = target;
-        return true;
-    }
 
     @Override
     public void setAiming(boolean aiming) {
@@ -229,6 +217,15 @@ public class CRAM extends Artillery implements AutoTracking {
 
     @Override
     public void startAiming() {
+
+    }
+
+    @Override
+    public org.bukkit.entity.Entity getTarget() {
+        return null;
+    }
+
+    public void setTarget(org.bukkit.entity.Entity target) {
 
     }
 }

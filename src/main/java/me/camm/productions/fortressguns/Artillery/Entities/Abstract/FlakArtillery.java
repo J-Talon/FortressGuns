@@ -11,10 +11,10 @@ import me.camm.productions.fortressguns.interact.ItemBehaviour.IBTacticalPointer
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.world.entity.Entity;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class FlakArtillery extends FieldArtillery
 {
 
-    protected Entity target;
+    protected org.bukkit.entity.Entity target;
     protected boolean aiming;
 
     //variables for aiming based on average v
@@ -102,18 +102,19 @@ public abstract class FlakArtillery extends FieldArtillery
     }
 
 
+
     public void aimStatic() {
 
         //once again clone shouldn't be needed cause it's a new object each time
         Location muzzle = barrel[barrel.length - 1].getEyeLocation().add(0, 0.2, 0);
 
-        if (target == null || target.isRemoved() || !target.isAlive()) {
+        if (target == null || target.isDead() || !target.isValid()) {
             target = null;
             aiming = false;
             return;
         }
 
-       Location target = this.target.getBukkitEntity().getBoundingBox().getCenter().toLocation(world);
+       Location target = this.target.getBoundingBox().getCenter().toLocation(world);
 
         Location piv = getCoreEntity().getLocation();
 
@@ -136,19 +137,6 @@ public abstract class FlakArtillery extends FieldArtillery
     }
 
 
-    public Entity getTarget(){
-        return this.target;
-    }
-
-
-    public boolean setTarget(Entity target){
-        if (target instanceof ArtilleryPart && this.getParts().contains(target)) {
-            return false;
-        }
-
-        this.target = target;
-        return true;
-    }
 
     @Override
     public double getMinVertAngle() {

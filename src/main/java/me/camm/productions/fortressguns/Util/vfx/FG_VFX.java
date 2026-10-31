@@ -1,12 +1,19 @@
 package me.camm.productions.fortressguns.Util.vfx;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.FortressGuns;
+import net.minecraft.network.protocol.game.PacketPlayOutPosition;
+import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FG_VFX {
 
@@ -50,6 +57,58 @@ public class FG_VFX {
         }.runTaskLater(FortressGuns.getInstance(), 5);
 
 
+    }
+
+
+
+
+
+    public static void shakeAnimation(List<Player> vibrateFor, Artillery artillery, int ticks) {
+
+
+        Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> flags = new HashSet<>(Arrays.asList(
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.a,
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.b,
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.c,
+                PacketPlayOutPosition.EnumPlayerTeleportFlags.d));
+
+        final double MULT = 5;
+        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.12 * ticks + 1, 0) * MULT;
+        if (offset != 0) {
+            artillery.setVibrationOffsetY(offset);
+            for (Player observer : vibrateFor) {
+
+                if (observer.getVehicle() != null)
+                    continue;
+
+                double magnitude = observer.getLocation().distanceSquared(artillery.getCurrentLocation());
+                double baseSquared = artillery.getBaseLength();
+                baseSquared *= baseSquared;
+                baseSquared *= 1.25;
+
+                magnitude = (1d/(baseSquared*baseSquared) * magnitude);
+                magnitude *= -magnitude;
+                magnitude += 1;
+
+                magnitude = Math.max(0, magnitude);
+                if (magnitude == 0)
+                    continue;
+
+                offset *= magnitude;
+
+                EntityPlayer nms = ((CraftPlayer)observer).getHandle();
+
+                PacketPlayOutPosition packet = new PacketPlayOutPosition(0,0,0,
+                        0,
+                        nms.getXRot() + ( (float) offset),
+                        flags, 1, true);
+
+                nms.b.sendPacket(packet);
+            }
+        }
+        else {
+            artillery.setVibrationOffsetY(0);
+        }
     }
 
 

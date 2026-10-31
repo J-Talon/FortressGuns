@@ -2,10 +2,18 @@ package me.camm.productions.fortressguns.Util.Math;
 
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MathFG {
@@ -300,15 +308,83 @@ destination from the source.
     }
 
 
-    //only for when the up direction is <0,1,0>
-    //whhiiiiich should be true generally here
-    @Deprecated  //see vecToEulerXY
-    public static EulerAngle vecToEuler(Vector vec) {
-        Vector vec2 = vec.clone().normalize();
-        double y = -Math.atan2(vec2.getX(), vec2.getZ());
-        double x = -Math.asin(vec2.getY());
-        return new EulerAngle(x, y, 0);
+    public static List<Block> getRoughCollisions(Location point, World world) {
+        List<Block> checks = new ArrayList<>();
+        Block block = world.getBlockAt(point);
+
+        int minX, minY, minZ;
+        int maxX, maxY, maxZ;
+
+        int startX, startY, startZ;
+        startX = block.getX();
+        startY = block.getY();
+        startZ = block.getZ();
+
+        minX = startX - 1;
+        minY = startY - 1;
+        minZ = startZ - 1;
+
+        maxX = startX + 1;
+        maxY = startY + 1;
+        maxZ = startZ + 1;
+
+        Vector offsetPoint = point.toVector();
+        Vector blockCenter = block.getLocation().add(0.5,0.5,0.5).toVector();
+
+        Vector diff = offsetPoint.clone().subtract(blockCenter);
+        double diffX, diffY, diffZ;
+        diffX = diff.getX();
+        diffY = diff.getY();
+        diffZ = diff.getZ();
+
+        if (diffX > 0)
+            minX += 1;
+        else if (diffX < 0)
+            maxX -= 1;
+
+        if (diffY > 0)
+            minY += 1;
+        else if (diffY < 0)
+            maxY -= 1;
+
+        if (diffZ > 0)
+            minZ += 1;
+        else if (diffZ < 0)
+            maxZ -= 1;
+
+        for (int x = minX; x <= maxX; x ++) {
+            for (int z = minZ; z <= maxZ; z ++) {
+                for (int y = minY; y <= maxY; y ++) {
+                    Block check = world.getBlockAt(x,y,z);
+                    if (check.isPassable()) continue;
+                    checks.add(check);
+                }
+            }
+        }
+
+        return checks;
     }
+
+
+
+    public static List<Block> overlaps(BoundingBox box, List<Block> blocks) {
+        List<Block> intersecting = new ArrayList<>();
+        for (Block block: blocks) {
+            int x, y, z;
+            x = block.getX();
+            y = block.getY();
+            z = block.getZ();
+            BoundingBox blockBox = new BoundingBox(x,y,z,x+1, y+1,z+1);
+
+            if (blockBox.overlaps(box)) {
+                intersecting.add(block);
+            }
+        }
+        return intersecting;
+    }
+
+
+
 
 
 

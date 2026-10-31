@@ -4,7 +4,7 @@ package me.camm.productions.fortressguns.Handlers;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
@@ -469,7 +469,7 @@ public class ItemInteractionHandler implements Listener
 
         player.leaveVehicle();
 
-        if (comp.getBody() instanceof Rideable ride) {
+        if (comp.getBody() instanceof IRideable ride) {
             ride.onDismount(player);
         }
     }
@@ -487,8 +487,8 @@ public class ItemInteractionHandler implements Listener
         Construct cons = comp.getBody();
         Entity rider = event.getEntity();
 
-        if (cons instanceof Rideable && rider.getType() == EntityType.PLAYER) {
-            ((Rideable) cons).onDismount((Player) rider);
+        if (cons instanceof IRideable && rider.getType() == EntityType.PLAYER) {
+            ((IRideable) cons).onDismount((Player) rider);
         }
 
     }

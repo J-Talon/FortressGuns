@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.interact.ItemBehaviour;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
 import org.bukkit.Material;
@@ -42,7 +42,7 @@ public class IBConstructs implements InteractionBehaviourItem {
             return;
 
         //this has the side effect of checking that it is indeed a cons
-        Rideable rideable = ConstructUtils.getRideableRef(ride);
+        IRideable rideable = ConstructUtils.getRideableRef(ride);
 
         if (rideable == null) return;
 

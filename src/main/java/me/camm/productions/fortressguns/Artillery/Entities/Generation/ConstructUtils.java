@@ -5,9 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
@@ -17,9 +18,11 @@ import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.phys.AxisAlignedBB;
 import net.minecraft.world.phys.Vec3D;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.function.BiPredicate;
 
 
@@ -57,13 +60,13 @@ public class ConstructUtils {
 
 
 
-    public static @Nullable Rideable getRideableRef(Entity entity) {
+    public static @Nullable IRideable getRideableRef(Entity entity) {
         if (entity == null) return null;
         net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
         if (!(nms instanceof Component comp)) return null;
 
         Construct body = comp.getBody();
-        if (body instanceof Rideable ride) return ride;
+        if (body instanceof IRideable ride) return ride;
         return null;
     }
 
@@ -71,7 +74,7 @@ public class ConstructUtils {
 
         if (player == null) return false;
 
-        if (!(struct instanceof Rideable ride)) return false;
+        if (!(struct instanceof IRideable ride)) return false;
         Player rider = ride.getRider();
         if (rider == null) return false;
 
@@ -113,18 +116,21 @@ public class ConstructUtils {
 
 
 
-    public static boolean isInBlock(Entity entity) {
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
-        return isInBlock(nms);
-    }
-
-
 
     public static boolean isInBlock(net.minecraft.world.entity.Entity nms) {
         Vec3D check = new Vec3D(nms.locX(), nms.getHeadY(), nms.locZ());
+
         World world = nms.t;
 
         float entityWidth = nms.getWidth() * 0.8F;
+
+                /*
+        n2 - n1 is the length of a bounding box side
+        d = max x  a = min x
+        e = max y  b = min y
+        f = max z  c = min z
+
+         */
 
         AxisAlignedBB axisalignedbb = AxisAlignedBB.a(check,entityWidth, 1.0E-6, entityWidth);
         //bb() returns Vec3D(this.locX(), this.getHeadY(), this.locZ());
@@ -136,12 +142,15 @@ public class ConstructUtils {
 
 
 
+    public static boolean isInBlock(ArmorStand entity, Vector nextPosition) {
+        double width = entity.getWidth() * 0.8F;
+        double height = entity.getHeight();
 
+        Vector check = new Vector(nextPosition.getX(), nextPosition.getY() + height, nextPosition.getZ());
+        BoundingBox box = boxFromCenterPoint(check, width, 1.0E-6, width);
 
-    public static boolean isInBlock(Entity entity, Vector nextPosition) {
-
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
-        return isInBlock(nms, nextPosition);
+        List<Block> blocks = MathFG.getRoughCollisions(entity.getEyeLocation(), entity.getWorld());
+        return !MathFG.overlaps(box, blocks).isEmpty();
     }
 
 
@@ -160,46 +169,28 @@ public class ConstructUtils {
 
 
 
-    public static List<Block> getHeadBlocks(net.minecraft.world.entity.Entity nms) {
-        float entityWidth = nms.getWidth() * 0.8F;
+    public static BoundingBox boxFromCenterPoint(Vector location, double spanX, double spanY, double spanZ) {
+        return new BoundingBox(
+                location.getX() - spanX / (double)2.0F,
+                location.getY() - spanY / (double)2.0F,
+                location.getZ() - spanZ / (double)2.0F,
 
-        World world = nms.t;
-        org.bukkit.World bukkitWorld = world.getWorld();
-
-        Vec3D location = new Vec3D(nms.locX(), nms.getHeadY(), nms.locZ());
-        AxisAlignedBB boundingBox = AxisAlignedBB.a(location,entityWidth, 1.0E-6,entityWidth);
-        BoundingBox bukkitCheck = new BoundingBox(boundingBox.a, boundingBox.b, boundingBox.c, boundingBox.d,boundingBox.e, boundingBox.f);
-
-        List<Block> blocks = new ArrayList<>();
-        List<Block> intersecting = new ArrayList<>();
-
-        BiPredicate<IBlockData, BlockPosition> predicate = new BiPredicate<>() {
-            @Override
-            public boolean test(IBlockData blockType, BlockPosition position) {
-                boolean res = blockType.o(world, position);
-                if (res) {
-                    blocks.add(bukkitWorld.getBlockAt(position.getX(), position.getY(), position.getZ()));
-                }
-                return res;
-            }
-        };
-
-        world.b(nms, boundingBox, predicate).toList(); //yes, this is necessary
+                location.getX() + spanX / (double)2.0F,
+                location.getY() + spanY / (double)2.0F,
+                location.getZ() + spanZ / (double)2.0F
+        );
+    }
 
 
-        for (Block block: blocks) {
-            int x, y, z;
-            x = block.getX();
-            y = block.getY();
-            z = block.getZ();
-            BoundingBox blockBox = new BoundingBox(x,y,z,x+1, y+1,z+1);
 
-            if (blockBox.overlaps(bukkitCheck)) {
-                intersecting.add(block);
-            }
-        }
+    public static List<Block> getHeadBlocks(ArmorStand entity) {
 
-       return intersecting;
+        double width = entity.getWidth() * 0.8F;
 
+        Vector check = entity.getEyeLocation().toVector();
+        BoundingBox box = boxFromCenterPoint(check, width, 1.0E-6, width);
+
+        List<Block> blocks = MathFG.getRoughCollisions(entity.getEyeLocation(), entity.getWorld());
+        return MathFG.overlaps(box, blocks);
     }
 }

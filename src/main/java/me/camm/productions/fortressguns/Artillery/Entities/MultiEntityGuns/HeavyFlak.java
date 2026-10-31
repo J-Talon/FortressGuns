@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FlakArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IAutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -11,14 +11,14 @@ import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionH
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 
 import java.util.List;
 
 
-public class HeavyFlak extends FlakArtillery implements AutoTracking, ConfigurationHolder<SectionHeavyFlak> {
+public class HeavyFlak extends FlakArtillery implements IAutoTracking, ConfigurationHolder<SectionHeavyFlak> {
 
     private static final int SMALL_THRESH = 3;
     private static double maxHealth;
@@ -135,6 +135,17 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking, Configurat
     @Override
     protected int getSmallDistThreshold() {
         return SMALL_THRESH;
+    }
+
+
+    @Override
+    public Entity getTarget() {
+        return target;
+    }
+
+    @Override
+    public void setTarget(Entity target) {
+        this.target = target;
     }
 
 

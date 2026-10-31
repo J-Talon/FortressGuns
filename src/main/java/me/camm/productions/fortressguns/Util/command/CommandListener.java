@@ -34,6 +34,7 @@ enum CommandHeader {
     CHECK_CONFIG("fgcheckconf"),
     CHUNK_STATUS("fgstatus"),
     INSPECT_ENTITY("fginspect"),
+    DEBUG("fgdebug"),
     GET_ITEMS("fgitems");
 
     private final String s;
@@ -55,6 +56,7 @@ enum PluginCommands {
     CS(CommandHeader.CHUNK_STATUS, new CommandCheckChunk()),
     FG_INSPECT(CommandHeader.INSPECT_ENTITY, new CommandFGInspect()),
     FG_CHECK_CONFIG(CommandHeader.CHECK_CONFIG, new CommandCheckConfig()),
+    FG_DEBUG(CommandHeader.DEBUG, new CommandDebug()),
     FG_ITEMS(CommandHeader.GET_ITEMS, new CommandGiveItems());
 
     private final CommandHeader head;

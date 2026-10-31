@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Util.DamageSource.DamageMultiplier;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.Vector3f;
@@ -20,6 +20,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -60,7 +61,7 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
     @Override
     public void startRiding(Player player) {
         ((CraftPlayer) player).getHandle().startRiding(this);
-        if (this.body instanceof Rideable rideable) {
+        if (this.body instanceof IRideable rideable) {
             rideable.onMount(player);
         }
     }
@@ -235,7 +236,7 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
             return super.damageEntity(source,damage);
 
         if (source.y.equalsIgnoreCase("inWall")) {
-            List<Block> blocks = ConstructUtils.getHeadBlocks(this);
+            List<Block> blocks = ConstructUtils.getHeadBlocks((ArmorStand)this.getBukkitEntity());
             float damageSum = 0;
 
             for (Block block: blocks) {

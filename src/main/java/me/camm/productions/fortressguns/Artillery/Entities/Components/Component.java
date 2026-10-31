@@ -58,6 +58,17 @@ public interface Component {
 
    public Entity getEntity();
 
+   /*
+   public Dimension getDimensions
+
+   public Location getCenterPoint()
+
+
+
+    */
+
+
+
     /*
 
     I think the way forward is this:

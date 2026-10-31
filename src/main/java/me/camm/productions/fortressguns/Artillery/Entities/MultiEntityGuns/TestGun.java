@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -13,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public class TestGun extends Artillery {
 
 
@@ -20,7 +23,7 @@ public class TestGun extends Artillery {
     //not for actual gameplay
     public TestGun(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-        barrel = new ArtilleryPart[2];
+        barrel = new ArtilleryPart[1];
         base = new ArtilleryPart[1][1];
     }
 
@@ -68,6 +71,11 @@ public class TestGun extends Artillery {
     protected void instantiateParts() {
         this.pivot = StandHelper.createCore(getCurrentLocation(), new ItemStack(Material.RED_TERRACOTTA),aim,world,this);
     }
+
+    public List<Component> getParts() {
+        return List.of(pivot);
+    }
+
 
     @Override
     protected void spawnBaseParts() {

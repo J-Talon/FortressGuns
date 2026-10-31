@@ -5,7 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
@@ -17,11 +17,7 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Constru
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
-import net.minecraft.network.protocol.game.PacketPlayOutPosition;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -86,20 +82,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected final static double [] offsetZ;
 
     protected double vibrationOffsetY;
-    protected static boolean requiresReloading;
-    protected final static Set<PacketPlayOutPosition.EnumPlayerTeleportFlags> flags;
-
     static {
-
-         requiresReloading = false;
-
-        flags = new HashSet<>(Arrays.asList(
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.a,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.b,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.c,
-                PacketPlayOutPosition.EnumPlayerTeleportFlags.d)
-        );
-
         final int LEN = 12;
         offsetX = new double[LEN];
         offsetZ = new double[LEN];
@@ -228,10 +211,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public synchronized void setCameraLocked(boolean cameraLocked) {
         this.cameraLocked = cameraLocked;
-    }
-
-    public static void setRequiresReloading(boolean requiresReloading) {
-        Artillery.requiresReloading = requiresReloading;
     }
 
 
@@ -473,8 +452,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         }
 
 
-        if (this instanceof Rideable)
-            ((Rideable)this).positionSeat();
+        if (this instanceof IRideable)
+            ((IRideable)this).positionSeat();
 
         aim = new EulerAngle(vertAngle,horAngle,0);
         pivot.setRotation(aim);
@@ -585,46 +564,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return vibrateFor;
     }
 
-    protected void shakeAnimation(List<Player> vibrateFor, int ticks) {
-
-        final double MULT = 5;
-        double offset = Math.sin(Math.PI + (0.5d * ticks * Math.PI)) * Math.max(-0.12 * ticks + 1, 0) * MULT;
-        if (offset != 0) {
-            setVibrationOffsetY(offset);
-            for (Player observer : vibrateFor) {
-
-                if (observer.getVehicle() != null)
-                    continue;
-
-                double magnitude = observer.getLocation().distanceSquared(getCurrentLocation());
-                double baseSquared = getBaseLength();
-                baseSquared *= baseSquared;
-                baseSquared *= 1.25;
-
-                magnitude = (1d/(baseSquared*baseSquared) * magnitude);
-                magnitude *= -magnitude;
-                magnitude += 1;
-
-                magnitude = Math.max(0, magnitude);
-                if (magnitude == 0)
-                    continue;
-
-                offset *= magnitude;
-
-                EntityPlayer nms = ((CraftPlayer)observer).getHandle();
-
-                PacketPlayOutPosition packet = new PacketPlayOutPosition(0,0,0,
-                        0,
-                        nms.getXRot() + ( (float) offset),
-                        flags, 1, true);
-
-                nms.b.sendPacket(packet);
-            }
-        }
-        else {
-            setVibrationOffsetY(0);
-        }
-    }
 
 
     protected void spawnPieces() {

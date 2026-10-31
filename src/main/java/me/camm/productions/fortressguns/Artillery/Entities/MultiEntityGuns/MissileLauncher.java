@@ -7,6 +7,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IAimed;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
@@ -36,7 +37,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 
-public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher> {
+public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher>, IAimed {
 
     boolean fireRight;
     private Entity target;
@@ -169,8 +170,14 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
     }
 
 
+    @Override
     public void setTarget(Entity target) {
         this.target = target;
+    }
+
+    @Override
+    public Entity getTarget() {
+        return target;
     }
 
 

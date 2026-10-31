@@ -39,4 +39,10 @@ commands:
     permission: fg.debug
     permission-message: You do not have permission to use this command
 
+  fgdebug:
+    description: Debug command for development
+    permission: fg.debug
+    permission-message: You do not have permission to use this command
+
+
 default-permission: op

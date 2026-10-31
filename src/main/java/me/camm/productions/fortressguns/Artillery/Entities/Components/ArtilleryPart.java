@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
@@ -67,7 +67,7 @@ public class ArtilleryPart extends ComponentAS {
     @Override
     public boolean onLeftClick(ItemStack mainHand, Player clicked) {
 
-        if (body instanceof Rideable ride) {
+        if (body instanceof IRideable ride) {
             Player rider = ride.getRider();
 
             if (FGItems.TACTICAL_PTR.isSimilar(mainHand)) {
@@ -90,7 +90,7 @@ public class ArtilleryPart extends ComponentAS {
 
 
 
-    private void handleRideableRC(Rideable ride, ItemStack mainHand, Player clicked) {
+    private void handleRideableRC(IRideable ride, ItemStack mainHand, Player clicked) {
         Player rider = ride.getRider();
         if (rider == null) {
 
@@ -130,7 +130,7 @@ public class ArtilleryPart extends ComponentAS {
             return;
         }
 
-        if (body instanceof Rideable ride) {
+        if (body instanceof IRideable ride) {
             this.handleRideableRC(ride, mainHand, clicked);
         }
 

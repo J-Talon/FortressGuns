@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -15,7 +15,7 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class ArtilleryRideable extends Artillery implements Rideable {
+public abstract class ArtilleryRideable extends Artillery implements IRideable {
 
     protected Component rotatingSeat = null;  //artillery may have multiple seats in the future
     protected Player operator = null;
