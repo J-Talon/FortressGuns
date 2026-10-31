@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +55,8 @@ public abstract class Construct {
     public abstract void setHealth(double health);
 
     public abstract boolean damage(double amount);
+
+    public abstract World getWorld();
 
 
     /*

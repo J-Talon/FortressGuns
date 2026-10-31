@@ -1,27 +1,25 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 
-
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Util.Math.IntTuple2;
-import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
+import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
 import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
-import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.FortressGuns;
-import me.camm.productions.fortressguns.Util.Serialization.NBTSerializable;
-import me.camm.productions.fortressguns.Util.Math.MathFG;
+import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
@@ -684,19 +682,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return pivot.getEntity();
     }
 
-
+    @Override
     public World getWorld(){
         return world;
-    }
-
-    public net.minecraft.world.level.World getNMSWorld() {
-        return ((CraftWorld)world).getHandle();
-    }
-
-
-
-    public void playSound(ArtilleryPart part){
-       world.playSound(part.getLocation(world),part.getSoundHurt(), SoundCategory.BLOCKS,1,1);
     }
 
     @Override

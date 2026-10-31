@@ -37,9 +37,6 @@ public class ArtilleryPart extends ComponentAS {
         return SoundEffects.Q;
     }
 
-    public Sound getSoundHurt(){
-        return Sound.BLOCK_BELL_USE;
-    }
 
     public Location getLocation(org.bukkit.World world){
         return new Location(world,u,v,w);

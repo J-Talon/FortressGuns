@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionFlak> {
+public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionFlak>, ProjectileType.IFlakHeavyShell {
 
 
     private static float hitDamage = 10;
