@@ -1,8 +1,5 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.Abstract;
 
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

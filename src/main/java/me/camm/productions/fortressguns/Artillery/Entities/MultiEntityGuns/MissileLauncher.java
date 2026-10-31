@@ -18,11 +18,8 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Invento
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -179,17 +176,14 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
 
     @Override
-    protected @Nullable AbstractRocket createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    protected @Nullable ProjectileFG createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
         if (loadedAmmoType == null) return null;
         ProjectileFG projectile = loadedAmmoType.create(world, x,y,z, shooter, this);
-
-        if (!(projectile instanceof AbstractRocket rocket))
-            return null;
 
         if (projectile instanceof ProjectileSeeking seeking)
             seeking.setTarget(target);
 
-        return rocket;
+        return projectile;
     }
 
 
@@ -216,11 +210,8 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         Location spawn = shootingPart.getEyeLocation().add(front);
         Location back = backBlast.getEyeLocation().add(front.multiply(-1));
 
-        net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
         Artillery construct = this;
-
-        EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-        AbstractRocket missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
+        ProjectileFG missile = createProjectile(world,spawn.getX(), spawn.getY(), spawn.getZ(),shooter,construct);
 
         if (missile == null) {
             plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
@@ -245,7 +236,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
                 missile.setVelocity(dir.getX() * vecPow, dir.getY() * vecPow, dir.getZ() * vecPow);
 
 
-                nmsWorld.addEntity(missile);
+                missile.addToWorld(world);
 
 
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
@@ -287,13 +278,10 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             return;
         }
 
-        if (target != null) {
-            net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
-            if (nms instanceof ArtilleryPart part && part.getBody().equals(this)) {
-                shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
-                setTarget(null);
-                return;
-            }
+        if (target != null && ConstructUtils.isComponentOf(this, target)) {
+            shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
+            setTarget(null);
+            return;
         }
 
         fireOneShot(shooter);
@@ -626,7 +614,6 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             @Override
             public boolean test(Entity entity) {
                 //return true => valid entity to raytrace
-                net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
 
                 if (entity.getUniqueId().equals(human.getUniqueId())) return false;
 

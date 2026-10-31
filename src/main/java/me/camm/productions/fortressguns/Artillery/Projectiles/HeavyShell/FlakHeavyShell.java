@@ -3,16 +3,21 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionFlak;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
+
+
+import net.minecraft.world.phys.Vec3D;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +32,7 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, C
     int flightTime;
     double explodeTime;
 
-    public FlakHeavyShell(World world, double d0, double d1, double d2, @Nullable EntityPlayer shooter, Artillery source) {
+    public FlakHeavyShell(World world, double d0, double d1, double d2, @Nullable Player shooter, Artillery source) {
         super(world, d0, d1, d2, shooter, source);
         flightTime = 0;
         explodeTime = 1;

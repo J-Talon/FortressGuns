@@ -4,17 +4,16 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionLightFlak;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -163,15 +162,10 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
             world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
         }
 
-        net.minecraft.world.level.World nmsWorld = ((CraftWorld) world).getHandle();
-        EntityPlayer nmsOperator = ((CraftPlayer) operator).getHandle();
-        LightShell shell = createProjectile(nmsWorld,muzzle.getX(),muzzle.getY(),muzzle.getZ(),nmsOperator,this);
+        ProjectileFG projectile = loadedAmmoType.create(world, muzzle.getX(), muzzle.getY(), muzzle.getZ(), operator, this);
 
-        if (shell == null) {
-            return;
-        }
 
-        createFlash(muzzle);
+        FG_VFX.createFlash(muzzle, world);
 
         if (requiresReloading())
             setAmmo(Math.max(0, getAmmo() - 1));
@@ -200,9 +194,8 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         inaccuracy.multiply(INACURACY_FACTOR);
         projectileVelocity.multiply(getVectorPower());
         projectileVelocity.add(inaccuracy);
-
-        shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
-        nmsWorld.addEntity(shell);
+        projectile.setVelocity(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
+        projectile.addToWorld(world);
 
         ConstructInventory inv = interactionInv.getInventoryByCategory(InventoryCategory.RELOADING);
         if (inv != null)

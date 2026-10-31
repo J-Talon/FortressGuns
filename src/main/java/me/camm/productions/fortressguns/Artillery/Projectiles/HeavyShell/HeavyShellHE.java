@@ -4,23 +4,27 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionShellHE;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.level.World;
+
+import net.minecraft.world.phys.Vec3D;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 
 
 
-public class HeavyShellHE extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionShellHE> {
+public class HeavyShellHE extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionShellHE>, ProjectileType.IHeavyShellHE {
 
 
 
@@ -32,7 +36,7 @@ public class HeavyShellHE extends HeavyShell implements ProjectileExplosive, Con
 //    private Vector spewDir = null;
 //    private Location center = null;
 
-    public HeavyShellHE(World world, double d0, double d1, double d2, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeavyShellHE(World world, double d0, double d1, double d2, @Nullable Player shooter, Artillery source) {
         super(world, d0, d1, d2, shooter, source);
 
         if (configApplied) return;

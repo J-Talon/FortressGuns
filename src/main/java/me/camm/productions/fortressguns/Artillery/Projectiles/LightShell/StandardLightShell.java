@@ -4,6 +4,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionHMGBullet;
@@ -14,24 +15,25 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.projectile.IProjectile;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Explosive;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 
-public class StandardLightShell extends LightShell implements ConfigurationHolder<SectionHMGBullet> {
+public class StandardLightShell extends LightShell implements ConfigurationHolder<SectionHMGBullet>, ProjectileType.ISolidLightShell {
 
     private static float hitDamage = 5;
     private static float weight = 0.1f;
     private static boolean configApplied = false;
 
-    public StandardLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
+    public StandardLightShell(World world, double x, double y, double z, Player human, Artillery source) {
         super(world, x, y, z, human, source);
 
         if (configApplied) return;

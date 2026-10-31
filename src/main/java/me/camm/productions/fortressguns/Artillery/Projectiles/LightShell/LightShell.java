@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSnowballFG;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import net.minecraft.core.BlockPosition;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
@@ -26,6 +26,7 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Explosive;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.util.Vector;
@@ -34,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 
-public abstract class LightShell extends ProjectileSnowballFG implements ProjectileFG {
+public abstract class LightShell extends ProjectileSnowballFG {
 
     private static final ItemStack SPRITE = new ItemStack(Items.pD);
 
@@ -43,7 +44,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
 
 
     //world may be null
-    public LightShell(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human, Artillery source) {
+    public LightShell(World world, double x, double y, double z, @Nullable Player human, Artillery source) {
         super(world,x,y,z,human);
         this.source = source;
         setItem(SPRITE);

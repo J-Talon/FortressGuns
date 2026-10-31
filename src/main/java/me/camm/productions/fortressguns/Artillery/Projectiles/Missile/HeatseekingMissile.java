@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.Missile;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
@@ -10,7 +11,6 @@ import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.Section
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -28,7 +28,7 @@ import java.util.Set;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.randomOrthagonal;
 
-public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking, ConfigurationHolder<SectionHeatMissile> {
+public class HeatseekingMissile extends AbstractRocket implements ProjectileSeeking, ConfigurationHolder<SectionHeatMissile>, ProjectileType.IHeatSeekingRocket {
 
 
     private static double ACCELERATION = 0.2;
@@ -65,7 +65,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
         MAX_SPEED = Math.sqrt(MAX_SPEED_SQUARED);
     }
 
-    public HeatseekingMissile(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeatseekingMissile(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
         fueledFlightAge = 0;
         direction = null;

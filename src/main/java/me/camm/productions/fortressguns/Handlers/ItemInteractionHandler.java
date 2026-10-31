@@ -8,7 +8,6 @@ import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
-//import me.camm.productions.fortressguns.interact.InteractionBehaviourCons;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
 import me.camm.productions.fortressguns.interact.ItemBehaviour.*;
 import org.bukkit.*;

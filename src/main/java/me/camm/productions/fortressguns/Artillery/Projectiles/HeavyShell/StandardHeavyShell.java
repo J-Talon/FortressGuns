@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionShellSolid;
@@ -11,28 +12,24 @@ import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
-import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
-import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StandardHeavyShell extends HeavyShell implements ConfigurationHolder<SectionShellSolid> {
+public class StandardHeavyShell extends HeavyShell implements ConfigurationHolder<SectionShellSolid>, ProjectileType.ISolidHeavyShell {
 
     private static final float explosionPower = 2;
 
@@ -40,7 +37,7 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
     private static float weight = 1.2F;
     private static boolean configApplied = false;
 
-    public StandardHeavyShell(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public StandardHeavyShell(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
 
         if (configApplied) return;
@@ -66,7 +63,7 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
 
 
     protected void hitEffectBlock(@Nullable Vector hitPos) {
-        final float PEN_POWER = 6f;  // put into config
+        final float PEN_POWER = 6f;  // put into config  todo
 
         Vector direction = CraftVector.toBukkit(getMot());
 

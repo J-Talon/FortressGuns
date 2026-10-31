@@ -1,20 +1,19 @@
 package me.camm.productions.fortressguns.interact.ItemBehaviour;
 
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
-import net.minecraft.server.level.WorldServer;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.Directional;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -61,7 +60,11 @@ public class IBFlare implements InteractionBehaviourItem {
                         face.getModY() * 0.6,
                         face.getModZ() * 0.6);
 
-        WorldServer world = ((CraftWorld) block.getWorld()).getHandle();
+        World world = block.getWorld();
+
+
+        //todo agnostify
+       // ProjectileFG proj = AmmoItem.FLARE.create(world, location.getX(), location.getY(), location.getZ(), null, null);
 
         SimpleFlare flare = new SimpleFlare(
                 world,
@@ -73,7 +76,6 @@ public class IBFlare implements InteractionBehaviourItem {
                 face.getModZ() * 0.5
         );
 
-        world.addEntity(flare);
     }
 
     private boolean isFlareLoaded(ItemStack crossbow) {

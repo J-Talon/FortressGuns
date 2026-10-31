@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionLightFlakBullet;
@@ -9,13 +10,14 @@ import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author CAMM
  */
-public class FlakLightShell extends LightShell implements ProjectileExplosive, ConfigurationHolder<SectionLightFlakBullet>
+public class FlakLightShell extends LightShell implements ProjectileExplosive, ConfigurationHolder<SectionLightFlakBullet>, ProjectileType.IFlakLightShell
 {
 
     private static float hitDamage = 10;
@@ -34,7 +36,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, C
 
 
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
-    public FlakLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
+    public FlakLightShell(World world, double x, double y, double z, Player human, Artillery source) {
         super(world,x,y,z, human, source);
         ignore = null;
 

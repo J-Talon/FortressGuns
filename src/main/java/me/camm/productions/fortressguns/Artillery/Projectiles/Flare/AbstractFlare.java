@@ -4,12 +4,13 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSnowballFG;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.World;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -22,7 +23,7 @@ public abstract class AbstractFlare extends ProjectileSnowballFG {
     protected Random rand;
 
 
-    public AbstractFlare(World world, double x, double y, double z, @Nullable EntityPlayer shooter) {
+    public AbstractFlare(World world, double x, double y, double z, @Nullable Player shooter) {
         super(world, x,y,z, shooter);
         rand = new Random();
     }

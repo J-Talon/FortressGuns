@@ -10,12 +10,13 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.projectile.EntityArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.World;
 import net.minecraft.world.phys.MovingObjectPositionBlock;
 import net.minecraft.world.phys.MovingObjectPositionEntity;
-import org.bukkit.block.BlockFace;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ProjectileArrowFG extends EntityArrow implements ProjectileFG {
@@ -31,11 +32,11 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
         return Items.mh.createItemStack();
     }
 
-    public ProjectileArrowFG(World world, double x, double y, double z, @Nullable EntityPlayer shooter) {
-        super(EntityTypes.d, x, y, z, world);
+    public ProjectileArrowFG(World world, double x, double y, double z, @Nullable Player shooter) {
+        super(EntityTypes.d, x, y, z, ((CraftWorld)world).getHandle());
 
         if (shooter != null) {
-            this.shooter = shooter;
+            this.shooter = ((CraftPlayer) shooter).getHandle();
             setShooter(this.shooter);
         }
 

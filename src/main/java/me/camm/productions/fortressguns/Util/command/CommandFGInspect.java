@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.command;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import org.bukkit.Location;
@@ -62,12 +63,13 @@ public class CommandFGInspect extends CommandHandler {
 
     private void infoConstruct(Player player, @NotNull Entity entity) {
 
-        net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity)entity).getHandle();
+        Component comp = ConstructUtils.getComponentRef(entity);
 
-        if (nmsEntity instanceof Component c) {
+
+        if (comp != null) {
             player.sendMessage("Entity is a custom FG component type");
             try {
-                Location loc = c.getBody().getCoreEntity().getLocation();
+                Location loc = comp.getBody().getCoreEntity().getLocation();
                 player.sendMessage("Core location: "+loc);
             }
             catch (NullPointerException e) {

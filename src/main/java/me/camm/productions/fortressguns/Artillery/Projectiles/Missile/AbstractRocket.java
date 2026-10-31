@@ -4,13 +4,14 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileArrowFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.World;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -26,7 +27,7 @@ public abstract class AbstractRocket extends ProjectileArrowFG implements Projec
 
     protected Artillery source;
 
-    public AbstractRocket(World world, double x, double y, double z, @Nullable EntityPlayer shooter, Artillery source) {
+    public AbstractRocket(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
         super(world, x,y,z, shooter);
         rand = new Random();
         this.source = source;

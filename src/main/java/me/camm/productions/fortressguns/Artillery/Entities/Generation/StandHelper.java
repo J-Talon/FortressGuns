@@ -1,10 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryCore;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.FireTrigger;
 import net.minecraft.core.Vector3f;
 import net.minecraft.server.level.WorldServer;
 
@@ -18,7 +16,6 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 
 public class StandHelper
 {
@@ -42,13 +39,6 @@ public class StandHelper
         //y -> horizontal rotation
         return new EulerAngle(Math.toRadians(vertical), Math.toRadians(horizontal) + 180,0);
     }
-
-
-
-
-
-
-
 
 
     public static void setHead(ItemStack stack, EntityArmorStand stand){
@@ -81,12 +71,9 @@ public class StandHelper
     }
 
     ////does not spawn into the world - you need to do that.
-    public static FireTrigger createTrigger(Location loc, World world, Artillery body) {
-
-
-
+    public static Component createTrigger(Location loc, World world, Artillery body) {
         WorldServer nms = ((CraftWorld)world).getHandle();
-        FireTrigger trigger = new FireTrigger(nms, body, loc);
+        ArtilleryPart trigger = new ArtilleryPart(nms, body, loc);
         trigger.teleportAndSync(loc.getX(), loc.getY(), loc.getZ());
 
         trigger.setNoGravity(true);
@@ -125,7 +112,7 @@ public class StandHelper
 
 
     ////does not spawn into the world - you need to do that.
-    public static ArtilleryCore createCore(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
+    public static Component createCore(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
 
         //by implementation the core should not be obstructed when spawning.
         //this should only occur if we're loading from file (cause you need to click the air to spawn artys)
@@ -134,7 +121,7 @@ public class StandHelper
         // ^ account for this
 
         WorldServer nms = ((CraftWorld)world).getHandle();
-        ArtilleryCore part = new ArtilleryCore(nms, artillery, loc.getX(),loc.getY(),loc.getZ());
+        ArtilleryPart part = new ArtilleryPart(nms, artillery, loc.getX(),loc.getY(),loc.getZ());
         part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
 
         setRotation(part, rotation);
