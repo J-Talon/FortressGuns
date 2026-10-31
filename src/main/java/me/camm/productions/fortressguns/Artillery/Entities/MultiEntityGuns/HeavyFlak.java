@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FlakArtillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.AutoTracking;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
@@ -10,8 +11,11 @@ import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionH
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+
+import java.util.List;
 
 
 public class HeavyFlak extends FlakArtillery implements AutoTracking, ConfigurationHolder<SectionHeavyFlak> {
@@ -62,14 +66,12 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking, Configurat
         return !infinite;
     }
 
-    public static void setMaxHealth(double health) {
-        maxHealth = health;
-    }
 
-    public static void setCooldown(long cooldown) {
-        fireCooldown = cooldown;
+    @Override
+    public boolean onMount(Player player) {
+        System.out.println(rotatingSeat);
+        return super.onMount(player);
     }
-
 
     @Override
     public boolean canFire(){
@@ -94,6 +96,15 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking, Configurat
                     aimStatic();
                 }
             }.runTaskTimer(FortressGuns.getInstance(), 0, 1);
+    }
+
+
+    @Override
+    public List<Component> getParts(){
+        List<Component> parts = super.getParts();
+        parts.add(pivot);
+        parts.add(rotatingSeat);
+        return parts;
     }
 
     public void setAiming(boolean aiming) {
