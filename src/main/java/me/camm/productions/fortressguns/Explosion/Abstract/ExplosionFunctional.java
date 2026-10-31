@@ -1,9 +1,10 @@
 package me.camm.productions.fortressguns.Explosion.Abstract;
 
+import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
-import net.minecraft.core.BlockPosition;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.Explosion;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.attribute.Attributable;
@@ -11,10 +12,13 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -121,13 +125,25 @@ public abstract class ExplosionFunctional extends ExplosionFG {
         }
     }
 
-
-
+    //block.break naturally should take care of silverfish
     protected void blockReaction(Block block) {
-        BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
-        net.minecraft.world.level.World worldNMS = ((CraftWorld)world).getHandle();
-        net.minecraft.world.level.block.Block blockNMS = worldNMS.getType(position).getBlock();
-        blockNMS.wasExploded(worldNMS, position, stupid);
+
+        BlockData data = block.getBlockData();
+        if (data instanceof Waterlogged) {
+            return;
+        }
+
+        if (block.getType() == Material.TNT) {
+            block.setType(Material.AIR);
+            Location blockLoc = block.getLocation().add(0.5, 0.5, 0.5);
+
+            new BukkitRunnable() {
+                public void run() {
+                    TNTPrimed tnt = world.spawn(blockLoc, TNTPrimed.class);
+                    tnt.setFuseTicks(0);
+                }
+            }.runTask(FortressGuns.getInstance());
+        }
     }
 
     protected void mergeDrops(Block block, Map<Material, List<Tuple2<ItemStack, Block>>> drops) {

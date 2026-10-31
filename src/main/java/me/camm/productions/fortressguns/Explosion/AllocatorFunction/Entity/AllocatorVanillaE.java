@@ -57,7 +57,7 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
 
             float exposure = getExposure(e,x,y,z);
             result.add(new Tuple2<>(exposure, e));
-          //  System.out.println("exposure:"+exposure);
+
         }
         return result;
 

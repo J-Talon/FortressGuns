@@ -68,12 +68,6 @@ public class HeavyFlak extends FlakArtillery implements AutoTracking, Configurat
 
 
     @Override
-    public boolean onMount(Player player) {
-        System.out.println(rotatingSeat);
-        return super.onMount(player);
-    }
-
-    @Override
     public boolean canFire(){
         return (getAmmo() > 0 || !requiresReloading()) && loadedAmmoType != null && canFire && System.currentTimeMillis() - lastFireTime >= fireCooldown;
     }

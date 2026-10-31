@@ -50,6 +50,10 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     public boolean onMount(Player player) {
         if (operator != null) return false;
 
+        if (rotatingSeat == null) return false;
+
+        if (!rotatingSeat.isValid()) return false;
+
         setCameraLocked(true);
         setInterpolating(false);
         this.operator = player;
