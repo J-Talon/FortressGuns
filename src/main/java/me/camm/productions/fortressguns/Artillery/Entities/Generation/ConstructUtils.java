@@ -53,7 +53,7 @@ public class ConstructUtils {
 
     public static boolean isComponentOf(Construct construct, Entity entity) {
         Component comp = getComponentRef(entity);
-        if (comp == null) return true;
+        if (comp == null) return false;
 
         return comp.getBody().equals(construct);
     }

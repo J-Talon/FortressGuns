@@ -105,10 +105,10 @@ public abstract class Allocator<R, I> {
         double distance = box.getCenter().distance(start);
         Location startLoc = start.toLocation(e.getWorld());
 
-        Vector direction2 = end.clone().subtract(start);
+        Vector direction = end.clone().subtract(start);
 
 
-        if (direction2.lengthSquared() == 0) {
+        if (direction.lengthSquared() == 0) {
             return true;
         }
 
@@ -119,17 +119,8 @@ public abstract class Allocator<R, I> {
             }
         };
 
-        RayTraceResult result = world.rayTrace(startLoc, direction2, distance, FluidCollisionMode.NEVER,true,0.01,pred);
+        RayTraceResult result = world.rayTrace(startLoc, direction, distance, FluidCollisionMode.NEVER,true,0.01,pred);
 
-        Vector debugStart = startLoc.toVector().clone();
-        Vector debugDir = direction2.clone();
-        Vector debugLoc = debugStart.clone();
-
-
-        for (double i = 0; i < distance; i += 0.1) {
-            world.spawnParticle(Particle.END_ROD,debugLoc.toLocation(world),1,0,0,0,0);
-            debugLoc = debugLoc.add(debugDir.clone().multiply(0.1));
-        }
 
 
         if (result == null) return false;
