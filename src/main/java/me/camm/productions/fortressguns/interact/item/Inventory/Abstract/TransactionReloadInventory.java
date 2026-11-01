@@ -135,6 +135,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         if (res.getA().getType() == Material.AIR) {
             onAmmoFull(event);
         }
+        else onAmmoFill(event);
 
         gui.setItem(getInputSlot(), res.getA());
         playerInv.setItem(hotbarButton,res.getB());
@@ -196,6 +197,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         if (res.getA().getType() == Material.AIR) {
             onAmmoFull(event);
         }
+        else onAmmoFill(event);
 
         gui.setItem(getInputSlot(),res.getA());
         clicked.setItem(event.getSlot(),res.getB());
@@ -214,6 +216,11 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         Player player = (Player) event.getWhoClicked();
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.BLOCKS,1,1);
         player.sendMessage(ChatColor.RED+" [!] The gun does not accept this type of ammo!");
+    }
+
+    protected void onAmmoFill(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
+        player.playSound(player.getLocation(),Sound.BLOCK_IRON_TRAPDOOR_CLOSE,SoundCategory.BLOCKS,1,2);
     }
 
 
@@ -261,6 +268,7 @@ public abstract class TransactionReloadInventory extends TransactionInventory {
         if (res.getA().getType() == Material.AIR) {
             onAmmoFull(event);
         }
+        else onAmmoFill(event);
 
         event.getWhoClicked().setItemOnCursor(res.getB());
 

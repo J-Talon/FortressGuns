@@ -581,7 +581,15 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
             if (trackedTarget.getType() == EntityType.PLAYER)
                 type = trackedTarget.getName();
-            else type = trackedTarget.getType().name().replace('_', ' ');
+            else {
+
+                Component comp = ConstructUtils.getComponentRef(trackedTarget);
+                if (comp == null)
+                    type = trackedTarget.getType().name().replace('_', ' ');
+                else
+                    type = comp.getBody().getType().name().toUpperCase();
+
+            }
         }
 
         type = ChatColor.RED + type;
