@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.interact.ItemBehaviour;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.Flare.SimpleFlare;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
@@ -70,7 +71,7 @@ public class IBFlareGun implements InteractionBehaviourItem {
         org.bukkit.Location location = player.getEyeLocation().clone();
         World world = player.getWorld();
 
-        SimpleFlare flare = new SimpleFlare(world, location.getX(), location.getY(), location.getZ(), player);
+        ProjectileFG flare = AmmoItem.FLARE.create(world, location.getX(), location.getY(), location.getZ(), player, null);
         flare.addToWorld(world);
     }
 
