@@ -12,8 +12,8 @@ public enum ConstructType {
     MISSILE_LAUNCHER(FGItems.MISSILE_LAUNCHER, new ConstructFactory.FactoryMissileLauncher(), "missileLauncher"),
     HEAVY_MACHINE(FGItems.HMG, new ConstructFactory.FactoryHMG(), "heavyMachineGun"),
     CRAM(FGItems.CRAM, new ConstructFactory.FactoryCRAM(), "cram"),
-    FLAK_LIGHT(FGItems.FLAK_LIGHT, new ConstructFactory.FactoryLightFlak(),"lightFlak"),
-    DEBUG(null, new ConstructFactory.FactoryTest(), "debug");
+    FLAK_LIGHT(FGItems.FLAK_LIGHT, new ConstructFactory.FactoryLightFlak(),"lightFlak");
+  //  DEBUG(null, new ConstructFactory.FactoryTest(), "debug");
 
     private final FGBoxItem boxItem;
     private final String id;

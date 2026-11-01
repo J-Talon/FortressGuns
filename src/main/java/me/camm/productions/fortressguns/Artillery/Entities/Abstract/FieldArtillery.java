@@ -1,9 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
@@ -21,10 +23,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static me.camm.productions.fortressguns.Util.Math.MathFG.nextVerticalAngle;
+
 public abstract class FieldArtillery extends ArtilleryRideable
 {
 
     private final double DIST_X = 0, DIST_Y = 0;
+    protected double smallBlockDist;//
 
     protected static ItemStack BODY = ArtilleryMaterial.STANDARD_BODY.asItem();
     protected static ItemStack WHEEL = ArtilleryMaterial.WHEEL.asItem();
@@ -33,9 +38,15 @@ public abstract class FieldArtillery extends ArtilleryRideable
     protected static ItemStack SEAT = ArtilleryMaterial.SEAT.asItem();
 
 
+    protected final double BARREL_RECOVER_RATE = 0.03;
+    protected final int RECOIL_TIME = 1;
+
+
 
     public FieldArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
+
+        smallBlockDist = SMALL_BLOCK_LENGTH;
     }
 
 
@@ -50,6 +61,9 @@ public abstract class FieldArtillery extends ArtilleryRideable
     }
 
 
+
+
+
     @Override
     protected @Nullable ProjectileFG createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
         ProjectileFG shell = super.createProjectile(world, x, y, z, shooter, source);
@@ -60,6 +74,135 @@ public abstract class FieldArtillery extends ArtilleryRideable
         shell.setVelocity(vec.getX(), vec.getY(), vec.getZ());
         return shell;
     }
+
+
+    protected List<Player> getShakenPlayers() {
+        List<IntTuple2> chunks = getOccupiedChunks();
+        final List<Player> vibrateFor = new LinkedList<>();
+        for (IntTuple2 tup: chunks) {
+
+            //it's fine cause at this point it should already be loaded
+            Chunk c = world.getChunkAt(tup.getA(), tup.getB());
+            org.bukkit.entity.Entity[] entities = c.getEntities();
+
+            for (org.bukkit.entity.Entity e: entities) {
+                if (e instanceof Player && e.getVehicle() == null)
+                    vibrateFor.add((Player)e);
+            }
+        }
+        return vibrateFor;
+    }
+
+
+    @Override
+    public boolean pivot(double vertAngle, double horAngle)
+    {
+
+        if (isInvalid()) {
+            destroy(false, true);
+            dead = true;
+            return false;
+        }
+
+
+        double currX,currY;
+        currX = aim.getX();
+        currY = aim.getY();
+
+
+        //90 degrees in the up and down directions
+        //in radians
+
+        if (vertAngle <= getMaxVertAngle()) {
+            vertAngle = Math.max(getMaxVertAngle(), vertAngle);
+        }
+
+        if (vertAngle >= getMinVertAngle()) {
+            vertAngle = Math.min(vertAngle, getMinVertAngle());
+        }
+
+        final double TWO_PI = 2 * Math.PI;
+        if (horAngle > TWO_PI || horAngle < -TWO_PI) {
+            horAngle = horAngle % TWO_PI;
+        }
+
+
+        if (currX == vertAngle && currY == horAngle && !lengthChanged)
+            return false;
+
+        lengthChanged = false;
+
+        vertAngle = nextVerticalAngle(currX, vertAngle, vertRotSpeed);
+
+
+        //don't add PI to give an extra 180 * to the rotation (see StandHelper.getASFace(EntityHuman) )
+        //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
+        horAngle = MathFG.nextHorizontalAngle(currY, horAngle, horRotSpeed);
+
+        Vector[] locations = new Vector[barrel.length];
+
+        //for all of the armorstands making up the barrel,
+        for (int slot=0;slot< barrel.length;slot++)
+        {
+            ArtilleryPart barrelComponent = barrel[slot];
+
+            double totalDistance;
+
+            //getting the distance from the pivot
+            if (barrelComponent.isSmall())
+                totalDistance = (MathFG.LARGE_BLOCK_LENGTH *0.75 + 0.5* smallBlockDist) + (slot * smallBlockDist);
+            else
+                totalDistance = (slot+1)* MathFG.LARGE_BLOCK_LENGTH;
+
+
+            //height of the aim
+            double height = -totalDistance*Math.sin(vertAngle);
+
+            //hor dist of the aim component
+            double horizontalDistance = totalDistance*Math.cos(vertAngle);
+
+
+
+            //x and z distances relative to the pivot from total hor distance
+            double z = horizontalDistance*Math.cos(horAngle);
+            double x = -horizontalDistance*Math.sin(horAngle);
+            //the - is to account for the 180* between players and armorstands
+
+            //setting the rotation of all of the barrel armorstands.
+            barrelComponent.setRotation(aim);
+
+            Location centre = pivot.getLocation();
+
+            Vector teleport;
+            if (barrelComponent.isSmall())
+                teleport = centre.add(x, height + 0.75, z).toVector();
+            else
+                teleport = centre.add(x, height, z).toVector();
+
+
+            //is at resting state
+            if (!(smallBlockDist < SMALL_BLOCK_LENGTH )) {
+                if (ConstructUtils.isInBlock(barrelComponent, teleport)) {
+                    return false;
+                }
+            }
+            locations[slot] = teleport;
+        }
+
+        positionSeat();
+
+        aim = new EulerAngle(vertAngle,horAngle,0);
+        pivot.setRotation(aim);
+
+        for (int slot=0;slot< barrel.length;slot++) {
+            ArtilleryPart barrelComponent = barrel[slot];
+            Vector teleport = locations[slot];
+            barrelComponent.teleport(teleport.getX(), teleport.getY(), teleport.getZ());
+        }
+        return true;
+    }
+
+
 
 
     public synchronized void fire(@Nullable Player shooter)
@@ -75,7 +218,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         else
             return;
 
-        final Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
+        final Location muzzle = barrel[barrel.length-1].getCenterPoint().add(0,0.2,0);
         ProjectileFG shell = createProjectile(world,muzzle.getX(), muzzle.getY(), muzzle.getZ(),shooter, this);
 
         //warning here cause canFire() should check whether the gun has ammo
@@ -88,8 +231,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         //make a flash
         FG_VFX.createFlash(muzzle, world);
         FG_VFX.gunFire(muzzle, world);
-        shockwaveParticles();
-
+        FG_VFX.shockwaveParticles(pivot);
         setSmallDistance(0.1);
 
 
@@ -132,10 +274,10 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     //sin(PIx + (Pi/2)) * max(-0.1x + 1, 0)
 
                     //basically makes the barrel recover faster as it progresses, starting out slow
-                    incrementSmallDistance(barrelRecoverRate * (Math.min(1,0.000125 * ticks * ticks * ticks)));
+                    incrementSmallDistance(BARREL_RECOVER_RATE * (Math.min(1,0.000125 * ticks * ticks * ticks)));
 
 
-                    Location barrelEnd = barrel[barrel.length-1].getEyeLocation();
+                    Location barrelEnd = barrel[barrel.length-1].getCenterPoint();
                     int count = (int)(Math.ceil(10 - (smallBlockDist / SMALL_BLOCK_LENGTH) * 10));
 
                     for (int spawned = 0; spawned < count; spawned ++) {
@@ -150,7 +292,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
                     cancel();
                 }
             }
-        }.runTaskTimer(FortressGuns.getInstance(), getHeavyFireDelay(), recoilTime);
+        }.runTaskTimer(FortressGuns.getInstance(), getHeavyFireDelay(), RECOIL_TIME);
     }
 
 
@@ -326,6 +468,19 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
             barrel[slot] = stand;
         }
+    }
+
+
+
+
+    protected synchronized void incrementSmallDistance(double increment){
+        this.smallBlockDist += increment;
+        lengthChanged = true;
+    }
+
+    protected synchronized void setSmallDistance(double dist) {
+        this.smallBlockDist = dist;
+        lengthChanged = true;
     }
 
 

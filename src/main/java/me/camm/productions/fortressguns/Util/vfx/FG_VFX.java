@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.vfx;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.minecraft.network.protocol.game.PacketPlayOutPosition;
 import net.minecraft.server.level.EntityPlayer;
@@ -16,6 +17,40 @@ import java.util.List;
 import java.util.Set;
 
 public class FG_VFX {
+
+    protected final static double [] offsetX;
+    protected final static double [] offsetZ;
+
+
+    static {
+        final int LEN = 12;
+        offsetX = new double[LEN];
+        offsetZ = new double[LEN];
+
+        int slot = 0;
+        for (double rotation = 0; rotation < 2*Math.PI; rotation += (2*Math.PI / LEN)) {
+            double z = Math.cos(rotation);
+            double x = -Math.sin(rotation);
+            offsetX[slot] = x;
+            offsetZ[slot] = z;
+
+            slot ++;
+        }
+    }
+
+
+    public static void shockwaveParticles(Component pivot) {
+
+        Location initial = pivot.getCenterPoint().add(0,-pivot.getPositionalHeight(),0);
+        World world = pivot.getBukkitWorld();
+
+        for (int len = 0; len < offsetX.length; len ++) {
+            world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, initial,0,offsetX[len],0,offsetZ[len],0.3f);
+
+        }
+    }
+
+
 
     public static void constructDestroy(Location loc, World world){
         world.spawnParticle(Particle.SMOKE_LARGE,loc,30,0,0,0,0.3);

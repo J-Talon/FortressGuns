@@ -4,8 +4,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
@@ -18,22 +16,17 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Invento
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import org.bukkit.*;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static me.camm.productions.fortressguns.Util.Math.MathFG.nextVerticalAngle;
-
 
 /*
 @author CAMM
@@ -65,38 +58,13 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     private final List<IntTuple2> occupiedChunks;//
     protected World world;//
 
-    protected volatile double largeBlockDist;//
     protected volatile boolean lengthChanged;
-    protected volatile double smallBlockDist;//
-
     protected volatile boolean canFire;
-
-    protected int recoilTime = 1;
-    protected double barrelRecoverRate = 0.03;
-
     protected InventoryGroup interactionInv;
 
     protected long lastFireTime;//
-
-    protected final static double [] offsetX;
-    protected final static double [] offsetZ;
-
     protected double vibrationOffsetY;
-    static {
-        final int LEN = 12;
-        offsetX = new double[LEN];
-        offsetZ = new double[LEN];
 
-        int slot = 0;
-        for (double rotation = 0; rotation < 2*Math.PI; rotation += (2*Math.PI / LEN)) {
-            double z = Math.cos(rotation);
-            double x = -Math.sin(rotation);
-            offsetX[slot] = x;
-            offsetZ[slot] = z;
-
-            slot ++;
-        }
-    }
 
 
 
@@ -107,11 +75,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         this.world = world;
         this.lastFireTime = System.currentTimeMillis();
 
-
-
         this.occupiedChunks = new ArrayList<>();
-        largeBlockDist = LARGE_BLOCK_LENGTH;
-        smallBlockDist = SMALL_BLOCK_LENGTH;
+
         health = 0;
         dead = false;
         cameraLocked = false;
@@ -259,10 +224,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return pivot.getLocation();
     }
 
-    public ArtilleryPart[][] getBase() {
-        return base;
-    }
-
     public InventoryGroup getInventoryGroup() {
         return interactionInv;
     }
@@ -277,10 +238,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             baseLength = base[0].length;
         return baseLength;
     }
-
-
-
-
 
 
     public synchronized void setInterpolating(boolean interpolating) {
@@ -357,127 +314,15 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     horAngle: The horizontal angle of the aim (in rads)
 
      */
-    public synchronized boolean pivot(double vertAngle, double horAngle) //v = h.xRot  h = h.gHeadRot
-    {
-
-        if (isInvalid()) {
-            destroy(false, true);
-            dead = true;
-            return false;
-        }
-
-
-        double currX,currY;
-        currX = aim.getX();
-        currY = aim.getY();
-
-
-        //90 degrees in the up and down directions
-        //in radians
-
-        if (vertAngle <= getMaxVertAngle()) {
-            vertAngle = Math.max(getMaxVertAngle(), vertAngle);
-        }
-
-        if (vertAngle >= getMinVertAngle()) {
-            vertAngle = Math.min(vertAngle, getMinVertAngle());
-        }
-
-        final double TWO_PI = 2 * Math.PI;
-        if (horAngle > TWO_PI || horAngle < -TWO_PI) {
-            horAngle = horAngle % TWO_PI;
-        }
-
-
-        if (currX == vertAngle && currY == horAngle && !lengthChanged)
-            return false;
-
-        lengthChanged = false;
-
-        vertAngle = nextVerticalAngle(currX, vertAngle, vertRotSpeed);
-
-
-        //don't add PI to give an extra 180 * to the rotation (see StandHelper.getASFace(EntityHuman) )
-        //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
-        horAngle = MathFG.nextHorizontalAngle(currY, horAngle, horRotSpeed);
-
-        Vector[] locations = new Vector[barrel.length];
-
-        //for all of the armorstands making up the barrel,
-        for (int slot=0;slot< barrel.length;slot++)
-        {
-            ArtilleryPart barrelComponent = barrel[slot];
-
-            double totalDistance;
-
-            //getting the distance from the pivot
-            if (barrelComponent.isSmall())
-                totalDistance = (largeBlockDist *0.75 + 0.5* smallBlockDist) + (slot * smallBlockDist);
-            else
-                totalDistance = (slot+1)* largeBlockDist;
-
-
-            //height of the aim
-            double height = -totalDistance*Math.sin(vertAngle);
-
-            //hor dist of the aim component
-            double horizontalDistance = totalDistance*Math.cos(vertAngle);
-
-
-
-            //x and z distances relative to the pivot from total hor distance
-            double z = horizontalDistance*Math.cos(horAngle);
-            double x = -horizontalDistance*Math.sin(horAngle);
-            //the - is to account for the 180* between players and armorstands
-
-            //setting the rotation of all of the barrel armorstands.
-            barrelComponent.setRotation(aim);
-
-            Location centre = pivot.getLocation();
-
-            Vector teleport;
-            if (barrelComponent.isSmall())
-                teleport = centre.add(x, height + 0.75, z).toVector();
-            else
-                teleport = centre.add(x, height, z).toVector();
-
-
-            //is at resting state
-            if (!(smallBlockDist < SMALL_BLOCK_LENGTH || largeBlockDist < LARGE_BLOCK_LENGTH)) {
-                if (ConstructUtils.isInBlock(barrelComponent, teleport)) {
-                    return false;
-                }
-            }
-            locations[slot] = teleport;
-        }
-
-
-        if (this instanceof IRideable)
-            ((IRideable)this).positionSeat();
-
-        aim = new EulerAngle(vertAngle,horAngle,0);
-        pivot.setRotation(aim);
-
-        for (int slot=0;slot< barrel.length;slot++) {
-            ArtilleryPart barrelComponent = barrel[slot];
-            Vector teleport = locations[slot];
-            barrelComponent.teleport(teleport.getX(), teleport.getY(), teleport.getZ());
-        }
-        return true;
-    }
-
+    public abstract boolean pivot(double vertAngle, double horAngle); //v = h.xRot  h = h.gHeadRot
 
 
 
     public abstract void fire(@Nullable Player shooter);
 
 
-    public double[] getBasePositions(double radian){
-        double distance = LARGE_BLOCK_LENGTH;
-        double z = distance*Math.cos(radian);
-        double x = -distance*Math.sin(radian);
-        return new double[]{x,z};
-    }
+
+
 
     @Override
     public boolean chunkLoaded(){
@@ -499,17 +344,74 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
 
-    protected synchronized void incrementSmallDistance(double increment){
-        this.smallBlockDist += increment;
-        lengthChanged = true;
+
+    /**
+     * If it's dead, health <= 0, or pivot is invalid, returns true
+     * @return whether the artillery is valid
+     */
+    @Override
+    public final boolean isInvalid() {
+        return (pivot == null || (!pivot.isValid()) || health <= 0 || dead);
     }
 
-    protected synchronized void setSmallDistance(double dist) {
-        this.smallBlockDist = dist;
-        lengthChanged = true;
+
+
+    public org.bukkit.entity.Entity getCoreEntity(){
+        return pivot.getEntity();
+    }
+
+    @Override
+    public World getWorld(){
+        return world;
+    }
+
+    @Override
+    public double getHealth(){
+        return health;
+    }
+
+    public abstract boolean canFire();
+
+    public abstract double getMaxHealth();
+
+    public abstract boolean acceptsAmmo(AmmoItem item);
+
+    public ArtilleryPart[][] getBase() {
+        return base;
     }
 
 
+    public double[] getBasePositions(double radian){
+        double distance = LARGE_BLOCK_LENGTH;
+        double z = distance*Math.cos(radian);
+        double x = -distance*Math.sin(radian);
+        return new double[]{x,z};
+    }
+
+    @Override
+    public void setHealth(double health){
+        this.health = health;
+    }
+
+    @Override
+    public boolean damage(double damage) {
+        setHealth(getHealth() - damage);
+        world.playSound(getCurrentLocation(),Sound.BLOCK_BELL_USE,SoundCategory.BLOCKS,1,1);
+
+        if (health <= 0) {
+            destroy(false, true);
+            return false;
+        }
+        return true;
+    }
+
+    /*
+These methods create the artillery components but don't spawn them.
+see: loadPieces()
+ */
+    protected abstract void instantiateParts();
+    protected abstract void spawnBaseParts();
+    protected abstract void spawnTurretParts();
 
 
 
@@ -530,39 +432,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         return true;
     }
 
-    public abstract boolean canFire();
-    public abstract double getMaxHealth();
-
-    public abstract boolean acceptsAmmo(AmmoItem item);
-
-
-    protected void shockwaveParticles() {
-        ArmorStand core = (ArmorStand) this.getCoreEntity();
-        Location loc = core.getEyeLocation();
-        Location initial = loc.clone().add(0,-LARGE_BLOCK_LENGTH,0);
-
-        for (int len = 0; len < offsetX.length; len ++) {
-            world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, initial,0,offsetX[len],0,offsetZ[len],0.3f);
-
-        }
-    }
-
-    protected List<Player> getShakenPlayers() {
-        List<IntTuple2> chunks = getOccupiedChunks();
-        final List<Player> vibrateFor = new LinkedList<>();
-        for (IntTuple2 tup: chunks) {
-
-            //it's fine cause at this point it should already be loaded
-            Chunk c = world.getChunkAt(tup.getA(), tup.getB());
-            org.bukkit.entity.Entity[] entities = c.getEntities();
-
-            for (org.bukkit.entity.Entity e: entities) {
-                if (e instanceof Player && e.getVehicle() == null)
-                    vibrateFor.add((Player)e);
-            }
-        }
-        return vibrateFor;
-    }
 
 
 
@@ -571,21 +440,13 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         Logger logger = FortressGuns.getInstance().getLogger();
 
         for (Component part: parts) {
-          boolean result = part.spawn();
-          if (!result)
-              logger.log(Level.WARNING, "Unable to properly spawn part for artillery");
+            boolean result = part.spawn();
+            if (!result)
+                logger.log(Level.WARNING, "Unable to properly spawn part for artillery");
         }
     }
 
 
-    /**
-     * If it's dead, health <= 0, or pivot is invalid, returns true
-     * @return whether the artillery is valid
-     */
-    @Override
-    public final boolean isInvalid() {
-        return (pivot == null || (!pivot.isValid()) || health <= 0 || dead);
-    }
 
     @Override
     public final synchronized void destroy(boolean dropItem, boolean exploded) throws IllegalStateException {
@@ -616,49 +477,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
         super.destroy(dropItem, exploded);
     }
-
-    public org.bukkit.entity.Entity getCoreEntity(){
-        return pivot.getEntity();
-    }
-
-    @Override
-    public World getWorld(){
-        return world;
-    }
-
-    @Override
-    public double getHealth(){
-        return health;
-    }
-
-    @Override
-    public void setHealth(double health){
-        this.health = health;
-    }
-
-    @Override
-    public boolean damage(double damage) {
-        setHealth(getHealth() - damage);
-        world.playSound(getCurrentLocation(),Sound.BLOCK_BELL_USE,SoundCategory.BLOCKS,1,1);
-
-        if (health <= 0) {
-            destroy(false, true);
-            return false;
-        }
-        return true;
-    }
-
-
-    /*
-These methods create the artillery components but don't spawn them.
-see: loadPieces()
- */
-    protected abstract void instantiateParts();
-    protected abstract void spawnBaseParts();
-    protected abstract void spawnTurretParts();
-
-
-    //=========Chunks ==================================================================
+    //========= Chunks ==================================================================
 
 
     @Override
@@ -713,9 +532,6 @@ see: loadPieces()
     }
 
 
-
-
-
     @Override
     public Chunk getCurrentChunk() {
         Location loc = getCurrentLocation();
@@ -741,6 +557,5 @@ see: loadPieces()
         }
         return item.create(world, x,y,z, shooter, source);
     }
-
 
 }

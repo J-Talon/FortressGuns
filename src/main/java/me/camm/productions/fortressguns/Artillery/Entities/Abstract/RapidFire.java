@@ -136,7 +136,7 @@ public abstract class RapidFire extends ArtilleryRideable {
     public boolean positionSeat() {
 
         // aim = new EulerAngle(vertAngle,horAngle,0);
-        Location seatPos = base[0][0].getLocation(world);
+        Location seatPos = base[0][0].getLocation();
         EulerAngle aim = this.getAim();
         double horAngle = aim.getY();
 
@@ -166,7 +166,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
         spawnBaseParts();
 
-        ArtilleryPart support = base[0][0];
+        Component support = base[0][0];
 
         Location seatPos = getSeatLocation(support);
         seatPos.add(0,0.5,0);
@@ -216,7 +216,7 @@ public abstract class RapidFire extends ArtilleryRideable {
 
 
             //getting the distance from the pivot
-            totalDistance = (0.5*LARGE_BLOCK_LENGTH) + (slot * smallBlockDist);
+            totalDistance = (0.5*LARGE_BLOCK_LENGTH) + (slot * SMALL_BLOCK_LENGTH);
 
             //height of the aim
             double height = -totalDistance*Math.sin(vertAngle);

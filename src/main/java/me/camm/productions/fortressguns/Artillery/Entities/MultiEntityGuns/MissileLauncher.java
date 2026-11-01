@@ -7,10 +7,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.IAimed;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.ITracking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionMissileLauncher;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
@@ -37,7 +36,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 
-public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher>, IAimed {
+public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher>, ITracking {
 
     boolean fireRight;
     private Entity target;
@@ -214,8 +213,8 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
         Vector front = dir.clone().multiply(1.5);  //slightly in front of the thing
 
-        Location spawn = shootingPart.getEyeLocation().add(front);
-        Location back = backBlast.getEyeLocation().add(front.multiply(-1));
+        Location spawn = shootingPart.getCenterPoint().add(front);
+        Location back = backBlast.getCenterPoint().add(front.multiply(-1));
 
         Artillery construct = this;
         ProjectileFG missile = createProjectile(world,spawn.getX(), spawn.getY(), spawn.getZ(),shooter,construct);
@@ -501,7 +500,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         int midpoint = barrel.length / 2;
         double distFromMid;
 
-        Location nextStemLoc = stem[stem.length - 1].getLocation(world);
+        Location nextStemLoc = stem[stem.length - 1].getLocation();
         Location[] barrelLocs = new Location[barrel.length];
 
         for (int slot = 0; slot < midpoint; slot ++) {

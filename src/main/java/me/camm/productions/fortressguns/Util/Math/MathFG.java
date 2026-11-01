@@ -2,12 +2,10 @@ package me.camm.productions.fortressguns.Util.Math;
 
 
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
@@ -22,6 +20,10 @@ public class MathFG {
     public static final double POINT_ZERO_RAD = 0.00017;   //0.01 degrees -> rads = ~0.0017
     public static final double RAD = 0.017;
     public static final double FULL_CIRCLE_DEG = 360;
+
+    //armorstand dimensions
+    public final static double LARGE_BLOCK_LENGTH = 0.6;
+    public final static double SMALL_BLOCK_LENGTH = 0.4;
 
 
 
@@ -308,6 +310,9 @@ destination from the source.
     }
 
 
+    /*
+    Whatever you're checking collisions with must be smaller in dimensions than a block on all sides
+     */
     public static List<Block> getRoughCollisions(Location point, World world) {
         List<Block> checks = new ArrayList<>();
         Block block = world.getBlockAt(point);
@@ -384,6 +389,27 @@ destination from the source.
     }
 
 
+
+
+    //Returns an euler angle for aiming based on where the player is looking
+    //@author CAMM
+    public static EulerAngle getPlayerDirectionAngle(Player human) {
+        //x,y,z
+        //x -> vertical rotation
+        //y -> horizontal rotation
+        Location eyeLoc = human.getEyeLocation();
+        return new EulerAngle(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()),0);
+    }
+
+    //Returns a rotation in a language that armorstands understand and in which they can orient themselves to.
+    //@author CAMM
+    //@param horizontal, vertical: angles in the -180 -> 180 format and -90 -> 90 format in degrees
+    public static EulerAngle getStandFacing(double horizontal, double vertical) {
+        //x,y,z
+        //x -> vertical rotation
+        //y -> horizontal rotation
+        return new EulerAngle(Math.toRadians(vertical), Math.toRadians(horizontal) + 180,0);
+    }
 
 
 

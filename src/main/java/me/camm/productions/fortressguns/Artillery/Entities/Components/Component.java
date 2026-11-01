@@ -35,6 +35,13 @@ public interface Component {
 
    public boolean spawn();
 
+
+
+       /*
+      spigot doesn't treat armor stand interactions the same way as other entities
+      so no, we won't be using behaviours here, at least not purely
+     */
+
    public void onRightClick(ItemStack mainHand, Player clicked);
 
 
@@ -58,40 +65,46 @@ public interface Component {
 
    public Entity getEntity();
 
-   /*
-   public Dimension getDimensions
-
-   public Location getCenterPoint()
+   public World getBukkitWorld();
 
 
+   /*          ---------/ |
+                       /  |  H
+            ----------/   |
+                      |   /
+                      |  /  L
+                      | /
+               --------/
+                 W
+
+
+              base
+               []     <-- L -->
+             [][][][]==========  ==>
+               []                 ^-- bullet
+
+   Given an artillery barrel,  the length is the dimension going away from the base
 
     */
 
 
-
     /*
-
-    I think the way forward is this:
-
-    Interface Component
-        v             v                       v                    v
- ComponentAS1.17.1    ComponentDE1.17.1 .... ComponentAS 1.19.1   ComponentDE1.19.1 ...
- v                    v
- ASCore1.17.1         DECore1.17.1
- ASPart1.17.1         DECore.1.17.1
-
- ...
-
- ASCore implements ICore // OR:
- getComponentType() <== which I think is probably more performant than going down the tree
-
- Interactions will be handled via behaviours
-    Addendum 1:
-      spigot doesn't treat armor stand interactions the same way as other entities
-      so no, we won't be using behaviours here, at least not purely
-
-
-
+    for armorstands, the positional height, width, and length are the dimensions of the head block render
+    NOT the hitbox dimensions
      */
+   public double getPositionalHeight();
+
+   public double getPositionalWidth();
+
+   public double getPositionalLength();
+
+
+   /*
+   for armorstands this is the eye location
+    */
+   public Location getCenterPoint();
+
+
+
 
 }

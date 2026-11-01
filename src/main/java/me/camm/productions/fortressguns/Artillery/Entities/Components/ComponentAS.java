@@ -33,8 +33,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+import static me.camm.productions.fortressguns.Util.Math.MathFG.LARGE_BLOCK_LENGTH;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.SMALL_BLOCK_LENGTH;
 
-public abstract class ComponentAS extends EntityArmorStand implements Component {
+
+public abstract class ComponentAS extends EntityArmorStand implements ComponentArmorStand {
 
     protected Construct body;
 
@@ -223,8 +226,13 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
     }
 
     @Override
-    public Entity getEntity() {
-        return getBukkitEntity();
+    public ArmorStand getEntity() {
+        return (ArmorStand)getBukkitEntity();
+    }
+
+    @Override
+    public org.bukkit.World getBukkitWorld() {
+        return t.getWorld();
     }
 
 
@@ -241,7 +249,7 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
 
             for (Block block: blocks) {
                 damageSum += block.getType().getBlastResistance();
-                org.bukkit.World world = getWorld().getWorld();
+                org.bukkit.World world = getBukkitWorld();
                 Location hit = block.getLocation().add(0.5,0.5, 0.5);
                 world.spawnParticle(Particle.BLOCK_CRACK,hit,30,block.getBlockData());
                 world.playSound(hit, Sound.BLOCK_NETHERRACK_BREAK,SoundCategory.BLOCKS,1,1);
@@ -263,6 +271,29 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
         return shouldDamage && damageRaw(source, damage);
 
     }
+
+
+    public double getPositionalHeight() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+    public double getPositionalWidth() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+    public double getPositionalLength() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+
+    /*
+    for armorstands this is the eye location
+     */
+    public Location getCenterPoint() {
+        return new Location(t.getWorld(),locX(), getHeadY(), locZ());
+    }
+
+
 }
 
 

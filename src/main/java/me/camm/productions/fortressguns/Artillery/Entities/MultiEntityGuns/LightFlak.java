@@ -57,6 +57,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
         infinite = false;
+        magSize = 300;
         configApplied = false;
     }
 
@@ -72,6 +73,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         overheat = data.getOverheat();
         inactiveHeatTicks = data.getHeatTicks();
         heatDissipation = data.getDissipation();
+        magSize = data.getMagSize();
         infinite = data.infinite();
 
     }
@@ -144,7 +146,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         if (operator == null)
             return;
 
-        Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+        Location muzzle = barrel[barrel.length - 1].getCenterPoint().add(0, 0.2, 0);
         boolean jammed = random.nextDouble() < jamPercent;
 
         if (jammed || isJammed()) {
@@ -159,7 +161,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         if (getBarrelHeat() >= 100) {
             ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
             barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
-            world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
+            world.spawnParticle(Particle.LAVA,barrelPart.getCenterPoint(),5,0,0,0,1);
         }
 
         ProjectileFG projectile = loadedAmmoType.create(world, muzzle.getX(), muzzle.getY(), muzzle.getZ(), operator, this);

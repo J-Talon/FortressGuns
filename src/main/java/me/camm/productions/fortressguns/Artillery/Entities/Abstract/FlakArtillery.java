@@ -106,7 +106,7 @@ public abstract class FlakArtillery extends FieldArtillery
     public void aimStatic() {
 
         //once again clone shouldn't be needed cause it's a new object each time
-        Location muzzle = barrel[barrel.length - 1].getEyeLocation().add(0, 0.2, 0);
+        Location muzzle = barrel[barrel.length - 1].getCenterPoint().add(0, 0.2, 0);
 
         if (target == null || target.isDead() || !target.isValid()) {
             target = null;

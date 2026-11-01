@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Property;
 
 import org.bukkit.entity.Entity;
 
-public interface IAimed {
+public interface ITracking {
 
     public Entity getTarget();
 

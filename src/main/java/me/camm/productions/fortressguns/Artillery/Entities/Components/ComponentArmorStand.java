@@ -4,11 +4,8 @@ import org.bukkit.entity.ArmorStand;
 
 public interface ComponentArmorStand extends Component {
 
-
-    ArmorStand getBukkitEntity();
-
-    void setPose();
-
+    @Override
+    public ArmorStand getEntity();
 
 
 }

@@ -198,6 +198,11 @@ public class CRAM extends Artillery implements IAutoTracking {
     }
 
     @Override
+    public boolean pivot(double vertAngle, double horAngle) {
+        return false;
+    }
+
+    @Override
     public boolean isAiming() {
         return aiming;
     }

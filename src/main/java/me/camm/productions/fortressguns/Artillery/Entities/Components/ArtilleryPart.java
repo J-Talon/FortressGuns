@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.World;
 import org.bukkit.*;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -38,30 +37,10 @@ public class ArtilleryPart extends ComponentAS {
     }
 
 
-    public Location getLocation(org.bukkit.World world){
-        return new Location(world,u,v,w);
-    }
-
-
-    public Location getEyeLocation(){
-        return this.toBukkit().getEyeLocation();
-    }
-
-    protected ArmorStand toBukkit(){
-        return (ArmorStand)this.getBukkitEntity();
-    }
-
-
-
     @Nullable
     protected SoundEffect getSoundDeath() {
         return SoundEffects.gJ;
     }
-
-
-
-
-
 
 
     @Override

@@ -134,7 +134,7 @@ public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<Se
                         return;
                     }
 
-                    Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
+                    Location muzzle = barrel[barrel.length-1].getCenterPoint().add(0,0.2,0);
                     fireSingleShot(muzzle);
                     if (reference >= shots)
                         setCanFire(true);
@@ -190,7 +190,7 @@ public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<Se
         if (getBarrelHeat() >= 100) {
             ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
             barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
-            world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
+            world.spawnParticle(Particle.LAVA,barrelPart.getCenterPoint(),5,0,0,0,1);
         }
 
         if (requiresReloading())
