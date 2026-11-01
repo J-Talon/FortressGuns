@@ -2,12 +2,15 @@ package me.camm.productions.fortressguns.Explosion.Abstract;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+
+import java.util.function.Predicate;
 
 import static me.camm.productions.fortressguns.Util.Math.MathFG.lerp;
 
@@ -81,9 +84,9 @@ public abstract class Allocator<R, I> {
                         double initialY = lerp(yMin, box.getMinY(), box.getMaxY());
                         double initialZ = lerp(zMin, box.getMinZ(), box.getMaxZ());
 
-                        Vector direction = new Vector(initialX + offsetX, initialY, initialZ + offsetZ);
+                        Vector end = new Vector(initialX + offsetX, initialY, initialZ + offsetZ);
 
-                        if (performTrace(vecStart, direction,entity))
+                        if (performTrace(vecStart, end, entity))
                             hits ++;
                     }
                 }
@@ -96,17 +99,42 @@ public abstract class Allocator<R, I> {
 
 
 
-    public boolean performTrace(Vector start, Vector direction, Entity e) {
+    public boolean performTrace(Vector start, Vector end, Entity e) {
 
         BoundingBox box = e.getBoundingBox();
         double distance = box.getCenter().distance(start);
         Location startLoc = start.toLocation(e.getWorld());
 
+        Vector direction2 = end.clone().subtract(start);
 
-        RayTraceResult result = world.rayTrace(startLoc, direction, distance, FluidCollisionMode.NEVER,true,0.1,null);
+
+        if (direction2.lengthSquared() == 0) {
+            return true;
+        }
+
+        Predicate<Entity> pred = new Predicate<>() {
+            @Override
+            public boolean test(Entity entity) {
+                return entity.getUniqueId().equals(e.getUniqueId());
+            }
+        };
+
+        RayTraceResult result = world.rayTrace(startLoc, direction2, distance, FluidCollisionMode.NEVER,true,0.01,pred);
+
+        Vector debugStart = startLoc.toVector().clone();
+        Vector debugDir = direction2.clone();
+        Vector debugLoc = debugStart.clone();
+
+
+        for (double i = 0; i < distance; i += 0.1) {
+            world.spawnParticle(Particle.END_ROD,debugLoc.toLocation(world),1,0,0,0,0);
+            debugLoc = debugLoc.add(debugDir.clone().multiply(0.1));
+        }
+
+
         if (result == null) return false;
-        Block block = result.getHitBlock();
-        if (block != null) return false;
+//        Block block = result.getHitBlock();
+//        if (block != null) return false;
 
         Entity hit = result.getHitEntity();
         if (hit == null) return false;

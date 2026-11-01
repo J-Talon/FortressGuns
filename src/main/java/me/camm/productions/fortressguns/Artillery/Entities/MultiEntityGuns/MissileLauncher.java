@@ -138,22 +138,6 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         interactionInv = new InventoryGroup.BulkPrecision(this);
     }
 
-
-
-    //============config====================================================
-
-    public static void setMaxRockets(int maxRockets) {
-        MissileLauncher.maxRockets = maxRockets;
-    }
-
-    public static void setCooldown(long cooldown) {
-        MissileLauncher.cooldown = cooldown;
-    }
-
-    public static void setMaxHealth(double maxHealth) {
-        MissileLauncher.maxHealth = maxHealth;
-    }
-
     //================================================
 
 
@@ -317,9 +301,13 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
     @Override
     public boolean canFire() {
 
-        if (getAmmo() > 0 || (!requiresReloading()) && loadedAmmoType != null)
-            return true;
-        return System.currentTimeMillis() >= (lastFireTime + cooldown);
+        boolean result = System.currentTimeMillis() >= (lastFireTime + cooldown);
+
+        result = result && (getAmmo() > 0 || (!requiresReloading() && loadedAmmoType != null));
+
+        return result;
+
+
     }
 
 
@@ -623,13 +611,10 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
                 if (entity.getUniqueId().equals(human.getUniqueId())) return false;
 
-                if (ConstructUtils.isProjectileFG(entity)) return false;
+                if (ConstructUtils.isComponentOf(ref, entity)) return false;
 
-                Component comp = ConstructUtils.getComponentRef(entity);
-                if (comp == null) return true;
+                return !ConstructUtils.isProjectileFG(entity);
 
-                Construct cons = comp.getBody();
-                return !(ref.equals(cons));
             }
         }
 
