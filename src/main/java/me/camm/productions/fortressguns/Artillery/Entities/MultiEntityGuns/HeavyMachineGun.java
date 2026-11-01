@@ -3,21 +3,14 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-
 import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
 import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionHMG;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
 import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
-
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 

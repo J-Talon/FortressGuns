@@ -16,6 +16,7 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.Nullable;
 
 public class StandHelper
 {
@@ -64,13 +65,13 @@ public class StandHelper
 
 
     ////does not spawn into the world - you need to do that.
-    public static ArtilleryPart createVisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
+    public static ArtilleryPart createVisiblePart(Location loc, ItemStack head, @Nullable EulerAngle rotation, World world, Artillery artillery) {
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryPart part = new ArtilleryPart(nms, artillery, loc);
-        part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
+        part.teleport(loc.getX(), loc.getY(), loc.getZ());
 
         if (rotation != null)
-         setRotation(part, rotation);
+            part.setRotation(rotation);
 
         if (head != null)
             setHead(head, part);
