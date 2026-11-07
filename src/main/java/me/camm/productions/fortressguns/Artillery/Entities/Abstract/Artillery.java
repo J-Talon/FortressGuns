@@ -376,10 +376,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public abstract boolean acceptsAmmo(AmmoItem item);
 
-    public ArtilleryPart[][] getBase() {
-        return base;
-    }
-
 
     public double[] getBasePositions(double radian){
         double distance = LARGE_BLOCK_LENGTH;

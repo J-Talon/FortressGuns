@@ -39,6 +39,7 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
         if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHmgBullet());
     }
 
 
@@ -60,12 +61,6 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
 
         DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
         DamageAdapter.getInstance().accept(bukkit, info);
-//        if (shooter != null) {
-//            DamageSource source = GunSource.gunShot(this, shooter);
-//            hitEntity.damageEntity(source, getHitDamage());
-//        }
-//        else
-//            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
 
         //hurt ticks I believe this is
         if (hitEntity instanceof EntityLiving) {

@@ -50,7 +50,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
 
 
     public void vanillaExplosion(World w, Entity source, double x, double y, double z, float radius) {
-        w.createExplosion(x,y,z,radius,false,destructiveExplosions, source);
+        w.createExplosion(x,y,z,radius,false, destructiveExplosions, source);
     }
 
 
