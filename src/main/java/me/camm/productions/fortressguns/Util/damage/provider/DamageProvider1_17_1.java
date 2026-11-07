@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Util.damage.provider;
 
 import me.camm.productions.fortressguns.Util.Adapter;
+import me.camm.productions.fortressguns.Util.Version;
 import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
 import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
 import net.minecraft.network.chat.ChatMessage;
@@ -82,7 +83,7 @@ public class DamageProvider1_17_1 extends Adapter<Entity, DamageInfo> {
 
 
     @Override
-    public Class<?> getTarget() {
-        return net.minecraft.world.entity.Entity.class;
+    public Version getTarget() {
+        return Version.V1_17_1;
     }
 }
