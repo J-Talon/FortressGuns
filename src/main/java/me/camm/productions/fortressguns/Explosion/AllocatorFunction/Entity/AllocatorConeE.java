@@ -15,8 +15,8 @@ import java.util.function.Predicate;
 
 public class AllocatorConeE extends Allocator<List<Tuple2<Entity, Float>>,Tuple3<Float, Vector, Entity>> {
 
-    private final float subtraction;
-    public AllocatorConeE(World world, Vector position, float sub) {
+    private final double subtraction;
+    public AllocatorConeE(World world, Vector position, double sub) {
         super(world, position);
         subtraction = sub;
     }

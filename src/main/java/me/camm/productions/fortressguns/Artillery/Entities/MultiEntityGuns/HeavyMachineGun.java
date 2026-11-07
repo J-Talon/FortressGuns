@@ -5,10 +5,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryP
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionHMG;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionHMG;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;

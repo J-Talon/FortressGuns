@@ -10,9 +10,10 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.ITracking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionMissileLauncher;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionMissileLauncher;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
@@ -268,7 +269,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             return;
         }
 
-        if (target != null && ConstructUtils.isComponentOf(this, target)) {
+        if (target != null && EntityUtils.isComponentOf(this, target)) {
             shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
             setTarget(null);
             return;
@@ -583,7 +584,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
                 type = trackedTarget.getName();
             else {
 
-                Component comp = ConstructUtils.getComponentRef(trackedTarget);
+                Component comp = EntityUtils.getComponentRef(trackedTarget);
                 if (comp == null)
                     type = trackedTarget.getType().name().replace('_', ' ');
                 else
@@ -619,9 +620,9 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
                 if (entity.getUniqueId().equals(human.getUniqueId())) return false;
 
-                if (ConstructUtils.isComponentOf(ref, entity)) return false;
+                if (EntityUtils.isComponentOf(ref, entity)) return false;
 
-                return !ConstructUtils.isProjectileFG(entity);
+                return !EntityUtils.isProjectileFG(entity);
 
             }
         }

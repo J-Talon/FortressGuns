@@ -4,11 +4,13 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionLightFlakBullet;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
-import net.minecraft.server.level.EntityPlayer;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionLightFlakBullet;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageProvider;
+import me.camm.productions.fortressguns.Util.damage.source.GunSource;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.World;
@@ -30,9 +32,10 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, C
 
     private static float hitDamage = 10;
     private static float weight = 0.015f;
+    private static boolean configApplied = false;
 
     private org.bukkit.entity.Entity ignore;
-    private static boolean configApplied = false;
+
 
 
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
@@ -61,8 +64,8 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, C
 
         net.minecraft.world.entity.Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
-        DamageSource source = GunSource.gunShot(shooter, this);
-        hitEntity.damageEntity(source,getHitDamage());
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageProvider.getInstance().accept(bukkit, info);
 
         double length = this.getMot().f();
         final double FACTOR = 1.5;

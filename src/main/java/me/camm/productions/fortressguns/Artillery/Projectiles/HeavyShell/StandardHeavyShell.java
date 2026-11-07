@@ -4,11 +4,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionShellSolid;
-import me.camm.productions.fortressguns.Util.DamageSource.ShellSource;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionShellSolid;
+import me.camm.productions.fortressguns.Util.damage.source.ShellSource;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
@@ -31,11 +31,11 @@ import java.util.List;
 
 public class StandardHeavyShell extends HeavyShell implements ConfigurationHolder<SectionShellSolid>, ProjectileType.ISolidHeavyShell {
 
-    private static final float explosionPower = 2;
-
+    private static float explosionPower = 2;
     private static float hitDamage = 10;
     private static float weight = 1.2F;
     private static boolean configApplied = false;
+    private static float penetrationPower = 6f;
 
     public StandardHeavyShell(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
         super(world, x, y, z, shooter, source);
@@ -53,6 +53,8 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
         if (data == null) return;
         hitDamage = data.getDamage().floatValue();
         weight = data.getWeight().floatValue();
+        explosionPower = data.getExplosionRad().floatValue();
+        penetrationPower = data.getPenPower().floatValue();
     }
 
 
@@ -63,11 +65,10 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
 
 
     protected void hitEffectBlock(@Nullable Vector hitPos) {
-        final float PEN_POWER = 6f;  // put into config  todo
 
         Vector direction = CraftVector.toBukkit(getMot());
 
-        double penPower = Math.min(source.getVectorPower(), direction.length() / source.getVectorPower()) * PEN_POWER;
+        double penPower = Math.min(source.getVectorPower(), direction.length() / source.getVectorPower()) * penetrationPower;
 
         direction.normalize();
         Vector explosionDir = direction.clone();
@@ -128,7 +129,7 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
             return;
         }
 
-        setMot(getMot().a(penPower / PEN_POWER));
+        setMot(getMot().a(penPower / penetrationPower));
 
     }
 

@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.minecraft.sounds.SoundEffect;
@@ -90,7 +90,7 @@ public class ArtilleryPart extends ComponentAS {
                     return;
                 }
 
-                ConstructUtils.openMenu(body, clicked, mainHand);
+                EntityUtils.openMenu(body, clicked, mainHand);
                 return;
             }
 
@@ -105,7 +105,7 @@ public class ArtilleryPart extends ComponentAS {
     public void onRightClick(ItemStack mainHand, Player clicked) {
 
         if (clicked.isSneaking() && clicked.getVehicle() == null) {
-            ConstructUtils.openMenu(body, clicked, mainHand);
+            EntityUtils.openMenu(body, clicked, mainHand);
             return;
         }
 

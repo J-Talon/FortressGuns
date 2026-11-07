@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.IBHandle;
@@ -464,7 +464,7 @@ public class ItemInteractionHandler implements Listener
 
         //whenever the player quits, the server creates a new entity whenever they join back. We do not want this to happen,
         //so we dismount them first.
-        Component comp = ConstructUtils.getComponentRef(riding);
+        Component comp = EntityUtils.getComponentRef(riding);
         if (comp == null) return;
 
         player.leaveVehicle();
@@ -481,7 +481,7 @@ public class ItemInteractionHandler implements Listener
     public void onEntityDismount(EntityDismountEvent event) {
 
         org.bukkit.entity.Entity mount = event.getDismounted();
-        Component comp = ConstructUtils.getComponentRef(mount);
+        Component comp = EntityUtils.getComponentRef(mount);
         if (comp == null) return;
 
         Construct cons = comp.getBody();

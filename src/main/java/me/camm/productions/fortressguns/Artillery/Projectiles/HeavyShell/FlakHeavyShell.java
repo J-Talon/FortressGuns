@@ -5,13 +5,11 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionFlak;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
-import net.minecraft.server.level.EntityPlayer;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionFlak;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 
 
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -66,18 +64,12 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, C
         return hitDamage;
     }
 
-    public static void setHitDamage(float hitDamage) {
-        FlakHeavyShell.hitDamage = hitDamage;
-    }
 
     @Override
     public float getExplosionPower() {
         return explosionPower;
     }
 
-    public static void setExplosionPower(float explosionPower) {
-        FlakHeavyShell.explosionPower = explosionPower;
-    }
 
     @Override
     public void setExplodeTime(double time) {

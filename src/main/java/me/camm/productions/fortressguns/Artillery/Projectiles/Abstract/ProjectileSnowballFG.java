@@ -23,12 +23,17 @@ public abstract class ProjectileSnowballFG extends EntitySnowball implements Pro
     protected boolean enteredWater;
     protected boolean enteredLava;
     protected org.bukkit.World bukkitWorld;
+    protected Player bukkitShooter;
 
     public ProjectileSnowballFG(World world, double x, double y, double z, @Nullable Player human) {
         super(((CraftWorld)world).getHandle(),x,y,z);
 
-        if (human != null)
-            this.shooter = ((CraftPlayer)human).getHandle();
+        bukkitShooter = human;
+
+        if (human != null) {
+            this.shooter = ((CraftPlayer) human).getHandle();
+            setShooter(this.shooter);
+        }
 
         enteredLava = false;
         enteredWater = false;

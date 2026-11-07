@@ -2,7 +2,7 @@ package me.camm.productions.fortressguns.Util.chunk;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -133,7 +133,7 @@ public class ChunkLoader implements Listener {
     @EventHandler
     public void onEntityPortal(EntityPortalEvent event) {
         Entity entity = event.getEntity();
-        if (ConstructUtils.getComponentRef(entity) != null || ConstructUtils.isProjectileFG(entity)) event.setCancelled(true);
+        if (EntityUtils.getComponentRef(entity) != null || EntityUtils.isProjectileFG(entity)) event.setCancelled(true);
     }
 
 
@@ -233,7 +233,7 @@ public class ChunkLoader implements Listener {
 
     private void removeFGProjectiles(Chunk chunk) {
         for (Entity entity : chunk.getEntities()) {
-            if (ConstructUtils.isProjectileFG(entity))
+            if (EntityUtils.isProjectileFG(entity))
                 entity.remove();
         }
     }
@@ -243,7 +243,7 @@ public class ChunkLoader implements Listener {
         //discover on unload
         for (Entity entity: chunk.getEntities()) {
 
-            Component component = ConstructUtils.getComponentRef(entity);
+            Component component = EntityUtils.getComponentRef(entity);
             if (component == null) continue;
 
             if (entity.getPersistentDataContainer().has(key,PersistentDataType.INTEGER_ARRAY))

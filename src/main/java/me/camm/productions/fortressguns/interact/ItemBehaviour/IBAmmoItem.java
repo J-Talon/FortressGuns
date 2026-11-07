@@ -4,7 +4,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.ArtilleryRid
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -82,7 +82,7 @@ public class IBAmmoItem implements InteractionBehaviourItem {
                 return;
 
 
-            Component comp = ConstructUtils.getComponentRef(ride);
+            Component comp = EntityUtils.getComponentRef(ride);
             if (comp == null) return;
 
             Construct cons = comp.getBody();

@@ -52,6 +52,14 @@ public class MathFG {
     }
 
 
+    public static boolean isFinite(double d) {
+        return Math.abs(d) <= Double.MAX_VALUE;
+    }
+
+    public static boolean isFinite(Vector v) {
+        return isFinite(v.getX()) && isFinite(v.getY()) && isFinite(v.getZ());
+    }
+
     public static double randomDouble() {
         return rand.nextDouble();
     }

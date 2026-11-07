@@ -1,15 +1,17 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
-import me.camm.productions.fortressguns.Util.DamageSource.DamageMultiplier;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageMultiplier;
+import me.camm.productions.fortressguns.Util.damage.builder.FGProjectileDamage;
+import me.camm.productions.fortressguns.Util.damage.source.GunSource;
 import net.minecraft.core.Vector3f;
 
 import net.minecraft.world.EnumHand;
 import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSourceIndirect;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 
 import net.minecraft.world.entity.player.EntityHuman;
@@ -189,14 +191,14 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
 
     @Override
     public boolean enoughSpace(Vector nextPosition) {
-        boolean res = ConstructUtils.isInBlock(this, nextPosition);
+        boolean res = EntityUtils.isInBlock(this, nextPosition);
         return ! res;
     }
 
 
     @Override
     public boolean enoughSpace() {
-        return ! ConstructUtils.isInBlock(this);
+        return ! EntityUtils.isInBlock(this);
     }
 
 
@@ -243,8 +245,9 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
         if (body.isInvalid())
             return super.damageEntity(source,damage);
 
+        //if the thing is suffocating
         if (source.y.equalsIgnoreCase("inWall")) {
-            List<Block> blocks = ConstructUtils.getHeadBlocks((ArmorStand)this.getBukkitEntity());
+            List<Block> blocks = EntityUtils.getHeadBlocks((ArmorStand)this.getBukkitEntity());
             float damageSum = 0;
 
             for (Block block: blocks) {
@@ -257,6 +260,10 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
             }
 
             return damageRaw(source,damageSum);
+        }
+
+        if (source instanceof FGProjectileDamage || source instanceof EntityDamageSourceIndirect) {
+            return damageRaw(source, damage);
         }
 
         net.minecraft.world.entity.Entity entity = source.getEntity();

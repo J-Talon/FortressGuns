@@ -3,7 +3,7 @@ package me.camm.productions.fortressguns.interact.ItemBehaviour;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.MissileLauncher;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
@@ -69,7 +69,7 @@ public class IBDevBlazeRod implements InteractionBehaviourItem {
 
         player.sendMessage(hit.getType().name());
 
-        Component comp = ConstructUtils.getComponentRef(hit);
+        Component comp = EntityUtils.getComponentRef(hit);
         if (comp == null) {
             notifNoTarget(player);
             return;

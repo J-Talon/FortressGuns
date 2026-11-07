@@ -1,7 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
@@ -182,7 +182,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
             //is at resting state
             if (!(smallBlockDist < SMALL_BLOCK_LENGTH )) {
-                if (ConstructUtils.isInBlock(barrelComponent, teleport)) {
+                if (EntityUtils.isInBlock(barrelComponent, teleport)) {
                     return false;
                 }
             }

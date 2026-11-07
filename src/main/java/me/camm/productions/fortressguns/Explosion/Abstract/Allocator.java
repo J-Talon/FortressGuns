@@ -1,5 +1,6 @@
 package me.camm.productions.fortressguns.Explosion.Abstract;
 
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -105,12 +106,12 @@ public abstract class Allocator<R, I> {
         double distance = box.getCenter().distance(start);
         Location startLoc = start.toLocation(e.getWorld());
 
-        Vector direction = end.clone().subtract(start);
+        Vector direction = end.clone().subtract(start).normalize();
 
-
-        if (direction.lengthSquared() == 0) {
+        //the start and end are basically right on top of each other
+        //dodge this fool
+        if (!MathFG.isFinite(direction))
             return true;
-        }
 
         Predicate<Entity> pred = new Predicate<>() {
             @Override
@@ -119,7 +120,13 @@ public abstract class Allocator<R, I> {
             }
         };
 
-        RayTraceResult result = world.rayTrace(startLoc, direction, distance, FluidCollisionMode.NEVER,true,0.01,pred);
+        RayTraceResult result = world.rayTrace(startLoc, direction, distance, FluidCollisionMode.NEVER,true,0,pred);
+
+        Location pl = startLoc.clone();
+        for (double d = 0; d < distance; d += 0.1) {
+            pl.add(direction.clone().multiply(0.1));
+            world.spawnParticle(Particle.END_ROD,pl,1,0,0,0,0);
+        }
 
 
 

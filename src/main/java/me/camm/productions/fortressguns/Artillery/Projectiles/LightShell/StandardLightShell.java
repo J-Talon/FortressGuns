@@ -6,11 +6,10 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionHMGBullet;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
-import net.minecraft.server.level.EntityPlayer;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionHMGBullet;
+import me.camm.productions.fortressguns.Util.damage.source.GunSource;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
@@ -55,12 +54,11 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
     @Override
     public boolean onEntityHit(org.bukkit.entity.Entity bukkit, Vector entityPosition) {
         this.a(GameEvent.I, this.getShooter());
-
         Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
 
         if (shooter != null) {
-            DamageSource source = GunSource.gunShot(shooter,this);
+            DamageSource source = GunSource.gunShot(this, shooter);
             hitEntity.damageEntity(source, getHitDamage());
         }
         else

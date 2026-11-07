@@ -1,6 +1,6 @@
 package me.camm.productions.fortressguns.interact.ItemBehaviour;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
+import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
@@ -110,7 +110,7 @@ public class IBTacticalPointer implements InteractionBehaviourItem {
 
 
         org.bukkit.entity.Entity vehicle = player.getVehicle();
-        IRideable ride = ConstructUtils.getRideableRef(vehicle);
+        IRideable ride = EntityUtils.getRideableRef(vehicle);
 
         if (ride == null) {
             time = updateSetting(time,dir,id);

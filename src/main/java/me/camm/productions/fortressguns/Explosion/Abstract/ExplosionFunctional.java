@@ -199,7 +199,7 @@ public abstract class ExplosionFunctional extends ExplosionFG {
 
     public abstract void perform();
 
-    public abstract float getMaxDamage();
+    public abstract double getMaxDamage();
 
     public float getRadius() {
         return radius;
