@@ -1,4 +1,4 @@
-package me.camm.productions.fortressguns.Util.damage.source;
+package me.camm.productions.fortressguns.Util.damage.provider;
 
 import me.camm.productions.fortressguns.Util.Adapter;
 import me.camm.productions.fortressguns.Util.damage.builder.DamageField;

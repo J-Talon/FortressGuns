@@ -6,13 +6,14 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.config.ConfigManager;
 import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionShellSolid;
-import me.camm.productions.fortressguns.Util.damage.source.ShellSource;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.core.BaseBlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.phys.Vec3D;
@@ -159,11 +160,17 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
         Vec3D velocity = getMot().d().a(weight);  //d() => norm,  a() => mult
         hitEntityNMS.i(velocity.getX() * weight, velocity.getY() * weight,velocity.getZ() * weight);  //i => push()
 
-        EntityDamageSource source = ShellSource.artilleryHit(shooter, this);
+        DamageAdapter manager = DamageAdapter.getInstance();
+//        EntityDamageSource source = ShellSource.artilleryHit(shooter, this);
+        DamageInfo info;
+
+
+
         if (hitEntityNMS instanceof EntityLiving living) {
             //if the damage would be blocked
-            if (living.applyBlockingModifier(ShellSource.artilleryHit(shooter,this))) {
-                hitEntityNMS.damageEntity(source, damage * damageMultiplier * 5);
+            if (living.isBlocking()) {
+                info = new DamageInfo(DamageField.ARTILLERY,bukkitShooter, this.getBukkitEntity(), damage * damageMultiplier * 5);
+                manager.accept(hitEntity, info);
                 hitEffectBlock(CraftVector.toBukkit(this.getPositionVector()));
                 return true;
             }
@@ -172,9 +179,10 @@ public class StandardHeavyShell extends HeavyShell implements ConfigurationHolde
                 shooter.b.sendPacket(new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.g, 0.0F));
             }
         }
+        info = new DamageInfo(DamageField.ARTILLERY,bukkitShooter, this.getBukkitEntity(), damage * damageMultiplier);
+        manager.accept(hitEntity, info);
 
 
-        hitEntityNMS.damageEntity(source,damage * damageMultiplier);
         Location loc = CraftVector.toBukkit(getPositionVector()).toLocation(bukkitWorld);
         bukkitWorld.playSound(loc,Sound.ITEM_TRIDENT_HIT,1,0);
         bukkitWorld.spawnParticle(Particle.END_ROD,loc,10,0,0,0,0.1f);

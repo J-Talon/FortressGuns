@@ -2,8 +2,9 @@ package me.camm.productions.fortressguns.Explosion.Abstract;
 
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.level.Explosion;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -14,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +26,6 @@ import java.util.*;
 public abstract class ExplosionFunctional extends ExplosionFG {
 
     protected boolean destructive;
-    protected Explosion stupid;
-
     protected float radius;
     protected Entity source;
 
@@ -36,18 +34,7 @@ public abstract class ExplosionFunctional extends ExplosionFG {
         this.radius = radius;
         this.destructive = destructive;
         this.source = source;
-
-        if (source != null)
-            stupid = new Explosion(null, ((CraftEntity)source).getHandle(),0,0,0,0);
-        else
-            new Explosion(null, null,0,0,0,0);
     }
-
-
-    protected DamageSource getDamageSource() {
-        return DamageSource.explosion(stupid);
-    }
-
 
 
     protected void damageEntity(Entity affected, double exposure) {
@@ -62,8 +49,12 @@ public abstract class ExplosionFunctional extends ExplosionFG {
         double falloff = damageFalloff(distanceSquared);
         falloff *= exposure;
 
-        net.minecraft.world.entity.Entity nms = ((CraftEntity)affected).getHandle();
-        nms.damageEntity(getDamageSource(), (float)falloff);
+
+        DamageInfo info = new DamageInfo(DamageField.ARTILLERY, null, source, (float) falloff);
+        DamageAdapter.getInstance().accept(affected, info);
+
+//        net.minecraft.world.entity.Entity nms = ((CraftEntity)affected).getHandle();
+//        nms.damageEntity(getDamageSource(), (float)falloff);
 
         Vector knockback = affected.getLocation().toVector().subtract(position);
         if (knockback.lengthSquared() == 0)

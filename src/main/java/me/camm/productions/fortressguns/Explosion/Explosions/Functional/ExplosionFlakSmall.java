@@ -3,13 +3,8 @@ package me.camm.productions.fortressguns.Explosion.Explosions.Functional;
 import me.camm.productions.fortressguns.Explosion.Abstract.ExplosionFunctional;
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectFlakSmall;
-import me.camm.productions.fortressguns.Util.damage.source.GunSource;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -57,14 +52,6 @@ public class ExplosionFlakSmall extends ExplosionFunctional {
         EffectFlakSmall effect = new EffectFlakSmall();
         effect.preMutation(this, null);
 
-    }
-
-    @Override
-    protected DamageSource getDamageSource() {
-
-        net.minecraft.world.entity.Entity nmsProj = ((CraftEntity)(source)).getHandle();
-        EntityPlayer nmsPlayer = ((CraftPlayer)shooter).getHandle();
-        return GunSource.gunShot(nmsProj, nmsPlayer);
     }
 
     @Override

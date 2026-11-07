@@ -2,28 +2,28 @@ package me.camm.productions.fortressguns.Util.damage.builder;
 
 import me.camm.productions.fortressguns.Util.Adapter;
 import me.camm.productions.fortressguns.Util.EntityUtils;
-import me.camm.productions.fortressguns.Util.damage.source.DamageProvider1_17_1;
+import me.camm.productions.fortressguns.Util.damage.provider.DamageProvider1_17_1;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class DamageProvider {
+public class DamageAdapter {
 
     private final Map<Class<?>, Adapter<Entity, DamageInfo>> damageRoutes;
 
-    private static DamageProvider provider = null;
+    private static DamageAdapter provider = null;
 
-    private DamageProvider() {
+    private DamageAdapter() {
         damageRoutes = new HashMap<>();
 
         addRoute(new DamageProvider1_17_1());  //todo inline into version provider
     }
 
-    public static DamageProvider getInstance() {
+    public static DamageAdapter getInstance() {
         if (provider == null) {
-            provider = new DamageProvider();
+            provider = new DamageAdapter();
         }
         return provider;
     }

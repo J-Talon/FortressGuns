@@ -8,10 +8,8 @@ import me.camm.productions.fortressguns.Util.config.ConfigManager;
 import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionLightFlakBullet;
 import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
 import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
-import me.camm.productions.fortressguns.Util.damage.builder.DamageProvider;
-import me.camm.productions.fortressguns.Util.damage.source.GunSource;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
 import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -65,7 +63,7 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive, C
         net.minecraft.world.entity.Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
         DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
-        DamageProvider.getInstance().accept(bukkit, info);
+        DamageAdapter.getInstance().accept(bukkit, info);
 
         double length = this.getMot().f();
         final double FACTOR = 1.5;

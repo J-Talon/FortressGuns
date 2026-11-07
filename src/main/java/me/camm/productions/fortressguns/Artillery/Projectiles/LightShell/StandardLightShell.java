@@ -8,9 +8,10 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
 import me.camm.productions.fortressguns.Util.config.ConfigManager;
 import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionHMGBullet;
-import me.camm.productions.fortressguns.Util.damage.source.GunSource;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
 import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.projectile.IProjectile;
@@ -57,12 +58,14 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
         Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
 
-        if (shooter != null) {
-            DamageSource source = GunSource.gunShot(this, shooter);
-            hitEntity.damageEntity(source, getHitDamage());
-        }
-        else
-            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageAdapter.getInstance().accept(bukkit, info);
+//        if (shooter != null) {
+//            DamageSource source = GunSource.gunShot(this, shooter);
+//            hitEntity.damageEntity(source, getHitDamage());
+//        }
+//        else
+//            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
 
         //hurt ticks I believe this is
         if (hitEntity instanceof EntityLiving) {

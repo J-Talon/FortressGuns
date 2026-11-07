@@ -5,7 +5,6 @@ import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Util.damage.builder.DamageMultiplier;
 import me.camm.productions.fortressguns.Util.damage.builder.FGProjectileDamage;
-import me.camm.productions.fortressguns.Util.damage.source.GunSource;
 import net.minecraft.core.Vector3f;
 
 import net.minecraft.world.EnumHand;
@@ -174,9 +173,6 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
         }
         else if (source.isFire()) {
             damage *= DamageMultiplier.FIRE.multiplier;
-        }
-        else if (source instanceof GunSource) {   //tad slow
-            damage *= DamageMultiplier.GUN.multiplier;
         }
         else if (source.isMagic()) {
             damage *= DamageMultiplier.MAGIC.multiplier;
