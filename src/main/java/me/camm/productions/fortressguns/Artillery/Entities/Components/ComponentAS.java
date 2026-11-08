@@ -139,6 +139,14 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
             for future me who will inevitably forget why I did this:
               spigot handles armor stand interact and damage events differently
               LCing a stand is registered as LCing air
+
+
+
+
+              beware of the pipeline
+              I think if a specific thing is returned here, the raytrace for the interaction will actually
+              continue, which can lead to a player "clicking" on multiple armorstands at once, leading
+              to duplicate interactions
         */
 
         //world.y is whether the world is clientside
@@ -266,10 +274,15 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
         if (entity == null) return damageRaw(source, damage);
 
         Entity bukkit = entity.getBukkitEntity();
-        if (bukkit.getType() != EntityType.PLAYER) return damageRaw(source, damage);
+        if (bukkit.getType() != EntityType.PLAYER)
+            return damageRaw(source, damage);
 
         Player player = (Player) bukkit;
-        boolean shouldDamage = onLeftClick(player.getInventory().getItemInMainHand(), player);
+        boolean shouldDamage = true;
+
+        if (source.y.equalsIgnoreCase("player")) {
+        shouldDamage = onLeftClick(player.getInventory().getItemInMainHand(), player);
+        }
 
         return shouldDamage && damageRaw(source, damage);
 

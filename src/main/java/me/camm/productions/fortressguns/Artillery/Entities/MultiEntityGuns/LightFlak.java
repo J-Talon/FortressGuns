@@ -36,9 +36,6 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
     private static boolean configApplied;
 
 
-
-
-
     public LightFlak(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
 
@@ -101,6 +98,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         int delayTicks = 1;
         final int shots = 8;
         canFire = false;
+
             new BukkitRunnable() {
 
                 int fired = 0;
@@ -116,9 +114,6 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
                     lastFireTime = System.currentTimeMillis();
                     fireOneShot();
 
-                    if (requiresReloading())
-                         setAmmo(Math.max(0,getAmmo()-1));
-
                     fired ++;
                     if (fired >= shots) {
                         canFire = true;
@@ -126,7 +121,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
                     }
 
                 }
-            }.runTaskTimer(plugin, 0,delayTicks);
+            }.runTaskTimer(plugin, 0, delayTicks);
 
     }
 
@@ -234,7 +229,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
 
     @Override
     public boolean canFire() {
-        return (System.currentTimeMillis() - lastFireTime >= cooldown) && canFireSingle();
+        return (System.currentTimeMillis() - lastFireTime >= cooldown) && canFire && canFireSingle();
     }
 
     public boolean canFireSingle() {
