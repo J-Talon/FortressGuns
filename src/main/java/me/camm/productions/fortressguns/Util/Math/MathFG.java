@@ -2,11 +2,16 @@ package me.camm.productions.fortressguns.Util.Math;
 
 
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MathFG {
@@ -15,6 +20,10 @@ public class MathFG {
     public static final double POINT_ZERO_RAD = 0.00017;   //0.01 degrees -> rads = ~0.0017
     public static final double RAD = 0.017;
     public static final double FULL_CIRCLE_DEG = 360;
+
+    //armorstand dimensions
+    public final static double LARGE_BLOCK_LENGTH = 0.6;
+    public final static double SMALL_BLOCK_LENGTH = 0.4;
 
 
 
@@ -38,16 +47,18 @@ public class MathFG {
 
 
 
-    public static double linearInterpolate(double increment, double start, double end) {
+    public static double lerp(double increment, double start, double end) {
         return start + increment * (end - start);
     }
 
 
-    public static boolean AABBIntersects(BoundingBox a, BoundingBox b) {
-        return a.overlaps(b);
+    public static boolean isFinite(double d) {
+        return Math.abs(d) <= Double.MAX_VALUE;
     }
 
-
+    public static boolean isFinite(Vector v) {
+        return isFinite(v.getX()) && isFinite(v.getY()) && isFinite(v.getZ());
+    }
 
     public static double randomDouble() {
         return rand.nextDouble();
@@ -307,15 +318,107 @@ destination from the source.
     }
 
 
-    //only for when the up direction is <0,1,0>
-    //whhiiiiich should be true generally here
-    @Deprecated  //see vecToEulerXY
-    public static EulerAngle vecToEuler(Vector vec) {
-        Vector vec2 = vec.clone().normalize();
-        double y = -Math.atan2(vec2.getX(), vec2.getZ());
-        double x = -Math.asin(vec2.getY());
-        return new EulerAngle(x, y, 0);
+    /*
+    Whatever you're checking collisions with must be smaller in dimensions than a block on all sides
+     */
+    public static List<Block> getRoughCollisions(Location point, World world) {
+        List<Block> checks = new ArrayList<>();
+        Block block = world.getBlockAt(point);
+
+        int minX, minY, minZ;
+        int maxX, maxY, maxZ;
+
+        int startX, startY, startZ;
+        startX = block.getX();
+        startY = block.getY();
+        startZ = block.getZ();
+
+        minX = startX - 1;
+        minY = startY - 1;
+        minZ = startZ - 1;
+
+        maxX = startX + 1;
+        maxY = startY + 1;
+        maxZ = startZ + 1;
+
+        Vector offsetPoint = point.toVector();
+        Vector blockCenter = block.getLocation().add(0.5,0.5,0.5).toVector();
+
+        Vector diff = offsetPoint.clone().subtract(blockCenter);
+        double diffX, diffY, diffZ;
+        diffX = diff.getX();
+        diffY = diff.getY();
+        diffZ = diff.getZ();
+
+        if (diffX > 0)
+            minX += 1;
+        else if (diffX < 0)
+            maxX -= 1;
+
+        if (diffY > 0)
+            minY += 1;
+        else if (diffY < 0)
+            maxY -= 1;
+
+        if (diffZ > 0)
+            minZ += 1;
+        else if (diffZ < 0)
+            maxZ -= 1;
+
+        for (int x = minX; x <= maxX; x ++) {
+            for (int z = minZ; z <= maxZ; z ++) {
+                for (int y = minY; y <= maxY; y ++) {
+                    Block check = world.getBlockAt(x,y,z);
+                    if (check.isPassable()) continue;
+                    checks.add(check);
+                }
+            }
+        }
+
+        return checks;
     }
+
+
+
+    public static List<Block> overlaps(BoundingBox box, List<Block> blocks) {
+        List<Block> intersecting = new ArrayList<>();
+        for (Block block: blocks) {
+            int x, y, z;
+            x = block.getX();
+            y = block.getY();
+            z = block.getZ();
+            BoundingBox blockBox = new BoundingBox(x,y,z,x+1, y+1,z+1);
+
+            if (blockBox.overlaps(box)) {
+                intersecting.add(block);
+            }
+        }
+        return intersecting;
+    }
+
+
+
+
+    //Returns an euler angle for aiming based on where the player is looking
+    //@author CAMM
+    public static EulerAngle getPlayerDirectionAngle(Player human) {
+        //x,y,z
+        //x -> vertical rotation
+        //y -> horizontal rotation
+        Location eyeLoc = human.getEyeLocation();
+        return new EulerAngle(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()),0);
+    }
+
+    //Returns a rotation in a language that armorstands understand and in which they can orient themselves to.
+    //@author CAMM
+    //@param horizontal, vertical: angles in the -180 -> 180 format and -90 -> 90 format in degrees
+    public static EulerAngle getStandFacing(double horizontal, double vertical) {
+        //x,y,z
+        //x -> vertical rotation
+        //y -> horizontal rotation
+        return new EulerAngle(Math.toRadians(vertical), Math.toRadians(horizontal) + 180,0);
+    }
+
 
 
 

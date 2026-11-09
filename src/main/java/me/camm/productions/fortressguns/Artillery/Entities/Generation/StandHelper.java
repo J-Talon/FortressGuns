@@ -16,29 +16,10 @@ import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
+import org.jetbrains.annotations.Nullable;
 
 public class StandHelper
 {
-
-    //Returns the player's horizontal rotation in a language that armorstands understand
-    //and will happily and accurately flipping orient themselves to. (Feel the frustration!)
-    //@author CAMM
-    public static EulerAngle getASFace(EntityHuman human) {
-        //x,y,z
-        //x -> vertical rotation
-        //y -> horizontal rotation
-        return new EulerAngle(Math.toRadians(human.getXRot()), Math.toRadians(human.getHeadRotation() + 180),0);
-    }
-
-    //Returns a rotation in a language that armorstands understand and in which they can orient themselves to.
-    //@author CAMM
-    //@param horizontal, vertical: angles in the -180 -> 180 format and -90 -> 90 format in degrees
-    public static EulerAngle getStandFacing(double horizontal, double vertical) {
-        //x,y,z
-        //x -> vertical rotation
-        //y -> horizontal rotation
-        return new EulerAngle(Math.toRadians(vertical), Math.toRadians(horizontal) + 180,0);
-    }
 
 
     public static void setHead(ItemStack stack, EntityArmorStand stand){
@@ -84,13 +65,13 @@ public class StandHelper
 
 
     ////does not spawn into the world - you need to do that.
-    public static ArtilleryPart createVisiblePart(Location loc, ItemStack head, EulerAngle rotation, World world, Artillery artillery) {
+    public static ArtilleryPart createVisiblePart(Location loc, ItemStack head, @Nullable EulerAngle rotation, World world, Artillery artillery) {
         WorldServer nms = ((CraftWorld)world).getHandle();
         ArtilleryPart part = new ArtilleryPart(nms, artillery, loc);
-        part.teleportAndSync(loc.getX(),loc.getY(),loc.getZ());
+        part.teleport(loc.getX(), loc.getY(), loc.getZ());
 
         if (rotation != null)
-         setRotation(part, rotation);
+            part.setRotation(rotation);
 
         if (head != null)
             setHead(head, part);

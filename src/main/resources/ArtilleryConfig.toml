@@ -100,21 +100,27 @@ damage = 5
 [solidShell]
 weight = 1.2
 damage = 25
+explosionDamage = 20
+explosionRadius = 1
+angle = 0
+penetrationPower = 20
 
+# solid shells don't truly explode but they do kick up a lot of debris from their penetration
+# flying rocks are dangerous. Don't eat flying rocks kids
 
 [shellHE]
-explosionPower = 4
+explosionRadius = 4
 explosionDamage = 25
 damage = 10
 
 [shellFlak]
-explosionPower = 4
+explosionRadius = 4
 explosionDamage = 30
 damage = 5
 
 
 [heatSeekerMissile]
-explosionPower = 4
+explosionRadius = 4
 explosionDamage = 30
 orbitDist = 17
 explosionProximity = 3.16

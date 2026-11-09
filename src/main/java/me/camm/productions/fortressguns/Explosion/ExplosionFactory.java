@@ -3,9 +3,9 @@ package me.camm.productions.fortressguns.Explosion;
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplash;
 import me.camm.productions.fortressguns.Explosion.Explosions.Ambient.ExplosionSplashLarge;
 import me.camm.productions.fortressguns.Explosion.Explosions.Functional.*;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Etc.SectionGeneral;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -50,7 +50,7 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
 
 
     public void vanillaExplosion(World w, Entity source, double x, double y, double z, float radius) {
-        w.createExplosion(x,y,z,radius,false,destructiveExplosions, source);
+        w.createExplosion(x,y,z,radius,false, destructiveExplosions, source);
     }
 
 

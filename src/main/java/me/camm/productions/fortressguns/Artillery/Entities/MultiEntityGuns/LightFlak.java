@@ -6,9 +6,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructT
 
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionLightFlak;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionLightFlak;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
@@ -36,9 +36,6 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
     private static boolean configApplied;
 
 
-
-
-
     public LightFlak(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
 
@@ -57,6 +54,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
         infinite = false;
+        magSize = 300;
         configApplied = false;
     }
 
@@ -72,6 +70,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         overheat = data.getOverheat();
         inactiveHeatTicks = data.getHeatTicks();
         heatDissipation = data.getDissipation();
+        magSize = data.getMagSize();
         infinite = data.infinite();
 
     }
@@ -99,6 +98,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         int delayTicks = 1;
         final int shots = 8;
         canFire = false;
+
             new BukkitRunnable() {
 
                 int fired = 0;
@@ -114,9 +114,6 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
                     lastFireTime = System.currentTimeMillis();
                     fireOneShot();
 
-                    if (requiresReloading())
-                         setAmmo(Math.max(0,getAmmo()-1));
-
                     fired ++;
                     if (fired >= shots) {
                         canFire = true;
@@ -124,7 +121,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
                     }
 
                 }
-            }.runTaskTimer(plugin, 0,delayTicks);
+            }.runTaskTimer(plugin, 0, delayTicks);
 
     }
 
@@ -144,7 +141,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         if (operator == null)
             return;
 
-        Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+        Location muzzle = barrel[barrel.length - 1].getCenterPoint().add(0, 0.2, 0);
         boolean jammed = random.nextDouble() < jamPercent;
 
         if (jammed || isJammed()) {
@@ -159,7 +156,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
         if (getBarrelHeat() >= 100) {
             ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
             barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
-            world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
+            world.spawnParticle(Particle.LAVA,barrelPart.getCenterPoint(),5,0,0,0,1);
         }
 
         ProjectileFG projectile = loadedAmmoType.create(world, muzzle.getX(), muzzle.getY(), muzzle.getZ(), operator, this);
@@ -232,7 +229,7 @@ public class LightFlak extends RapidFire implements ConfigurationHolder<SectionL
 
     @Override
     public boolean canFire() {
-        return (System.currentTimeMillis() - lastFireTime >= cooldown) && canFireSingle();
+        return (System.currentTimeMillis() - lastFireTime >= cooldown) && canFire && canFireSingle();
     }
 
     public boolean canFireSingle() {

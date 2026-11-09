@@ -1,16 +1,11 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSnowballFG;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
-import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityTypes;
@@ -71,12 +66,15 @@ public abstract class LightShell extends ProjectileSnowballFG {
 
         Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
-        if (shooter != null) {
-            DamageSource source = GunSource.gunShot(shooter,this);
-            hitEntity.damageEntity(source, getHitDamage());
-        }
-        else
-            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageAdapter.getInstance().accept(bukkit, info);
+//
+//        if (shooter != null) {
+//            DamageSource source = GunSource.gunShot(this, shooter);
+//            hitEntity.damageEntity(source, getHitDamage());
+//        }
+//        else
+//            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
 
         //hurt ticks I believe this is
         if (hitEntity instanceof EntityLiving) {

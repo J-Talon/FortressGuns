@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class ProjectileArrowFG extends EntityArrow implements ProjectileFG {
 
     protected EntityPlayer shooter;
+    protected Player bukkitShooter;
     protected org.bukkit.World bukkitWorld;
 
     protected boolean enteredWater = false;
@@ -34,6 +35,7 @@ public abstract class ProjectileArrowFG extends EntityArrow implements Projectil
 
     public ProjectileArrowFG(World world, double x, double y, double z, @Nullable Player shooter) {
         super(EntityTypes.d, x, y, z, ((CraftWorld)world).getHandle());
+        bukkitShooter = shooter;
 
         if (shooter != null) {
             this.shooter = ((CraftPlayer) shooter).getHandle();

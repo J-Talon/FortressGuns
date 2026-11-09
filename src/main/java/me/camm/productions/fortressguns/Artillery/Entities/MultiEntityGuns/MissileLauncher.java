@@ -7,12 +7,13 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.ITracking;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.AbstractRocket;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.artillery.SectionMissileLauncher;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionMissileLauncher;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
@@ -36,7 +37,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 
-public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher> {
+public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher>, ITracking {
 
     boolean fireRight;
     private Entity target;
@@ -138,22 +139,6 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         interactionInv = new InventoryGroup.BulkPrecision(this);
     }
 
-
-
-    //============config====================================================
-
-    public static void setMaxRockets(int maxRockets) {
-        MissileLauncher.maxRockets = maxRockets;
-    }
-
-    public static void setCooldown(long cooldown) {
-        MissileLauncher.cooldown = cooldown;
-    }
-
-    public static void setMaxHealth(double maxHealth) {
-        MissileLauncher.maxHealth = maxHealth;
-    }
-
     //================================================
 
 
@@ -169,8 +154,14 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
     }
 
 
+    @Override
     public void setTarget(Entity target) {
         this.target = target;
+    }
+
+    @Override
+    public Entity getTarget() {
+        return target;
     }
 
 
@@ -207,8 +198,8 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
         Vector front = dir.clone().multiply(1.5);  //slightly in front of the thing
 
-        Location spawn = shootingPart.getEyeLocation().add(front);
-        Location back = backBlast.getEyeLocation().add(front.multiply(-1));
+        Location spawn = shootingPart.getCenterPoint().add(front);
+        Location back = backBlast.getCenterPoint().add(front.multiply(-1));
 
         Artillery construct = this;
         ProjectileFG missile = createProjectile(world,spawn.getX(), spawn.getY(), spawn.getZ(),shooter,construct);
@@ -278,7 +269,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             return;
         }
 
-        if (target != null && ConstructUtils.isComponentOf(this, target)) {
+        if (target != null && EntityUtils.isComponentOf(this, target)) {
             shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
             setTarget(null);
             return;
@@ -311,9 +302,13 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
     @Override
     public boolean canFire() {
 
-        if (getAmmo() > 0 || (!requiresReloading()) && loadedAmmoType != null)
-            return true;
-        return System.currentTimeMillis() >= (lastFireTime + cooldown);
+        boolean result = System.currentTimeMillis() >= (lastFireTime + cooldown);
+
+        result = result && (getAmmo() > 0 || (!requiresReloading() && loadedAmmoType != null));
+
+        return result;
+
+
     }
 
 
@@ -380,8 +375,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
         vertAngle = MathFG.nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
-        aim = new EulerAngle(vertAngle, horAngle, 0);
-
+        EulerAngle nextAim = new EulerAngle(vertAngle, horAngle, 0);
 
         //rotation is fine without collision checks
         stem[stem.length-1].setRotation(new EulerAngle(0,horAngle, 0));
@@ -406,9 +400,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             barrel[slot + midpoint].setRotation(aim);
         }
 
-
-
-
+        aim = nextAim;
 
         return true;
     }
@@ -461,6 +453,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
        //this is to prevent the two barrels converging onto each other
         //when the euler angle is near vertical (cause then the horizontal approaches 0)
         //threshold value for horMag is 0.01 since we're div by mag we don't want the values --> infinity
+        //I believe this is Gimbal lock?
         final double PRESERVATION = 0.75;  //arbitrary artistic choice
         if (horMag < 0.01) {
 
@@ -494,7 +487,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         int midpoint = barrel.length / 2;
         double distFromMid;
 
-        Location nextStemLoc = stem[stem.length - 1].getLocation(world);
+        Location nextStemLoc = stem[stem.length - 1].getLocation();
         Location[] barrelLocs = new Location[barrel.length];
 
         for (int slot = 0; slot < midpoint; slot ++) {
@@ -554,7 +547,6 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
                     new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
             return;
         }
-
         lockTarget(player);
 
         float percent = (float)trackingLock / MAX_TRACK;
@@ -564,13 +556,13 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
         //----main---
 
-        String extra = "";
+        String extra;
         ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
 
         if (getAmmo() > 0) {
             extra = ChatColor.GOLD+"|".repeat(getAmmo());
 
-            if (trackingLock >= TRACK_REQUIRED)
+            if (trackingLock >= TRACK_REQUIRED && trackedTarget != null)
                 extra += dynamic+" TARGET LOCK";
             else
                 extra += ChatColor.GOLD+ " TRACKING";
@@ -587,7 +579,15 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
             if (trackedTarget.getType() == EntityType.PLAYER)
                 type = trackedTarget.getName();
-            else type = trackedTarget.getType().name().replace('_', ' ');
+            else {
+
+                Component comp = EntityUtils.getComponentRef(trackedTarget);
+                if (comp == null)
+                    type = trackedTarget.getType().name().replace('_', ' ');
+                else
+                    type = comp.getBody().getType().name().toUpperCase();
+
+            }
         }
 
         type = ChatColor.RED + type;
@@ -617,13 +617,10 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
                 if (entity.getUniqueId().equals(human.getUniqueId())) return false;
 
-                if (ConstructUtils.isProjectileFG(entity)) return false;
+                if (EntityUtils.isComponentOf(ref, entity)) return false;
 
-                Component comp = ConstructUtils.getComponentRef(entity);
-                if (comp == null) return true;
+                return !EntityUtils.isProjectileFG(entity);
 
-                Construct cons = comp.getBody();
-                return !(ref.equals(cons));
             }
         }
 

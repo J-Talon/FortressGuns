@@ -51,7 +51,10 @@ public class IBConstructBox implements InteractionBehaviourItem {
         if (type == null)
             return;
 
-        if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
+        if (player.isFlying() ||
+                !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid() ||
+                player.getVehicle() != null
+        ) {
             player.sendMessage(ChatColor.RED+"[!] You must be on the ground to assemble this.");
             return;
         }
@@ -70,7 +73,7 @@ public class IBConstructBox implements InteractionBehaviourItem {
         Construct cons = factory.create(player.getLocation().add(0,offsetY,0), type.ordinal(),x,z, 0);
 
         if (cons != null) {
-            boolean success = cons.spawn(true);
+            boolean success = cons.spawn(false);
             ChunkLoader.addActivePiece(cons);
             if (!success)
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this.");

@@ -6,12 +6,12 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionHMGBullet;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionHMGBullet;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.projectile.IProjectile;
@@ -39,6 +39,7 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
         if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHmgBullet());
     }
 
 
@@ -55,16 +56,11 @@ public class StandardLightShell extends LightShell implements ConfigurationHolde
     @Override
     public boolean onEntityHit(org.bukkit.entity.Entity bukkit, Vector entityPosition) {
         this.a(GameEvent.I, this.getShooter());
-
         Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
 
-        if (shooter != null) {
-            DamageSource source = GunSource.gunShot(shooter,this);
-            hitEntity.damageEntity(source, getHitDamage());
-        }
-        else
-            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageAdapter.getInstance().accept(bukkit, info);
 
         //hurt ticks I believe this is
         if (hitEntity instanceof EntityLiving) {

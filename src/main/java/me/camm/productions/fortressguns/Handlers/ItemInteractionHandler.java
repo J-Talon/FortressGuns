@@ -3,8 +3,8 @@ package me.camm.productions.fortressguns.Handlers;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.interact.IBHandle;
 import me.camm.productions.fortressguns.interact.InteractionBehaviour;
@@ -464,12 +464,12 @@ public class ItemInteractionHandler implements Listener
 
         //whenever the player quits, the server creates a new entity whenever they join back. We do not want this to happen,
         //so we dismount them first.
-        Component comp = ConstructUtils.getComponentRef(riding);
+        Component comp = EntityUtils.getComponentRef(riding);
         if (comp == null) return;
 
         player.leaveVehicle();
 
-        if (comp.getBody() instanceof Rideable ride) {
+        if (comp.getBody() instanceof IRideable ride) {
             ride.onDismount(player);
         }
     }
@@ -481,14 +481,14 @@ public class ItemInteractionHandler implements Listener
     public void onEntityDismount(EntityDismountEvent event) {
 
         org.bukkit.entity.Entity mount = event.getDismounted();
-        Component comp = ConstructUtils.getComponentRef(mount);
+        Component comp = EntityUtils.getComponentRef(mount);
         if (comp == null) return;
 
         Construct cons = comp.getBody();
         Entity rider = event.getEntity();
 
-        if (cons instanceof Rideable && rider.getType() == EntityType.PLAYER) {
-            ((Rideable) cons).onDismount((Player) rider);
+        if (cons instanceof IRideable && rider.getType() == EntityType.PLAYER) {
+            ((IRideable) cons).onDismount((Player) rider);
         }
 
     }

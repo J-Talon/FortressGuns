@@ -1,8 +1,8 @@
 package me.camm.productions.fortressguns.Util.command;
 
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.builder.ConfigField;
-import me.camm.productions.fortressguns.Util.configv2.builder.Section;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.builder.ConfigField;
+import me.camm.productions.fortressguns.Util.config.builder.Section;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;

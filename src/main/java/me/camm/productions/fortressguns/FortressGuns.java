@@ -5,18 +5,26 @@ import me.camm.productions.fortressguns.Handlers.InventoryHandler;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
-import me.camm.productions.fortressguns.Util.configv2.FileManager;
+import me.camm.productions.fortressguns.Util.Version;
+import me.camm.productions.fortressguns.Util.config.FileManager;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.Util.command.CommandListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class FortressGuns extends JavaPlugin {
 
     private static FortressGuns plugin;
+    private static Version versionCode = null;
+
+
     private MissileLockNotifier notifier;
 
     CommandListener commandHandler;
@@ -26,15 +34,45 @@ public final class FortressGuns extends JavaPlugin {
       return plugin;
     }
 
+    public static Version getVersionCode() {
+        return versionCode;
+    }
+
+    //todo create dedicated version manager
+    private void mapToVersion() {
+
+        Map<String, Version> versions = new HashMap<>();
+        for (Version v: Version.values()) {
+            versions.put(v.getVersionCode(), v);
+        }
+
+        String rawVersion = getServer().getClass().getPackage().getName();
+        String code = rawVersion.substring(rawVersion.lastIndexOf(".") + 1);
+        if (versions.containsKey(code)) {
+            versionCode = versions.get(code);
+        }
+    }
+
+
     @Override
     public void onEnable() {
       plugin = this;
+      this.logger = getLogger();
+
+      mapToVersion();
+
+      if (versionCode == null) {
+          logger.log(Level.FINE,"Could not resolve supported version, shutting down");
+          Bukkit.getPluginManager().disablePlugin(this);
+      }
+      else {
+          logger.log(Level.INFO, "Loading plugin for version "+versionCode.getVersionCode() +"!");
+      }
+
       FileManager.loadArtilleryConfig();
 
       ItemInteractionHandler interactionHandler = ItemInteractionHandler.getInstance();
       ChunkLoader loader = ChunkLoader.getInstance();
-
-      this.logger = getLogger();
 
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(interactionHandler,this);

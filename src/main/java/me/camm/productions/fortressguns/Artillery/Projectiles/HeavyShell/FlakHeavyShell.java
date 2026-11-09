@@ -5,18 +5,17 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.configv2.ConfigManager;
-import me.camm.productions.fortressguns.Util.configv2.Wrapper.Projectile.SectionFlak;
-import me.camm.productions.fortressguns.Util.configv2.ConfigurationHolder;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionFlak;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 
 
-import net.minecraft.world.phys.Vec3D;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
@@ -65,31 +64,28 @@ public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, C
         return hitDamage;
     }
 
-    public static void setHitDamage(float hitDamage) {
-        FlakHeavyShell.hitDamage = hitDamage;
-    }
 
     @Override
     public float getExplosionPower() {
         return explosionPower;
     }
 
-    public static void setExplosionPower(float explosionPower) {
-        FlakHeavyShell.explosionPower = explosionPower;
-    }
 
+    @Override
     public void setExplodeTime(double time) {
         this.explodeTime = time;
     }
 
+    @Override
     public void setTerminus(Entity target) {
 
         if (target != null) {
 
             double speed = this.getMot().f();
-            double delX = target.locX() - locX();
-            double delY = target.locY() - locY();
-            double delZ = target.locZ() - locZ();
+            Location loc = target.getLocation();
+            double delX = loc.getX() - locX();
+            double delY = loc.getY() - locY();
+            double delZ = loc.getZ() - locZ();
 
             double distance = Math.sqrt(delX * delX + delY * delY + delZ * delZ);
             explodeTime = (int)(distance / speed);

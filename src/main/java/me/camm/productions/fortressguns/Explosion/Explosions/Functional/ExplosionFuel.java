@@ -5,6 +5,7 @@ import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Block.Alloca
 import me.camm.productions.fortressguns.Explosion.AllocatorFunction.Entity.AllocatorVanillaE;
 import me.camm.productions.fortressguns.Explosion.Effect.EffectMissile;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import net.minecraft.world.level.Explosion;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -44,13 +45,15 @@ public class ExplosionFuel extends ExplosionFunctional {
     }
 
     @Override
-    public float getMaxDamage() {
+    public double getMaxDamage() {
         return 25;
     }
 
 
     @Override
     public double damageFalloff(double distanceSquared) {
+        if (distanceSquared >= radius * radius) return 0;
+
         double max = getMaxDamage();
         if (max == 0)
             return 0;

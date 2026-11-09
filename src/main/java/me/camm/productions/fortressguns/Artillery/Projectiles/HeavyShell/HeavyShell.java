@@ -65,7 +65,7 @@ public abstract class HeavyShell extends ProjectileArrowFG {
 
             Vec3D current = this.getPositionVector();
             Vec3D other = CraftVector.toNMS(hitEntity.getLocation().toVector());
-            float otherWeight = 0.05f;
+            float otherWeight = 0;
 
             Vec3D thisDeflection;
             thisDeflection = other.a(current).d();  /// subtract, normalize
@@ -79,12 +79,17 @@ public abstract class HeavyShell extends ProjectileArrowFG {
             bukkitWorld.spawnParticle(Particle.ELECTRIC_SPARK,loc,5,0,0,0,1);
             bukkitWorld.playSound(loc, Sound.BLOCK_BELL_USE,2,1);
 
-            Vec3D otherDeflection = thisDeflection.a(-1F);
-            otherDeflection = otherDeflection.a(getWeight());
-            hitEntity.setVelocity(hitEntity.getVelocity().clone().add(new Vector(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ())));
+            float weight = getWeight();
+            if (weight > 0) {
+                Vec3D otherDeflection = thisDeflection.a(-1F);
+                otherDeflection = otherDeflection.a(weight);
+                hitEntity.setVelocity(hitEntity.getVelocity().clone().add(new Vector(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ())));
+            }
 
-            thisDeflection = thisDeflection.a(otherWeight);
-            setMot(getMot().add(thisDeflection.getX(), thisDeflection.getY(), thisDeflection.getZ()));
+            if (otherWeight > 0) {
+                thisDeflection = thisDeflection.a(otherWeight);
+                setMot(getMot().add(thisDeflection.getX(), thisDeflection.getY(), thisDeflection.getZ()));
+            }
             return false;
         }
 

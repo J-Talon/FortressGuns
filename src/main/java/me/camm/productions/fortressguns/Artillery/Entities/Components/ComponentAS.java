@@ -1,15 +1,16 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Util.DamageSource.DamageMultiplier;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageMultiplier;
+import me.camm.productions.fortressguns.Util.damage.builder.FGProjectileDamage;
 import net.minecraft.core.Vector3f;
 
 import net.minecraft.world.EnumHand;
 import net.minecraft.world.EnumInteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSourceIndirect;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 
 import net.minecraft.world.entity.player.EntityHuman;
@@ -20,6 +21,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -32,8 +34,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+import static me.camm.productions.fortressguns.Util.Math.MathFG.LARGE_BLOCK_LENGTH;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.SMALL_BLOCK_LENGTH;
 
-public abstract class ComponentAS extends EntityArmorStand implements Component {
+
+public abstract class ComponentAS extends EntityArmorStand implements ComponentArmorStand {
 
     protected Construct body;
 
@@ -60,7 +65,7 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
     @Override
     public void startRiding(Player player) {
         ((CraftPlayer) player).getHandle().startRiding(this);
-        if (this.body instanceof Rideable rideable) {
+        if (this.body instanceof IRideable rideable) {
             rideable.onMount(player);
         }
     }
@@ -134,6 +139,14 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
             for future me who will inevitably forget why I did this:
               spigot handles armor stand interact and damage events differently
               LCing a stand is registered as LCing air
+
+
+
+
+              beware of the pipeline
+              I think if a specific thing is returned here, the raytrace for the interaction will actually
+              continue, which can lead to a player "clicking" on multiple armorstands at once, leading
+              to duplicate interactions
         */
 
         //world.y is whether the world is clientside
@@ -169,9 +182,6 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
         else if (source.isFire()) {
             damage *= DamageMultiplier.FIRE.multiplier;
         }
-        else if (source instanceof GunSource) {   //tad slow
-            damage *= DamageMultiplier.GUN.multiplier;
-        }
         else if (source.isMagic()) {
             damage *= DamageMultiplier.MAGIC.multiplier;
         }
@@ -185,14 +195,14 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
 
     @Override
     public boolean enoughSpace(Vector nextPosition) {
-        boolean res = ConstructUtils.isInBlock(this, nextPosition);
+        boolean res = EntityUtils.isInBlock(this, nextPosition);
         return ! res;
     }
 
 
     @Override
     public boolean enoughSpace() {
-        return ! ConstructUtils.isInBlock(this);
+        return ! EntityUtils.isInBlock(this);
     }
 
 
@@ -222,8 +232,13 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
     }
 
     @Override
-    public Entity getEntity() {
-        return getBukkitEntity();
+    public ArmorStand getEntity() {
+        return (ArmorStand)getBukkitEntity();
+    }
+
+    @Override
+    public org.bukkit.World getBukkitWorld() {
+        return t.getWorld();
     }
 
 
@@ -234,13 +249,14 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
         if (body.isInvalid())
             return super.damageEntity(source,damage);
 
+        //if the thing is suffocating
         if (source.y.equalsIgnoreCase("inWall")) {
-            List<Block> blocks = ConstructUtils.getHeadBlocks(this);
+            List<Block> blocks = EntityUtils.getHeadBlocks((ArmorStand)this.getBukkitEntity());
             float damageSum = 0;
 
             for (Block block: blocks) {
                 damageSum += block.getType().getBlastResistance();
-                org.bukkit.World world = getWorld().getWorld();
+                org.bukkit.World world = getBukkitWorld();
                 Location hit = block.getLocation().add(0.5,0.5, 0.5);
                 world.spawnParticle(Particle.BLOCK_CRACK,hit,30,block.getBlockData());
                 world.playSound(hit, Sound.BLOCK_NETHERRACK_BREAK,SoundCategory.BLOCKS,1,1);
@@ -250,18 +266,50 @@ public abstract class ComponentAS extends EntityArmorStand implements Component 
             return damageRaw(source,damageSum);
         }
 
+        if (source instanceof FGProjectileDamage || source instanceof EntityDamageSourceIndirect) {
+            return damageRaw(source, damage);
+        }
+
         net.minecraft.world.entity.Entity entity = source.getEntity();
         if (entity == null) return damageRaw(source, damage);
 
         Entity bukkit = entity.getBukkitEntity();
-        if (bukkit.getType() != EntityType.PLAYER) return damageRaw(source, damage);
+        if (bukkit.getType() != EntityType.PLAYER)
+            return damageRaw(source, damage);
 
         Player player = (Player) bukkit;
-        boolean shouldDamage = onLeftClick(player.getInventory().getItemInMainHand(), player);
+        boolean shouldDamage = true;
+
+        if (source.y.equalsIgnoreCase("player")) {
+        shouldDamage = onLeftClick(player.getInventory().getItemInMainHand(), player);
+        }
 
         return shouldDamage && damageRaw(source, damage);
 
     }
+
+
+    public double getPositionalHeight() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+    public double getPositionalWidth() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+    public double getPositionalLength() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+
+    /*
+    for armorstands this is the eye location
+     */
+    public Location getCenterPoint() {
+        return new Location(t.getWorld(),locX(), getHeadY(), locZ());
+    }
+
+
 }
 
 
