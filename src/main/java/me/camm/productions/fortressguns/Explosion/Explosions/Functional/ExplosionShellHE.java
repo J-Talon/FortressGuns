@@ -337,9 +337,13 @@ public class ExplosionShellHE extends ExplosionFunctional implements Configurati
 
     @Override
     public double damageFalloff(double distanceSquared) {
+
+        if (distanceSquared >= radius * radius) return 0;
+
         double max = getMaxDamage();
-        if (max == 0)
+        if (max <= 0)
             return 0;
+
 
         double scale = Math.pow(getRadius(),2) / max;
         return Math.max(0, (-1/scale * distanceSquared) + max);

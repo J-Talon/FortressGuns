@@ -86,6 +86,9 @@ public class ExplosionDebris extends ExplosionFunctional implements Configuratio
         if (distanceSquared == 0)
             return getMaxDamage();
 
+        if (distanceSquared >= radius * radius)
+            return 0;
+
         final double THRESHOLD = 0.01;
         double scale = Math.pow(getRadius(),2) * THRESHOLD;
         double falloff = Math.min(scale * (1/distanceSquared),getMaxDamage());

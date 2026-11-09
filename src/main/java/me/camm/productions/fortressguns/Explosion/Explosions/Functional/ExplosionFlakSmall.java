@@ -61,6 +61,8 @@ public class ExplosionFlakSmall extends ExplosionFunctional {
 
     @Override
     public double damageFalloff(double distanceSquared) {
+        if (distanceSquared >= radius * radius) return 0;
+
         double max = getMaxDamage();
         if (max == 0)
             return 0;

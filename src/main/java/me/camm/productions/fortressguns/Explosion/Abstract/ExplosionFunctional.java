@@ -50,6 +50,9 @@ public abstract class ExplosionFunctional extends ExplosionFG {
         falloff *= exposure;
 
 
+        if (falloff <= 0)
+            return;
+
         DamageInfo info = new DamageInfo(DamageField.ARTILLERY, null, source, (float) falloff);
         DamageAdapter.getInstance().accept(affected, info);
 

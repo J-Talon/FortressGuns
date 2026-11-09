@@ -375,8 +375,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
         vertAngle = MathFG.nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
-        aim = new EulerAngle(vertAngle, horAngle, 0);
-
+        EulerAngle nextAim = new EulerAngle(vertAngle, horAngle, 0);
 
         //rotation is fine without collision checks
         stem[stem.length-1].setRotation(new EulerAngle(0,horAngle, 0));
@@ -401,9 +400,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             barrel[slot + midpoint].setRotation(aim);
         }
 
-
-
-
+        aim = nextAim;
 
         return true;
     }
@@ -549,7 +546,6 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
                     new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
             return;
         }
-
         lockTarget(player);
 
         float percent = (float)trackingLock / MAX_TRACK;
@@ -565,7 +561,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         if (getAmmo() > 0) {
             extra = ChatColor.GOLD+"|".repeat(getAmmo());
 
-            if (trackingLock >= TRACK_REQUIRED)
+            if (trackingLock >= TRACK_REQUIRED && trackedTarget != null)
                 extra += dynamic+" TARGET LOCK";
             else
                 extra += ChatColor.GOLD+ " TRACKING";
