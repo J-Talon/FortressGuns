@@ -122,13 +122,6 @@ public abstract class Allocator<R, I> {
 
         RayTraceResult result = world.rayTrace(startLoc, direction, distance, FluidCollisionMode.NEVER,true,0,pred);
 
-        Location pl = startLoc.clone();
-        for (double d = 0; d < distance; d += 0.1) {
-            pl.add(direction.clone().multiply(0.1));
-            world.spawnParticle(Particle.END_ROD,pl,1,0,0,0,0);
-        }
-
-
 
         if (result == null) return false;
 //        Block block = result.getHitBlock();
