@@ -58,8 +58,13 @@ public class AllocatorConeE extends Allocator<List<Tuple2<Entity, Float>>,Tuple3
 
 
         for (Entity entity: entities) {
+            Vector entityPos = entity.getLocation().toVector();
+
+            if (position.distanceSquared(entityPos) > radius * radius)
+                continue;
+
             double exposure = getExposure(entity, x,y,z);
-            Vector toEntity = entity.getLocation().toVector().subtract(position);
+            Vector toEntity = entityPos.subtract(position);
             double angle = Math.max(0, toEntity.dot(direction) - subtraction);
             exposures.add(new Tuple2<>(entity, (float)(exposure * angle)));
         }

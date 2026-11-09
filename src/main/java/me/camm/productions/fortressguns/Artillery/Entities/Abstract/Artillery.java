@@ -107,6 +107,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         if (!chunkLoaded())
             return;
 
+        getInventoryGroup().close();
+
         List<Component> parts = getParts();
         parts.remove(pivot);
 

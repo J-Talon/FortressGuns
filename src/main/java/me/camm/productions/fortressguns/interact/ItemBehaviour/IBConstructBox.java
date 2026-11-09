@@ -51,7 +51,10 @@ public class IBConstructBox implements InteractionBehaviourItem {
         if (type == null)
             return;
 
-        if (player.isFlying() || !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid()) {
+        if (player.isFlying() ||
+                !player.getLocation().clone().subtract(0,0.1,0).getBlock().getType().isSolid() ||
+                player.getVehicle() != null
+        ) {
             player.sendMessage(ChatColor.RED+"[!] You must be on the ground to assemble this.");
             return;
         }

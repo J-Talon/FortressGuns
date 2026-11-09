@@ -453,6 +453,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
        //this is to prevent the two barrels converging onto each other
         //when the euler angle is near vertical (cause then the horizontal approaches 0)
         //threshold value for horMag is 0.01 since we're div by mag we don't want the values --> infinity
+        //I believe this is Gimbal lock?
         final double PRESERVATION = 0.75;  //arbitrary artistic choice
         if (horMag < 0.01) {
 
@@ -555,7 +556,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
         String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
         //----main---
 
-        String extra = "";
+        String extra;
         ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
 
         if (getAmmo() > 0) {

@@ -55,6 +55,10 @@ public class AllocatorVanillaE extends Allocator<List<Tuple2<Float,Entity>>, Tup
             if (blacklist != null && (e.getUniqueId().equals(blacklist.getUniqueId())))
                 continue;
 
+            Vector hitPos = e.getLocation().toVector();
+            if (position.distanceSquared(hitPos) > radius * radius)
+                continue;
+
             float exposure = getExposure(e,x,y,z);
             result.add(new Tuple2<>(exposure, e));
 
