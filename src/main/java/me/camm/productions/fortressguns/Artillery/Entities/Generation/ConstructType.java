@@ -8,10 +8,10 @@ public enum ConstructType {
     FIELD_LIGHT(FGItems.FIELD_LIGHT,new ConstructFactory.FactoryLightArtillery(), "fieldLight"),
     FIELD_HEAVY(FGItems.FIELD_HEAVY, new ConstructFactory.FactoryHeavyArtillery(),"fieldHeavy"),
     FLAK_HEAVY(FGItems.FLAK_HEAVY,new ConstructFactory.FactoryHeavyFlak(),"heavyFlak"),
-    RAIL_GUN(FGItems.RAILGUN,null,"railGun"),
+   // RAIL_GUN(FGItems.RAILGUN,null,"railGun"),
     MISSILE_LAUNCHER(FGItems.MISSILE_LAUNCHER, new ConstructFactory.FactoryMissileLauncher(), "missileLauncher"),
     HEAVY_MACHINE(FGItems.HMG, new ConstructFactory.FactoryHMG(), "heavyMachineGun"),
-    CRAM(FGItems.CRAM, new ConstructFactory.FactoryCRAM(), "cram"),
+   // CRAM(FGItems.CRAM, new ConstructFactory.FactoryCRAM(), "cram"),
     FLAK_LIGHT(FGItems.FLAK_LIGHT, new ConstructFactory.FactoryLightFlak(),"lightFlak");
   //  DEBUG(null, new ConstructFactory.FactoryTest(), "debug");
 

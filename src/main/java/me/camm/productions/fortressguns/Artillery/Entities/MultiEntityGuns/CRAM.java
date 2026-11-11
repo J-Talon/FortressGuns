@@ -21,74 +21,74 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CRAM extends Artillery implements IAutoTracking {
+public class CRAM /*extends Artillery implements IAutoTracking*/ {
     private boolean aiming;
     private static double maxHealth;
     private Entity target;
 
     public CRAM(Location loc, World world, EulerAngle aim) {
-        super(loc, world,aim);
+       // super(loc, world,aim);
         aiming = false;
         this.target = null;
 
-        this.base = new ArtilleryPart[1][1];  //temporary
-        this.barrel = new ArtilleryPart[1];
+   //     this.base = new ArtilleryPart[1][1];  //temporary
+    //    this.barrel = new ArtilleryPart[1];
     }
 
     static {
         maxHealth = 30;
     }
 
-    @Override
-    protected void initInventories() {
-        interactionInv = new InventoryGroup.RapidGroupIdeal(this);
-    }
-
-    @Override
-    public boolean requiresReloading() {
-        return false;
-    }
-
-    public List<Component> getParts() {
-        List<Component> parts = new ArrayList<>();
-        parts.add(pivot);
-        return parts;
-    }
-
-    public static void setMaxHealth(double max) {
-        maxHealth = max;
-    }
-
-
-
-
-
-    @Override
-    public int getMaxAmmo() {
-        return -1;
-    }
-
-
-    @Override
-    protected void instantiateParts() {
-        pivot = StandHelper.createCore(initialLoc ,new ItemStack(Material.STONE),aim,world,this);
-    }
-
-    @Override
-    protected void spawnBaseParts() {
-    }
-
-    @Override
-    protected void spawnTurretParts() {
-    }
-
-
-    // oh look a civilian airliner
-    @Override
-    public void fire(@Nullable Player shooter) {
-
-        if (target == null || target.isRemoved() || !target.isAlive())
-            return;
+//    @Override
+//    protected void initInventories() {
+//        interactionInv = new InventoryGroup.RapidGroupIdeal(this);
+//    }
+//
+//    @Override
+//    public boolean requiresReloading() {
+//        return false;
+//    }
+//
+//    public List<Component> getParts() {
+//        List<Component> parts = new ArrayList<>();
+//        parts.add(pivot);
+//        return parts;
+//    }
+//
+//    public static void setMaxHealth(double max) {
+//        maxHealth = max;
+//    }
+//
+//
+//
+//
+//
+//    @Override
+//    public int getMaxAmmo() {
+//        return -1;
+//    }
+//
+//
+//    @Override
+//    protected void instantiateParts() {
+//        pivot = StandHelper.createCore(initialLoc ,new ItemStack(Material.STONE),aim,world,this);
+//    }
+//
+//    @Override
+//    protected void spawnBaseParts() {
+//    }
+//
+//    @Override
+//    protected void spawnTurretParts() {
+//    }
+//
+//
+//    // oh look a civilian airliner
+//    @Override
+//    public void fire(@Nullable Player shooter) {
+//
+//        if (target == null || target.isRemoved() || !target.isAlive())
+//            return;
 //
 //        Vector a;
 //        a.rotateAroundAxis();
@@ -175,62 +175,62 @@ public class CRAM extends Artillery implements IAutoTracking {
 //        System.out.println("shooting");
 //
 
-    }
-
-    @Override
-    public ConstructType getType() {
-        return ConstructType.CRAM;
-    }
-
-    @Override
-    public boolean canFire() {
-        return target != null;
-    }
-
-    @Override
-    public double getMaxHealth() {
-        return maxHealth;
-    }
-
-    @Override
-    public double getVectorPower() {
-        return 4;
-    }
-
-    @Override
-    public boolean pivot(double vertAngle, double horAngle) {
-        return false;
-    }
-
-    @Override
-    public boolean isAiming() {
-        return aiming;
-    }
-
-
-
-    @Override
-    public void setAiming(boolean aiming) {
-        this.aiming = aiming;
-    }
-
-
-    @Override
-    public boolean acceptsAmmo(AmmoItem item) {
-        return AmmoItem.CRAM == item;
-    }
-
-    @Override
-    public void startAiming() {
-
-    }
-
-    @Override
-    public org.bukkit.entity.Entity getTarget() {
-        return null;
-    }
-
-    public void setTarget(org.bukkit.entity.Entity target) {
-
-    }
+//    }
+//
+//    @Override
+//    public ConstructType getType() {
+//        return ConstructType.CRAM;
+//    }
+//
+//    @Override
+//    public boolean canFire() {
+//        return target != null;
+//    }
+//
+//    @Override
+//    public double getMaxHealth() {
+//        return maxHealth;
+//    }
+//
+//    @Override
+//    public double getVectorPower() {
+//        return 4;
+//    }
+//
+//    @Override
+//    public boolean pivot(double vertAngle, double horAngle) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean isAiming() {
+//        return aiming;
+//    }
+//
+//
+//
+//    @Override
+//    public void setAiming(boolean aiming) {
+//        this.aiming = aiming;
+//    }
+//
+//
+//    @Override
+//    public boolean acceptsAmmo(AmmoItem item) {
+//        return AmmoItem.CRAM == item;
+//    }
+//
+//    @Override
+//    public void startAiming() {
+//
+//    }
+//
+//    @Override
+//    public org.bukkit.entity.Entity getTarget() {
+//        return null;
+//    }
+//
+//    public void setTarget(org.bukkit.entity.Entity target) {
+//
+//    }
 }
