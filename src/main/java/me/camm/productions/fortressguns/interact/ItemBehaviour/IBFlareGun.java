@@ -66,20 +66,20 @@ public class IBFlareGun implements InteractionBehaviourItem, ConfigurationHolder
         event.setCancelled(true);
     }
 
-    private boolean fire(PlayerInteractEvent event) {
-        if (!enableFlares) return false;
+    private void fire(PlayerInteractEvent event) {
+        if (!enableFlares) return;
 
         Player player = event.getPlayer();
         ItemStack gun = player.getInventory().getItemInMainHand();
 
         if (isOnCooldown(gun)) {
             player.sendMessage(ChatColor.RED + "Your Flare Gun is on cooldown!");
-            return true;
+            return;
         }
 
         if (!consumeAmmo(player)) {
             player.sendMessage(ChatColor.RED + "You need Flares to fire!");
-            return true;
+            return;
         }
 
         setCooldown(gun);
@@ -87,7 +87,6 @@ public class IBFlareGun implements InteractionBehaviourItem, ConfigurationHolder
         for (int i = 0; i < 5; i++) {
             fireProjectile(player);
         }
-        return true;
     }
 
     private void fireProjectile(Player player) {

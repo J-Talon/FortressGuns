@@ -21,7 +21,12 @@ public abstract class ConstructInventory
      public ConstructInventory(Construct owner, InventoryCategory setting, InventoryGroup group) {
           this.owner = owner;
           this.group = group;
-          this.gui = Bukkit.createInventory(null, setting.size, setting.title);
+
+          String title = owner.getType().getName();
+          if (title == null)
+               title = setting.title;
+
+          this.gui = Bukkit.createInventory(null, setting.size, title);
           this.tag = setting;
 
      }
