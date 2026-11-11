@@ -198,7 +198,7 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
             this.setNoGravity(false);
 
             if (target != null) {
-                notifier.exitNotification(target.getUniqueId());
+                setTarget(null);
             }
 
             return;
@@ -271,8 +271,9 @@ public class HeatseekingMissile extends AbstractRocket implements ProjectileSeek
     private void flyToTarget(Location missileLoc) {
 
         if (target.isDead() || !target.isValid() || (target.getWorld() != bukkitWorld)) {
-            notifier.removeNotification(target.getUniqueId());
-            target = null;
+            setTarget(null);
+//            notifier.removeNotification(target.getUniqueId());
+//            target = null;
             return;
         }
 

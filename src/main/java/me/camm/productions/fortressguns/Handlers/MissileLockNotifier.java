@@ -104,8 +104,9 @@ public class MissileLockNotifier implements Runnable {
         }
 
         tup.setA(tup.getA() + 1);
+
         if (endTS > tup.getB()) {
-            tup.setB(endTS);
+            tup.setB(Math.max(endTS, tup.getB()));
         }
 
         dataLock.unlock();
@@ -113,7 +114,6 @@ public class MissileLockNotifier implements Runnable {
     }
 
     public void exitNotification(UUID id) {
-
         dataLock.lock();
         Tuple2<Integer, Long> data = entries.getOrDefault(id, null);
         if (data == null) { dataLock.unlock(); return; }
@@ -123,8 +123,9 @@ public class MissileLockNotifier implements Runnable {
        if (missiles <= 0) {
            entries.remove(id);
        }
+       else
+           data.setA(missiles);
 
-       else data.setA(missiles);
        dataLock.unlock();
     }
 
@@ -142,7 +143,6 @@ public class MissileLockNotifier implements Runnable {
             List<UUID> removals = new ArrayList<>();
 
             while (running.get()) {
-
                 dataLock.lock();
                 if (entries.isEmpty()) {
                     dataLock.unlock();
@@ -171,8 +171,9 @@ public class MissileLockNotifier implements Runnable {
                             break process;
                         }
 
-                        if (!player.isGliding())
+                        if (!player.isGliding()) {
                             break process;
+                        }
 
                         String out = (tup.getA()) > 1 ? "Missiles Inbound" : "Missile Inbound";
                         ChatColor color = showRed ? ChatColor.RED : ChatColor.WHITE;
@@ -181,12 +182,16 @@ public class MissileLockNotifier implements Runnable {
                     }
                 );
 
-                for (UUID id: removals) entries.remove(id);
+                for (UUID id: removals) {
+                    removeNotification(id);
+                }
+
+                removals.clear();
 
                 dataLock.unlock();
 
                 conditionLock.lock();
-                condition.await(1, TimeUnit.SECONDS);
+                condition.await(500, TimeUnit.MILLISECONDS);
                 conditionLock.unlock();
 
                 showRed = !showRed;

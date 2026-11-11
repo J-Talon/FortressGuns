@@ -144,7 +144,9 @@ useVanillaExplosions = false
 #some shells may still break blocks via non-explosive means
 destructiveExplosions = true
 
-
+#mostly for debugging
+#print data from the chunk handler for artillery
+verboseChunkLogging = false
 
 
 

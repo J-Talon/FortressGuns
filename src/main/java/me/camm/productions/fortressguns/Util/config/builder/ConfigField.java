@@ -16,6 +16,8 @@ public enum ConfigField {
     FLARES("enableFlares"),
     VANILLA("useVanillaExplosions"),
     DESTRUCTIVE("destructiveExplosions"),
+    VERBOSE_CHUNK("verboseChunkLogging"),
+
     ANGLE("angle"),
     PEN("penetrationPower"),
 
