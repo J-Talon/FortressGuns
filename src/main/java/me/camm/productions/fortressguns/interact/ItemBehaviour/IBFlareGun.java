@@ -5,6 +5,9 @@ import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
 import org.bukkit.ChatColor;
@@ -20,11 +23,28 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
-public class IBFlareGun implements InteractionBehaviourItem {
+public class IBFlareGun implements InteractionBehaviourItem, ConfigurationHolder<SectionGeneral> {
 
     private static final long COOLDOWN_MILLIS = 3000;
     private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey(FortressGuns.getInstance(), "flare_gun_cooldown");
+
+    private static boolean configApplied = false;
+    private static boolean enableFlares = true;
+
+    public IBFlareGun() {
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        setStaticDefaults(manager.getGeneral());
+    }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionGeneral data) {
+        configApplied = true;
+        if (data == null) return;
+        enableFlares = data.isEnableFlares();
+    }
 
     @Override
     public Material[] getLabels() {
@@ -46,18 +66,20 @@ public class IBFlareGun implements InteractionBehaviourItem {
         event.setCancelled(true);
     }
 
-    private void fire(PlayerInteractEvent event) {
+    private boolean fire(PlayerInteractEvent event) {
+        if (!enableFlares) return false;
+
         Player player = event.getPlayer();
         ItemStack gun = player.getInventory().getItemInMainHand();
 
         if (isOnCooldown(gun)) {
             player.sendMessage(ChatColor.RED + "Your Flare Gun is on cooldown!");
-            return;
+            return true;
         }
 
         if (!consumeAmmo(player)) {
             player.sendMessage(ChatColor.RED + "You need Flares to fire!");
-            return;
+            return true;
         }
 
         setCooldown(gun);
@@ -65,9 +87,11 @@ public class IBFlareGun implements InteractionBehaviourItem {
         for (int i = 0; i < 5; i++) {
             fireProjectile(player);
         }
+        return true;
     }
 
     private void fireProjectile(Player player) {
+
         org.bukkit.Location location = player.getEyeLocation().clone();
         World world = player.getWorld();
 

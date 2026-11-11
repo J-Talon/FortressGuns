@@ -5,6 +5,9 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.Projectil
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Recipes.RecipeManager;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
 
 import org.bukkit.*;
@@ -29,16 +32,33 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import static me.camm.productions.fortressguns.interact.item.classification.FGItems.FLARE;
 
 
-//todo handle config after agnostics
-public class IBFlare implements InteractionBehaviourItem {
+public class IBFlare implements InteractionBehaviourItem, ConfigurationHolder<SectionGeneral> {
 
     private static final String FLARE_NAME = ChatColor.GRAY + "Flares";
     private static final NamespacedKey LOADED_FLARE_KEY =
             new NamespacedKey(FortressGuns.getInstance(), "loaded_flare");
+
+    private static boolean configApplied = false;
+    private static boolean enableFlares = true;
+
+    public IBFlare() {
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        setStaticDefaults(manager.getGeneral());
+    }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionGeneral data) {
+        configApplied = true;
+        if (data == null) return;
+        enableFlares = data.isEnableFlares();
+    }
 
     @Override
     public Material[] getLabels() {
@@ -48,7 +68,10 @@ public class IBFlare implements InteractionBehaviourItem {
         };
     }
 
-    private void fireFlare(Block block) {
+    private boolean fireFlare(Block block) {
+
+        if (!enableFlares) return false;
+
         Directional directional =
                 (Directional) block.getBlockData();
 
@@ -76,6 +99,8 @@ public class IBFlare implements InteractionBehaviourItem {
                 null
         );
         flare.addToWorld(world);
+
+        return true;
 
     }
 
@@ -223,7 +248,8 @@ public class IBFlare implements InteractionBehaviourItem {
 
         event.setCancelled(true);
 
-        fireFlare(event.getBlock());
+        boolean res = fireFlare(event.getBlock());
+        if (!res) return;
 
         Dispenser dispenser = (Dispenser) event.getBlock().getState();
         Inventory inventory = dispenser.getInventory();

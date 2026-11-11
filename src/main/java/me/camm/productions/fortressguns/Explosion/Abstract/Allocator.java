@@ -124,21 +124,11 @@ public abstract class Allocator<R, I> {
 
 
         if (result == null) return false;
-//        Block block = result.getHitBlock();
-//        if (block != null) return false;
 
         Entity hit = result.getHitEntity();
         if (hit == null) return false;
 
         return hit.getUniqueId().equals(e.getUniqueId());
-//
-//        Vec3D startVec = new Vec3D(start.getX(), start.getY(), start.getZ());
-//        Vec3D directionVec = new Vec3D(direction.getX(), direction.getY(), direction.getZ());
-//
-//        net.minecraft.world.level.World worldNMS = ((CraftWorld)world).getHandle();
-//        net.minecraft.world.entity.Entity entityNMS = ((CraftEntity)e).getHandle();
-//        MovingObjectPosition pos = worldNMS.rayTrace(new RayTrace(startVec, directionVec, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, entityNMS));
-//        return pos.getType() == MovingObjectPosition.EnumMovingObjectType.a;
     }
 
 }
