@@ -16,13 +16,14 @@ public class SectionGeneral extends ConfigSection {
     private Boolean enableFlares;
     private Boolean useVanillaExplosions;
     private Boolean destructiveExplosions;
+    private Boolean verboseChunkLogging;
 
-
-    public SectionGeneral(Boolean enableFlares, Boolean useVanillaExplosions, Boolean destructiveExplosions, String key) {
+    public SectionGeneral(Boolean enableFlares, Boolean useVanillaExplosions, Boolean destructiveExplosions, Boolean verboseChunkLogging, String key) {
         super(key);
         this.enableFlares = enableFlares;
         this.useVanillaExplosions = useVanillaExplosions;
         this.destructiveExplosions = destructiveExplosions;
+        this.verboseChunkLogging = verboseChunkLogging;
     }
 
     @Override
@@ -36,6 +37,7 @@ public class SectionGeneral extends ConfigSection {
                     notNull(enableFlares, ConfigField.FLARES);
                     notNull(useVanillaExplosions, ConfigField.VANILLA);
                     notNull(destructiveExplosions, ConfigField.DESTRUCTIVE);
+                    notNull(verboseChunkLogging, ConfigField.VERBOSE_CHUNK);
                 }
             }.validate(this);
         } catch (IllegalArgumentException e) {
@@ -55,5 +57,9 @@ public class SectionGeneral extends ConfigSection {
 
     public Boolean getDestructiveExplosions() {
         return destructiveExplosions;
+    }
+
+    public Boolean getVerboseChunkLogging() {
+        return verboseChunkLogging;
     }
 }

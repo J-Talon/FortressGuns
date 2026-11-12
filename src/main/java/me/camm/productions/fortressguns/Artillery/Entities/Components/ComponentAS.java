@@ -255,12 +255,16 @@ public abstract class ComponentAS extends EntityArmorStand implements ComponentA
             float damageSum = 0;
 
             for (Block block: blocks) {
-                damageSum += block.getType().getBlastResistance();
-                org.bukkit.World world = getBukkitWorld();
-                Location hit = block.getLocation().add(0.5,0.5, 0.5);
-                world.spawnParticle(Particle.BLOCK_CRACK,hit,30,block.getBlockData());
-                world.playSound(hit, Sound.BLOCK_NETHERRACK_BREAK,SoundCategory.BLOCKS,1,1);
-                block.setType(Material.AIR);
+                float blastRes = block.getType().getBlastResistance();
+                damageSum += blastRes;
+
+                if (damageSum < body.getHealth()) {
+                    org.bukkit.World world = getBukkitWorld();
+                    Location hit = block.getLocation().add(0.5, 0.5, 0.5);
+                    world.spawnParticle(Particle.BLOCK_CRACK, hit, 30, block.getBlockData());
+                    world.playSound(hit, Sound.BLOCK_NETHERRACK_BREAK, SoundCategory.BLOCKS, 1, 1);
+                    block.breakNaturally();
+                }
             }
 
             return damageRaw(source,damageSum);

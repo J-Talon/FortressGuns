@@ -624,7 +624,14 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
             }
         }
 
-        RayTraceResult res = world.rayTraceEntities(eyeLocation, lookDirection, DISTANCE, 3, new PredicateTarget());
+        RayTraceResult res = world.rayTrace(
+                eyeLocation,
+                lookDirection,
+                DISTANCE,
+                FluidCollisionMode.NEVER,
+                true,
+                3,
+                new PredicateTarget());
 
 
         if (res == null) {

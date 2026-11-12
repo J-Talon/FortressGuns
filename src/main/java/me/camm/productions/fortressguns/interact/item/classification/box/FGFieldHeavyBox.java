@@ -6,6 +6,6 @@ public class FGFieldHeavyBox extends FGBoxItem {
 
     @Override
     public String getDisplayName() {
-        return ChatColor.GRAY+"Field Heavy"+ChatColor.WHITE;
+        return ChatColor.DARK_GRAY+"Field Heavy"+ChatColor.WHITE;
     }
 }

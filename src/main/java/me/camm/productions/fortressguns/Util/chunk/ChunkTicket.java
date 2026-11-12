@@ -3,9 +3,13 @@ package me.camm.productions.fortressguns.Util.chunk;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -15,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ChunkTicket {
+public class ChunkTicket implements ConfigurationHolder<SectionGeneral> {
 
     private final Construct construct;
     private final List<IntTuple2> chunks;
@@ -32,6 +36,9 @@ public class ChunkTicket {
 
     private final Logger logger;
 
+    private static boolean verboseChunks = false;
+    private static boolean configApplied = false;
+
 
     public ChunkTicket(List<IntTuple2> chunks, int loaded, Construct construct, Entity oldCore, World world) {
         this.construct = construct;
@@ -46,16 +53,28 @@ public class ChunkTicket {
 
 
         logger = FortressGuns.getInstance().getLogger();
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        setStaticDefaults(manager.getGeneral());
     }
 
 
+    @Override
+    public void setStaticDefaults(@Nullable SectionGeneral data) {
+        configApplied = true;
+        if (data == null) return;
+        verboseChunks = data.getVerboseChunkLogging();
+
+    }
+
     /*
-    return: true -> All chunks have loaded, prepare to spawn the construct
-            false -> Not all chunks loaded, keep watching the ticket
-     */
+        return: true -> All chunks have loaded, prepare to spawn the construct
+                false -> Not all chunks loaded, keep watching the ticket
+         */
     public synchronized boolean onLoad() {
         int loaded = currentLoaded.updateAndGet((value) -> Math.min(value + 1, numChunks));
-        logger.log(Level.INFO, getUUID() +" loaded, now at "+currentLoaded.get() +" / "+numChunks);
+        log(getUUID() +" loaded, now at "+currentLoaded.get() +" / "+numChunks);
         return loaded >= numChunks;
 
     }
@@ -70,7 +89,7 @@ public class ChunkTicket {
         lock.lock();
         int val = currentLoaded.updateAndGet((value) -> Math.max(0, value - 1));
 
-        logger.log(Level.INFO, getUUID() +" unloaded, now at "+val +" / "+numChunks);
+        log(getUUID() +" unloaded, now at "+val +" / "+numChunks);
 
         if (!coreChunk.isLoaded()) {
             lock.unlock();
@@ -153,5 +172,11 @@ public class ChunkTicket {
         }
         return s.toString();
 
+    }
+
+
+    private void log(String in) {
+        if (verboseChunks)
+            logger.info(in);
     }
 }

@@ -3,12 +3,16 @@
 
 #==============================
 [fieldLight]
-#healthpoints of the artillery
+#healthpoints of the artillery before it is destroyed
 health = 20
 #The cooldown time to wait until the artillery can fire again, if reloading is disabled
 #if cooldown is disabled the firing speed is still gated by the time required to play out
 #the current animation and current shot being fired. Time in milliseconds.
 cooldown = 3000
+
+#whether the gun has infinite ammo
+#loading at least 1 ammo item into the artillery is required so that
+#the gun knows that type of ammo to infinitely fire.
 infiniteAmmo = false
 
 
@@ -38,7 +42,7 @@ infiniteAmmo = false
 #set to -1 to allow arbitrary length belt feeding
 magSize = 40
 
-#The percent chance for any one shot to jam the gun. float value, 0 to 1.
+#The percent chance for any one shot to jam the gun. float value, [0-100]
 jamPercent = 0
 
 #the amount of heat which should be incurred per shot.
@@ -46,7 +50,8 @@ jamPercent = 0
 overheat = 1
 
 
-#the rate at which the gun cools down. float [0-100]
+#the rate at which the gun cools down every tick after
+#the inactive heat ticks has elapsed. float [0-100]
 heatDissipationRate = 1
 
 #The amount of time in ticks after shooting to wait before the gun starts cooling down
@@ -144,7 +149,9 @@ useVanillaExplosions = false
 #some shells may still break blocks via non-explosive means
 destructiveExplosions = true
 
-
+#mostly for debugging
+#print data from the chunk handler for artillery
+verboseChunkLogging = false
 
 
 

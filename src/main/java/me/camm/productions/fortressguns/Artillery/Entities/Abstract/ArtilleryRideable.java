@@ -14,14 +14,24 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 public abstract class ArtilleryRideable extends Artillery implements IRideable {
 
     protected Component rotatingSeat = null;  //artillery may have multiple seats in the future
     protected Player operator = null;
 
+    //todo render optimizations for ride tick
+    protected String cache;
+    protected AtomicBoolean dirtyRender;
+    protected long lastRender;
+
     public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
+        cache = "";
+        dirtyRender = new AtomicBoolean(true);
+        lastRender = 0;
     }
 
 
@@ -44,6 +54,7 @@ public abstract class ArtilleryRideable extends Artillery implements IRideable {
             setCameraLocked(false);
             setInterpolatedAim(getAim());
         }
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
     }
 
     @Override
@@ -57,6 +68,8 @@ public abstract class ArtilleryRideable extends Artillery implements IRideable {
         setCameraLocked(true);
         setInterpolating(false);
         this.operator = player;
+
+        player.sendMessage(ChatColor.WHITE+"Operating: "+this.getType().getName());
 
         ArtilleryRideable artillery = this;
 

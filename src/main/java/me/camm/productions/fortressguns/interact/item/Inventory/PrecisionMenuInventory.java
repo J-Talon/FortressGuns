@@ -126,10 +126,16 @@ public class PrecisionMenuInventory extends MenuInventory {
         ItemStack fire = StaticItem.FIRE.toItemRaw();
         ItemStack reload = StaticItem.RELOAD.toItemRaw();
         ItemStack disassemble = StaticItem.DISASSEMBLE.toItemRaw();
+        ItemStack repair = StaticItem.REPAIR.toItemRaw();
 
-        for (i = 0; i < 3; i++ ) {
+        for (i = 0; i < 2; i++ ) {
             gui.setItem(9 * i + 8, fire);
             gui.setItem(9 * i + 7, fire);
+        }
+
+        for (i = 2; i < 3; i ++) {
+            gui.setItem(9 * i + 8, repair);
+            gui.setItem(9 * i + 7, repair);
         }
 
         for (i = 3; i < 5; i++) {
@@ -140,34 +146,6 @@ public class PrecisionMenuInventory extends MenuInventory {
         gui.setItem(52, disassemble);
         gui.setItem(53, disassemble);
 
-    }
-
-
-    @Override
-    public void updateState() {
-
-        Artillery art = (Artillery)owner;
-        EulerAngle aim = art.getAim();
-        double x = Math.toDegrees(aim.getX());
-        x = Math.round((x * 10)) / 10.0;
-
-        double y = Math.toDegrees(aim.getY());
-        y = Math.round((y * 10)) / 10.0;
-
-        String rotation = ChatColor.RED + "["+y +" | "+ x +"]";
-
-        if (art.isInterpolating()) {
-            ItemStack rotationInfo = StaticItem.INFO.toItem(ChatColor.GRAY+"Rotating to "+rotation);
-            for (int i = 0; i < 6; i ++) {
-                gui.setItem(9 * i + 3, rotationInfo);
-            }
-            return;
-        }
-
-        ItemStack rotationInfo = StaticItem.INFO.toItem(rotation);
-        for (int i = 0; i < 6; i ++) {
-            gui.setItem(9 * i + 3, rotationInfo);
-        }
     }
 
 

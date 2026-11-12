@@ -6,6 +6,6 @@ public class FGLightFlakBox extends FGBoxItem {
 
     @Override
     public String getDisplayName() {
-        return ChatColor.GRAY+"Light Flak";
+        return ChatColor.DARK_GRAY+"Light Flak";
     }
 }
