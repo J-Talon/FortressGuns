@@ -86,8 +86,6 @@ public abstract class PanelInventory extends TransactionInventory {
         if (function == null)
             return;
 
-        //System.out.println("menu function:"+name);
-
         function.onEvent(event, owner);
     }
 

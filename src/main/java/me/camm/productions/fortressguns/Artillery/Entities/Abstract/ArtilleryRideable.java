@@ -30,7 +30,7 @@ public abstract class ArtilleryRideable extends Artillery implements IRideable {
     public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
         cache = "";
-        dirtyRender.set(true);
+        dirtyRender = new AtomicBoolean(true);
         lastRender = 0;
     }
 

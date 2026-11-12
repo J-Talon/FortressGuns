@@ -3,7 +3,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.*;
 import org.bukkit.Location;
-import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 import static me.camm.productions.fortressguns.Util.Serialization.FactorySerialization.*;

@@ -12,6 +12,8 @@ public enum StaticItem {
 
     ROTATE_VERTICAL(ChatColor.GOLD+"Rotate Turret Up/down", Material.YELLOW_TERRACOTTA),
     LOAD_UNLOAD(ChatColor.GOLD+"Left click: Load | Right click: Unload", Material.GREEN_TERRACOTTA),
+    REPAIR(ChatColor.BLUE +"Repair", Material.WHITE_CONCRETE),
+
     ROUND_SHOWCASE(ChatColor.GRAY+"", Material.RAIL),
     ROUND_SHOWCASE_HEAVY(ChatColor.GRAY+"", Material.LEVER),
 

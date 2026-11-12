@@ -126,10 +126,16 @@ public class PrecisionMenuInventory extends MenuInventory {
         ItemStack fire = StaticItem.FIRE.toItemRaw();
         ItemStack reload = StaticItem.RELOAD.toItemRaw();
         ItemStack disassemble = StaticItem.DISASSEMBLE.toItemRaw();
+        ItemStack repair = StaticItem.REPAIR.toItemRaw();
 
-        for (i = 0; i < 3; i++ ) {
+        for (i = 0; i < 2; i++ ) {
             gui.setItem(9 * i + 8, fire);
             gui.setItem(9 * i + 7, fire);
+        }
+
+        for (i = 2; i < 3; i ++) {
+            gui.setItem(9 * i + 8, repair);
+            gui.setItem(9 * i + 7, repair);
         }
 
         for (i = 3; i < 5; i++) {
