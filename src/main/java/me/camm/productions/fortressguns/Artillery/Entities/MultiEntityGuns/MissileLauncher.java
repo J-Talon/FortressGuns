@@ -85,7 +85,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
     }
 
-    private final ArtilleryPart[] stem;
+    private final Component[] stem;
 
     private Entity trackedTarget;
     private Entity fallbackTrack;
@@ -96,9 +96,9 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
     public MissileLauncher(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-        barrel = new ArtilleryPart[6];   ///barrel MUST be a multiple of 2 since we are doing some stuff in spawnTurret() & pivot()
-        base = new ArtilleryPart[4][3];
-        stem = new ArtilleryPart[2];
+        barrel = new Component[6];   ///barrel MUST be a multiple of 2 since we are doing some stuff in spawnTurret() & pivot()
+        base = new Component[4][3];
+        stem = new Component[2];
         fireRight = true;
 
         this.trackedTarget = null;
@@ -180,7 +180,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
 
     private void fireOneShot(@Nullable Player shooter) {
-        ArtilleryPart shootingPart, backBlast;
+        Component shootingPart, backBlast;
 
         if (fireRight) {
             shootingPart = barrel[0];
@@ -334,7 +334,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
         Location piv = pivot.getLocation();
         double rads = 0;
-        for (ArtilleryPart[] row: base) {
+        for (Component[] row: base) {
             for (int slot = 0; slot < row.length; slot++) {
                 double[] basePos = getBasePositions(rads);
                 Location spawn = piv.clone().add(

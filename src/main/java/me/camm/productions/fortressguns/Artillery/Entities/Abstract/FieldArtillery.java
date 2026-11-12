@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -144,12 +145,12 @@ public abstract class FieldArtillery extends ArtilleryRideable
         //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
         {
-            ArtilleryPart barrelComponent = barrel[slot];
+            Component barrelComponent = barrel[slot];
 
             double totalDistance;
 
             //getting the distance from the pivot
-            if (barrelComponent.isSmall())
+            if (slot >= getSmallDistThreshold())
                 totalDistance = (MathFG.LARGE_BLOCK_LENGTH *0.75 + 0.5* smallBlockDist) + (slot * smallBlockDist);
             else
                 totalDistance = (slot+1)* MathFG.LARGE_BLOCK_LENGTH;
@@ -174,7 +175,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
             Location centre = pivot.getLocation();
 
             Vector teleport;
-            if (barrelComponent.isSmall())
+            if (slot >= getSmallDistThreshold())
                 teleport = centre.add(x, height + 0.75, z).toVector();
             else
                 teleport = centre.add(x, height, z).toVector();
@@ -182,7 +183,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
             //is at resting state
             if (!(smallBlockDist < SMALL_BLOCK_LENGTH )) {
-                if (EntityUtils.isInBlock(barrelComponent, teleport)) {
+                if (EntityUtils.isInBlock(barrelComponent.getEntity(), teleport)) {
                     return false;
                 }
             }
@@ -195,7 +196,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
         pivot.setRotation(aim);
 
         for (int slot=0;slot< barrel.length;slot++) {
-            ArtilleryPart barrelComponent = barrel[slot];
+            Component barrelComponent = barrel[slot];
             Vector teleport = locations[slot];
             barrelComponent.teleport(teleport.getX(), teleport.getY(), teleport.getZ());
         }
@@ -346,7 +347,7 @@ public abstract class FieldArtillery extends ArtilleryRideable
 
      */
     protected boolean spawnBaseWithDegrees(int bar, double rads, double defaultRadValue, double defaultRadInc, boolean useDefault) {
-        for (ArtilleryPart[] standRow: base) {
+        for (Component[] standRow: base) {
             double[] position = getBasePositions(rads);  //get the x, z values for the base
 
             int length = 0;

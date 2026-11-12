@@ -26,8 +26,8 @@ public class HeavyArtillery extends FieldArtillery implements ConfigurationHolde
 
     public HeavyArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-        barrel = new ArtilleryPart[8];
-        base = new ArtilleryPart[4][3];
+        barrel = new Component[8];
+        base = new Component[4][3];
 
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
