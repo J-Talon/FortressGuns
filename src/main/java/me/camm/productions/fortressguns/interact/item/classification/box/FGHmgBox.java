@@ -6,6 +6,6 @@ public class FGHmgBox extends FGBoxItem {
 
     @Override
     public String getDisplayName() {
-        return ChatColor.GRAY+"Heavy Machine Gun";
+        return ChatColor.DARK_GRAY+"Heavy Machine Gun";
     }
 }

@@ -1,14 +1,15 @@
 package me.camm.productions.fortressguns.interact.item.Inventory;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.MenuInventory;
+import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.PanelInventory;
 
-public class RepairInventory extends MenuInventory {
+public class RepairInventory extends PanelInventory {
 
 
-    public RepairInventory(Construct owner, InventoryGroup group) {
-        super(owner, group);
+    public RepairInventory(Construct owner, InventoryCategory setting, InventoryGroup group) {
+        super(owner, setting, group);
     }
 
     @Override
