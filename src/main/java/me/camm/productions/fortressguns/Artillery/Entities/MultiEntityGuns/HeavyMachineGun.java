@@ -3,17 +3,14 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
-
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionHMG;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import org.bukkit.*;
-
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -22,22 +19,20 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-
-import java.util.List;
-
 /*
 Class that models a heavy machine gun which players can shoot and operate
  * @author CAMM
  *
  */
-public class HeavyMachineGun extends RapidFire {
+public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<SectionHMG> {
 
     private static int magSize;
     private static double overheat, jamPercent, maxHealth;
 
     private static long inactiveHeatTicks;
     private static double heatDissipation;
-
+    private static boolean configApplied;
+    private static boolean infiniteAmmo;
 
     static {
 
@@ -47,35 +42,42 @@ public class HeavyMachineGun extends RapidFire {
         overheat = 0;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        infiniteAmmo = false;
+        configApplied = false;
 
     }
 
     public HeavyMachineGun(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-    }
-    public static void setMaxHealth(double max) {
-        maxHealth = max;
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHmg());
+
     }
 
-    public static void setMagSize(int magSize) {
-        HeavyMachineGun.magSize = magSize;
+    @Override
+    public void setStaticDefaults(@Nullable SectionHMG data) {
+        configApplied = true;
+        if (data == null) return;
+
+        maxHealth = data.getHealth();
+        magSize = data.getMagSize();
+        jamPercent = data.getJamPercent();
+        overheat = data.getOverheat();
+        inactiveHeatTicks = data.getHeatTicks();
+        heatDissipation = data.getDissipation();
+        infiniteAmmo = data.getInfinite();
     }
 
-    public static void setOverheat(double overheat) {
-        HeavyMachineGun.overheat = overheat;
+
+    @Override
+    public boolean requiresReloading() {
+        return !infiniteAmmo;
     }
 
-    public static void setJamPercent(double jamPercent) {
-        HeavyMachineGun.jamPercent = jamPercent;
-    }
-
-    public static void setInactiveHeatTicks(long inactiveHeatTicks) {
-        HeavyMachineGun.inactiveHeatTicks = inactiveHeatTicks;
-    }
-
-    public static void setHeatDissipation(double heatDissipation) {
-        HeavyMachineGun.heatDissipation = heatDissipation;
-    }
 
     @Override
     public double getVectorPower() {
@@ -125,7 +127,7 @@ public class HeavyMachineGun extends RapidFire {
                         return;
                     }
 
-                    Location muzzle = barrel[barrel.length-1].getEyeLocation().clone().add(0,0.2,0);
+                    Location muzzle = barrel[barrel.length-1].getCenterPoint().add(0,0.2,0);
                     fireSingleShot(muzzle);
                     if (reference >= shots)
                         setCanFire(true);
@@ -152,14 +154,13 @@ public class HeavyMachineGun extends RapidFire {
 
     private void fireSingleShot(Location muzzle) {
 
-        List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
-        if (passengers.isEmpty()) {
+        Entity rider = rotatingSeat.getRider();
+        if (rider == null) {
             setCanFire(true);
             return;
         }
 
-        Entity possibleOperator = passengers.get(0);
-        Player operator = possibleOperator instanceof Player ? (Player) possibleOperator : null;
+        Player operator = rider instanceof Player ? (Player) rider : null;
         if (operator == null) {
             setCanFire(true);
             return;
@@ -175,24 +176,20 @@ public class HeavyMachineGun extends RapidFire {
         }
 
 
-        EntityPlayer nmsOperator = ((CraftPlayer)operator).getHandle();
-        net.minecraft.world.level.World nms = ((CraftWorld)world).getHandle();
-        LightShell shell = createProjectile(nms, muzzle.getX(),muzzle.getY(), muzzle.getZ(),nmsOperator,this);
-        if (shell == null)
-            return;
+        ProjectileFG shell = loadedAmmoType.create(world,muzzle.getX(), muzzle.getY(), muzzle.getZ(), operator, this);
 
         setBarrelHeat(Math.min(100, overheat + getBarrelHeat()));
 
         if (getBarrelHeat() >= 100) {
             ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
             barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
-            world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
+            world.spawnParticle(Particle.LAVA,barrelPart.getCenterPoint(),5,0,0,0,1);
         }
 
         if (requiresReloading())
             setAmmo(Math.max(0, getAmmo() - 1));
 
-        createFlash(muzzle);
+        FG_VFX.createFlash(muzzle, world);
         world.playSound(muzzle, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR,SoundCategory.BLOCKS,1f,2f);
 
 
@@ -209,9 +206,8 @@ public class HeavyMachineGun extends RapidFire {
         }
 
         direction.add(addition);
-
-        shell.setMot(direction.getX(), direction.getY(), direction.getZ());
-        nms.addEntity(shell);
+        shell.setVelocity(direction.getX(), direction.getY(), direction.getZ());
+        shell.addToWorld(world);
         lastFireTime = System.currentTimeMillis();
 
     }

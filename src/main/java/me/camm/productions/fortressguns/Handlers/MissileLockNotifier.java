@@ -74,7 +74,7 @@ public class MissileLockNotifier implements Runnable {
 
 
 
-    public void addNotification(UUID id, int fuelTicks) {
+    public void addNotification(UUID id, long fuelTicks) {
 
         if (!running.get()) return;
 

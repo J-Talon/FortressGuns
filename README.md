@@ -67,10 +67,10 @@ Content to complete before first release
 - [ ] Bugfixing and polishing for some specific mechanics
     - [X] Chunk loading and saves
     - [X] Debug commands 
-    - [ ] Wall collisions < Current Focus
+    - [X] Wall collisions 
     - [X] Entity tracking and targeting
-    - [ ] Balancing, Config
-    - [X] Flares?
+    - [ ] Balancing, Config < Current Focus
+    - [X] Flares!
 - [ ] Survival compat
     - [X] Recipes
     - [ ] Misc improvements and tweaks

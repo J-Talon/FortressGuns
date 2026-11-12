@@ -1,22 +1,20 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Components;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.minecraft.sounds.SoundEffect;
 import net.minecraft.sounds.SoundEffects;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.World;
 import org.bukkit.*;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public class ArtilleryPart extends ComponentAS
-{
+public class ArtilleryPart extends ComponentAS {
     protected Artillery body;
     public ArtilleryPart(World world, Artillery body, double d0, double d1, double d2) {
         super(world, d0, d1, d2, body);
@@ -38,24 +36,6 @@ public class ArtilleryPart extends ComponentAS
         return SoundEffects.Q;
     }
 
-    public Sound getSoundHurt(){
-        return Sound.BLOCK_BELL_USE;
-    }
-
-    public Location getLocation(org.bukkit.World world){
-        return new Location(world,u,v,w);
-    }
-
-
-    public Location getEyeLocation(){
-        return this.toBukkit().getEyeLocation();
-    }
-
-    protected ArmorStand toBukkit(){
-        return (ArmorStand)this.getBukkitEntity();
-    }
-
-
 
     @Nullable
     protected SoundEffect getSoundDeath() {
@@ -63,12 +43,10 @@ public class ArtilleryPart extends ComponentAS
     }
 
 
-
-
     @Override
     public boolean onLeftClick(ItemStack mainHand, Player clicked) {
 
-        if (body instanceof Rideable ride) {
+        if (body instanceof IRideable ride) {
             Player rider = ride.getRider();
 
             if (FGItems.TACTICAL_PTR.isSimilar(mainHand)) {
@@ -91,7 +69,7 @@ public class ArtilleryPart extends ComponentAS
 
 
 
-    private void handleRideableRC(Rideable ride, ItemStack mainHand, Player clicked) {
+    private void handleRideableRC(IRideable ride, ItemStack mainHand, Player clicked) {
         Player rider = ride.getRider();
         if (rider == null) {
 
@@ -112,7 +90,7 @@ public class ArtilleryPart extends ComponentAS
                     return;
                 }
 
-                ConstructUtils.openMenu(body, clicked, mainHand);
+                EntityUtils.openMenu(body, clicked, mainHand);
                 return;
             }
 
@@ -127,11 +105,11 @@ public class ArtilleryPart extends ComponentAS
     public void onRightClick(ItemStack mainHand, Player clicked) {
 
         if (clicked.isSneaking() && clicked.getVehicle() == null) {
-            ConstructUtils.openMenu(body, clicked, mainHand);
+            EntityUtils.openMenu(body, clicked, mainHand);
             return;
         }
 
-        if (body instanceof Rideable ride) {
+        if (body instanceof IRideable ride) {
             this.handleRideableRC(ride, mainHand, clicked);
         }
 

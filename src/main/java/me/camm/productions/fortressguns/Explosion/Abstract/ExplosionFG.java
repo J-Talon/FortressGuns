@@ -22,6 +22,7 @@ public abstract class ExplosionFG {
     }
 
 
+
     public abstract void perform();
 
     /*

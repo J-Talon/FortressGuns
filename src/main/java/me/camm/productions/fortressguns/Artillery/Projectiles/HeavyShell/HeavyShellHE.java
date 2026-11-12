@@ -2,94 +2,92 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell;
 
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
-import net.minecraft.world.phys.Vec3D;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionShellHE;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 
 
 
-public class HeavyShellHE extends HeavyShell implements ProjectileExplosive {
+public class HeavyShellHE extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionShellHE>, ProjectileType.IHeavyShellHE {
 
 
 
     private static float hitDamage = 10;
     private static float explosionPower = 4;
+    private static boolean configApplied = false;
 
 
 //    private Vector spewDir = null;
 //    private Location center = null;
 
-    public HeavyShellHE(World world, double d0, double d1, double d2, @Nullable EntityPlayer shooter, Artillery source) {
+    public HeavyShellHE(World world, double d0, double d1, double d2, @Nullable Player shooter, Artillery source) {
         super(world, d0, d1, d2, shooter, source);
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded())
+            return;
+        setStaticDefaults(manager.getShellHE());
+
     }
 
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionShellHE data) {
+        configApplied = true;
+        if (data == null) return;
+        explosionPower = data.getExplosionPower().floatValue();
+        hitDamage = data.getDamage().floatValue();
+    }
 
     @Override
     public float getHitDamage() {
         return hitDamage;
     }
 
-    public static void setHitDamage(float hitDamage) {
-        HeavyShellHE.hitDamage = hitDamage;
-    }
 
     @Override
     public float getExplosionPower() {
         return explosionPower;
     }
 
-    public static void setExplosionPower(float explosionPower) {
-        HeavyShellHE.explosionPower = explosionPower;
-    }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         explode(exactHitPosition);
         return true;
     }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        super.onEntityHit(hitEntity, entityPosition);
+    public boolean onEntityHit(Entity hitEntity, Vector hitPosition) {
+        super.onEntityHit(hitEntity, hitPosition);
 
-        if (hitEntity instanceof ProjectileFG) {
-            ((ProjectileFG) hitEntity).remove();
-        }
-
-        explode(getPositionVector());
+        explode(hitPosition);
         return true;
     }
 
     @Override
-    public void explode(@Nullable Vec3D hit) {
+    public void explode(@Nullable Vector hit) {
 
         //we'll worry about this in the future but
         //for a better explosion use a penetration value.
         //so if you trace and you find air, then go forwards. else go backwards.
         if (hit == null)
-            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower());
+            ExplosionFactory.get().heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), locX(), locY(), locZ(), getExplosionPower());
         else
-            ExplosionFactory.heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower());
+            ExplosionFactory.get().heavyShellExplosion(bukkitWorld,this.getBukkitEntity(), hit.getX(), hit.getY(), hit.getZ(), getExplosionPower());
     remove();
-    }
-
-
-    @Override
-    public float getWeight() {
-        return 0.5F;
-    }
-
-
-    @Override
-    public void remove() {
-        this.die();
     }
 }

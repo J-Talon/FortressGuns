@@ -4,15 +4,16 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 
-import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionLightFlak;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.vfx.FG_VFX;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.player.EntityHuman;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,27 +21,29 @@ import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
-
-import java.util.List;
-
 /*
  * @author CAMM
  */
-public class LightFlak extends RapidFire {
+public class LightFlak extends RapidFire implements ConfigurationHolder<SectionLightFlak> {
     private  static long cooldown;
     private static int magSize;
 
     private static double jamPercent, overheat, maxHealth;
     private static long inactiveHeatTicks;
     private static double heatDissipation;
+    private static boolean infinite;
 
-
-
-
+    private static boolean configApplied;
 
 
     public LightFlak(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getLightFlak());
     }
 
     static {
@@ -50,36 +53,31 @@ public class LightFlak extends RapidFire {
         overheat = 1;
         inactiveHeatTicks = 2000;
         heatDissipation = 1;
+        infinite = false;
+        magSize = 300;
+        configApplied = false;
     }
 
 
+    @Override
+    public void setStaticDefaults(@Nullable SectionLightFlak data) {
+        configApplied = true;
+        if (data == null) return;
 
-    public static void setCooldown(long cooldown) {
-        LightFlak.cooldown = cooldown;
+        maxHealth = data.getHealth();
+        cooldown = data.getCooldown();
+        jamPercent = data.getJamChance();
+        overheat = data.getOverheat();
+        inactiveHeatTicks = data.getHeatTicks();
+        heatDissipation = data.getDissipation();
+        magSize = data.getMagSize();
+        infinite = data.infinite();
+
     }
 
-    public static void setMaxHealth(double maxHealth) {
-        LightFlak.maxHealth = maxHealth;
-    }
-
-    public static void setMagSize(int magSize) {
-        LightFlak.magSize = magSize;
-    }
-
-    public static void setJamPercent(double jamPercent) {
-        LightFlak.jamPercent = jamPercent;
-    }
-
-    public static void setOverheat(double overheat) {
-        LightFlak.overheat = overheat;
-    }
-
-    public static void setInactiveHeatTicks(long inactiveHeatTicks) {
-        LightFlak.inactiveHeatTicks = inactiveHeatTicks;
-    }
-
-    public static void setHeatDissipation(double heatDissipation) {
-        LightFlak.heatDissipation = heatDissipation;
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     public double getVectorPower() {
@@ -100,6 +98,7 @@ public class LightFlak extends RapidFire {
         int delayTicks = 1;
         final int shots = 8;
         canFire = false;
+
             new BukkitRunnable() {
 
                 int fired = 0;
@@ -115,9 +114,6 @@ public class LightFlak extends RapidFire {
                     lastFireTime = System.currentTimeMillis();
                     fireOneShot();
 
-                    if (requiresReloading())
-                         setAmmo(Math.max(0,getAmmo()-1));
-
                     fired ++;
                     if (fired >= shots) {
                         canFire = true;
@@ -125,7 +121,7 @@ public class LightFlak extends RapidFire {
                     }
 
                 }
-            }.runTaskTimer(plugin, 0,delayTicks);
+            }.runTaskTimer(plugin, 0, delayTicks);
 
     }
 
@@ -133,21 +129,19 @@ public class LightFlak extends RapidFire {
 
     private void fireOneShot() {
 
-        List<Entity> passengers = rotatingSeat.getBukkitEntity().getPassengers();
+        Entity rider = rotatingSeat.getRider();
 
 
         Player operator = null;
-        if (passengers.isEmpty())
-            return;
+        if (rider == null) return;
 
-        Entity e = passengers.get(0);
-        if (e instanceof Player)
-            operator = (Player) e;
+        if (rider instanceof Player)
+            operator = (Player) rider;
 
         if (operator == null)
             return;
 
-        Location muzzle = barrel[barrel.length - 1].getEyeLocation().clone().add(0, 0.2, 0);
+        Location muzzle = barrel[barrel.length - 1].getCenterPoint().add(0, 0.2, 0);
         boolean jammed = random.nextDouble() < jamPercent;
 
         if (jammed || isJammed()) {
@@ -162,18 +156,13 @@ public class LightFlak extends RapidFire {
         if (getBarrelHeat() >= 100) {
             ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
             barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
-            world.spawnParticle(Particle.LAVA,barrelPart.getEyeLocation(),5,0,0,0,1);
+            world.spawnParticle(Particle.LAVA,barrelPart.getCenterPoint(),5,0,0,0,1);
         }
 
-        net.minecraft.world.level.World nmsWorld = ((CraftWorld) world).getHandle();
-        EntityPlayer nmsOperator = ((CraftPlayer) operator).getHandle();
-        LightShell shell = createProjectile(nmsWorld,muzzle.getX(),muzzle.getY(),muzzle.getZ(),nmsOperator,this);
+        ProjectileFG projectile = loadedAmmoType.create(world, muzzle.getX(), muzzle.getY(), muzzle.getZ(), operator, this);
 
-        if (shell == null) {
-            return;
-        }
 
-        createFlash(muzzle);
+        FG_VFX.createFlash(muzzle, world);
 
         if (requiresReloading())
             setAmmo(Math.max(0, getAmmo() - 1));
@@ -202,9 +191,8 @@ public class LightFlak extends RapidFire {
         inaccuracy.multiply(INACURACY_FACTOR);
         projectileVelocity.multiply(getVectorPower());
         projectileVelocity.add(inaccuracy);
-
-        shell.setMot(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
-        nmsWorld.addEntity(shell);
+        projectile.setVelocity(projectileVelocity.getX(), projectileVelocity.getY(), projectileVelocity.getZ());
+        projectile.addToWorld(world);
 
         ConstructInventory inv = interactionInv.getInventoryByCategory(InventoryCategory.RELOADING);
         if (inv != null)
@@ -241,7 +229,7 @@ public class LightFlak extends RapidFire {
 
     @Override
     public boolean canFire() {
-        return (System.currentTimeMillis() - lastFireTime >= cooldown) && canFireSingle();
+        return (System.currentTimeMillis() - lastFireTime >= cooldown) && canFire && canFireSingle();
     }
 
     public boolean canFireSingle() {

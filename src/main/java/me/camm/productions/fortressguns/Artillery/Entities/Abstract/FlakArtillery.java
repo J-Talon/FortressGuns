@@ -1,33 +1,30 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Tuneable;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.HeavyArtillery;
-
+import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
-import me.camm.productions.fortressguns.interact.item.classification.FGItems;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
-
 import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.IBHandle;
-import me.camm.productions.fortressguns.interact.behaviour.ItemBehaviour.IBTacticalPointer;
+import me.camm.productions.fortressguns.interact.ItemBehaviour.IBTacticalPointer;
+import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.entity.Entity;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
+public abstract class FlakArtillery extends FieldArtillery
 {
 
-    protected Entity target;
+    protected org.bukkit.entity.Entity target;
     protected boolean aiming;
 
     //variables for aiming based on average v
@@ -60,13 +57,13 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
 
 
     @Override
-    protected @Nullable HeavyShell createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    protected @Nullable HeavyShell createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
         FlakHeavyShell shell = (FlakHeavyShell)super.createProjectile(world, x, y, z, shooter, source);
         if (shell == null)
             return null;
 
         if (target == null && shooter != null) {
-            double time = action.getTime(shooter.getUniqueID()).getA();
+            double time = action.getTime(shooter.getUniqueId()).getA();
             shell.setExplodeTime(time);
         }
         else
@@ -105,18 +102,19 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
     }
 
 
+
     public void aimStatic() {
 
         //once again clone shouldn't be needed cause it's a new object each time
-        Location muzzle = barrel[barrel.length - 1].getEyeLocation().add(0, 0.2, 0);
+        Location muzzle = barrel[barrel.length - 1].getCenterPoint().add(0, 0.2, 0);
 
-        if (target == null || target.isRemoved() || !target.isAlive()) {
+        if (target == null || target.isDead() || !target.isValid()) {
             target = null;
             aiming = false;
             return;
         }
 
-       Location target = this.target.getBukkitEntity().getBoundingBox().getCenter().toLocation(world);
+       Location target = this.target.getBoundingBox().getCenter().toLocation(world);
 
         Location piv = getCoreEntity().getLocation();
 
@@ -139,19 +137,6 @@ public abstract class FlakArtillery extends HeavyArtillery implements Tuneable
     }
 
 
-    public Entity getTarget(){
-        return this.target;
-    }
-
-
-    public boolean setTarget(Entity target){
-        if (target instanceof ArtilleryPart && this.getParts().contains(target)) {
-            return false;
-        }
-
-        this.target = target;
-        return true;
-    }
 
     @Override
     public double getMinVertAngle() {

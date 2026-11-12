@@ -8,6 +8,9 @@ import me.camm.productions.fortressguns.Explosion.Effect.EffectHE;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionShellHE;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -23,20 +26,34 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ExplosionShellHE extends ExplosionFunctional {
+public class ExplosionShellHE extends ExplosionFunctional implements ConfigurationHolder<SectionShellHE> {
 
-   // private static EffectHE effect = new EffectHE();
 
     private final Map<Material, List<Tuple2<ItemStack, Block>>> explosionDrops;
     private boolean fullPen;
+    private static boolean configApplied = false;
+    private static double explosionDamage = 30d;
 
 
 
     public ExplosionShellHE(double x, double y, double z, World world, float radius, @NotNull Entity source, boolean destructive) {
-        super(x, y, z, world, radius,destructive, source);
+        super(x, y, z, world, radius, destructive, source);
         explosionDrops = new HashMap<>();
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        setStaticDefaults(manager.getShellHE());
+
     }
 
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionShellHE data) {
+        configApplied = true;
+        if (data == null) return;
+        explosionDamage = data.getExplosionDamage();
+
+    }
 
     private void getPenetrationExtent(Vector position) {
 
@@ -104,42 +121,36 @@ public class ExplosionShellHE extends ExplosionFunctional {
                 if (iters > 0) {
                     effect.postMutation(fg);
 
+                    List<Block> dropped = new ArrayList<>();
+                    List<Block> thrown = new ArrayList<>();
+
+                    if (destructive) {
+                        for (Block block : affectedBlocks) {
+
+                            if (block.getState() instanceof Container) {
+                                dropped.add(block);
+                                continue;
+                            }
+
+                            double res = rand.nextDouble();
+                            if (res >= 0.5d) {
+                                thrown.add(block);
+                            } else {
+                                dropped.add(block);
+                            }
+                        }
+                        processDrops(dropped);
+                    }
+
+
                     AllocatorVanillaE vanilla = new AllocatorVanillaE(world,position);
                     List<Tuple2<Float, Entity>> entities = vanilla.allocate(new Tuple2<>(radius, source));
                     for (Tuple2<Float, Entity> tup: entities) {
                         damageEntity(tup.getB(), tup.getA());
                     }
 
-                    if (!destructive) {
-                        cancel();
-                        return;
-                    }
 
-
-                    List<Block> dropped = new ArrayList<>();
-                    List<Block> thrown = new ArrayList<>();
-
-
-                    for (Block block: affectedBlocks) {
-
-                        if (block.getState() instanceof Container) {
-                            dropped.add(block);
-                            continue;
-                        }
-
-                        double res = rand.nextDouble();
-                        if (res >= 0.5d) {
-                            thrown.add(block);
-                        }
-                        else {
-                            dropped.add(block);
-                        }
-                    }
-
-
-                    processDrops(dropped);
-
-                    for (Block next: thrown) {
+                    for (Block next : thrown) {
                         Location loc = next.getLocation().add(0.5, 0.5, 0.5);
                         Vector result = getThrowVector(loc.toVector());
                         if (result == null)
@@ -153,6 +164,7 @@ public class ExplosionShellHE extends ExplosionFunctional {
                     }
 
                     dropItems(explosionDrops);
+
 
                     cancel();
                 }
@@ -318,16 +330,20 @@ public class ExplosionShellHE extends ExplosionFunctional {
 
 
     @Override
-    public float getMaxDamage() {
-        return 30f;
+    public double getMaxDamage() {
+        return explosionDamage;
     }
 
 
     @Override
     public double damageFalloff(double distanceSquared) {
+
+        if (distanceSquared >= radius * radius) return 0;
+
         double max = getMaxDamage();
-        if (max == 0)
+        if (max <= 0)
             return 0;
+
 
         double scale = Math.pow(getRadius(),2) / max;
         return Math.max(0, (-1/scale * distanceSquared) + max);

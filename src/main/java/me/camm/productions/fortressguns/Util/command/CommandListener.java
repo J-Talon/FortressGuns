@@ -30,9 +30,11 @@ enum PermissionNodeLabel {
 
 
 enum CommandHeader {
-    CHECK_TICKET("ct"),
-    CHUNK_STATUS("cs"),
+    CHECK_TICKET("fgticket"),
+    CHECK_CONFIG("fgcheckconf"),
+    CHUNK_STATUS("fgstatus"),
     INSPECT_ENTITY("fginspect"),
+    DEBUG("fgdebug"),
     GET_ITEMS("fgitems");
 
     private final String s;
@@ -53,6 +55,8 @@ enum PluginCommands {
     CT(CommandHeader.CHECK_TICKET, new CommandCheckTicket()),
     CS(CommandHeader.CHUNK_STATUS, new CommandCheckChunk()),
     FG_INSPECT(CommandHeader.INSPECT_ENTITY, new CommandFGInspect()),
+    FG_CHECK_CONFIG(CommandHeader.CHECK_CONFIG, new CommandCheckConfig()),
+    FG_DEBUG(CommandHeader.DEBUG, new CommandDebug()),
     FG_ITEMS(CommandHeader.GET_ITEMS, new CommandGiveItems());
 
     private final CommandHeader head;

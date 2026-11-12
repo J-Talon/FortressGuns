@@ -2,7 +2,11 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.FieldArtillery;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionFieldHeavy;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.EulerAngle;
@@ -10,34 +14,51 @@ import org.bukkit.util.EulerAngle;
 import java.util.List;
 
 
-public class HeavyArtillery extends FieldArtillery
+public class HeavyArtillery extends FieldArtillery implements ConfigurationHolder<SectionFieldHeavy>
 {
 
     private static final int SMALL_THRESH = 1;
+
     private static double maxHealth;
     private static long cooldown;
-
+    private static boolean configApplied;
+    private static boolean infinite;
 
     public HeavyArtillery(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
         barrel = new ArtilleryPart[8];
         base = new ArtilleryPart[4][3];
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getFieldHeavy());
     }
 
     static {
         //default values
+        configApplied = false;
         maxHealth = 80;
         cooldown = 5000;
+        infinite = false;
     }
 
 
-    public static void setMaxHealth(double health) {
-        maxHealth = health;
+    public void setStaticDefaults(SectionFieldHeavy heavy) {
+        configApplied = true;
+        if (heavy == null) return;
+        maxHealth = heavy.getHealth();
+        cooldown = heavy.getCooldown();
+        infinite = heavy.isInfinite();
+
     }
 
-    public static void setFireCooldown(long cooldown) {
-        HeavyArtillery.cooldown = cooldown;
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
+
 
     @Override
     public double getVectorPower() {
@@ -51,8 +72,8 @@ public class HeavyArtillery extends FieldArtillery
     }
 
     @Override
-    public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = super.getParts();
+    public List<Component> getParts(){
+        List<Component> parts = super.getParts();
         parts.add(pivot);
         parts.add(rotatingSeat);
         return parts;
@@ -66,21 +87,16 @@ public class HeavyArtillery extends FieldArtillery
 
 
     @Override
-    protected synchronized void incrementSmallDistance(double increment) {
-        super.incrementSmallDistance(increment);
-    }
-
-    @Override
     public double getMaxHealth() {
         return maxHealth;
     }
 
 
     @Override
-    protected boolean spawnBaseParts() {
+    protected void spawnBaseParts() {
         double rads = 0;
         int bar = 0;
-        return super.spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
+        spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
     }
 
 

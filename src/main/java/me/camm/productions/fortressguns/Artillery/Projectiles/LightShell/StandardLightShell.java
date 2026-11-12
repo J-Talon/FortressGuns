@@ -4,43 +4,63 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionHMGBullet;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.projectile.IProjectile;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.entity.Explosive;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 
-public class StandardLightShell extends LightShell {
+public class StandardLightShell extends LightShell implements ConfigurationHolder<SectionHMGBullet>, ProjectileType.ISolidLightShell {
 
     private static float hitDamage = 5;
     private static float weight = 0.1f;
+    private static boolean configApplied = false;
 
-
-    public StandardLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
+    public StandardLightShell(World world, double x, double y, double z, Player human, Artillery source) {
         super(world, x, y, z, human, source);
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getHmgBullet());
+    }
+
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionHMGBullet data) {
+        configApplied = true;
+        if (data==null) return;
+
+        hitDamage = data.getDamage().floatValue();
+        weight = data.getWeight().floatValue();
+
     }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(org.bukkit.entity.Entity bukkit, Vector entityPosition) {
         this.a(GameEvent.I, this.getShooter());
+        Entity hitEntity = ((CraftEntity)bukkit).getHandle();
 
-        if (shooter != null) {
-            DamageSource source = GunSource.gunShot(shooter,this);
-            hitEntity.damageEntity(source, getHitDamage());
-        }
-        else
-            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
+
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageAdapter.getInstance().accept(bukkit, info);
 
         //hurt ticks I believe this is
         if (hitEntity instanceof EntityLiving) {
@@ -68,7 +88,6 @@ public class StandardLightShell extends LightShell {
         }
 
 
-        org.bukkit.entity.Entity bukkit = hitEntity.getBukkitEntity();
         org.bukkit.World bukkitWorld = getWorld().getWorld();
 
         if (bukkit instanceof Explosive) {
@@ -94,15 +113,11 @@ public class StandardLightShell extends LightShell {
         return true;
     }
 
-    @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
-        return super.onBlockHit(exactHitPosition, blockFace, hitBlock);
-    }
 
 
     @Override
     public void onWaterEnter() {
-        ExplosionFactory.smallSplashExplosion(bukkitWorld(),locX(), locY(), locZ());
+        ExplosionFactory.get().smallSplashExplosion(bukkitWorld,locX(), locY(), locZ());
     }
 
     @Override
@@ -110,13 +125,13 @@ public class StandardLightShell extends LightShell {
         return weight;
     }
 
-    public static void setHitDamage(float hitDamage) {
-        StandardLightShell.hitDamage = hitDamage;
-    }
-
-    public static void setWeight(float weight) {
-        StandardLightShell.weight = weight;
-    }
+//    public static void setHitDamage(float hitDamage) {
+//        StandardLightShell.hitDamage = hitDamage;
+//    }
+//
+//    public static void setWeight(float weight) {
+//        StandardLightShell.weight = weight;
+//    }
 
 
     @Override

@@ -1,35 +1,36 @@
 package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSnowballFG;
-import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.World;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
 import org.bukkit.entity.Explosive;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
 
-public abstract class LightShell extends ProjectileSnowballFG implements ProjectileFG {
+public abstract class LightShell extends ProjectileSnowballFG {
 
     private static final ItemStack SPRITE = new ItemStack(Items.pD);
 
@@ -38,7 +39,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
 
 
     //world may be null
-    public LightShell(@Nullable World world, double x, double y, double z, @Nullable EntityPlayer human, Artillery source) {
+    public LightShell(World world, double x, double y, double z, @Nullable Player human, Artillery source) {
         super(world,x,y,z,human);
         this.source = source;
         setItem(SPRITE);
@@ -60,15 +61,20 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
 
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
+    public boolean onEntityHit(org.bukkit.entity.Entity bukkit, Vector entityPosition) {
         this.a(GameEvent.I, this.getShooter());
 
-        if (shooter != null) {
-            DamageSource source = GunSource.gunShot(shooter,this);
-            hitEntity.damageEntity(source, getHitDamage());
-        }
-        else
-            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
+        Entity hitEntity = ((CraftEntity)bukkit).getHandle();
+
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageAdapter.getInstance().accept(bukkit, info);
+//
+//        if (shooter != null) {
+//            DamageSource source = GunSource.gunShot(this, shooter);
+//            hitEntity.damageEntity(source, getHitDamage());
+//        }
+//        else
+//            hitEntity.damageEntity(DamageSource.n, getHitDamage()); //generic damage
 
         //hurt ticks I believe this is
         if (hitEntity instanceof EntityLiving) {
@@ -78,7 +84,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
             ((ProjectileExplosive) hitEntity).explode(null);
         }
         else {
-            org.bukkit.entity.Entity bukkit = hitEntity.getBukkitEntity();
+
             org.bukkit.World bukkitWorld = getWorld().getWorld();
 
             if (bukkit instanceof Explosive) {
@@ -104,7 +110,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         this.a(GameEvent.I, this.getShooter());
 
         org.bukkit.World bukkit = getWorld().getWorld();
@@ -121,7 +127,7 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
             }
         }
 
-        Vec3D vec = exactHitPosition;
+        Vec3D vec = CraftVector.toNMS(exactHitPosition);
         Vec3D mot = getMot().e().d().a(0.7);
         //0.7 is an arbitrary artistic decision
         //we're basically normalizing, reversing the vector and multiplying it by 0.7
@@ -147,10 +153,9 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
             bukkit.spawnParticle(Particle.REDSTONE,effectLoc, 17,0.3,0.3,0.3,1,options);
         }
 
-        if (!ExplosionFactory.allowDestructiveExplosions()) {
-            bukkit.playSound(effectLoc, Sound.BLOCK_WET_GRASS_BREAK,1,0);
-            return true;
-        }
+
+        bukkit.playSound(effectLoc, Sound.BLOCK_WET_GRASS_BREAK,1,0);
+
 
         if (mat == Material.TNT) {
             block.setType(Material.AIR);
@@ -171,6 +176,14 @@ public abstract class LightShell extends ProjectileSnowballFG implements Project
 
     }
 
+    @Override
+    public void setVelocity(double x, double y, double z) {
+        this.setMot(x,y,z);
+    }
 
+    @Override
+    public void addToWorld(org.bukkit.World world) {
+        ((CraftWorld)world).getHandle().addEntity(this);
+    }
 
 }

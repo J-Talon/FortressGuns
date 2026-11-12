@@ -1,17 +1,19 @@
 package me.camm.productions.fortressguns.Explosion.Abstract;
 
-import net.minecraft.world.level.RayTrace;
-import net.minecraft.world.phys.MovingObjectPosition;
-import net.minecraft.world.phys.Vec3D;
+import me.camm.productions.fortressguns.Util.Math.MathFG;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import static me.camm.productions.fortressguns.Util.Math.MathFG.linearInterpolate;
+import java.util.function.Predicate;
+
+import static me.camm.productions.fortressguns.Util.Math.MathFG.lerp;
 
 
 public abstract class Allocator<R, I> {
@@ -33,9 +35,6 @@ public abstract class Allocator<R, I> {
         this(bukkit, position, 0.3d);
     }
 
-    protected World getBukkitWorld() {
-        return world;
-    }
 
     public World getWorld() {
         return world;
@@ -82,16 +81,13 @@ public abstract class Allocator<R, I> {
                     for(float zMin = 0F; zMin <= 1F; zMin = (float)((double)zMin + ratioZ)) {
                         ++total;
                         //d = Math.lerp()
-                        double initialX = linearInterpolate(xMin, box.getMinX(), box.getMaxX());
-                        double initialY = linearInterpolate(yMin, box.getMinY(), box.getMaxY());
-                        double initialZ = linearInterpolate(zMin, box.getMinZ(), box.getMaxZ());
+                        double initialX = lerp(xMin, box.getMinX(), box.getMaxX());
+                        double initialY = lerp(yMin, box.getMinY(), box.getMaxY());
+                        double initialZ = lerp(zMin, box.getMinZ(), box.getMaxZ());
 
-                        Vector hitBox = new Vector(initialX + offsetX, initialY, initialZ + offsetZ);
-//
-//                        Vector direction = hitBox.clone().subtract(vecStart.clone()).normalize();
-//                        list.add(direction);
+                        Vector end = new Vector(initialX + offsetX, initialY, initialZ + offsetZ);
 
-                        if (performTrace(vecStart, hitBox,entity))
+                        if (performTrace(vecStart, end, entity))
                             hits ++;
                     }
                 }
@@ -101,15 +97,48 @@ public abstract class Allocator<R, I> {
             return 0f;
         }
     }
-    public boolean performTrace(Vector start, Vector direction, Entity e) {
 
-        Vec3D startVec = new Vec3D(start.getX(), start.getY(), start.getZ());
-        Vec3D directionVec = new Vec3D(direction.getX(), direction.getY(), direction.getZ());
 
-        net.minecraft.world.level.World worldNMS = ((CraftWorld)world).getHandle();
-        net.minecraft.world.entity.Entity entityNMS = ((CraftEntity)e).getHandle();
-        MovingObjectPosition pos = worldNMS.rayTrace(new RayTrace(startVec, directionVec, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, entityNMS));
-        return pos.getType() == MovingObjectPosition.EnumMovingObjectType.a;
+
+    public boolean performTrace(Vector start, Vector end, Entity e) {
+
+        BoundingBox box = e.getBoundingBox();
+        double distance = box.getCenter().distance(start);
+        Location startLoc = start.toLocation(e.getWorld());
+
+        Vector direction = end.clone().subtract(start).normalize();
+
+        //the start and end are basically right on top of each other
+        //dodge this fool
+        if (!MathFG.isFinite(direction))
+            return true;
+
+        Predicate<Entity> pred = new Predicate<>() {
+            @Override
+            public boolean test(Entity entity) {
+                return entity.getUniqueId().equals(e.getUniqueId());
+            }
+        };
+
+        RayTraceResult result = world.rayTrace(startLoc, direction, distance, FluidCollisionMode.NEVER,true,0,pred);
+
+
+        if (result == null) return false;
+//        Block block = result.getHitBlock();
+//        if (block != null) return false;
+
+        Entity hit = result.getHitEntity();
+        if (hit == null) return false;
+
+        return hit.getUniqueId().equals(e.getUniqueId());
+//
+//        Vec3D startVec = new Vec3D(start.getX(), start.getY(), start.getZ());
+//        Vec3D directionVec = new Vec3D(direction.getX(), direction.getY(), direction.getZ());
+//
+//        net.minecraft.world.level.World worldNMS = ((CraftWorld)world).getHandle();
+//        net.minecraft.world.entity.Entity entityNMS = ((CraftEntity)e).getHandle();
+//        MovingObjectPosition pos = worldNMS.rayTrace(new RayTrace(startVec, directionVec, RayTrace.BlockCollisionOption.a, RayTrace.FluidCollisionOption.a, entityNMS));
+//        return pos.getType() == MovingObjectPosition.EnumMovingObjectType.a;
     }
 
 }

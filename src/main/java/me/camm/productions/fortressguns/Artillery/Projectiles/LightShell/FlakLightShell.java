@@ -2,47 +2,76 @@ package me.camm.productions.fortressguns.Artillery.Projectiles.LightShell;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Explosion.ExplosionFactory;
-import me.camm.productions.fortressguns.Util.DamageSource.GunSource;
-import net.minecraft.core.BlockPosition;
-import net.minecraft.core.EnumDirection;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.World;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Projectile.SectionLightFlakBullet;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageField;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageInfo;
+import me.camm.productions.fortressguns.Util.damage.builder.DamageAdapter;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import net.minecraft.world.phys.Vec3D;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.Nullable;
 
 
 /**
  * @author CAMM
  */
-public class FlakLightShell extends LightShell implements ProjectileExplosive
+public class FlakLightShell extends LightShell implements ProjectileExplosive, ConfigurationHolder<SectionLightFlakBullet>, ProjectileType.IFlakLightShell
 {
 
     private static float hitDamage = 10;
+    private static float weight = 0.015f;
+    private static boolean configApplied = false;
+
     private org.bukkit.entity.Entity ignore;
 
 
+
     //(EntityTypes<? extends EntityArrow> entitytypes, double d0, double d1, double d2, World world)
-    public FlakLightShell(World world, double x, double y, double z, EntityPlayer human, Artillery source) {
+    public FlakLightShell(World world, double x, double y, double z, Player human, Artillery source) {
         super(world,x,y,z, human, source);
         ignore = null;
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getLightFlakBullet());
     }
 
+    @Override
+    public void setStaticDefaults(@Nullable SectionLightFlakBullet data) {
+        configApplied = true;
+        if (data==null) return;
+        hitDamage = data.getDamage().floatValue();
+        weight = data.getWeight().floatValue();
+
+
+    }
 
     @Override
-    public boolean onEntityHit(Entity hitEntity, Vec3D entityPosition) {
-        ignore = hitEntity.getBukkitEntity();
+    public boolean onEntityHit(Entity bukkit, Vector entityPosition) {
 
-        DamageSource source = GunSource.gunShot(shooter, this);
-        hitEntity.damageEntity(source,getHitDamage());
+        net.minecraft.world.entity.Entity hitEntity = ((CraftEntity)bukkit).getHandle();
+
+        DamageInfo info = new DamageInfo(DamageField.BULLET,bukkitShooter, this.getBukkitEntity(), getHitDamage());
+        DamageAdapter.getInstance().accept(bukkit, info);
 
         double length = this.getMot().f();
         final double FACTOR = 1.5;
 
+        Vector position = CraftVector.toBukkit(getPositionVector());
+
         if (length == 0) {
-            explode(getPositionVector());
+            explode(position);
             return true;
         }
         Vec3D motion = this.getMot();
@@ -50,12 +79,12 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
         Vec3D velocity = hitEntity.getMot().e(motion);
         hitEntity.setMot(velocity);
-        explode(getPositionVector());
+        explode(position);
         return true;
     }
 
     @Override
-    public boolean onBlockHit(Vec3D exactHitPosition, EnumDirection blockFace, BlockPosition hitBlock) {
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         super.onBlockHit(exactHitPosition, blockFace, hitBlock);
         explode(exactHitPosition);
         return true;
@@ -80,12 +109,12 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
 
     @Override
     public float getWeight() {
-        return 0.015F;
+        return weight;
     }
 
 
     @Override
-    public void explode(@Nullable Vec3D hit) {
+    public void explode(@Nullable Vector hit) {
 
         double x,y,z;
         if (hit == null) {
@@ -100,6 +129,6 @@ public class FlakLightShell extends LightShell implements ProjectileExplosive
             z = hit.getZ();
         }
 
-        ExplosionFactory.flakLightExplosion(bukkitWorld(),getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
+        ExplosionFactory.get().flakLightExplosion(bukkitWorld,getBukkitEntity(), shooter.getBukkitEntity(),x,y,z, ignore);
     }
 }

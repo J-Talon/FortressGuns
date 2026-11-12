@@ -2,12 +2,17 @@ package me.camm.productions.fortressguns.Artillery.Entities.Components;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public interface Component {
 
@@ -28,7 +33,14 @@ public interface Component {
 
    public void setRotation(float x, float y);
 
+   public boolean spawn();
 
+
+
+       /*
+      spigot doesn't treat armor stand interactions the same way as other entities
+      so no, we won't be using behaviours here, at least not purely
+     */
 
    public void onRightClick(ItemStack mainHand, Player clicked);
 
@@ -37,29 +49,62 @@ public interface Component {
     //return false: whether the entity took no damage
    public boolean onLeftClick(ItemStack mainHand, Player clicked);
 
+   //enough space in the next area
+   public boolean enoughSpace(Vector nextPosition);
+
+
+   public boolean enoughSpace();
+
+   public UUID getUUID();
+
+   public PersistentDataContainer getPDC();
+
+   public Location getLocation();
+
+   public boolean isValid();
+
+   public Entity getEntity();
+
+   public World getBukkitWorld();
+
+
+   /*          ---------/ |
+                       /  |  H
+            ----------/   |
+                      |   /
+                      |  /  L
+                      | /
+               --------/
+                 W
+
+
+              base
+               []     <-- L -->
+             [][][][]==========  ==>
+               []                 ^-- bullet
+
+   Given an artillery barrel,  the length is the dimension going away from the base
+
+    */
+
+
     /*
-
-    I think the way forward is this:
-
-    Interface Component
-        v             v
- ComponentAS1.17.1    ComponentDE1.17.1 ....
- v                    v
- ASCore1.17.1         DECore1.17.1
- ASPart1.17.1         DECore.1.17.1
-
- ...
-
- ASCore implements ICore // OR:
- getComponentType() <== which I think is probably more performant than going down the tree
-
- Interactions will be handled via behaviours
-    Addendum 1:
-      spigot doesn't treat armor stand interactions the same way as other entities
-      so no, we won't be using behaviours here, at least not purely
-
-
-
+    for armorstands, the positional height, width, and length are the dimensions of the head block render
+    NOT the hitbox dimensions
      */
+   public double getPositionalHeight();
+
+   public double getPositionalWidth();
+
+   public double getPositionalLength();
+
+
+   /*
+   for armorstands this is the eye location
+    */
+   public Location getCenterPoint();
+
+
+
 
 }

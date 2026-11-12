@@ -7,18 +7,20 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.*;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.ITracking;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileSeeking;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.Wrapper.artillery.SectionMissileLauncher;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import me.camm.productions.fortressguns.interact.item.classification.FGItems;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -35,7 +37,7 @@ import java.util.Random;
 import java.util.function.Predicate;
 
 
-public class MissileLauncher extends ArtilleryRideable {
+public class MissileLauncher extends ArtilleryRideable implements ConfigurationHolder<SectionMissileLauncher>, ITracking {
 
     boolean fireRight;
     private Entity target;
@@ -48,11 +50,14 @@ public class MissileLauncher extends ArtilleryRideable {
     static final int PROGRESS_LENGTH = 50;
     static final String PROGRESS_BAR;
 
-    static final double DISTANCE = 200;
+    private static final double DISTANCE = 200;
 
-    static int maxRockets;
-    static long cooldown;
-    static double maxHealth;
+    private static int maxRockets;
+    private static long cooldown;
+    private static double maxHealth;
+    private static boolean infinite;
+    private static boolean configApplied;
+
 
     static final int TRACK_REQUIRED = 65;
     static final int MAX_TRACK = 100;
@@ -71,9 +76,10 @@ public class MissileLauncher extends ArtilleryRideable {
         BARREL = new ItemStack(Material.GREEN_TERRACOTTA);
         RANDOM = new Random();
 
-        maxHealth = 100;
+        maxHealth = 35;
         cooldown = 10000;
         maxRockets = 6;
+        configApplied = false;
 
         PROGRESS_BAR = "|".repeat(PROGRESS_LENGTH);
 
@@ -101,27 +107,36 @@ public class MissileLauncher extends ArtilleryRideable {
 
         lastFireTime = System.currentTimeMillis();
 
+
+        if (configApplied) return;
+
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getLauncher());
+
+    }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionMissileLauncher data) {
+        configApplied = true;
+        if (data == null) return;
+
+        maxRockets = data.getMissiles();
+        cooldown = data.getCooldown();
+        maxHealth = data.getHealth();
+        infinite = data.infinite();
+
+    }
+
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
     }
 
     @Override
     protected void initInventories() {
         interactionInv = new InventoryGroup.BulkPrecision(this);
-    }
-
-
-
-    //============config====================================================
-
-    public static void setMaxRockets(int maxRockets) {
-        MissileLauncher.maxRockets = maxRockets;
-    }
-
-    public static void setCooldown(long cooldown) {
-        MissileLauncher.cooldown = cooldown;
-    }
-
-    public static void setMaxHealth(double maxHealth) {
-        MissileLauncher.maxHealth = maxHealth;
     }
 
     //================================================
@@ -138,20 +153,28 @@ public class MissileLauncher extends ArtilleryRideable {
         return 2;
     }
 
+
+    @Override
     public void setTarget(Entity target) {
         this.target = target;
     }
 
-
-    //todo replace with projectile factory
     @Override
-    protected @Nullable HeatseekingMissile createProjectile(net.minecraft.world.level.World world, double x, double y, double z, EntityPlayer shooter, Artillery source) {
+    public Entity getTarget() {
+        return target;
+    }
 
 
-        HeatseekingMissile missile = (HeatseekingMissile) super.createProjectile(world, x, y, z, shooter, source);
-        if (missile != null)
-            missile.setTarget(target);
-        return missile;
+
+    @Override
+    protected @Nullable ProjectileFG createProjectile(World world, double x, double y, double z, Player shooter, Artillery source) {
+        if (loadedAmmoType == null) return null;
+        ProjectileFG projectile = loadedAmmoType.create(world, x,y,z, shooter, this);
+
+        if (projectile instanceof ProjectileSeeking seeking)
+            seeking.setTarget(target);
+
+        return projectile;
     }
 
 
@@ -175,18 +198,17 @@ public class MissileLauncher extends ArtilleryRideable {
 
         Vector front = dir.clone().multiply(1.5);  //slightly in front of the thing
 
-        Location spawn = shootingPart.getEyeLocation().add(front);
-        Location back = backBlast.getEyeLocation().add(front.multiply(-1));
+        Location spawn = shootingPart.getCenterPoint().add(front);
+        Location back = backBlast.getCenterPoint().add(front.multiply(-1));
 
-        net.minecraft.world.level.World nmsWorld = ((CraftWorld)world).getHandle();
         Artillery construct = this;
+        ProjectileFG missile = createProjectile(world,spawn.getX(), spawn.getY(), spawn.getZ(),shooter,construct);
 
-        EntityPlayer shooterNMS = shooter == null ? null : ((CraftPlayer)shooter).getHandle();
-        HeatseekingMissile missile = createProjectile(nmsWorld,spawn.getX(), spawn.getY(), spawn.getZ(),shooterNMS,construct);
         if (missile == null) {
             plugin.getLogger().warning(getClass().getName()+": Tried to create projectile but returned null for input: "+getLoadedAmmoType());
             return;
         }
+
 
         new BukkitRunnable() {
             public void run() {
@@ -202,9 +224,12 @@ public class MissileLauncher extends ArtilleryRideable {
                 }
 
                 double vecPow = getVectorPower();
+                missile.setVelocity(dir.getX() * vecPow, dir.getY() * vecPow, dir.getZ() * vecPow);
 
-                missile.setMot(new Vec3D(dir.getX() * vecPow, dir.getY() * vecPow, dir.getZ() * vecPow));
-                nmsWorld.addEntity(missile);
+
+                missile.addToWorld(world);
+
+
                 world.playSound(spawn, Sound.ITEM_FIRECHARGE_USE,SoundCategory.BLOCKS,2,2);
 
                 //may want to change this to make the stuff more visible
@@ -244,13 +269,10 @@ public class MissileLauncher extends ArtilleryRideable {
             return;
         }
 
-        if (target != null) {
-            net.minecraft.world.entity.Entity nms = ((CraftEntity)target).getHandle();
-            if (nms instanceof ArtilleryPart part && part.getBody().equals(this)) {
-                shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
-                setTarget(null);
-                return;
-            }
+        if (target != null && EntityUtils.isComponentOf(this, target)) {
+            shooter.sendMessage(ChatColor.RED+"Cannot shoot at self!");
+            setTarget(null);
+            return;
         }
 
         fireOneShot(shooter);
@@ -280,44 +302,37 @@ public class MissileLauncher extends ArtilleryRideable {
     @Override
     public boolean canFire() {
 
-        if (getAmmo() > 0 || (!requiresReloading()) && loadedAmmoType != null)
-            return true;
-        return System.currentTimeMillis() >= (lastFireTime + cooldown);
+        boolean result = System.currentTimeMillis() >= (lastFireTime + cooldown);
+
+        result = result && (getAmmo() > 0 || (!requiresReloading() && loadedAmmoType != null));
+
+        return result;
+
+
     }
-
-
-    //=======================================================
 
 
     //=========== parts ====================================
 
 
-
-
-
-
-
-
     @Override
-    protected boolean instantiateParts() {
+    protected void instantiateParts() {
         pivot = StandHelper.createCore(initialLoc, BODY, new EulerAngle(0, aim.getY(), 0), world,this);
 
-        if (pivot == null || !spawnTurretParts() || !spawnBaseParts() )
-            return false;
+        spawnTurretParts();
+        spawnBaseParts();
 
         rotatingSeat = StandHelper.createInvisiblePart(getSeatLocation(HOR_OFFSET,Y_OFFSET,Math.PI*1.5), ArtilleryMaterial.SEAT.asItem(),new EulerAngle(0,aim.getY(),0),world,this);
 
         if (health <= 0)
             setHealth(maxHealth);
         calculateOccupiedChunks();
-
-        return true;
     }
 
     @Override
-    protected boolean spawnBaseParts() {
+    protected void spawnBaseParts() {
 
-        Location piv = pivot.getLocation(world);
+        Location piv = pivot.getLocation();
         double rads = 0;
         for (ArtilleryPart[] row: base) {
             for (int slot = 0; slot < row.length; slot++) {
@@ -328,26 +343,19 @@ public class MissileLauncher extends ArtilleryRideable {
                         basePos[1] * LARGE_BLOCK_LENGTH + slot * basePos[1]);
 
                 row[slot] = StandHelper.createInvisiblePart(spawn, BASE, null, world, this);
-                if (row[slot] == null)
-                    return false;
             }
             rads += 2 * Math.PI / 4; //90* offsets
         }
-        return true;
     }
 
     @Override
-    protected boolean spawnTurretParts() {
+    protected void spawnTurretParts() {
         EulerAngle horizontal = new EulerAngle(0, aim.getY(), 0);
-
 
         Location nextStemLoc;
         for (int slot = 0; slot < stem.length; slot ++) {
             nextStemLoc = initialLoc.clone().add(0,(slot+1) * LARGE_BLOCK_LENGTH,0);
             stem[slot] = StandHelper.createInvisiblePart(nextStemLoc, BODY, horizontal,world, this);
-
-            if (stem[slot] == null)
-                return false;
         }
 
         Location[] barrelLocs = getBarrelLocations();
@@ -355,29 +363,35 @@ public class MissileLauncher extends ArtilleryRideable {
         for (int slot = 0; slot < midpoint; slot ++) {
             barrel[slot] = StandHelper.createInvisiblePart(barrelLocs[slot], BARREL, aim,world, this);
             barrel[slot + midpoint] = StandHelper.createInvisiblePart(barrelLocs[slot+midpoint], BARREL, aim, world, this);
-
-            if (barrel[slot] == null || barrel[slot + midpoint] == null)
-                return false;
         }
 
-        return true;
     }
 
 
     @Override
-    public synchronized void pivot(double vertAngle, double horAngle) {
+    public synchronized boolean pivot(double vertAngle, double horAngle) {
 
 
         horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
         vertAngle = MathFG.nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
 
-        aim = new EulerAngle(vertAngle, horAngle, 0);
+        EulerAngle nextAim = new EulerAngle(vertAngle, horAngle, 0);
 
+        //rotation is fine without collision checks
         stem[stem.length-1].setRotation(new EulerAngle(0,horAngle, 0));
 
         Location[] aimPos = getBarrelLocations();
 
         int midpoint = barrel.length / 2;
+        for (int slot = 0; slot < midpoint; slot ++) {
+            if (!barrel[slot].enoughSpace(aimPos[slot].toVector())) return false;
+            if (!barrel[slot + midpoint].enoughSpace(aimPos[slot + midpoint].toVector())) return false;
+        }
+
+        if (!positionSeat()) {
+            return false;
+        }
+
         for (int slot = 0; slot < midpoint; slot ++) {
             barrel[slot].teleport(aimPos[slot]);
             barrel[slot].setRotation(aim);
@@ -386,7 +400,9 @@ public class MissileLauncher extends ArtilleryRideable {
             barrel[slot + midpoint].setRotation(aim);
         }
 
-        positionSeat();
+        aim = nextAim;
+
+        return true;
     }
 
     private void trackingUpdate() {
@@ -437,6 +453,7 @@ public class MissileLauncher extends ArtilleryRideable {
        //this is to prevent the two barrels converging onto each other
         //when the euler angle is near vertical (cause then the horizontal approaches 0)
         //threshold value for horMag is 0.01 since we're div by mag we don't want the values --> infinity
+        //I believe this is Gimbal lock?
         final double PRESERVATION = 0.75;  //arbitrary artistic choice
         if (horMag < 0.01) {
 
@@ -470,7 +487,7 @@ public class MissileLauncher extends ArtilleryRideable {
         int midpoint = barrel.length / 2;
         double distFromMid;
 
-        Location nextStemLoc = stem[stem.length - 1].getLocation(world);
+        Location nextStemLoc = stem[stem.length - 1].getLocation();
         Location[] barrelLocs = new Location[barrel.length];
 
         for (int slot = 0; slot < midpoint; slot ++) {
@@ -530,7 +547,6 @@ public class MissileLauncher extends ArtilleryRideable {
                     new TextComponent(colour+"Rotation: ["+x +" | "+y+"] Health: "+roundHealth));
             return;
         }
-
         lockTarget(player);
 
         float percent = (float)trackingLock / MAX_TRACK;
@@ -540,13 +556,13 @@ public class MissileLauncher extends ArtilleryRideable {
         String remain = ChatColor.GRAY+PROGRESS_BAR.substring(0,Math.max(PROGRESS_LENGTH - bars * 2 - 1 , 0));
         //----main---
 
-        String extra = "";
+        String extra;
         ChatColor dynamic = System.currentTimeMillis() % 1000 > 500 ? ChatColor.RED : ChatColor.WHITE;
 
         if (getAmmo() > 0) {
             extra = ChatColor.GOLD+"|".repeat(getAmmo());
 
-            if (trackingLock >= TRACK_REQUIRED)
+            if (trackingLock >= TRACK_REQUIRED && trackedTarget != null)
                 extra += dynamic+" TARGET LOCK";
             else
                 extra += ChatColor.GOLD+ " TRACKING";
@@ -563,7 +579,15 @@ public class MissileLauncher extends ArtilleryRideable {
 
             if (trackedTarget.getType() == EntityType.PLAYER)
                 type = trackedTarget.getName();
-            else type = trackedTarget.getType().name().replace('_', ' ');
+            else {
+
+                Component comp = EntityUtils.getComponentRef(trackedTarget);
+                if (comp == null)
+                    type = trackedTarget.getType().name().replace('_', ' ');
+                else
+                    type = comp.getBody().getType().name().toUpperCase();
+
+            }
         }
 
         type = ChatColor.RED + type;
@@ -590,17 +614,13 @@ public class MissileLauncher extends ArtilleryRideable {
             @Override
             public boolean test(Entity entity) {
                 //return true => valid entity to raytrace
-                net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
 
                 if (entity.getUniqueId().equals(human.getUniqueId())) return false;
 
-                if (ConstructUtils.isProjectileFG(entity)) return false;
+                if (EntityUtils.isComponentOf(ref, entity)) return false;
 
-                Component comp = ConstructUtils.getComponentRef(entity);
-                if (comp == null) return true;
+                return !EntityUtils.isProjectileFG(entity);
 
-                Construct cons = comp.getBody();
-                return !(ref.equals(cons));
             }
         }
 
@@ -669,8 +689,9 @@ public class MissileLauncher extends ArtilleryRideable {
         return maxHealth;
     }
 
-    public List<ArtilleryPart> getParts(){
-        List<ArtilleryPart> parts = super.getParts();
+    @Override
+    public List<Component> getParts(){
+        List<Component> parts = super.getParts();
         parts.addAll(Arrays.asList(stem));
         parts.add(rotatingSeat);
         parts.add(pivot);
@@ -678,8 +699,8 @@ public class MissileLauncher extends ArtilleryRideable {
     }
 
     @Override
-    public void positionSeat() {
-        posSeatAbsoluteHorizon(rotatingSeat,HOR_OFFSET,Y_OFFSET,0,Math.PI*1.5);
+    public boolean positionSeat() {
+        return posSeatAbsoluteHorizon(rotatingSeat,HOR_OFFSET,Y_OFFSET,0,Math.PI*1.5);
     }
 
 }

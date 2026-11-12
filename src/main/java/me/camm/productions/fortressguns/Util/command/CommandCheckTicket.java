@@ -3,8 +3,6 @@ package me.camm.productions.fortressguns.Util.command;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,7 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructUtils;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.Rideable;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ComponentAS;
+import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
 import me.camm.productions.fortressguns.FortressGuns;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -18,9 +15,9 @@ import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class ArtilleryRideable extends Artillery implements Rideable {
+public abstract class ArtilleryRideable extends Artillery implements IRideable {
 
-    protected ArtilleryPart rotatingSeat = null;  //artillery may have multiple seats in the future
+    protected Component rotatingSeat = null;  //artillery may have multiple seats in the future
     protected Player operator = null;
 
     public ArtilleryRideable(Location loc, World world, EulerAngle aim) {
@@ -53,6 +50,10 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     public boolean onMount(Player player) {
         if (operator != null) return false;
 
+        if (rotatingSeat == null) return false;
+
+        if (!rotatingSeat.isValid()) return false;
+
         setCameraLocked(true);
         setInterpolating(false);
         this.operator = player;
@@ -72,7 +73,7 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
                     return;
                 }
 
-                if (!vehicle.getUniqueId().equals(rotatingSeat.getUniqueID())) {
+                if (!vehicle.getUniqueId().equals(rotatingSeat.getUUID())) {
                     artillery.kickOperator();
                     cancel();
                     return;
@@ -118,21 +119,27 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
 
 
     //angle is around the y axis. so it is an angle which is horizontal to the ground
-    protected void posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double vibrationOffsetY, double angAroundY) {
-
+    protected boolean posSeatAbsoluteHorizon(Component seat, double xOffset, double yOffset, double shakeOffsetY, double angAroundY) {
 
         EulerAngle aim = this.getAim();
         Location next = getSeatLocation( xOffset, yOffset, angAroundY);
 
+
         final double MAX_VIB = 0.25;  //artistic choice. too much makes it look bad, too little and they don't feel it
         if (operator != null) {
-            double amount = Math.abs(vibrationOffsetY) > MAX_VIB ? (vibrationOffsetY > 0 ? MAX_VIB : -MAX_VIB) : vibrationOffsetY;
+            double amount = Math.abs(shakeOffsetY) > MAX_VIB ? (shakeOffsetY > 0 ? MAX_VIB : -MAX_VIB) : shakeOffsetY;
             next.add(0, amount, 0);
+        }
+
+        if (!seat.enoughSpace(next.toVector())) {
+            return false;
         }
 
         EulerAngle seatFacing = new EulerAngle(0,aim.getY(),0);
         seat.setRotation(seatFacing);
         seat.teleport(next);
+
+        return true;
     }
 
 
@@ -152,12 +159,8 @@ public abstract class ArtilleryRideable extends Artillery implements Rideable {
     }
 
 
-
-
-
-     Location getSeatLocation(ArtilleryPart referencePos) {
-
-        Location reference = referencePos.getLocation(getWorld());
+     Location getSeatLocation(Component referencePos) {
+        Location reference = referencePos.getLocation();
         EulerAngle aim = getAim();
         double rotSeatZ = -Math.cos(aim.getY());
         double rotSeatX = Math.sin(aim.getY());
