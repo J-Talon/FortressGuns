@@ -8,10 +8,7 @@ import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import me.camm.productions.fortressguns.interact.InteractionBehaviourItem;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -77,8 +74,10 @@ public class IBConstructBox implements InteractionBehaviourItem {
             ChunkLoader.addActivePiece(cons);
             if (!success)
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this.");
-            else
-                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE,1,1);
+            else {
+                player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
+                performTransaction(stack, player);
+            }
         }
         else {
             player.sendMessage(ChatColor.RED+"[!] Unable to create construct. This is probably a bug.");
@@ -87,6 +86,22 @@ public class IBConstructBox implements InteractionBehaviourItem {
         event.setCancelled(true);
 
 
+    }
+
+
+
+
+    private void performTransaction(ItemStack stack, Player player) {
+
+        if (player.getGameMode() == GameMode.CREATIVE)
+            return;
+
+        int amount = stack.getAmount();
+        if (amount > 1) {
+            stack.setAmount(amount - 1);
+        }
+        else stack.setType(Material.AIR);
+        player.getInventory().setItemInMainHand(stack);
     }
 
     @Override

@@ -3,7 +3,6 @@ package me.camm.productions.fortressguns.Artillery.Entities.Generation;
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns.*;
 import org.bukkit.Location;
-import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.Nullable;
 
 import static me.camm.productions.fortressguns.Util.Serialization.FactorySerialization.*;
@@ -42,23 +41,23 @@ public abstract class ConstructFactory<T extends Construct> {
     }
 
 
-    static class FactoryCRAM extends ConstructFactory<CRAM> {
-
-        public CRAM create(Location loc, int ... params) {
-
-            if (params.length < ROTATION_MIN) {
-                return null;
-            }
-
-
-            CRAM cram = new CRAM(loc, loc.getWorld(), deserializeRotation(params));
-            deserializeSetAmmo(cram, params);
-            deserializeSetHealth(cram, params);
-            return cram;
-
-        }
-
-    }
+//    static class FactoryCRAM extends ConstructFactory<CRAM> {
+//
+//        public CRAM create(Location loc, int ... params) {
+//
+//            if (params.length < ROTATION_MIN) {
+//                return null;
+//            }
+//
+//
+//            CRAM cram = new CRAM(loc, loc.getWorld(), deserializeRotation(params));
+//            deserializeSetAmmo(cram, params);
+//            deserializeSetHealth(cram, params);
+//            return cram;
+//
+//        }
+//
+//    }
 
 
 

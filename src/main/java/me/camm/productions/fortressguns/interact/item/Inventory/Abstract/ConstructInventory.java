@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.interact.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -21,7 +22,12 @@ public abstract class ConstructInventory
      public ConstructInventory(Construct owner, InventoryCategory setting, InventoryGroup group) {
           this.owner = owner;
           this.group = group;
-          this.gui = Bukkit.createInventory(null, setting.size, setting.title);
+
+          String title = owner.getType().getName();
+          if (title == null)
+               title = ChatColor.DARK_GRAY+setting.title;
+
+          this.gui = Bukkit.createInventory(null, setting.size, title);
           this.tag = setting;
 
      }

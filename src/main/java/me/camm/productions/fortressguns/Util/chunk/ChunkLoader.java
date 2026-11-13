@@ -6,6 +6,9 @@ import me.camm.productions.fortressguns.Util.EntityUtils;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.Serialization.FactorySerialization;
 import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Util.config.ConfigManager;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
 import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -32,7 +35,7 @@ import static me.camm.productions.fortressguns.Util.chunk.ChunkUtils.createTicke
 import static me.camm.productions.fortressguns.Util.chunk.ChunkUtils.isChunkEntityTicking;
 
 
-public class ChunkLoader implements Listener {
+public class ChunkLoader implements Listener, ConfigurationHolder<SectionGeneral> {
 
 
     private final static Map<String, WorldTicketManager> pieces;
@@ -47,6 +50,9 @@ public class ChunkLoader implements Listener {
     private final ReentrantLock lock;  //synchronized works too ya know
     private final BukkitTask task;
     private final Logger logger;
+
+    private boolean configApplied = false;
+    private boolean verboseLogging = false;
 
     static {
       pieces = new HashMap<>();
@@ -90,8 +96,18 @@ public class ChunkLoader implements Listener {
 
         JavaPlugin plugin = (JavaPlugin)FortressGuns.getInstance();
         plugin.getServer().getWorlds().forEach(this::checkSpawnChunks);
+
+        if (configApplied) return;
+        setStaticDefaults(ConfigManager.getInstance().getGeneral());
     }
 
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionGeneral data) {
+        configApplied = true;
+        if (data == null) return;
+        this.verboseLogging = data.getVerboseChunkLogging();
+    }
 
 
 
@@ -104,7 +120,7 @@ public class ChunkLoader implements Listener {
 
                 ChunkTicket next = iter.next();
                 if (next.isAssembled()) {
-                    logger.log(Level.INFO, "Chunk loader completing ticket " + next.getUUID());
+                    log(Level.INFO, "Chunk loader completing ticket " + next.getUUID());
 
                     try {
                     next.finish();
@@ -113,7 +129,7 @@ public class ChunkLoader implements Listener {
                     continue;
                     }
                     catch (NullPointerException ignored) {
-                        logger.warning("Unable to spawn turret from ticket "+next.getUUID() +", ["+next+"] since it's reference is bad. Skipping, sorry!");
+                    log(Level.WARNING,next.getUUID() +", ["+next+"] since it's reference is bad. Skipping, sorry!");
                         iter.remove();
                         continue;
                     }
@@ -178,13 +194,12 @@ public class ChunkLoader implements Listener {
             struct.calculateOccupiedChunks();
             List<IntTuple2> loadedChunks = struct.getOccupiedChunks();
 
-            //int loaded = (int)loadedChunks.stream().filter(tup -> isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
-        int loaded = (int) loadedChunks.stream().filter(tup -> world.isChunkLoaded(tup.getA(), tup.getB())).count();
+            int loaded = (int) loadedChunks.stream().filter(tup -> world.isChunkLoaded(tup.getA(), tup.getB())).count();
 
             ChunkTicket ticket;
             if (loaded >= loadedChunks.size()) {
                 ticket = createTicket(loadedChunks, struct, e, 0); //1
-                logger.log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
+             log(Level.INFO, "Adding pre-assembled ticket "+ticket.getUUID());
 
                 lock.lock();
                 assembledTickets.add(ticket);
@@ -192,8 +207,8 @@ public class ChunkLoader implements Listener {
             }
             else {
                 ticket = createTicket(loadedChunks, struct, e, 0); //loaded
-                logger.log(Level.INFO, "Adding loading ticket "+ticket.getUUID() +" at "+ticket.getCurrentLoaded() +" / " + ticket.getTotalChunks());
-                logger.log(Level.INFO, ticket.toString());
+                log(Level.INFO, "Adding loading ticket "+ticket.getUUID() +" at "+ticket.getCurrentLoaded() +" / " + ticket.getTotalChunks());
+                log(Level.INFO, ticket.toString());
                 addLoadingTicket(ticket, chunk.getWorld());
             }
         }
@@ -350,5 +365,10 @@ public class ChunkLoader implements Listener {
 
     public static void removeActivePiece(Construct struct) {
         activePieces.remove(struct);
+    }
+
+    private void log(Level level, String in) {
+        if (!verboseLogging) return;
+        logger.log(level, in);
     }
 }

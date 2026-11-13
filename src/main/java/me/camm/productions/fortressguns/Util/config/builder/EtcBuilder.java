@@ -29,7 +29,8 @@ destructiveExplosions = true
             Boolean flare = result.getBoolean(ConfigField.FLARES.build(key));
             Boolean vanilla = result.getBoolean(ConfigField.VANILLA.build(key));
             Boolean dest = result.getBoolean(ConfigField.DESTRUCTIVE.build(key));
-            return new SectionGeneral(flare, vanilla, dest, key);
+            Boolean verboseChunk = result.getBoolean(ConfigField.VERBOSE_CHUNK.build(key));
+            return new SectionGeneral(flare, vanilla, dest, verboseChunk, key);
         }
     }
 
