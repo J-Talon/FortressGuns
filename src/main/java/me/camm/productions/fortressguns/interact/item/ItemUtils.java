@@ -112,7 +112,7 @@ public class ItemUtils
         Location loc = pivot.getEyeLocation();
 
         World bukkit = artillery.getWorld();
-        bukkit.dropItem(loc,artillery.getType().getBoxItem().get());
-
+        bukkit.dropItem(loc,artillery.getType().getBoxItem().dynamicGet(""));
     }
+
 }

@@ -1,9 +1,8 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
+import me.camm.productions.fortressguns.Util.Serialization.ItemPropertyField;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
@@ -17,6 +16,7 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Invento
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
@@ -66,6 +66,16 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected double vibrationOffsetY;
 
 
+    private static Map<String, ItemPropertyField> fields;
+
+    static {
+        fields = new HashMap<>();
+        for (ItemPropertyField field: ItemPropertyField.values()) {
+            fields.put(field.getProperty(), field);
+        }
+
+
+    }
 
 
 
@@ -125,6 +135,39 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
         setChunkLoaded(false);
     }
 
+
+    @Override
+    public ItemStack toItemData() {
+        double health = getHealth();
+        String healthRep = ItemPropertyField.HEALTH.build(""+health);
+        return getType().getBoxItem().dynamicGet(healthRep);
+    }
+
+    @Override
+    public void loadItemData(ItemStack data) {
+
+        //is similar already checks meta
+        if (!getType().getBoxItem().isSimilar(data))
+            return;
+
+        List<String> lore = data.getItemMeta().getLore();
+        if (lore == null) return;
+
+        if (lore.isEmpty()) return;
+
+        for (String s: lore) {
+            String[] splits = s.split(":");
+            if (splits.length < 2) continue;
+
+            if (!fields.containsKey(splits[0]))
+                continue;
+
+            ItemPropertyField field = fields.get(s);
+            field.performOperation(this, splits[1]);
+        }
+
+
+    }
 
 
     protected synchronized void setCanFire(boolean canFire) {

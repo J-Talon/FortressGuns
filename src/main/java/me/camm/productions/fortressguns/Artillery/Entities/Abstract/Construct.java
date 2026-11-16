@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Util.Serialization.IItemSerializable;
 import me.camm.productions.fortressguns.Util.Math.IntTuple2;
 import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
 import org.bukkit.Chunk;
@@ -11,7 +12,7 @@ import org.bukkit.entity.Entity;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class Construct {
+public abstract class Construct implements IItemSerializable {
 
     protected final static double LARGE_BLOCK_LENGTH = 0.6;
     protected final static double SMALL_BLOCK_LENGTH = 0.4;
