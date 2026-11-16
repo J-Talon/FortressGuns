@@ -53,6 +53,8 @@ public abstract class Construct implements IItemSerializable {
 
     public abstract double getHealth();
 
+    public abstract double getMaxHealth();
+
     public abstract void setHealth(double health);
 
     public abstract boolean damage(double amount);

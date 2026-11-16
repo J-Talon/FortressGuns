@@ -139,6 +139,9 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     @Override
     public ItemStack toItemData() {
         double health = getHealth();
+        if (health >= getMaxHealth())
+            return getType().getBoxItem().get();
+
         String healthRep = ItemPropertyField.HEALTH.build(""+health);
         return getType().getBoxItem().dynamicGet(healthRep);
     }
@@ -162,7 +165,7 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
             if (!fields.containsKey(splits[0]))
                 continue;
 
-            ItemPropertyField field = fields.get(s);
+            ItemPropertyField field = fields.get(splits[0]);
             field.performOperation(this, splits[1]);
         }
 
@@ -416,8 +419,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     }
 
     public abstract boolean canFire();
-
-    public abstract double getMaxHealth();
 
     public abstract boolean acceptsAmmo(AmmoItem item);
 
