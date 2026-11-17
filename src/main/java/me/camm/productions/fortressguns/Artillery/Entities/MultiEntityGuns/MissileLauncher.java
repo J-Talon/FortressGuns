@@ -216,11 +216,11 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
                 if (requiresReloading()) {
                     int nextAmmo = getAmmo() - 1;
                     if (nextAmmo <= 0) {
-                        lastFireTime = System.currentTimeMillis();
                         setAmmo(0);
                     } else {
                         setAmmo(nextAmmo);
                     }
+                    lastFireTime = System.currentTimeMillis();
                 }
 
                 double vecPow = getVectorPower();
@@ -374,6 +374,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
         horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
         vertAngle = MathFG.nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
+        horAngle = MathFG.normalize2PI(horAngle);
 
         EulerAngle nextAim = new EulerAngle(vertAngle, horAngle, 0);
 

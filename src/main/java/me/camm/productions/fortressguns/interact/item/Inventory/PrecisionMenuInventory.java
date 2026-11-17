@@ -89,6 +89,7 @@ public class PrecisionMenuInventory extends MenuInventory {
         functions.put(StaticItem.FIRE.getName(), fire);
         functions.put(StaticItem.DISASSEMBLE.getName(), disassemble);
         functions.put(StaticItem.RELOAD.getName(), openReloading);
+        functions.put(StaticItem.REPAIR.getName(), repair);
         init();
     }
 

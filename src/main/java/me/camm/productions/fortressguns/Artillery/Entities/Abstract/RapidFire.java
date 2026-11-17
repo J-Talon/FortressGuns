@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
@@ -205,6 +206,8 @@ public abstract class RapidFire extends ArtilleryRideable {
             dead = true;
             return false;
         }
+
+        horAngle = MathFG.normalize2PI(horAngle);
 
         Vector[] nextLocations = new Vector[barrel.length];
 

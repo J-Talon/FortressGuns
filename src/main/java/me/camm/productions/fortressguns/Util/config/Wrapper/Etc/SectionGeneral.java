@@ -13,17 +13,27 @@ import java.util.logging.Logger;
  */
 public class SectionGeneral extends ConfigSection {
 
-    private Boolean enableFlares;
-    private Boolean useVanillaExplosions;
-    private Boolean destructiveExplosions;
-    private Boolean verboseChunkLogging;
+    private final Boolean enableFlares;
+    private final Boolean useVanillaExplosions;
+    private final Boolean destructiveExplosions;
+    private final Boolean verboseChunkLogging;
+    private final Boolean easyRepairs;
+    private final Double repairAmount;
 
-    public SectionGeneral(Boolean enableFlares, Boolean useVanillaExplosions, Boolean destructiveExplosions, Boolean verboseChunkLogging, String key) {
+    public SectionGeneral(Boolean enableFlares,
+                          Boolean useVanillaExplosions,
+                          Boolean destructiveExplosions,
+                          Boolean verboseChunkLogging,
+                          Boolean easyRepairs,
+                          Double repairAmount,
+                          String key) {
         super(key);
         this.enableFlares = enableFlares;
         this.useVanillaExplosions = useVanillaExplosions;
         this.destructiveExplosions = destructiveExplosions;
         this.verboseChunkLogging = verboseChunkLogging;
+        this.easyRepairs = easyRepairs;
+        this.repairAmount = repairAmount;
     }
 
     @Override
@@ -38,6 +48,8 @@ public class SectionGeneral extends ConfigSection {
                     notNull(useVanillaExplosions, ConfigField.VANILLA);
                     notNull(destructiveExplosions, ConfigField.DESTRUCTIVE);
                     notNull(verboseChunkLogging, ConfigField.VERBOSE_CHUNK);
+                    notNull(easyRepairs, ConfigField.EASY_REPAIRS);
+                    atLeast(0, repairAmount, ConfigField.REPAIR_AMOUNT);
                 }
             }.validate(this);
         } catch (IllegalArgumentException e) {
@@ -61,5 +73,14 @@ public class SectionGeneral extends ConfigSection {
 
     public Boolean getVerboseChunkLogging() {
         return verboseChunkLogging;
+    }
+
+
+    public Boolean getEasyRepairs() {
+        return easyRepairs;
+    }
+
+    public Double getRepairAmount() {
+        return repairAmount;
     }
 }

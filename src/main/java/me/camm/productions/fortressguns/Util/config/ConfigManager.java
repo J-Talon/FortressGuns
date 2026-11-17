@@ -101,60 +101,78 @@ public class ConfigManager {
     }
 
 
+    private void checkLoaded() {
+        if (isLoaded()) return;
+        throw new IllegalStateException("Config has not been loaded yet! Load the config first before attempting to retrieve data!");
+    }
+
     public boolean isLoaded() {
         return isLoaded.get();
     }
 
 
     public SectionFieldHeavy getFieldHeavy() {
+        checkLoaded();
         return fieldHeavy;
     }
 
     public SectionFieldLight getFieldLight() {
+        checkLoaded();
         return fieldLight;
     }
 
     public SectionHeavyFlak getHeavyFlak() {
+        checkLoaded();
         return heavyFlak;
     }
 
     public SectionHMG getHmg() {
+        checkLoaded();
         return hmg;
     }
 
     public SectionLightFlak getLightFlak() {
+        checkLoaded();
         return lightFlak;
     }
 
     public SectionMissileLauncher getLauncher() {
+        checkLoaded();
         return launcher;
     }
 
     public SectionFlak getFlakShell() {
+        checkLoaded();
         return flakShell;
     }
 
     public SectionHeatMissile getHeatMissile() {
+        checkLoaded();
         return heatMissile;
     }
 
     public SectionHMGBullet getHmgBullet() {
+        checkLoaded();
         return hmgBullet;
     }
 
     public SectionShellHE getShellHE() {
+        checkLoaded();
         return shellHE;
     }
 
     public SectionShellSolid getShellSolid() {
+        checkLoaded();
         return shellSolid;
     }
 
     public SectionGeneral getGeneral() {
+        checkLoaded();
         return general;
     }
 
     public SectionLightFlakBullet getLightFlakBullet() {
+        checkLoaded();
         return lightFlakBullet;
     }
 }

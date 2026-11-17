@@ -1,6 +1,8 @@
 package me.camm.productions.fortressguns.interact.item.Inventory.Abstract;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -82,7 +84,7 @@ public abstract class PanelInventory extends TransactionInventory {
             return;
 
         String name = meta.getDisplayName();
-        MenuInventory.MenuFunction function = functions.getOrDefault(name, null);
+        PanelInventory.MenuFunction function = functions.getOrDefault(name, null);
         if (function == null)
             return;
 
@@ -123,6 +125,5 @@ public abstract class PanelInventory extends TransactionInventory {
                 return 0;
             }
         }
-
     }
 }

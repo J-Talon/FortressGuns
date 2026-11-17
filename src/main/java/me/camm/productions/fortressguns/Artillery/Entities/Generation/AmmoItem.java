@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public enum AmmoItem {
@@ -31,8 +32,9 @@ public enum AmmoItem {
     private final FGSingleConsumable item;
     private final ProjectileFactory<? extends ProjectileFG> factory;
 
-    public Material getMat() {
-        return item == null ? null : item.getMaterial();
+    public @NotNull Material getMat() {
+        if (item == null) throw new IllegalStateException("Ammo item material shouldn't be null!");
+        return item.getMaterial();
     }
 
     public String getName() {
