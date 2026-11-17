@@ -374,6 +374,7 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
 
         horAngle = MathFG.nextHorizontalAngle(aim.getY(), horAngle, horRotSpeed);
         vertAngle = MathFG.nextVerticalAngle(aim.getX(), vertAngle, vertRotSpeed);
+        horAngle = MathFG.normalize2PI(horAngle);
 
         EulerAngle nextAim = new EulerAngle(vertAngle, horAngle, 0);
 

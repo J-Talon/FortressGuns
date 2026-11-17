@@ -94,6 +94,8 @@ public abstract class FieldArtillery extends ArtilleryRideable
     }
 
 
+    //hor angle: angle along y axis (horizontal angle)
+    //vert angle: vertical angle of the aim (xz)
     @Override
     public boolean pivot(double vertAngle, double horAngle)
     {
@@ -103,12 +105,6 @@ public abstract class FieldArtillery extends ArtilleryRideable
             dead = true;
             return false;
         }
-
-
-        double currX,currY;
-        currX = aim.getX();
-        currY = aim.getY();
-
 
         //90 degrees in the up and down directions
         //in radians
@@ -121,10 +117,10 @@ public abstract class FieldArtillery extends ArtilleryRideable
             vertAngle = Math.min(vertAngle, getMinVertAngle());
         }
 
-        final double TWO_PI = 2 * Math.PI;
-        if (horAngle > TWO_PI || horAngle < -TWO_PI) {
-            horAngle = horAngle % TWO_PI;
-        }
+        double currX,currY;
+
+        currX = aim.getX();
+        currY = aim.getY();
 
 
         if (currX == vertAngle && currY == horAngle && !lengthChanged)
@@ -138,6 +134,9 @@ public abstract class FieldArtillery extends ArtilleryRideable
         //don't add PI to give an extra 180 * to the rotation (see StandHelper.getASFace(EntityHuman) )
         //since  -horizontalDistance*Math.sin(horAngle); already takes care of it.
         horAngle = MathFG.nextHorizontalAngle(currY, horAngle, horRotSpeed);
+
+        horAngle = MathFG.normalize2PI(horAngle);
+       // vertAngle = MathFG.normalize2PI(vertAngle);
 
         Vector[] locations = new Vector[barrel.length];
 
