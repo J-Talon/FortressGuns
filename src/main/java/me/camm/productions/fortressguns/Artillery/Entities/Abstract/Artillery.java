@@ -44,8 +44,8 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
     protected double vertRotSpeed = 1;
     protected double horRotSpeed = 1;
     protected Plugin plugin;
-    protected ArtilleryPart[] barrel;
-    protected ArtilleryPart[][] base;
+    protected Component[] barrel;
+    protected Component[][] base;
     protected Location initialLoc;
 
     protected Component pivot;

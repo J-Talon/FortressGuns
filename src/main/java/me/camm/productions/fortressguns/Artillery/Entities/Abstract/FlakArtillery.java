@@ -1,6 +1,5 @@
 package me.camm.productions.fortressguns.Artillery.Entities.Abstract;
 
-import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.FlakHeavyShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.HeavyShell.HeavyShell;
@@ -24,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class FlakArtillery extends FieldArtillery
 {
 
-    protected org.bukkit.entity.Entity target;
+    protected Entity target;
     protected boolean aiming;
 
     //variables for aiming based on average v
