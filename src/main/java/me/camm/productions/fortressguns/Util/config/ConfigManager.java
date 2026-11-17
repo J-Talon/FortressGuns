@@ -107,7 +107,6 @@ public class ConfigManager {
     }
 
     public boolean isLoaded() {
-        checkLoaded();
         return isLoaded.get();
     }
 
