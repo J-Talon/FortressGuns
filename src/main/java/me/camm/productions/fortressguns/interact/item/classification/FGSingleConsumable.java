@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class FGSingleConsumable extends FGItem<Void> {
+public abstract class FGSingleConsumable extends FGItem<String> {
 
     public abstract @NotNull Material getMaterial();
 
