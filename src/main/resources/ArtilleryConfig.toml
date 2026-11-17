@@ -85,7 +85,7 @@ inactiveHeatTicks = 2000
 #Missile launcher
 [missileLauncher]
 health = 35
-cooldown = 10000
+cooldown = 2000
 magSize = 6
 infiniteAmmo = false
 

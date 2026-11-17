@@ -216,11 +216,11 @@ public class MissileLauncher extends ArtilleryRideable implements ConfigurationH
                 if (requiresReloading()) {
                     int nextAmmo = getAmmo() - 1;
                     if (nextAmmo <= 0) {
-                        lastFireTime = System.currentTimeMillis();
                         setAmmo(0);
                     } else {
                         setAmmo(nextAmmo);
                     }
+                    lastFireTime = System.currentTimeMillis();
                 }
 
                 double vecPow = getVectorPower();
