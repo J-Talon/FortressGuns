@@ -5,8 +5,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
 import me.camm.productions.fortressguns.Util.config.ConfigManager;
 import me.camm.productions.fortressguns.Util.config.ConfigurationHolder;
 import me.camm.productions.fortressguns.Util.config.Wrapper.Etc.SectionGeneral;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -104,6 +103,10 @@ public abstract class MenuInventory extends PanelInventory implements Configurat
            body.setHealth(health);
            double prettyPrint = (double)((int)(health * 10)) / 10;
 
+           World world = player.getWorld();
+           world.spawnParticle(Particle.CRIT, body.getCoreEntity().getLocation(),20);
+
+           player.playSound(player.getLocation(),Sound.BLOCK_ANVIL_PLACE, SoundCategory.BLOCKS,1,1);
            player.sendMessage(ChatColor.GOLD+"Repaired construct, now at: "+prettyPrint+" hp");
        }
    };
