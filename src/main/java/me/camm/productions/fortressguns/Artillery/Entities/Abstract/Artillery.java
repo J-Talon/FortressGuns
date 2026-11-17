@@ -374,8 +374,6 @@ public abstract class Artillery extends Construct implements NBTSerializable<Int
 
     public abstract boolean canFire();
 
-    public abstract double getMaxHealth();
-
     public abstract boolean acceptsAmmo(AmmoItem item);
 
 

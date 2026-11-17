@@ -1,6 +1,7 @@
 package me.camm.productions.fortressguns.interact.item.Inventory.Abstract;
 
 public enum InventoryCategory {
+    REPAIR(54, "Repair"),
     RADAR(81,"Radar"),
     RELOADING(9,"Loading..."),
     JAM_CLEAR(36, "Clearing Jam..."),
