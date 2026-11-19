@@ -14,6 +14,7 @@ import org.bukkit.block.data.type.Fire;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import me.camm.productions.fortressguns.FortressGuns;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ExplosionArson extends ExplosionFunctional {
                 from,
                 direction.normalize(),
                 distance,
-                org.bukkit.FluidCollisionMode.NEVER,
+                FluidCollisionMode.ALWAYS,
                 true
         );
 
@@ -74,7 +75,7 @@ public class ExplosionArson extends ExplosionFunctional {
 
                     Fire fireData = (Fire) Bukkit.createBlockData(Material.FIRE);
 
-                    BlockFace[] faces = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
+                    BlockFace[] faces = {BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP};
 
                     boolean hasSide = false;
 
@@ -90,6 +91,15 @@ public class ExplosionArson extends ExplosionFunctional {
                     if (hasSide) {
                         fireData.setAge(0);
                         fireBlock.setBlockData(fireData, false);
+                        Bukkit.getScheduler().runTaskLater(
+                                FortressGuns.getInstance(),
+                                () -> {
+                                    if (fireBlock.getType() == Material.FIRE) {
+                                        fireBlock.setType(Material.AIR);
+                                    }
+                                },
+                                20L * 15
+                        );
                     } else if (fireBlock.getRelative(BlockFace.DOWN).getType().isSolid()) {
                         fireBlock.setType(Material.FIRE);
                     }
