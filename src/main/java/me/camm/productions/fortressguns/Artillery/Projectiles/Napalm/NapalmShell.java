@@ -26,10 +26,12 @@ public class NapalmShell extends AbstractNapalm implements ProjectileType.INapal
 
     protected Artillery source;
     private World world;
+    private Player shooter;
     public NapalmShell(World world, double locX, double locY, double locZ, @Nullable Player shooter, Artillery source) {
         super(world, locX, locY, locZ, shooter, source);
         this.source = source;
         this.world = world;
+        this.shooter = shooter;
         setCritical(true);
     }
 
@@ -53,16 +55,17 @@ public class NapalmShell extends AbstractNapalm implements ProjectileType.INapal
 
     @Override
     public boolean onEntityHit(Entity hitEntity, Vector entityPosition) {
+        Location loc = this.getBukkitEntity().getLocation();
+        ExplosionFactory.get().napalmExplosion(world, shooter, loc.getX(), loc.getY(), loc.getZ(), 25);
+        remove();
         return false;
     }
 
     @Override
     public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
         Location loc = this.getBukkitEntity().getLocation();
-        for (int i = 0; i < 5; i++) {
-            NapalmSpark ns = new NapalmSpark(world, loc.getX(), loc.getY(), loc.getZ(), null, source);
-//            world.spawn(loc, ns);
-        }
+        ExplosionFactory.get().napalmExplosion(world, shooter, loc.getX(), loc.getY(), loc.getZ(), 25);
+        remove();
         return false;
     }
 
