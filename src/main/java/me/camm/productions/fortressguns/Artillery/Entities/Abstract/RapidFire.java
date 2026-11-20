@@ -6,6 +6,7 @@ import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.LightShell;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
 
+import me.camm.productions.fortressguns.Util.Math.MathFG;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ArtilleryMaterial;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.StandHelper;
@@ -85,8 +86,8 @@ public abstract class RapidFire extends ArtilleryRideable {
 
     public RapidFire(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-        barrel = new ArtilleryPart[4];
-        base = new ArtilleryPart[1][1];
+        barrel = new Component[4];
+        base = new Component[1][1];
         barrelHeat = 0;
         isJammed = false;
         projectileVelocity = new Vector(0,0,0);
@@ -206,13 +207,15 @@ public abstract class RapidFire extends ArtilleryRideable {
             return false;
         }
 
+        horAngle = MathFG.normalize2PI(horAngle);
+
         Vector[] nextLocations = new Vector[barrel.length];
 
         double totalDistance;
         //for all of the armorstands making up the barrel,
         for (int slot=0;slot< barrel.length;slot++)
         {
-            ArtilleryPart stand = barrel[slot];
+            Component stand = barrel[slot];
 
 
             //getting the distance from the pivot
@@ -247,7 +250,7 @@ public abstract class RapidFire extends ArtilleryRideable {
         pivot.setRotation(aim);
 
         for (int slot=0;slot< barrel.length;slot++) {
-            ArtilleryPart stand = barrel[slot];
+            Component stand = barrel[slot];
             Vector teleport = nextLocations[slot];
 
             stand.teleport(teleport.getX(), teleport.getY(), teleport.getZ());

@@ -71,6 +71,7 @@ public class IBConstructBox implements InteractionBehaviourItem {
 
         if (cons != null) {
             boolean success = cons.spawn(false);
+            cons.loadItemData(stack);
             ChunkLoader.addActivePiece(cons);
             if (!success)
                 player.sendMessage(ChatColor.RED+"[!] There is not enough space here to assemble this.");

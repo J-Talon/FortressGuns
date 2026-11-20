@@ -17,6 +17,8 @@ public enum ConfigField {
     VANILLA("useVanillaExplosions"),
     DESTRUCTIVE("destructiveExplosions"),
     VERBOSE_CHUNK("verboseChunkLogging"),
+    EASY_REPAIRS("easyRepairs"),
+    REPAIR_AMOUNT("repairAmount"),
 
     ANGLE("angle"),
     PEN("penetrationPower"),

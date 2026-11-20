@@ -21,6 +21,8 @@ public class MathFG {
     public static final double RAD = 0.017;
     public static final double FULL_CIRCLE_DEG = 360;
 
+    public static final double TWO_PI = 2 * Math.PI;
+
     //armorstand dimensions
     public final static double LARGE_BLOCK_LENGTH = 0.6;
     public final static double SMALL_BLOCK_LENGTH = 0.4;
@@ -81,6 +83,18 @@ public class MathFG {
         return new Vector(x,y,z);
     }
 
+
+    public static double normalize2PI(double angleRads) {
+        if (angleRads > TWO_PI || angleRads < -TWO_PI) {
+            angleRads = angleRads % TWO_PI;
+        }
+
+        if (angleRads < 0) {
+            angleRads += TWO_PI;
+        }
+
+        return angleRads;
+    }
 
 
 

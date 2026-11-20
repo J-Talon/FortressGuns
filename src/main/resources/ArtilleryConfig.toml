@@ -85,7 +85,7 @@ inactiveHeatTicks = 2000
 #Missile launcher
 [missileLauncher]
 health = 35
-cooldown = 10000
+cooldown = 2000
 magSize = 6
 infiniteAmmo = false
 
@@ -150,8 +150,17 @@ useVanillaExplosions = false
 destructiveExplosions = true
 
 #mostly for debugging
-#print data from the chunk handler for artillery
+#print verbose data from the chunk handler for artillery
 verboseChunkLogging = false
+
+#Whether easy repairs are enabled
+#instead of needing to play a minigame to repair artillery,
+#clicking on the repair button in the menu immediately repairs it
+#currently does nothing since the repair minigame hasn't been implemented yet
+easyRepairs = false
+
+#How much health a single iron ingot repairs
+repairAmount = 10
 
 
 

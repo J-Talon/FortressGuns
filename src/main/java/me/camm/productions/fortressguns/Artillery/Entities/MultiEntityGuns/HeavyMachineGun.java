@@ -2,6 +2,7 @@ package me.camm.productions.fortressguns.Artillery.Entities.MultiEntityGuns;
 
 import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
 import me.camm.productions.fortressguns.Artillery.Entities.Components.ArtilleryPart;
+import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.ConstructType;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.Artillery.Entities.Generation.AmmoItem;
@@ -181,8 +182,9 @@ public class HeavyMachineGun extends RapidFire implements ConfigurationHolder<Se
         setBarrelHeat(Math.min(100, overheat + getBarrelHeat()));
 
         if (getBarrelHeat() >= 100) {
-            ArtilleryPart barrelPart = barrel[random.nextInt(barrel.length)];
-            barrelPart.setFireTicks(barrelPart.getFireTicks() + 20);
+            Component barrelPart = barrel[random.nextInt(barrel.length)];
+            Entity e = barrelPart.getEntity();
+            e.setFireTicks(e.getFireTicks() + 20);
             world.spawnParticle(Particle.LAVA,barrelPart.getCenterPoint(),5,0,0,0,1);
         }
 

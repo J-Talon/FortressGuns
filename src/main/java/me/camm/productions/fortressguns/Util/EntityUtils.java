@@ -13,6 +13,9 @@ import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.Constru
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
 import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
 import me.camm.productions.fortressguns.interact.item.ItemUtils;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.AxisAlignedBB;
 import net.minecraft.world.phys.Vec3D;
@@ -77,13 +80,6 @@ public class EntityUtils {
     }
 
 
-    //you'd have to refer to a version manager here
-    public static Class<?> mapToNMS(@NotNull Entity e) {
-        return ((CraftEntity)e).getHandle().getClass();
-    }
-
-
-
 
     public static boolean isProjectileFG(Entity e) {
         return ( ((CraftEntity)e).getHandle() instanceof ProjectileFG);
@@ -143,7 +139,8 @@ public class EntityUtils {
     }
 
 
-
+    //todo fix
+    //this has issues with bottom collisions
     public static boolean isInBlock(ArmorStand entity, Vector nextPosition) {
         double width = entity.getWidth() * 0.8F;
         double height = entity.getHeight();
@@ -154,6 +151,15 @@ public class EntityUtils {
         List<Block> blocks = MathFG.getRoughCollisions(entity.getEyeLocation(), entity.getWorld());
         return !MathFG.overlaps(box, blocks).isEmpty();
     }
+
+
+
+
+    public static boolean isInBlock(Entity entity, Vector nextPosition) {
+        net.minecraft.world.entity.Entity nms = ((CraftEntity)entity).getHandle();
+        return isInBlock(nms, nextPosition);
+    }
+
 
 
     public static boolean isInBlock(net.minecraft.world.entity.Entity nms, Vector nextPosition) {
@@ -168,6 +174,9 @@ public class EntityUtils {
         return world.b(nms, boundingBox, (blockType, position) ->
                 blockType.o(world, position)).findAny().isPresent();
     }
+
+
+
 
 
 

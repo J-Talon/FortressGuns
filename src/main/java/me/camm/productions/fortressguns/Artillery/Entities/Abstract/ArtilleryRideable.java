@@ -114,6 +114,7 @@ public abstract class ArtilleryRideable extends Artillery implements IRideable {
 
         Location eyeLoc = human.getEyeLocation();
         pivot(Math.toRadians(eyeLoc.getPitch()), Math.toRadians(eyeLoc.getYaw()));
+
         double x, y;
         x = Math.round(Math.toDegrees(aim.getX()) * 1000d) / 1000d;
         y = Math.round(Math.toDegrees(aim.getY()) * 1000d) / 1000d;

@@ -30,8 +30,8 @@ public class HeavyFlak extends FlakArtillery implements IAutoTracking, Configura
 
     public HeavyFlak(Location loc, World world, EulerAngle aim) {
         super(loc, world, aim);
-        barrel = new ArtilleryPart[12];
-        base = new ArtilleryPart[4][4];
+        barrel = new Component[12];
+        base = new Component[4][4];
 
         this.vertRotSpeed = 3;
         this.horRotSpeed = 2;
