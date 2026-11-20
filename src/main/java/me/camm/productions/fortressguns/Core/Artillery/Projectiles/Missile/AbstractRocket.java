@@ -1,0 +1,50 @@
+package me.camm.productions.fortressguns.Core.Artillery.Projectiles.Missile;
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileArrowFG;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import net.minecraft.world.entity.EntityTypes;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Random;
+
+public abstract class AbstractRocket extends ProjectileArrowFG implements ProjectileExplosive {
+
+
+
+    protected Random rand;
+
+    protected Artillery source;
+
+    public AbstractRocket(World world, double x, double y, double z, @Nullable Player shooter, Artillery source) {
+        super(world, x,y,z, shooter);
+        rand = new Random();
+        this.source = source;
+    }
+
+
+
+    ///code to allow projectile-projectile collisions
+    @Override
+    protected boolean a(net.minecraft.world.entity.Entity entity) {
+
+        if (!entity.isSpectator() && entity.isAlive() && !(entity.getEntityType() == EntityTypes.w)) {
+            net.minecraft.world.entity.Entity entity1 = shooter;
+            return entity1 == null || !entity1.isSameVehicle(entity);
+            //so either the bullet has no shooter, and they're not stacked and not enderman
+            //removed the check isInteractable()
+        } else {
+            return false;
+        }
+    }
+
+
+
+
+    public abstract long getFuelTicks();
+
+
+
+}

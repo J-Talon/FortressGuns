@@ -1,0 +1,108 @@
+package me.camm.productions.fortressguns.Core.Artillery.Entities.MultiEntityGuns;
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.FieldArtillery;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Generation.ConstructType;
+import me.camm.productions.fortressguns.Util.Config.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.Wrapper.artillery.SectionFieldHeavy;
+import me.camm.productions.fortressguns.Util.Config.ConfigurationHolder;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.util.EulerAngle;
+
+import java.util.List;
+
+
+public class HeavyArtillery extends FieldArtillery implements ConfigurationHolder<SectionFieldHeavy>
+{
+
+    private static final int SMALL_THRESH = 1;
+
+    private static double maxHealth;
+    private static long cooldown;
+    private static boolean configApplied;
+    private static boolean infinite;
+
+    public HeavyArtillery(Location loc, World world, EulerAngle aim) {
+        super(loc, world, aim);
+        barrel = new Component[8];
+        base = new Component[4][3];
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+        setStaticDefaults(manager.getFieldHeavy());
+    }
+
+    static {
+        //default values
+        configApplied = false;
+        maxHealth = 80;
+        cooldown = 5000;
+        infinite = false;
+    }
+
+
+    public void setStaticDefaults(SectionFieldHeavy heavy) {
+        configApplied = true;
+        if (heavy == null) return;
+        maxHealth = heavy.getHealth();
+        cooldown = heavy.getCooldown();
+        infinite = heavy.isInfinite();
+
+    }
+
+
+    @Override
+    public boolean requiresReloading() {
+        return !infinite;
+    }
+
+
+    @Override
+    public double getVectorPower() {
+        return 6;
+    }
+
+    ///
+    @Override
+    public synchronized boolean canFire(){
+        return (getAmmo() > 0 || !requiresReloading()) && loadedAmmoType != null && canFire && System.currentTimeMillis() - lastFireTime >= cooldown;
+    }
+
+    @Override
+    public List<Component> getParts(){
+        List<Component> parts = super.getParts();
+        parts.add(pivot);
+        parts.add(rotatingSeat);
+        return parts;
+    }
+
+
+    @Override
+    public ConstructType getType() {
+        return ConstructType.FIELD_HEAVY;
+    }
+
+
+    @Override
+    public double getMaxHealth() {
+        return maxHealth;
+    }
+
+
+    @Override
+    protected void spawnBaseParts() {
+        double rads = 0;
+        int bar = 0;
+        spawnBaseWithDegrees(bar, rads, -1, 2 * Math.PI / 4, false);
+    }
+
+
+    @Override
+    protected int getSmallDistThreshold() {
+        return SMALL_THRESH;
+    }
+
+
+}

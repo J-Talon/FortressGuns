@@ -1,0 +1,325 @@
+package me.camm.productions.fortressguns.Core.Artillery.Entities.Components;
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Util.EntityUtils;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Property.IRideable;
+import me.camm.productions.fortressguns.Core.Damage.builder.DamageMultiplier;
+import me.camm.productions.fortressguns.Core.Damage.builder.FGProjectileDamage;
+import net.minecraft.core.Vector3f;
+
+import net.minecraft.world.EnumHand;
+import net.minecraft.world.EnumInteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSourceIndirect;
+import net.minecraft.world.entity.decoration.EntityArmorStand;
+
+import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.level.World;
+import net.minecraft.world.level.material.EnumPistonReaction;
+import net.minecraft.world.phys.Vec3D;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.util.EulerAngle;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.UUID;
+
+import static me.camm.productions.fortressguns.Util.Math.MathFG.LARGE_BLOCK_LENGTH;
+import static me.camm.productions.fortressguns.Util.Math.MathFG.SMALL_BLOCK_LENGTH;
+
+
+public abstract class ComponentAS extends EntityArmorStand implements ComponentArmorStand {
+
+    protected Construct body;
+
+    public ComponentAS(World world, double d0, double d1, double d2, Construct body) {
+        super(world, d0, d1, d2);
+        this.body = body;
+
+    }
+
+
+    @Override
+    public @NotNull Construct getBody() {
+        return body;
+    }
+
+
+    @Override
+    public Entity getRider() {
+        List<net.minecraft.world.entity.Entity> entities = this.getPassengers();
+        if (entities == null || entities.isEmpty()) return null;
+        return entities.get(0).getBukkitEntity();
+    }
+
+    @Override
+    public void startRiding(Player player) {
+        ((CraftPlayer) player).getHandle().startRiding(this);
+        if (this.body instanceof IRideable rideable) {
+            rideable.onMount(player);
+        }
+    }
+
+
+    @Override
+    public void teleport(double x, double y, double z) {
+        this.teleportAndSync(x, y, z);
+        this.g(x, y, z);
+    }
+
+    @Override
+    public void teleport(@NotNull Location loc) {
+        this.teleport(loc.getX(), loc.getY(), loc.getZ());
+    }
+
+    @Override
+    public void setRotation(float x, float y) {
+        this.setHeadPose(new Vector3f((float) Math.toDegrees(x), (float) Math.toDegrees(y), 0));
+    }
+
+    @Override
+    public void setRotation(@NotNull EulerAngle angle) {
+        setRotation((float) angle.getX(), (float) angle.getY());
+    }
+
+
+    public void setPose(Vector3f rightArm, Vector3f leftArm, Vector3f body, Vector3f rightLeg, Vector3f leftLeg) {
+
+        super.setRightArmPose(rightArm);
+        super.setLeftArmPose(leftArm);
+        super.setBodyPose(body);
+        super.setRightLegPose(rightLeg);
+        super.setLeftLegPose(leftLeg);
+    }
+
+    //---------------------------
+    //nms functions
+    //------------------------------------------------------------------------------------------
+
+    //is invisible
+    @Override
+    public boolean cx() {
+        return false;
+    }
+
+    @Override
+    public void remove() {
+        this.die();
+    }
+
+    //cancel piston reactions
+    @Override
+    public EnumPistonReaction getPushReaction() {
+        return EnumPistonReaction.d;
+    }
+
+
+    @Override
+    public EnumInteractionResult a(EntityHuman entityhuman, Vec3D vec3d, EnumHand enumhand) {
+        /*
+            a = success = operation succeeded (placed / removed armor), pipeline ends
+            b = consume = operation succeeded, no arm animation, pipeline ends
+            c = consume partial = operation succeeded, no animation, no stats, pipeline ends
+            d = pass = skip interaction, pipeline continues
+            e = fail = item interaction failed, pipeline ends
+
+            we should never return something that will allow the pipeline to continue; otherwise it will play spigot events
+            which will mess stuff up
+
+            for future me who will inevitably forget why I did this:
+              spigot handles armor stand interact and damage events differently
+              LCing a stand is registered as LCing air
+
+
+
+
+              beware of the pipeline
+              I think if a specific thing is returned here, the raytrace for the interaction will actually
+              continue, which can lead to a player "clicking" on multiple armorstands at once, leading
+              to duplicate interactions
+        */
+
+        //world.y is whether the world is clientside
+
+        ItemStack item = CraftItemStack.asCraftMirror(entityhuman.b(enumhand));
+        Player player = (Player) entityhuman.getBukkitEntity();
+
+        if (this.isMarker() || item.getType() == Material.NAME_TAG)
+            return EnumInteractionResult.d;
+
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            return EnumInteractionResult.a;
+        }
+
+        this.onRightClick(item, player);
+        return EnumInteractionResult.c;
+    }
+
+
+
+    //It is probably better to handle the damage calculations in the components themselves, since
+    //if we choose to do multiple version compatibility, nms will be different
+    //there might not be an id, etc next time
+
+    //oh and also; glowing.
+    //yeah no glowing for you from spectral arrows
+    protected boolean damageRaw(DamageSource source, float damage) {
+        //String id = source.y;  //damagesource id
+
+        if (source.isExplosion()) {
+            damage *= DamageMultiplier.EXPLOSION.multiplier;
+        }
+        else if (source.isFire()) {
+            damage *= DamageMultiplier.FIRE.multiplier;
+        }
+        else if (source.isMagic()) {
+            damage *= DamageMultiplier.MAGIC.multiplier;
+        }
+        else
+            damage *= DamageMultiplier.DEFAULT.multiplier;
+
+        return body.damage(damage);
+
+    }
+
+
+    @Override
+    public boolean enoughSpace(Vector nextPosition) {
+        boolean res = EntityUtils.isInBlock(this, nextPosition);
+        return ! res;
+    }
+
+
+    @Override
+    public boolean enoughSpace() {
+        return ! EntityUtils.isInBlock(this);
+    }
+
+
+    @Override
+    public PersistentDataContainer getPDC() {
+        return getBukkitEntity().getPersistentDataContainer();
+    }
+
+    @Override
+    public Location getLocation() {
+        return getBukkitEntity().getLocation();
+    }
+
+    @Override
+    public UUID getUUID() {
+        return this.getUniqueID();
+    }
+
+    @Override
+    public boolean isValid() {
+        return isAlive();
+    }
+
+    @Override
+    public boolean spawn() {
+        return this.t.addEntity(this);
+    }
+
+    @Override
+    public ArmorStand getEntity() {
+        return (ArmorStand)getBukkitEntity();
+    }
+
+    @Override
+    public org.bukkit.World getBukkitWorld() {
+        return t.getWorld();
+    }
+
+
+    @Override
+    public boolean damageEntity(DamageSource source, float damage)
+    {
+
+        if (body.isInvalid())
+            return super.damageEntity(source,damage);
+
+        //if the thing is suffocating
+        if (source.y.equalsIgnoreCase("inWall")) {
+            List<Block> blocks = EntityUtils.getHeadBlocks((ArmorStand)this.getBukkitEntity());
+            float damageSum = 0;
+
+            for (Block block: blocks) {
+                float blastRes = block.getType().getBlastResistance();
+                damageSum += blastRes;
+
+                if (damageSum < body.getHealth()) {
+                    org.bukkit.World world = getBukkitWorld();
+                    Location hit = block.getLocation().add(0.5, 0.5, 0.5);
+                    world.spawnParticle(Particle.BLOCK_CRACK, hit, 30, block.getBlockData());
+                    world.playSound(hit, Sound.BLOCK_NETHERRACK_BREAK, SoundCategory.BLOCKS, 1, 1);
+                    block.breakNaturally();
+                }
+            }
+
+            return damageRaw(source,damageSum);
+        }
+
+        if (source instanceof FGProjectileDamage || source instanceof EntityDamageSourceIndirect) {
+            return damageRaw(source, damage);
+        }
+
+        net.minecraft.world.entity.Entity entity = source.getEntity();
+        if (entity == null) return damageRaw(source, damage);
+
+        Entity bukkit = entity.getBukkitEntity();
+        if (bukkit.getType() != EntityType.PLAYER)
+            return damageRaw(source, damage);
+
+        Player player = (Player) bukkit;
+        boolean shouldDamage = true;
+
+        if (source.y.equalsIgnoreCase("player")) {
+        shouldDamage = onLeftClick(player.getInventory().getItemInMainHand(), player);
+        }
+
+        return shouldDamage && damageRaw(source, damage);
+
+    }
+
+
+    public double getPositionalHeight() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+    public double getPositionalWidth() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+    public double getPositionalLength() {
+        return isSmall() ? SMALL_BLOCK_LENGTH : LARGE_BLOCK_LENGTH;
+    }
+
+
+    /*
+    for armorstands this is the eye location
+     */
+    public Location getCenterPoint() {
+        return new Location(t.getWorld(),locX(), getHeadY(), locZ());
+    }
+
+
+}
+
+
+
+
+
+
+
+

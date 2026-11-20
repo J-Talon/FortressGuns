@@ -1,0 +1,116 @@
+package me.camm.productions.fortressguns.Core.Artillery.Projectiles.HeavyShell;
+
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileArrowFG;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Core.Explosion.ExplosionFactory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.projectile.IProjectile;
+
+import net.minecraft.world.phys.Vec3D;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+
+
+public abstract class HeavyShell extends ProjectileArrowFG {
+
+
+    protected Artillery source;
+    public HeavyShell(World world, double locX, double locY, double locZ, @Nullable Player shooter, Artillery source) {
+        super(world, locX, locY, locZ, shooter);
+        this.source = source;
+        setCritical(true);
+    }
+
+
+
+
+    //code to allow projectile-projectile collisions
+    @Override
+    protected boolean a(Entity entity) {
+
+        if (!entity.isSpectator() && entity.isAlive() && !(entity.getEntityType() == EntityTypes.w)) {
+            Entity entity1 = shooter;
+            return entity1 == null || !entity1.isSameVehicle(entity);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean onEntityHit(org.bukkit.entity.Entity hitEntity, Vector entityPosition) {
+        if (hitEntity.getType() == EntityType.ENDERMAN) {   //enderman
+            return false;
+        }
+
+        if (hitEntity instanceof ProjectileExplosive) {
+            ((ProjectileExplosive) hitEntity).explode(null);
+            return true;
+        }
+
+        //deflect
+        if (hitEntity instanceof IProjectile) {
+
+            Vec3D current = this.getPositionVector();
+            Vec3D other = CraftVector.toNMS(hitEntity.getLocation().toVector());
+            float otherWeight = 0;
+
+            Vec3D thisDeflection;
+            thisDeflection = other.a(current).d();  /// subtract, normalize
+
+
+            if (hitEntity instanceof ProjectileFG) {
+                otherWeight = ((ProjectileFG) hitEntity).getWeight();
+            }
+
+            Location loc = new Location(bukkitWorld, current.getX(), current.getY(), current.getZ());
+            bukkitWorld.spawnParticle(Particle.ELECTRIC_SPARK,loc,5,0,0,0,1);
+            bukkitWorld.playSound(loc, Sound.BLOCK_BELL_USE,2,1);
+
+            float weight = getWeight();
+            if (weight > 0) {
+                Vec3D otherDeflection = thisDeflection.a(-1F);
+                otherDeflection = otherDeflection.a(weight);
+                hitEntity.setVelocity(hitEntity.getVelocity().clone().add(new Vector(otherDeflection.getX(), otherDeflection.getY(), otherDeflection.getZ())));
+            }
+
+            if (otherWeight > 0) {
+                thisDeflection = thisDeflection.a(otherWeight);
+                setMot(getMot().add(thisDeflection.getX(), thisDeflection.getY(), thisDeflection.getZ()));
+            }
+            return false;
+        }
+
+        return false;
+    }
+
+
+    @Override
+    public void onWaterEnter() {
+        Vec3D motion = getMot();
+        ExplosionFactory.get().largeSplashExplosion(bukkitWorld,locX()-(0.25* motion.getX()), locY()-(0.25*motion.getY()), locZ()-(0.25*motion.getZ()));
+        remove();
+    }
+
+    @Override
+    public void inactiveTick() {
+        remove();
+    }
+
+    @Override
+    public float getWeight() {
+        return 0.1F;
+    }
+
+
+}

@@ -1,0 +1,180 @@
+package me.camm.productions.fortressguns.Core.Chunk;
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.FortressGuns;
+import me.camm.productions.fortressguns.Util.Math.IntTuple2;
+import me.camm.productions.fortressguns.Util.Config.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.Config.Wrapper.Etc.SectionGeneral;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
+public class ChunkTicket implements ConfigurationHolder<SectionGeneral> {
+
+    private final Construct construct;
+    private final List<IntTuple2> chunks;
+    private final Chunk coreChunk;
+    private final Entity oldCore;
+    private final String worldName;
+    private final World world;
+
+
+    private final ReentrantLock lock;
+    final int numChunks;
+    AtomicInteger currentLoaded;
+
+
+    private final Logger logger;
+
+    private static boolean verboseChunks = false;
+    private static boolean configApplied = false;
+
+
+    public ChunkTicket(List<IntTuple2> chunks, int loaded, Construct construct, Entity oldCore, World world) {
+        this.construct = construct;
+        this.chunks = chunks;
+        numChunks = chunks.size();
+        currentLoaded = new AtomicInteger(loaded);
+        coreChunk = construct.getInitialChunk();
+        this.oldCore = oldCore;
+        this.worldName = world.getName();
+        this.world = world;
+        this.lock = new ReentrantLock();
+
+
+        logger = FortressGuns.getInstance().getLogger();
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        setStaticDefaults(manager.getGeneral());
+    }
+
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionGeneral data) {
+        configApplied = true;
+        if (data == null) return;
+        verboseChunks = data.getVerboseChunkLogging();
+
+    }
+
+    /*
+        return: true -> All chunks have loaded, prepare to spawn the construct
+                false -> Not all chunks loaded, keep watching the ticket
+         */
+    public synchronized boolean onLoad() {
+        int loaded = currentLoaded.updateAndGet((value) -> Math.min(value + 1, numChunks));
+        log(getUUID() +" loaded, now at "+currentLoaded.get() +" / "+numChunks);
+        return loaded >= numChunks;
+
+    }
+
+
+    /*
+    return: true -> Not all chunks have unloaded, keep watching the ticket
+            false -> All chunks in the ticket have unloaded, remove the ticket
+    */
+    public synchronized boolean onUnload() {
+
+        lock.lock();
+        int val = currentLoaded.updateAndGet((value) -> Math.max(0, value - 1));
+
+        log(getUUID() +" unloaded, now at "+val +" / "+numChunks);
+
+        if (!coreChunk.isLoaded()) {
+            lock.unlock();
+            return false;
+        }
+
+        lock.unlock();
+        return val > 0;
+    }
+
+
+    /*
+    Return whether it is safe to spawn the construct
+     */
+    public synchronized boolean isAssembled() {
+        lock.lock();
+
+        if (!(currentLoaded.get() >= numChunks)) {
+            lock.unlock();
+            return false;
+        }
+
+        World world = oldCore.getWorld();
+        int count = (int)chunks.stream().filter(tup -> ChunkUtils.isChunkEntityTicking(world, tup.getA(), tup.getB())).count();
+        if (count < numChunks) {
+            lock.unlock();
+            return false;
+        }
+
+        lock.unlock();
+        return true;
+    }
+
+
+
+    public void finish() {
+        oldCore.remove();
+        construct.spawn(true);
+    }
+
+
+    public List<IntTuple2> getChunks() {
+        return chunks;
+    }
+
+    public Construct getConstruct(){
+        return construct;
+    }
+
+    public UUID getUUID() {
+        return construct.getUUID();
+    }
+
+    public int getCurrentLoaded() {
+        return currentLoaded.get();
+    }
+
+    public int getTotalChunks() {
+        return numChunks;
+    }
+
+    public boolean isLoaded() {
+        return construct.getOccupiedChunks().stream().filter(tup -> world.isChunkLoaded(tup.getA(), tup.getB())).count() >= numChunks;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder(getUUID().toString() + " @ " + worldName + ": ");
+        for (IntTuple2 c: chunks) {
+
+            String mod = "";
+            if (world.isChunkLoaded(c.getA(), c.getB())) {
+                mod += "l";
+
+                Chunk chunk = world.getChunkAt(c.getA(), c.getB());
+                if (chunk.isEntitiesLoaded())
+                    mod += "e";
+            }
+            s.append(" ").append(mod).append(c);
+        }
+        return s.toString();
+
+    }
+
+
+    private void log(String in) {
+        if (verboseChunks)
+            logger.info(in);
+    }
+}

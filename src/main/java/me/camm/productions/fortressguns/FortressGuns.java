@@ -1,14 +1,14 @@
 package me.camm.productions.fortressguns;
 
-import me.camm.productions.fortressguns.Handlers.ItemInteractionHandler;
-import me.camm.productions.fortressguns.Handlers.InventoryHandler;
-import me.camm.productions.fortressguns.Handlers.ItemMergeHandler;
-import me.camm.productions.fortressguns.Handlers.MissileLockNotifier;
-import me.camm.productions.fortressguns.Recipes.RecipeManager;
-import me.camm.productions.fortressguns.Util.Version;
-import me.camm.productions.fortressguns.Util.config.FileManager;
-import me.camm.productions.fortressguns.Util.chunk.ChunkLoader;
-import me.camm.productions.fortressguns.Util.command.CommandListener;
+import me.camm.productions.fortressguns.Core.Items.Behaviour.ItemInteractionHandler;
+import me.camm.productions.fortressguns.Core.Inventory.InventoryHandler;
+import me.camm.productions.fortressguns.Core.Explosion.ExplosionTicketHandler;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Missile.Handlers.MissileLockNotifier;
+import me.camm.productions.fortressguns.Core.Items.Recipes.RecipeManager;
+import me.camm.productions.fortressguns.Util.Version.Version;
+import me.camm.productions.fortressguns.Util.Config.FileManager;
+import me.camm.productions.fortressguns.Core.Chunk.ChunkLoader;
+import me.camm.productions.fortressguns.Util.Command.CommandListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -77,7 +77,7 @@ public final class FortressGuns extends JavaPlugin {
       PluginManager manager = getServer().getPluginManager();
       manager.registerEvents(interactionHandler,this);
       manager.registerEvents(new InventoryHandler(), this);
-      manager.registerEvents(ItemMergeHandler.getInstance(),this);
+      manager.registerEvents(ExplosionTicketHandler.getInstance(),this);
       manager.registerEvents(loader, plugin);
 
       commandHandler = new CommandListener();
