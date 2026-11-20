@@ -135,12 +135,26 @@ acceleration = 0.2
 maxAcceleration = 0.3
 
 
+
+[flares]
+enableFlares = true
+#whether to enable flares to help players survive missiles
+
+flareSuccessChance = 0.37
+# chance for a single flare to distract missiles float [0-1]
+
+flareEffectRange = 50
+# area of effect for flares in blocks
+
+lifeSpan = 300
+# lifespan of flares in ticks
+
+directionalVariance = 0.5
+# directional variance of flares
+
 #==============================
 
 [general]
-#whether flares should be enabled to help players survive barrages of missiles
-enableFlares = true
-
 #Whether the explosions from the artillery should be
 #vanilla explosions which call Spigot/Bukkit/Paper API events using world.createExplosion(...)
 useVanillaExplosions = false

@@ -73,11 +73,6 @@ public class ProjectileBuilder {
 
     static class ShellSolidBuilder implements SectionBuilder<SectionShellSolid> {
 
-        /*
-        explosionDamage = 20
-explosionRadius = 1
-angle = 0
-         */
         @Override
         public SectionShellSolid build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
             Double weight = SectionBuilder.getDoubleOrInt(result, ConfigField.WEIGHT.build(key));
@@ -90,6 +85,18 @@ angle = 0
 
         }
     }
-    
-    
+
+
+    static class FlareSectionBuilder implements SectionBuilder<SectionFlare> {
+
+        public SectionFlare build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException {
+            Boolean en = result.getBoolean(ConfigField.FLARE_ENABLE.build(key));
+            Double success = SectionBuilder.getDoubleOrInt(result, ConfigField.FLARE_SUCCESS.build(key));
+            Double range = SectionBuilder.getDoubleOrInt(result, ConfigField.FLARE_RANGE.build(key));
+            Long life = result.getLong(ConfigField.FLARE_LIFE.build(key));
+            Double var = SectionBuilder.getDoubleOrInt(result, ConfigField.FLARE_VAR.build(key));
+            return new SectionFlare(key, en, success, range, life, var);
+
+        }
+    }
 }

@@ -26,5 +26,4 @@ public interface SectionBuilder<T extends ConfigSection> {
         }
         return null;
     }
-
 }

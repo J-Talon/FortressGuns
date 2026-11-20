@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Core.Artillery.Entities.Generation.AmmoI
 import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Core.Items.Recipes.RecipeManager;
+import me.camm.productions.fortressguns.Util.Config.Wrapper.Projectile.SectionFlare;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.Config.ConfigManager;
 import me.camm.productions.fortressguns.Util.Config.ConfigurationHolder;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import static me.camm.productions.fortressguns.Core.Items.item.classification.FGItems.FLARE;
 
 
-public class IBFlare implements InteractionBehaviourItem, ConfigurationHolder<SectionGeneral> {
+public class IBFlare implements InteractionBehaviourItem, ConfigurationHolder<SectionFlare> {
 
     private static final String FLARE_NAME = ChatColor.GRAY + "Flares";
     private static final NamespacedKey LOADED_FLARE_KEY =
@@ -50,14 +51,14 @@ public class IBFlare implements InteractionBehaviourItem, ConfigurationHolder<Se
 
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
-        setStaticDefaults(manager.getGeneral());
+        setStaticDefaults(manager.getFlare());
     }
 
     @Override
-    public void setStaticDefaults(@Nullable SectionGeneral data) {
+    public void setStaticDefaults(@Nullable SectionFlare data) {
         configApplied = true;
         if (data == null) return;
-        enableFlares = data.isEnableFlares();
+        enableFlares = data.getEnableFlares();
     }
 
     @Override

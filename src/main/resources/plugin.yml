@@ -21,7 +21,7 @@ commands:
 
   fginspect:
     description: check an entity you are looking at for plugin construct PDC (within 10 blocks)
-    usage: /infocons
+    usage: /fginspect
     permission: fg.debug
     permission-message: You do not have permission to use this command
 

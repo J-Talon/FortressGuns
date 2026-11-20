@@ -13,7 +13,15 @@ public enum ConfigField {
     ACC("acceleration"),
     MAX_ACC("maxAcceleration"),
 
-    FLARES("enableFlares"),
+    FLARE_ENABLE("enableFlares"),
+    FLARE_SUCCESS("flareSuccessChance"),
+    FLARE_RANGE("flareEffectRange"),
+    FLARE_LIFE("lifespan"),
+    FLARE_VAR("directionalVariance"),
+    FLARE_NUM("flaresPerShot"),
+
+
+
     VANILLA("useVanillaExplosions"),
     DESTRUCTIVE("destructiveExplosions"),
     VERBOSE_CHUNK("verboseChunkLogging"),

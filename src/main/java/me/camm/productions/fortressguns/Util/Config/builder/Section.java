@@ -16,6 +16,7 @@ public enum Section {
     HMG("heavyMachineGun", new ArtilleryBuilder.HMGBuilder()),
     MISSILE_LAUNCHER("missileLauncher", new ArtilleryBuilder.MissileLauncherBuilder()),
 
+    FLARE("flares", new ProjectileBuilder.FlareSectionBuilder()),
     BIG_FLAK_SHELL("shellFlak", new ProjectileBuilder.FlakBuilder()),
     SMALL_FLAK_SHELL("lightFlakBullet", new ProjectileBuilder.LightFlakBulletBuilder()),
     HMG_BULLET("HMGBullet", new ProjectileBuilder.HMGBulletBuilder()),

@@ -36,8 +36,11 @@ public class ConfigManager {
     private SectionHMGBullet hmgBullet = null;
     private SectionShellHE shellHE = null;
     private SectionShellSolid shellSolid = null;
+    private SectionFlare flare = null;
+
 
     private SectionGeneral general = null;
+
 
     //-------
 
@@ -64,6 +67,7 @@ public class ConfigManager {
         shellHE = (SectionShellHE) Section.BIG_HE_SHELL.build(res, logger);
         shellSolid = (SectionShellSolid) Section.BIG_SOLID_SHELL.build(res, logger);
         lightFlakBullet = (SectionLightFlakBullet)Section.SMALL_FLAK_SHELL.build(res, logger);
+        flare = (SectionFlare)Section.FLARE.build(res, logger);
 
         general = (SectionGeneral) Section.GENERAL.build(res, logger);
         isLoaded.set(true);
@@ -174,5 +178,10 @@ public class ConfigManager {
     public SectionLightFlakBullet getLightFlakBullet() {
         checkLoaded();
         return lightFlakBullet;
+    }
+
+    public SectionFlare getFlare() {
+        checkLoaded();
+        return flare;
     }
 }

@@ -13,14 +13,14 @@ import java.util.logging.Logger;
  */
 public class SectionGeneral extends ConfigSection {
 
-    private final Boolean enableFlares;
+
     private final Boolean useVanillaExplosions;
     private final Boolean destructiveExplosions;
     private final Boolean verboseChunkLogging;
     private final Boolean easyRepairs;
     private final Double repairAmount;
 
-    public SectionGeneral(Boolean enableFlares,
+    public SectionGeneral(
                           Boolean useVanillaExplosions,
                           Boolean destructiveExplosions,
                           Boolean verboseChunkLogging,
@@ -28,7 +28,6 @@ public class SectionGeneral extends ConfigSection {
                           Double repairAmount,
                           String key) {
         super(key);
-        this.enableFlares = enableFlares;
         this.useVanillaExplosions = useVanillaExplosions;
         this.destructiveExplosions = destructiveExplosions;
         this.verboseChunkLogging = verboseChunkLogging;
@@ -44,7 +43,6 @@ public class SectionGeneral extends ConfigSection {
 
                 @Override
                 public void validate(@NotNull SectionGeneral in) {
-                    notNull(enableFlares, ConfigField.FLARES);
                     notNull(useVanillaExplosions, ConfigField.VANILLA);
                     notNull(destructiveExplosions, ConfigField.DESTRUCTIVE);
                     notNull(verboseChunkLogging, ConfigField.VERBOSE_CHUNK);
@@ -57,10 +55,6 @@ public class SectionGeneral extends ConfigSection {
             return false;
         }
         return true;
-    }
-
-    public Boolean isEnableFlares() {
-        return enableFlares;
     }
 
     public Boolean isUseVanillaExplosions() {

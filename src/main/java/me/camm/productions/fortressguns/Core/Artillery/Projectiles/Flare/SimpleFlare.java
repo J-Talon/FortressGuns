@@ -4,6 +4,9 @@ import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.Proj
 import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileType;
 import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Missile.AbstractRocket;
 import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Missile.HeatseekingMissile;
+import me.camm.productions.fortressguns.Util.Config.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.ConfigurationHolder;
+import me.camm.productions.fortressguns.Util.Config.Wrapper.Projectile.SectionFlare;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3D;
@@ -13,17 +16,24 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimpleFlare {
-    private static final double directionVariance = 0.5;
+public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimpleFlare, ConfigurationHolder<SectionFlare> {
+
     private static final ItemStack SPRITE = new ItemStack(Items.rA);
 
-    private static final double successChance = 0.37; // % chance per missile to affect it ~ a 90% chance for a spread of missiles
+    private static double directionVariance = 0.5;
+    private static double successChance = 0.37; // % chance per missile to affect it ~ a 90% chance for a spread of missiles
+    private static int lifespanTicks = 300;
+    private static double radius = 50.0;
+    private static boolean configApplied = false;
+
+
     private Vector DIRECTION;
+
     private int lifespan;
-    private final double RADIUS = 50.0;
 
     private static final double MAX_SPEED = 1;
     private final Set<ProjectileSeeking> affectedMissiles = new HashSet<>();
@@ -31,7 +41,13 @@ public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimple
     public SimpleFlare(org.bukkit.World world, double x, double y, double z, Player shooter) {
         super(world, x, y, z, shooter);
 
-        this.lifespan = 10 * 20;
+
+        if (!configApplied) {
+            ConfigManager manager = ConfigManager.getInstance();
+            setStaticDefaults(manager.getFlare());
+        }
+
+        this.lifespan = lifespanTicks;
 
         if (shooter != null) {
             Location loc = shooter.getLocation();
@@ -56,21 +72,24 @@ public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimple
                 DIRECTION.getY() * MAX_SPEED,
                 DIRECTION.getZ() * MAX_SPEED
         ));
+
     }
 
-    public SimpleFlare(World world, double x, double y, double z, double dx, double dy, double dz) {
-        super(world, x, y, z, null);
 
-        this.lifespan = 15 * 20;
+    @Override
+    public void setStaticDefaults(@Nullable SectionFlare data) {
+        configApplied = true;
+        if (data == null) return;
 
-        DIRECTION = new Vector(dx, dy, dz);
-        setItem(SPRITE);
-        setMot(new Vec3D(
-                DIRECTION.getX() * MAX_SPEED,
-                DIRECTION.getY() * MAX_SPEED,
-                DIRECTION.getZ() * MAX_SPEED
-        ));
+        directionVariance = data.getVariance();
+        radius = data.getFlareEffectRange();
+        successChance = data.getFlareSuccess();
+        lifespanTicks = data.getLifespan().intValue();
     }
+
+
+
+
 
     public int getLifespan() {
         return lifespan;
@@ -110,7 +129,7 @@ public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimple
             double distanceSquared =
                     missile.getBukkitEntity().getLocation().distanceSquared(flareLocation);
 
-            if (distanceSquared > RADIUS * RADIUS) {
+            if (distanceSquared > radius * radius) {
                 continue;
             }
 

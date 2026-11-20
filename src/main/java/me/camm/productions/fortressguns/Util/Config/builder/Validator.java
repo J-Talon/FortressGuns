@@ -48,4 +48,12 @@ public interface Validator<T> {
         throw new IllegalArgumentException(field.toString() +"("+v+") not at least >= "+low);
     }
 
+    default void isWholeNumber(Double value, ConfigField field) {
+        notNull(value, field);
+        double v = value;
+        if (value == (int)v)
+            return;
+
+        throw new IllegalArgumentException(field.toString() +"("+value+") is not a whole number");
+    }
 }

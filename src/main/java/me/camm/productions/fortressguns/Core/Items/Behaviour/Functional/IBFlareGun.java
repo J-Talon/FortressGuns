@@ -4,6 +4,7 @@ import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.Proj
 import me.camm.productions.fortressguns.Core.Artillery.Entities.Generation.AmmoItem;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Core.Items.Recipes.RecipeManager;
+import me.camm.productions.fortressguns.Util.Config.Wrapper.Projectile.SectionFlare;
 import me.camm.productions.fortressguns.Util.Math.Tuple2;
 import me.camm.productions.fortressguns.Util.Config.ConfigManager;
 import me.camm.productions.fortressguns.Util.Config.ConfigurationHolder;
@@ -25,7 +26,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
-public class IBFlareGun implements InteractionBehaviourItem, ConfigurationHolder<SectionGeneral> {
+public class IBFlareGun implements InteractionBehaviourItem, ConfigurationHolder<SectionFlare> {
 
     private static final long COOLDOWN_MILLIS = 3000;
     private static final NamespacedKey COOLDOWN_KEY = new NamespacedKey(FortressGuns.getInstance(), "flare_gun_cooldown");
@@ -36,14 +37,14 @@ public class IBFlareGun implements InteractionBehaviourItem, ConfigurationHolder
     public IBFlareGun() {
         if (configApplied) return;
         ConfigManager manager = ConfigManager.getInstance();
-        setStaticDefaults(manager.getGeneral());
+        setStaticDefaults(manager.getFlare());
     }
 
     @Override
-    public void setStaticDefaults(@Nullable SectionGeneral data) {
+    public void setStaticDefaults(@Nullable SectionFlare data) {
         configApplied = true;
         if (data == null) return;
-        enableFlares = data.isEnableFlares();
+        enableFlares = data.getEnableFlares();
     }
 
     @Override

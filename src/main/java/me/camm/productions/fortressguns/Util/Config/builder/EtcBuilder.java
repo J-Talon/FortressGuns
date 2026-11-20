@@ -26,13 +26,12 @@ destructiveExplosions = true
 
         @Override
         public SectionGeneral build(TomlParseResult result, String key) throws IllegalArgumentException, NullPointerException, TomlInvalidTypeException {
-            Boolean flare = result.getBoolean(ConfigField.FLARES.build(key));
             Boolean vanilla = result.getBoolean(ConfigField.VANILLA.build(key));
             Boolean dest = result.getBoolean(ConfigField.DESTRUCTIVE.build(key));
             Boolean verboseChunk = result.getBoolean(ConfigField.VERBOSE_CHUNK.build(key));
             Boolean easyRepair = result.getBoolean(ConfigField.EASY_REPAIRS.build(key));
             Double repairAmount = result.getDouble(ConfigField.REPAIR_AMOUNT.build(key));
-            return new SectionGeneral(flare, vanilla, dest, verboseChunk, easyRepair, repairAmount, key);
+            return new SectionGeneral(vanilla, dest, verboseChunk, easyRepair, repairAmount, key);
         }
     }
 
