@@ -1,21 +1,18 @@
 package me.camm.productions.fortressguns.Util;
 
 
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Artillery;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.Construct;
-import me.camm.productions.fortressguns.Artillery.Entities.Abstract.RapidFire;
-import me.camm.productions.fortressguns.Artillery.Entities.Components.Component;
-import me.camm.productions.fortressguns.Artillery.Entities.Property.IRideable;
-import me.camm.productions.fortressguns.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Construct;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.RapidFire;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Components.Component;
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Property.IRideable;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileFG;
 import me.camm.productions.fortressguns.FortressGuns;
 import me.camm.productions.fortressguns.Util.Math.MathFG;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.ConstructInventory;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryCategory;
-import me.camm.productions.fortressguns.interact.item.Inventory.Abstract.InventoryGroup;
-import me.camm.productions.fortressguns.interact.item.ItemUtils;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.boss.enderdragon.EntityEnderDragon;
-import net.minecraft.world.level.Explosion;
+import me.camm.productions.fortressguns.Core.Inventory.Abstract.ConstructInventory;
+import me.camm.productions.fortressguns.Core.Inventory.Abstract.InventoryCategory;
+import me.camm.productions.fortressguns.Core.Inventory.Abstract.InventoryGroup;
+import me.camm.productions.fortressguns.Core.Items.item.ItemUtils;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.AxisAlignedBB;
 import net.minecraft.world.phys.Vec3D;
@@ -27,7 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

@@ -1,0 +1,20 @@
+package me.camm.productions.fortressguns.Core.Explosion.Explosions.Ambient;
+
+import me.camm.productions.fortressguns.Core.Explosion.Abstract.ExplosionAmbient;
+import me.camm.productions.fortressguns.Core.Explosion.Effect.EffectSplashSmall;
+import org.bukkit.World;
+
+
+public class ExplosionSplash extends ExplosionAmbient {
+
+    ///gotta fix this and the large one cause if source is null it crashes
+    public ExplosionSplash(double x, double y, double z, World world) {
+        super(x, y, z, world);
+    }
+
+    @Override
+    public void perform() {
+        EffectSplashSmall small = new EffectSplashSmall();
+        small.preMutation(this, null);
+    }
+}

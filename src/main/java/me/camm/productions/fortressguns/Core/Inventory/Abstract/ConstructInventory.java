@@ -1,0 +1,68 @@
+package me.camm.productions.fortressguns.Core.Inventory.Abstract;
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Construct;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.inventory.Inventory;
+
+/**
+ * @author CAMM
+ */
+public abstract class ConstructInventory
+{
+     protected final Inventory gui;
+     protected final Construct owner;
+     protected InventoryGroup group;
+     protected InventoryCategory tag;
+
+     public ConstructInventory(Construct owner, InventoryCategory setting, InventoryGroup group) {
+          this.owner = owner;
+          this.group = group;
+
+          String title = owner.getType().getName();
+          if (title == null)
+               title = ChatColor.DARK_GRAY+setting.title;
+
+          this.gui = Bukkit.createInventory(null, setting.size, title);
+          this.tag = setting;
+
+     }
+
+
+     public InventoryCategory getTag() {
+          return tag;
+     }
+
+
+     public Inventory getInventory(){
+          return gui;
+     }
+
+     public Construct getOwner(){
+          return owner;
+     }
+
+     public abstract void transact(InventoryDragEvent event);
+
+     public abstract void transact(InventoryClickEvent event);
+
+     public abstract void init();
+
+     public void onInventoryClose(InventoryCloseEvent event) {
+
+     }
+
+     public void onInventoryOpen(InventoryOpenEvent event) {
+
+     }
+
+     public void updateState() {
+
+     }
+
+
+}

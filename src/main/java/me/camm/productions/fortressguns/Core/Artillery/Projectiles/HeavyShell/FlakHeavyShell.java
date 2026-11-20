@@ -1,0 +1,141 @@
+package me.camm.productions.fortressguns.Core.Artillery.Projectiles.HeavyShell;
+
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileExplosive;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileType;
+import me.camm.productions.fortressguns.Core.Explosion.ExplosionFactory;
+import me.camm.productions.fortressguns.Util.Config.ConfigManager;
+import me.camm.productions.fortressguns.Util.Config.Wrapper.Projectile.SectionFlak;
+import me.camm.productions.fortressguns.Util.Config.ConfigurationHolder;
+
+
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftVector;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
+
+public class FlakHeavyShell extends HeavyShell implements ProjectileExplosive, ConfigurationHolder<SectionFlak>, ProjectileType.IFlakHeavyShell {
+
+
+    private static float hitDamage = 10;
+    private static float explosionPower = 4;
+    private static boolean configApplied;
+
+
+    int flightTime;
+    double explodeTime;
+
+    public FlakHeavyShell(World world, double d0, double d1, double d2, @Nullable Player shooter, Artillery source) {
+        super(world, d0, d1, d2, shooter, source);
+        flightTime = 0;
+        explodeTime = 1;
+
+
+        if (configApplied) return;
+        ConfigManager manager = ConfigManager.getInstance();
+        if (!manager.isLoaded()) return;
+
+        setStaticDefaults(manager.getFlakShell());
+    }
+
+    @Override
+    public void setStaticDefaults(@Nullable SectionFlak data) {
+        configApplied = true;
+        if (data == null) return;
+        hitDamage = data.getDamage().floatValue();
+        explosionPower = data.getExplosionPower().floatValue();
+    }
+
+
+    @Override
+    public float getWeight() {
+        return 0;
+    }
+
+
+    @Override
+    public float getHitDamage() {
+        return hitDamage;
+    }
+
+
+    @Override
+    public float getExplosionPower() {
+        return explosionPower;
+    }
+
+
+    @Override
+    public void setExplodeTime(double time) {
+        this.explodeTime = time;
+    }
+
+    @Override
+    public void setTerminus(Entity target) {
+
+        if (target != null) {
+
+            double speed = this.getMot().f();
+            Location loc = target.getLocation();
+            double delX = loc.getX() - locX();
+            double delY = loc.getY() - locY();
+            double delZ = loc.getZ() - locZ();
+
+            double distance = Math.sqrt(delX * delX + delY * delY + delZ * delZ);
+            explodeTime = (int)(distance / speed);
+        }
+
+    }
+
+
+
+    @Override
+    public void tick(){
+        super.tick();
+
+        if (flightTime > explodeTime) {
+            explode(null);
+            return;
+        }
+
+        flightTime ++;
+    }
+
+
+    @Override
+    public void explode(@Nullable Vector hit) {
+        this.die();
+        if (hit == null)
+            ExplosionFactory.get().flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),locX(),locY(),locZ(), getExplosionPower());
+        else
+            ExplosionFactory.get().flakHeavyExplosion(bukkitWorld,this.getBukkitEntity(),hit.getX(),hit.getY(),hit.getZ(), getExplosionPower());
+    }
+
+
+    @Override
+    public boolean onBlockHit(Vector exactHitPosition, BlockFace blockFace, Block hitBlock) {
+        explode(exactHitPosition);
+        return true;
+    }
+
+
+    @Override
+    public boolean onEntityHit(org.bukkit.entity.Entity hitEntity, Vector entityPosition) {
+
+        if (super.onEntityHit(hitEntity, entityPosition)) {
+            return true;
+        }
+
+        explode(CraftVector.toBukkit(getPositionVector()));
+        return true;
+    }
+
+
+
+}

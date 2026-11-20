@@ -1,0 +1,17 @@
+package me.camm.productions.fortressguns.Core.Inventory.Abstract;
+
+public enum InventoryCategory {
+    REPAIR(54, "Repair"),
+    RADAR(81,"Radar"),
+    RELOADING(9,"Loading..."),
+    JAM_CLEAR(36, "Clearing Jam..."),
+    MENU(54, "Settings");
+
+    public final int size;
+    public final String title;
+
+    InventoryCategory(int size, String title) {
+        this.size = size;
+        this.title = title;
+    }
+}

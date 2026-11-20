@@ -1,0 +1,57 @@
+package me.camm.productions.fortressguns.Core.Artillery.Entities.Generation;
+
+import me.camm.productions.fortressguns.Core.Artillery.Entities.Abstract.Artillery;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileFG;
+import me.camm.productions.fortressguns.Core.Artillery.Projectiles.Abstract.ProjectileFactory;
+import me.camm.productions.fortressguns.Core.Items.item.classification.FGItems;
+import me.camm.productions.fortressguns.Core.Items.item.classification.FGSingleConsumable;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public enum AmmoItem {
+
+    STANDARD_HEAVY(FGItems.SOLID_SHELL, new ProjectileFactory.FactoryStandardHeavy()),
+    EXPLOSIVE_HEAVY(FGItems.HE_SHELL, new ProjectileFactory.FactoryExplosiveHeavy()),
+    FLAK_HEAVY(FGItems.FLAK_SHELL, new ProjectileFactory.FactoryFlakHeavy()),
+    STANDARD_LIGHT(FGItems.HMG_BULLET, new ProjectileFactory.FactoryStandardLight()),
+    FLAK_LIGHT(FGItems.LIGHT_FLAK_BULLET, new ProjectileFactory.FactoryFlakLight()),
+    MISSILE(FGItems.HEAT_SEEKER_MISSILE, new ProjectileFactory.FactoryMissile()),
+    CRAM(FGItems.CRAM_BULLET, new ProjectileFactory.FactoryCRAM()),
+    FLARE(FGItems.FLARE, new ProjectileFactory.FactoryFlare()),
+    NAPALM(FGItems.NAPALM_SHELL, new ProjectileFactory.FactoryNapalm());
+
+
+    AmmoItem(FGSingleConsumable cons, ProjectileFactory<? extends ProjectileFG> factory) {
+        this.item = cons;
+        this.factory = factory;
+    }
+
+    private final FGSingleConsumable item;
+    private final ProjectileFactory<? extends ProjectileFG> factory;
+
+    public @NotNull Material getMat() {
+        if (item == null) throw new IllegalStateException("Ammo item material shouldn't be null!");
+        return item.getMaterial();
+    }
+
+    public String getName() {
+        return item == null ? null : item.getDisplayName();
+    }
+
+    public FGSingleConsumable getItem() {
+        return item;
+    }
+
+    public ProjectileFG create(World world, double x, double y, double z, @Nullable Player shooter, @Nullable Artillery source) {
+        return factory.create(world, x,y,z, shooter, source);
+    }
+
+    public ProjectileFG create(World world, double x, double y, double z, Vector velocity, @Nullable Player shooter, @Nullable Artillery source) {
+        return factory.create(world, x,y,z, velocity, shooter, source);
+    }
+
+}
