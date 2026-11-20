@@ -31,6 +31,7 @@ public class FGItems {
     public static FGSingleConsumable HMG_BULLET = new FGHmgBulletItem();
     public static FGSingleConsumable LIGHT_FLAK_BULLET = new FGLightFlakAmmoItem();
     public static FGSingleConsumable SOLID_SHELL = new FGSolidShellItem();
+    public static FGSingleConsumable NAPALM_SHELL = new FGNapalmShellItem();
 
     public static FGSimpleIngredient ARTILLERY_BASE = new FGArtilleryBase();
     public static FGSimpleIngredient FLAK_BARREL = new FGFlakBarrel();

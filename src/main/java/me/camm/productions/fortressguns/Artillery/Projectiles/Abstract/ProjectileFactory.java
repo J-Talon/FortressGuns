@@ -8,6 +8,7 @@ import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.CRAMShe
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.FlakLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.LightShell.StandardLightShell;
 import me.camm.productions.fortressguns.Artillery.Projectiles.Missile.HeatseekingMissile;
+import me.camm.productions.fortressguns.Artillery.Projectiles.Napalm.NapalmShell;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -116,6 +117,13 @@ public interface ProjectileFactory<T extends ProjectileFG> {
 
 
 
+    }
+
+    class FactoryNapalm implements ProjectileFactory<ProjectileType.INapalmShell> {
+        @Override
+        public @NotNull ProjectileType.INapalmShell create(World world, double x, double y, double z, Player shooter, Artillery source) {
+            return new NapalmShell(world, x, y, z, shooter, source);
+        }
     }
 
 }

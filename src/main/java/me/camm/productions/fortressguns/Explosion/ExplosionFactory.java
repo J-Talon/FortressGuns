@@ -108,6 +108,15 @@ public class ExplosionFactory implements ConfigurationHolder<SectionGeneral> {
         fuel.perform();
     }
 
+    public void napalmExplosion(World w, Entity source, double x, double y, double z, float radius) {
+        if (useVanillaExplosions) {
+            vanillaExplosion(w,source,x,y,z,radius);
+            return;
+        }
+        ExplosionArson arson = new ExplosionArson(x,y,z,w,radius, source, destructiveExplosions, false);
+        arson.perform();
+    }
+
 
     public void smallSplashExplosion(World w, double x, double y, double z) {
         ExplosionSplash splash = new ExplosionSplash(x,y,z, w);

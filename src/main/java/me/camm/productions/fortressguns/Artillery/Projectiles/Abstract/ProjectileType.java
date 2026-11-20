@@ -32,6 +32,8 @@ public interface ProjectileType {
 
     public interface IHeatSeekingRocket extends ProjectileFG {}
 
+    public interface INapalmShell extends ProjectileFG {}
+
 
 }
 
