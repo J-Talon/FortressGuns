@@ -88,9 +88,6 @@ public class SimpleFlare extends AbstractFlare implements ProjectileType.ISimple
     }
 
 
-
-
-
     public int getLifespan() {
         return lifespan;
     }

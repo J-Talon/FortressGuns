@@ -44,7 +44,8 @@ public class DamageAdapter {
     public boolean accept(Entity damagee, DamageInfo data) {
 
         VersionAdapter<Entity, DamageInfo> adapter = getRoute(code);
-        if (adapter == null) return false;
+        if (adapter == null)
+            throw new IllegalStateException("Adapter has no route for version "+code.getVersionCode());
 
         adapter.provide(damagee, data);
         return true;
